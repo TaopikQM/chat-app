@@ -218,9 +218,7 @@ const Chat = ({ user }) => {
                     className="hidden"
                     id="file-input"
                 />
-                // <label htmlFor="file-input" className="cursor-pointer">
-                //     <span className="material-icons">attach_file</span>
-                // </label>
+               
                     <label htmlFor="file-input" className="mr-2 cursor-pointer">
                         <span className="text-gray-600 hover:text-blue-500">📎</span>
                     </label>
