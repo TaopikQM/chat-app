@@ -11,8 +11,6 @@ const Chat = ({ user }) => {
     const [messages, setMessages] = useState([]); // State for messages
     const [messageText, setMessageText] = useState(''); // State for input message
     const [file, setFile] = useState(null); // State for file input
-    const [preview, setPreview] = useState(null); // State for previewing the selected file
-    const [isUploading, setIsUploading] = useState(false); // State to track if file is uploading
     const [otherUserStatus, setOtherUserStatus] = useState(null); // State for tracking other user's online status
     const [isOtherUserTyping, setIsOtherUserTyping] = useState(false); // State to track typing status
 
@@ -73,16 +71,7 @@ const Chat = ({ user }) => {
         };
     }, [messageText, file, user.id, otherUser.id]);
 
-    // Function to handle file input and preview
-    const handleFileChange = (e) => {
-        const selectedFile = e.target.files[0];
-        if (selectedFile) {
-            setFile(selectedFile);
-            setPreview(URL.createObjectURL(selectedFile)); // Create a preview URL for the selected file
-        }
-    };
-
-    // Function to upload file to Firebase Storage
+    // Function to handle file upload to Firebase Storage
     const uploadFile = async (file) => {
         if (!file) return null;
 
@@ -90,17 +79,14 @@ const Chat = ({ user }) => {
         const storageReference = storageRef(storage, `files/${user.id}/${Date.now()}_${file.name}`);
         
         try {
-            setIsUploading(true); // Start loading
             // Upload file to Firebase Storage
             await uploadBytes(storageReference, file);
 
             // Get the download URL after upload
             const downloadURL = await getDownloadURL(storageReference);
-            setIsUploading(false); // End loading
             return downloadURL;
         } catch (error) {
             console.error("Error uploading file:", error);
-            setIsUploading(false); // End loading on error
             return null;
         }
     };
@@ -117,7 +103,6 @@ const Chat = ({ user }) => {
             // Upload the file and get its URL
             fileURL = await uploadFile(file);
             setFile(null); // Clear file state after uploading
-            setPreview(null); // Clear preview after sending
         }
 
         const newMessage = {
@@ -174,6 +159,21 @@ const Chat = ({ user }) => {
                                     )}
                                 </span>
                             )}
+                            {msg.sender !== user.id && (
+                                <span className="ml-2">
+                                    {msg.read ? (
+                                        <span className="text-blue-500">✔✔</span> // Blue double ticks for read messages
+                                    ) : (
+                                        <span>✔✔</span> // Grey double ticks for delivered messages
+                                    )}
+                                </span>
+                            )}
+                            {/* Show read time if message is read */}
+                            {msg.read && msg.readAt && (
+                                <span className="ml-2">
+                                    Dibaca pada {new Date(msg.readAt).toLocaleTimeString()}
+                                </span>
+                            )}
                         </div>
                     </div>
                 ))}
@@ -187,41 +187,29 @@ const Chat = ({ user }) => {
             </div>
 
             {/* Message input area */}
-            <div className="p-4 border-t border-gray-300">
-                {/* Show file preview if a file is selected */}
-                {preview && (
-                    <div className="mb-2">
-                        <img src={preview} alt="File preview" className="max-w-full h-32 object-cover" />
-                    </div>
-                )}
-
-                <div className="flex items-center">
-                    {/* File input */}
-                    <input type="file" onChange={handleFileChange} className="hidden" id="fileInput" />
-                    <label htmlFor="fileInput" className="mr-2 cursor-pointer">
-                        <span className="text-gray-600 hover:text-blue-500">
-                            📎
-                        </span>
-                    </label>
-
-                    {/* Text input */}
-                    <input
-                        type="text"
-                        value={messageText}
-                        onChange={(e) => setMessageText(e.target.value)}
-                        placeholder="Type your message..."
-                        className="flex-1 p-2 border border-gray-300 rounded-lg focus:outline-none"
-                    />
-
-                    {/* Send button */}
-                    <button
-                        className="bg-blue-500 text-white p-2 rounded-lg ml-2"
-                        onClick={sendMessage}
-                        disabled={isUploading} // Disable button if uploading
-                    >
-                        {isUploading ? 'Uploading...' : 'Send'}
-                    </button>
-                </div>
+            <div className="flex items-center p-4 border-t border-gray-300">
+                <input
+                    type="file"
+                    className="hidden"
+                    onChange={(e) => setFile(e.target.files[0])}
+                    id="fileInput"
+                />
+                <label htmlFor="fileInput" className="cursor-pointer text-blue-500 mr-2">
+                    📎
+                </label>
+                <input
+                    type="text"
+                    className="border rounded-lg p-2 flex-1"
+                    placeholder="Type a message..."
+                    value={messageText}
+                    onChange={(e) => setMessageText(e.target.value)}
+                />
+                <button
+                    className="bg-blue-500 text-white p-2 rounded-lg ml-2"
+                    onClick={sendMessage}
+                >
+                    Send
+                </button>
             </div>
         </div>
     );
