@@ -129,16 +129,73 @@ const Chat = ({ user }) => {
         });
     };
 
+    // const renderPreviews = () => {
+    //     return previews.map((preview, index) => (
+    //         <div key={index} className="relative inline-block m-1">
+    //             {preview.file.type.startsWith('image/') ? (
+    //                 <img src={preview.id} alt="Preview" className="w-20 h-20 object-cover rounded-lg" />
+    //             ) : (
+    //                 <div className="w-20 h-20 bg-gray-200 flex items-center justify-center rounded-lg">
+    //                     <span>{preview.file.name}</span>
+    //                 </div>
+    //             )}
+    //             <button
+    //                 className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center"
+    //                 onClick={() => removeFile(preview.id)}
+    //             >
+    //                 X
+    //             </button>
+    //         </div>
+    //     ));
+    // };
+
+    // const renderMedia = (files) => {
+    //     if (files.length === 0) return null;
+
+    //     const visibleFiles = files.slice(0, 3);
+    //     const extraFiles = files.length > 3 ? files.length - 3 : 0;
+
+    //     return (
+    //         <div className="flex space-x-2">
+    //             {visibleFiles.map((file, index) => {
+    //                 if (file.endsWith('.pdf')) {
+    //                     return (
+    //                         <div key={index} className="w-24 h-24 bg-gray-200 flex items-center justify-center rounded-lg">
+    //                             <span>PDF</span>
+    //                         </div>
+    //                     );
+    //                 }
+    //                 return (
+    //                     <img
+    //                         key={index}
+    //                         src={file}
+    //                         alt={`Media ${index + 1}`}
+    //                         className="w-24 h-24 object-cover rounded-lg"
+    //                     />
+    //                 );
+    //             })}
+    //             {extraFiles > 0 && (
+    //                 <div className="relative w-24 h-24 bg-gray-200 rounded-lg flex items-center justify-center">
+    //                     <span className="text-xl font-bold">+{extraFiles}</span>
+    //                 </div>
+    //             )}
+    //         </div>
+    //     );
+    // };
     const renderPreviews = () => {
         return previews.map((preview, index) => (
             <div key={index} className="relative inline-block m-1">
                 {preview.file.type.startsWith('image/') ? (
                     <img src={preview.id} alt="Preview" className="w-20 h-20 object-cover rounded-lg" />
-                ) : (
+                ) : preview.file.type === 'application/pdf' ? (
                     <div className="w-20 h-20 bg-gray-200 flex items-center justify-center rounded-lg">
-                        <span>{preview.file.name}</span>
+                        <span>PDF</span>
                     </div>
-                )}
+                ) : preview.file.type.startsWith('video/') ? (
+                    <div className="w-20 h-20 bg-gray-200 flex items-center justify-center rounded-lg">
+                        <span>Video</span>
+                    </div>
+                ) : null}
                 <button
                     className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center"
                     onClick={() => removeFile(preview.id)}
@@ -148,31 +205,39 @@ const Chat = ({ user }) => {
             </div>
         ));
     };
-
+    
     const renderMedia = (files) => {
         if (files.length === 0) return null;
-
+    
         const visibleFiles = files.slice(0, 3);
         const extraFiles = files.length > 3 ? files.length - 3 : 0;
-
+    
         return (
             <div className="flex space-x-2">
                 {visibleFiles.map((file, index) => {
-                    if (file.endsWith('.pdf')) {
+                    if (file.type.startsWith('image/')) {
+                        return (
+                            <img
+                                key={index}
+                                src={file.url} // Ensure you're using the correct URL from your file object
+                                alt={`Media ${index + 1}`}
+                                className="w-24 h-24 object-cover rounded-lg"
+                            />
+                        );
+                    } else if (file.type === 'application/pdf') {
                         return (
                             <div key={index} className="w-24 h-24 bg-gray-200 flex items-center justify-center rounded-lg">
                                 <span>PDF</span>
                             </div>
                         );
+                    } else if (file.type.startsWith('video/')) {
+                        return (
+                            <div key={index} className="w-24 h-24 bg-gray-200 flex items-center justify-center rounded-lg">
+                                <span>Video</span>
+                            </div>
+                        );
                     }
-                    return (
-                        <img
-                            key={index}
-                            src={file}
-                            alt={`Media ${index + 1}`}
-                            className="w-24 h-24 object-cover rounded-lg"
-                        />
-                    );
+                    return null; // Handle unsupported file types if necessary
                 })}
                 {extraFiles > 0 && (
                     <div className="relative w-24 h-24 bg-gray-200 rounded-lg flex items-center justify-center">
@@ -182,6 +247,7 @@ const Chat = ({ user }) => {
             </div>
         );
     };
+
 
     return (
         <div className="flex flex-col h-screen bg-gray-100">
