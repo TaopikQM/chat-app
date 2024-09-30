@@ -1,6 +1,6 @@
-"use client"; // Enable client-side rendering
+ "use client"; // Enable client-side rendering
 import React, { useState, useEffect } from 'react';
-import { database, storage } from '../config/firebase';
+import { database, storage } from '../config/firebase'; // Pastikan Anda sudah mengkonfigurasi Firebase Storage
 import { ref, onValue, push, update, remove } from 'firebase/database';
 import { uploadBytes, getDownloadURL } from 'firebase/storage';
 import 'tailwindcss/tailwind.css';
@@ -11,10 +11,12 @@ const Chat = ({ user }) => {
     const [messages, setMessages] = useState([]);
     const [messageText, setMessageText] = useState('');
     const [selectedFiles, setSelectedFiles] = useState([]);
-    const [uploadingFiles, setUploadingFiles] = useState([]);
-    const [lastSeen, setLastSeen] = useState(null);
-    const [editingMessageId, setEditingMessageId] = useState(null);
+    const [uploadingFiles, setUploadingFiles] = useState([]); // State untuk menyimpan status upload file
+    const [lastSeen, setLastSeen] = useState(null); // State untuk menyimpan waktu terakhir dilihat
+    const [editingMessageId, setEditingMessageId] = useState(null); // State untuk menyimpan ID pesan yang sedang diedit
+    const [isTyping, setIsTyping] = useState(false); // State untuk menyimpan status mengetik
 
+    // Fetch messages from Firebase on component mount
     useEffect(() => {
         const messagesRef = ref(database, `messages/${user.id}/${otherUser.id}`);
         onValue(messagesRef, (snapshot) => {
@@ -22,6 +24,7 @@ const Chat = ({ user }) => {
             const loadedMessages = data ? Object.values(data) : [];
             setMessages(loadedMessages);
 
+            // Mark all messages as read when the user views the chat
             loadedMessages.forEach((msg) => {
                 if (!msg.read && msg.sender !== user.id) {
                     update(ref(database, `messages/${user.id}/${otherUser.id}/${msg.id}`), { read: true });
@@ -30,27 +33,42 @@ const Chat = ({ user }) => {
             });
         });
 
+        // Set last seen status
         const lastSeenRef = ref(database, `lastSeen/${user.id}`);
         onValue(lastSeenRef, (snapshot) => {
             setLastSeen(snapshot.val());
         });
 
-        update(lastSeenRef, { timestamp: Date.now() });
-    }, [user.id, otherUser.id]);
+        // Update last seen when user is active
+        const updateLastSeen = () => {
+            if (isTyping) {
+                update(lastSeenRef, { status: "Online", timestamp: Date.now() });
+            } else {
+                update(lastSeenRef, { status: "Last Seen", timestamp: Date.now() });
+            }
+        };
 
+        // Check typing status
+        const typingInterval = setInterval(updateLastSeen, 5000); // Update every 5 seconds
+
+        return () => clearInterval(typingInterval); // Clean up interval on unmount
+    }, [user.id, otherUser.id, isTyping]);
+
+    // Handle file selection
     const handleFileChange = (event) => {
         const files = Array.from(event.target.files);
         setSelectedFiles((prevFiles) => [...prevFiles, ...files]);
     };
 
+    // Remove a selected file
     const removeFile = (index) => {
         setSelectedFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
-        setUploadingFiles((prevUploads) => prevUploads.filter((_, i) => i !== index));
+        setUploadingFiles((prevUploads) => prevUploads.filter((_, i) => i !== index)); // Hapus status upload yang sesuai
     };
 
-    // Kirim pesan terlebih dahulu tanpa media
+    // Function to send a new message
     const sendMessage = async () => {
-        if (messageText.trim() === "" && selectedFiles.length === 0) return;
+        if (messageText.trim() === "" && selectedFiles.length === 0) return; // Prevent sending empty messages
 
         const messagesRef = ref(database, `messages/${user.id}/${otherUser.id}`);
         const newMessage = {
@@ -61,46 +79,53 @@ const Chat = ({ user }) => {
             files: [],
         };
 
-        // Push pesan terlebih dahulu tanpa media
-        const newMessageRef = await push(messagesRef, newMessage);
-        setMessageText(''); // Hapus input pesan
-        const newMessageId = newMessageRef.key;
+        // Update the state to show loading for each file
+        const loadingStatus = Array(selectedFiles.length).fill(true);
+        setUploadingFiles(loadingStatus);
 
-        // Update message di database penerima
+        // Upload selected files to Firebase Storage
+        const uploadedFiles = await Promise.all(selectedFiles.map(async (file, index) => {
+            const storageRef = ref(storage, `chatFiles/${file.name}`);
+            await uploadBytes(storageRef, file);
+            const url = await getDownloadURL(storageRef);
+            // Update the loading status for the uploaded file
+            loadingStatus[index] = false;
+            setUploadingFiles([...loadingStatus]); // Update loading state
+            return url;
+        }));
+
+        // Update newMessage with uploaded file URLs
+        newMessage.files = uploadedFiles;
+
+        // Push message to Firebase Database
+        await push(messagesRef, newMessage);
+        setMessageText(''); // Clear input after sending
+        setSelectedFiles([]); // Clear selected files
+        setUploadingFiles([]); // Clear uploading status
+
+        // Update the recipient's message status
         const recipientRef = ref(database, `messages/${otherUser.id}/${user.id}`);
-        await push(recipientRef, { ...newMessage, id: newMessageId });
-
-        // Jika ada file, upload file setelah pesan terkirim
-        if (selectedFiles.length > 0) {
-            const uploadedFiles = await Promise.all(selectedFiles.map(async (file) => {
-                const storageRef = ref(storage, `chatFiles/${file.name}`);
-                await uploadBytes(storageRef, file);
-                return getDownloadURL(storageRef);
-            }));
-
-            // Setelah upload selesai, update pesan dengan file URL
-            await update(ref(database, `messages/${user.id}/${otherUser.id}/${newMessageId}`), { files: uploadedFiles });
-            await update(ref(database, `messages/${otherUser.id}/${user.id}/${newMessageId}`), { files: uploadedFiles });
-
-            setSelectedFiles([]); // Kosongkan file yang dipilih
-        }
+        await push(recipientRef, newMessage);
     };
 
+    // Handle message edit
     const handleEditMessage = async (id) => {
         const messageToEdit = messages.find((msg) => msg.id === id);
         setMessageText(messageToEdit.text);
         setEditingMessageId(id);
     };
 
+    // Function to update the edited message
     const updateMessage = async () => {
         if (editingMessageId) {
             const messageRef = ref(database, `messages/${user.id}/${otherUser.id}/${editingMessageId}`);
             await update(messageRef, { text: messageText });
-            setMessageText(''); // Hapus input pesan setelah update
-            setEditingMessageId(null); // Reset state edit
+            setMessageText(''); // Clear input after updating
+            setEditingMessageId(null); // Reset editing state
         }
     };
 
+    // Function to delete a message
     const deleteMessage = async (id) => {
         const messageRef = ref(database, `messages/${user.id}/${otherUser.id}/${id}`);
         await remove(messageRef);
@@ -137,11 +162,12 @@ const Chat = ({ user }) => {
                 <h2 className="text-xl text-center">{otherUser.name}</h2>
                 {lastSeen && (
                     <p className="text-sm text-gray-500 text-center">
-                        Last seen: {new Date(lastSeen.timestamp).toLocaleString()}
+                        {lastSeen.status} (Last seen: {new Date(lastSeen.timestamp).toLocaleString()})
                     </p>
                 )}
             </div>
             <div className="flex-1 overflow-y-auto p-4">
+                {/* Display messages */}
                 {messages.map((msg, index) => (
                     <div key={index} className={`mb-2 ${msg.sender === user.id ? 'text-right' : 'text-left'}`}>
                         <div 
@@ -149,9 +175,9 @@ const Chat = ({ user }) => {
                             onContextMenu={(e) => {
                                 e.preventDefault();
                                 if (msg.sender === user.id) {
-                                    handleEditMessage(msg.id);
+                                    handleEditMessage(msg.id); // Enable editing for the message
                                 } else {
-                                    deleteMessage(msg.id);
+                                    deleteMessage(msg.id); // Delete message for others
                                 }
                             }}
                         >
@@ -181,35 +207,26 @@ const Chat = ({ user }) => {
                         </div>
                     </div>
                 ))}
-                {selectedFiles.map((file, index) => (
-                    <div key={index} className="flex items-center mb-2">
-                        <img
-                            src={URL.createObjectURL(file)}
-                            alt="Uploading"
-                            className="w-20 h-20 object-cover rounded-lg"
-                        />
-                        {uploadingFiles[index] && (
-                            <span className="ml-2 text-sm text-gray-500">Uploading...</span>
-                        )}
-                    </div>
-                ))}
             </div>
-            <div className="flex items-center p-4 border-t border-gray-300">
+            <div className="flex-none p-4 border-t border-gray-300 flex items-center">
                 <input
                     type="file"
-                    multiple
                     accept="image/*,video/*"
                     onChange={handleFileChange}
                     className="hidden"
                     id="file-input"
+                    multiple
                 />
                 <label htmlFor="file-input" className="mr-2 cursor-pointer">
-                    <span className="text-gray-600 hover:text-blue-500">📎</span>
-                </label>
+                        <span className="text-gray-600 hover:text-blue-500">📎</span>
+                    </label>
                 <input
                     type="text"
                     value={messageText}
-                    onChange={(e) => setMessageText(e.target.value)}
+                    onChange={(e) => {
+                        setMessageText(e.target.value);
+                        setIsTyping(true); // Set typing status to true
+                    }}
                     placeholder="Type a message..."
                     className="flex-1 p-2 border border-gray-300 rounded-lg mx-2"
                 />
@@ -225,8 +242,6 @@ const Chat = ({ user }) => {
 };
 
 export default Chat;
-
-
 // "use client"; // Enable client-side rendering
 // import React, { useState, useEffect } from 'react';
 // import { database, storage } from '../config/firebase';
@@ -240,11 +255,10 @@ export default Chat;
 //     const [messages, setMessages] = useState([]);
 //     const [messageText, setMessageText] = useState('');
 //     const [selectedFiles, setSelectedFiles] = useState([]);
-//     const [uploadingFiles, setUploadingFiles] = useState([]); // State untuk menyimpan status upload file
+//     const [uploadingFiles, setUploadingFiles] = useState([]);
 //     const [lastSeen, setLastSeen] = useState(null);
-//     const [editingMessageId, setEditingMessageId] = useState(null); 
+//     const [editingMessageId, setEditingMessageId] = useState(null);
 
-//     // Fetch messages from Firebase on component mount
 //     useEffect(() => {
 //         const messagesRef = ref(database, `messages/${user.id}/${otherUser.id}`);
 //         onValue(messagesRef, (snapshot) => {
@@ -268,21 +282,19 @@ export default Chat;
 //         update(lastSeenRef, { timestamp: Date.now() });
 //     }, [user.id, otherUser.id]);
 
-//     // Handle file selection
 //     const handleFileChange = (event) => {
 //         const files = Array.from(event.target.files);
 //         setSelectedFiles((prevFiles) => [...prevFiles, ...files]);
 //     };
 
-//     // Remove a selected file
 //     const removeFile = (index) => {
 //         setSelectedFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
-//         setUploadingFiles((prevUploads) => prevUploads.filter((_, i) => i !== index)); 
+//         setUploadingFiles((prevUploads) => prevUploads.filter((_, i) => i !== index));
 //     };
 
-//     // Function to send a new message immediately
+//     // Kirim pesan terlebih dahulu tanpa media
 //     const sendMessage = async () => {
-//         if (messageText.trim() === "" && selectedFiles.length === 0) return; 
+//         if (messageText.trim() === "" && selectedFiles.length === 0) return;
 
 //         const messagesRef = ref(database, `messages/${user.id}/${otherUser.id}`);
 //         const newMessage = {
@@ -290,35 +302,52 @@ export default Chat;
 //             sender: user.id,
 //             timestamp: Date.now(),
 //             read: false,
-//             files: [], // Empty for now, will be updated after uploads
+//             files: [],
 //         };
 
+//         // Push pesan terlebih dahulu tanpa media
 //         const newMessageRef = await push(messagesRef, newMessage);
+//         setMessageText(''); // Hapus input pesan
+//         const newMessageId = newMessageRef.key;
 
-//         // Update recipient's chat
+//         // Update message di database penerima
 //         const recipientRef = ref(database, `messages/${otherUser.id}/${user.id}`);
-//         await push(recipientRef, { ...newMessage, id: newMessageRef.key });
+//         await push(recipientRef, { ...newMessage, id: newMessageId });
 
-//         setMessageText(''); 
+//         // Jika ada file, upload file setelah pesan terkirim
 //         if (selectedFiles.length > 0) {
-//             uploadSelectedFiles(newMessageRef.key);
-//         }
+//             const uploadedFiles = await Promise.all(selectedFiles.map(async (file) => {
+//                 const storageRef = ref(storage, `chatFiles/${file.name}`);
+//                 await uploadBytes(storageRef, file);
+//                 return getDownloadURL(storageRef);
+//             }));
 
-//         setSelectedFiles([]); 
-//         setUploadingFiles([]); 
+//             // Setelah upload selesai, update pesan dengan file URL
+//             await update(ref(database, `messages/${user.id}/${otherUser.id}/${newMessageId}`), { files: uploadedFiles });
+//             await update(ref(database, `messages/${otherUser.id}/${user.id}/${newMessageId}`), { files: uploadedFiles });
+
+//             setSelectedFiles([]); // Kosongkan file yang dipilih
+//         }
 //     };
 
-//     // Upload files and update message with URLs
-//     const uploadSelectedFiles = async (messageId) => {
-//         const messagesRef = ref(database, `messages/${user.id}/${otherUser.id}/${messageId}`);
-//         const uploadedFiles = await Promise.all(selectedFiles.map(async (file, index) => {
-//             const storageRef = ref(storage, `chatFiles/${file.name}`);
-//             await uploadBytes(storageRef, file);
-//             const url = await getDownloadURL(storageRef);
-//             return url;
-//         }));
+//     const handleEditMessage = async (id) => {
+//         const messageToEdit = messages.find((msg) => msg.id === id);
+//         setMessageText(messageToEdit.text);
+//         setEditingMessageId(id);
+//     };
 
-//         await update(messagesRef, { files: uploadedFiles }); // Update the message with file URLs
+//     const updateMessage = async () => {
+//         if (editingMessageId) {
+//             const messageRef = ref(database, `messages/${user.id}/${otherUser.id}/${editingMessageId}`);
+//             await update(messageRef, { text: messageText });
+//             setMessageText(''); // Hapus input pesan setelah update
+//             setEditingMessageId(null); // Reset state edit
+//         }
+//     };
+
+//     const deleteMessage = async (id) => {
+//         const messageRef = ref(database, `messages/${user.id}/${otherUser.id}/${id}`);
+//         await remove(messageRef);
 //     };
 
 //     const renderMedia = (files) => {
@@ -359,7 +388,17 @@ export default Chat;
 //             <div className="flex-1 overflow-y-auto p-4">
 //                 {messages.map((msg, index) => (
 //                     <div key={index} className={`mb-2 ${msg.sender === user.id ? 'text-right' : 'text-left'}`}>
-//                         <div className={`inline-block p-2 rounded-lg ${msg.sender === user.id ? 'bg-blue-500 text-white' : 'bg-gray-300'}`}>
+//                         <div 
+//                             className={`inline-block p-2 rounded-lg ${msg.sender === user.id ? 'bg-blue-500 text-white' : 'bg-gray-300'}`}
+//                             onContextMenu={(e) => {
+//                                 e.preventDefault();
+//                                 if (msg.sender === user.id) {
+//                                     handleEditMessage(msg.id);
+//                                 } else {
+//                                     deleteMessage(msg.id);
+//                                 }
+//                             }}
+//                         >
 //                             {msg.text}
 //                             {renderMedia(msg.files)}
 //                         </div>
@@ -371,6 +410,15 @@ export default Chat;
 //                                         <span className="text-blue-500">✔✔</span>
 //                                     ) : (
 //                                         <span>✔</span>
+//                                     )}
+//                                 </span>
+//                             )}
+//                             {msg.sender !== user.id && (
+//                                 <span className="ml-2">
+//                                     {msg.read ? (
+//                                         <span className="text-blue-500">✔✔</span>
+//                                     ) : (
+//                                         <span>✔✔</span>
 //                                     )}
 //                                 </span>
 //                             )}
@@ -422,9 +470,10 @@ export default Chat;
 
 // export default Chat;
 
+
 // // "use client"; // Enable client-side rendering
 // // import React, { useState, useEffect } from 'react';
-// // import { database, storage } from '../config/firebase'; // Pastikan Anda sudah mengkonfigurasi Firebase Storage
+// // import { database, storage } from '../config/firebase';
 // // import { ref, onValue, push, update, remove } from 'firebase/database';
 // // import { uploadBytes, getDownloadURL } from 'firebase/storage';
 // // import 'tailwindcss/tailwind.css';
@@ -436,8 +485,8 @@ export default Chat;
 // //     const [messageText, setMessageText] = useState('');
 // //     const [selectedFiles, setSelectedFiles] = useState([]);
 // //     const [uploadingFiles, setUploadingFiles] = useState([]); // State untuk menyimpan status upload file
-// //     const [lastSeen, setLastSeen] = useState(null); // State untuk menyimpan waktu terakhir dilihat
-// //     const [editingMessageId, setEditingMessageId] = useState(null); // State untuk menyimpan ID pesan yang sedang diedit
+// //     const [lastSeen, setLastSeen] = useState(null);
+// //     const [editingMessageId, setEditingMessageId] = useState(null); 
 
 // //     // Fetch messages from Firebase on component mount
 // //     useEffect(() => {
@@ -447,7 +496,6 @@ export default Chat;
 // //             const loadedMessages = data ? Object.values(data) : [];
 // //             setMessages(loadedMessages);
 
-// //             // Mark all messages as read when the user views the chat
 // //             loadedMessages.forEach((msg) => {
 // //                 if (!msg.read && msg.sender !== user.id) {
 // //                     update(ref(database, `messages/${user.id}/${otherUser.id}/${msg.id}`), { read: true });
@@ -456,13 +504,11 @@ export default Chat;
 // //             });
 // //         });
 
-// //         // Set last seen status
 // //         const lastSeenRef = ref(database, `lastSeen/${user.id}`);
 // //         onValue(lastSeenRef, (snapshot) => {
 // //             setLastSeen(snapshot.val());
 // //         });
 
-// //         // Update last seen when user is active
 // //         update(lastSeenRef, { timestamp: Date.now() });
 // //     }, [user.id, otherUser.id]);
 
@@ -475,12 +521,12 @@ export default Chat;
 // //     // Remove a selected file
 // //     const removeFile = (index) => {
 // //         setSelectedFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
-// //         setUploadingFiles((prevUploads) => prevUploads.filter((_, i) => i !== index)); // Hapus status upload yang sesuai
+// //         setUploadingFiles((prevUploads) => prevUploads.filter((_, i) => i !== index)); 
 // //     };
 
-// //     // Function to send a new message
+// //     // Function to send a new message immediately
 // //     const sendMessage = async () => {
-// //         if (messageText.trim() === "" && selectedFiles.length === 0) return; // Prevent sending empty messages
+// //         if (messageText.trim() === "" && selectedFiles.length === 0) return; 
 
 // //         const messagesRef = ref(database, `messages/${user.id}/${otherUser.id}`);
 // //         const newMessage = {
@@ -488,59 +534,35 @@ export default Chat;
 // //             sender: user.id,
 // //             timestamp: Date.now(),
 // //             read: false,
-// //             files: [],
+// //             files: [], // Empty for now, will be updated after uploads
 // //         };
 
-// //         // Update the state to show loading for each file
-// //         const loadingStatus = Array(selectedFiles.length).fill(true);
-// //         setUploadingFiles(loadingStatus);
+// //         const newMessageRef = await push(messagesRef, newMessage);
 
-// //         // Upload selected files to Firebase Storage
+// //         // Update recipient's chat
+// //         const recipientRef = ref(database, `messages/${otherUser.id}/${user.id}`);
+// //         await push(recipientRef, { ...newMessage, id: newMessageRef.key });
+
+// //         setMessageText(''); 
+// //         if (selectedFiles.length > 0) {
+// //             uploadSelectedFiles(newMessageRef.key);
+// //         }
+
+// //         setSelectedFiles([]); 
+// //         setUploadingFiles([]); 
+// //     };
+
+// //     // Upload files and update message with URLs
+// //     const uploadSelectedFiles = async (messageId) => {
+// //         const messagesRef = ref(database, `messages/${user.id}/${otherUser.id}/${messageId}`);
 // //         const uploadedFiles = await Promise.all(selectedFiles.map(async (file, index) => {
 // //             const storageRef = ref(storage, `chatFiles/${file.name}`);
 // //             await uploadBytes(storageRef, file);
 // //             const url = await getDownloadURL(storageRef);
-// //             // Update the loading status for the uploaded file
-// //             loadingStatus[index] = false;
-// //             setUploadingFiles([...loadingStatus]); // Update loading state
 // //             return url;
 // //         }));
 
-// //         // Update newMessage with uploaded file URLs
-// //         newMessage.files = uploadedFiles;
-
-// //         // Push message to Firebase Database
-// //         await push(messagesRef, newMessage);
-// //         setMessageText(''); // Clear input after sending
-// //         setSelectedFiles([]); // Clear selected files
-// //         setUploadingFiles([]); // Clear uploading status
-
-// //         // Update the recipient's message status
-// //         const recipientRef = ref(database, `messages/${otherUser.id}/${user.id}`);
-// //         await push(recipientRef, newMessage);
-// //     };
-
-// //     // Handle message edit
-// //     const handleEditMessage = async (id) => {
-// //         const messageToEdit = messages.find((msg) => msg.id === id);
-// //         setMessageText(messageToEdit.text);
-// //         setEditingMessageId(id);
-// //     };
-
-// //     // Function to update the edited message
-// //     const updateMessage = async () => {
-// //         if (editingMessageId) {
-// //             const messageRef = ref(database, `messages/${user.id}/${otherUser.id}/${editingMessageId}`);
-// //             await update(messageRef, { text: messageText });
-// //             setMessageText(''); // Clear input after updating
-// //             setEditingMessageId(null); // Reset editing state
-// //         }
-// //     };
-
-// //     // Function to delete a message
-// //     const deleteMessage = async (id) => {
-// //         const messageRef = ref(database, `messages/${user.id}/${otherUser.id}/${id}`);
-// //         await remove(messageRef);
+// //         await update(messagesRef, { files: uploadedFiles }); // Update the message with file URLs
 // //     };
 
 // //     const renderMedia = (files) => {
@@ -579,20 +601,9 @@ export default Chat;
 // //                 )}
 // //             </div>
 // //             <div className="flex-1 overflow-y-auto p-4">
-// //                 {/* Display messages */}
 // //                 {messages.map((msg, index) => (
 // //                     <div key={index} className={`mb-2 ${msg.sender === user.id ? 'text-right' : 'text-left'}`}>
-// //                         <div 
-// //                             className={`inline-block p-2 rounded-lg ${msg.sender === user.id ? 'bg-blue-500 text-white' : 'bg-gray-300'}`}
-// //                             onContextMenu={(e) => {
-// //                                 e.preventDefault();
-// //                                 if (msg.sender === user.id) {
-// //                                     handleEditMessage(msg.id); // Enable editing for the message
-// //                                 } else {
-// //                                     deleteMessage(msg.id); // Delete message for others
-// //                                 }
-// //                             }}
-// //                         >
+// //                         <div className={`inline-block p-2 rounded-lg ${msg.sender === user.id ? 'bg-blue-500 text-white' : 'bg-gray-300'}`}>
 // //                             {msg.text}
 // //                             {renderMedia(msg.files)}
 // //                         </div>
@@ -607,19 +618,9 @@ export default Chat;
 // //                                     )}
 // //                                 </span>
 // //                             )}
-// //                             {msg.sender !== user.id && (
-// //                                 <span className="ml-2">
-// //                                     {msg.read ? (
-// //                                         <span className="text-blue-500">✔✔</span>
-// //                                     ) : (
-// //                                         <span>✔✔</span>
-// //                                     )}
-// //                                 </span>
-// //                             )}
 // //                         </div>
 // //                     </div>
 // //                 ))}
-// //                 {/* Tampilkan gambar yang sedang diupload */}
 // //                 {selectedFiles.map((file, index) => (
 // //                     <div key={index} className="flex items-center mb-2">
 // //                         <img
@@ -642,10 +643,9 @@ export default Chat;
 // //                     className="hidden"
 // //                     id="file-input"
 // //                 />
-               
-// //                     <label htmlFor="file-input" className="mr-2 cursor-pointer">
-// //                         <span className="text-gray-600 hover:text-blue-500">📎</span>
-// //                     </label>
+// //                 <label htmlFor="file-input" className="mr-2 cursor-pointer">
+// //                     <span className="text-gray-600 hover:text-blue-500">📎</span>
+// //                 </label>
 // //                 <input
 // //                     type="text"
 // //                     value={messageText}
@@ -665,6 +665,7 @@ export default Chat;
 // // };
 
 // // export default Chat;
+
 // // // "use client"; // Enable client-side rendering
 // // // import React, { useState, useEffect } from 'react';
 // // // import { database, storage } from '../config/firebase'; // Pastikan Anda sudah mengkonfigurasi Firebase Storage
@@ -681,8 +682,6 @@ export default Chat;
 // // //     const [uploadingFiles, setUploadingFiles] = useState([]); // State untuk menyimpan status upload file
 // // //     const [lastSeen, setLastSeen] = useState(null); // State untuk menyimpan waktu terakhir dilihat
 // // //     const [editingMessageId, setEditingMessageId] = useState(null); // State untuk menyimpan ID pesan yang sedang diedit
-// // //     const [isTyping, setIsTyping] = useState(false); // State untuk menyimpan status mengetik
-// // //     const [isUploading, setIsUploading] = useState(false); // State untuk menyimpan status upload
 
 // // //     // Fetch messages from Firebase on component mount
 // // //     useEffect(() => {
@@ -708,508 +707,8 @@ export default Chat;
 // // //         });
 
 // // //         // Update last seen when user is active
-// // //         const updateLastSeen = () => {
-// // //             if (isTyping) {
-// // //                 update(lastSeenRef, { status: "Online", timestamp: Date.now() });
-// // //             } else {
-// // //                 update(lastSeenRef, { status: "Last Seen", timestamp: Date.now() });
-// // //             }
-// // //         };
-
-// // //         // Check typing status
-// // //         const typingInterval = setInterval(updateLastSeen, 5000); // Update every 5 seconds
-
-// // //         return () => clearInterval(typingInterval); // Clean up interval on unmount
-// // //     }, [user.id, otherUser.id, isTyping]);
-
-// // //     // Handle file selection
-// // //     const handleFileChange = (event) => {
-// // //         const files = Array.from(event.target.files);
-// // //         setSelectedFiles((prevFiles) => [...prevFiles, ...files]);
-// // //     };
-
-// // //     // Remove a selected file
-// // //     const removeFile = (index) => {
-// // //         setSelectedFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
-// // //         setUploadingFiles((prevUploads) => prevUploads.filter((_, i) => i !== index)); // Hapus status upload yang sesuai
-// // //     };
-
-// // //     // Function to send a new message
-// // //     const sendMessage = async () => {
-// // //         if (messageText.trim() === "" && selectedFiles.length === 0) return; // Prevent sending empty messages
-
-// // //         const messagesRef = ref(database, `messages/${user.id}/${otherUser.id}`);
-// // //         const newMessage = {
-// // //             text: messageText,
-// // //             sender: user.id,
-// // //             timestamp: Date.now(),
-// // //             read: false,
-// // //             files: [],
-// // //         };
-
-// // //         // Update newMessage with uploaded file URLs
-// // //         if (selectedFiles.length > 0) {
-// // //             setIsUploading(true); // Set uploading status to true
-// // //             const uploadedFiles = await Promise.all(selectedFiles.map(async (file) => {
-// // //                 const storageRef = ref(storage, `chatFiles/${file.name}`);
-// // //                 await uploadBytes(storageRef, file);
-// // //                 const url = await getDownloadURL(storageRef);
-// // //                 return url;
-// // //             }));
-// // //             newMessage.files = uploadedFiles;
-// // //             setIsUploading(false); // Reset uploading status
-// // //             setSelectedFiles([]); // Clear selected files after upload
-// // //         }
-
-// // //         // Push message to Firebase Database
-// // //         await push(messagesRef, newMessage);
-// // //         setMessageText(''); // Clear input after sending
-
-// // //         // Update the recipient's message status
-// // //         const recipientRef = ref(database, `messages/${otherUser.id}/${user.id}`);
-// // //         await push(recipientRef, newMessage);
-// // //     };
-
-// // //     // Handle message edit
-// // //     const handleEditMessage = async (id) => {
-// // //         const messageToEdit = messages.find((msg) => msg.id === id);
-// // //         setMessageText(messageToEdit.text);
-// // //         setEditingMessageId(id);
-// // //     };
-
-// // //     // Function to update the edited message
-// // //     const updateMessage = async () => {
-// // //         if (editingMessageId) {
-// // //             const messageRef = ref(database, `messages/${user.id}/${otherUser.id}/${editingMessageId}`);
-// // //             await update(messageRef, { text: messageText });
-// // //             setMessageText(''); // Clear input after updating
-// // //             setEditingMessageId(null); // Reset editing state
-// // //         }
-// // //     };
-
-// // //     // Function to delete a message
-// // //     const deleteMessage = async (id) => {
-// // //         const messageRef = ref(database, `messages/${user.id}/${otherUser.id}/${id}`);
-// // //         await remove(messageRef);
-// // //     };
-
-// // //     const renderMedia = (files) => {
-// // //         if (!files || files.length === 0) return null;
-
-// // //         const visibleFiles = files.slice(0, 3);
-// // //         const extraFiles = files.length - visibleFiles.length;
-
-// // //         return (
-// // //             <div className="flex flex-wrap mt-1">
-// // //                 {visibleFiles.map((file, index) => (
-// // //                     <div key={index} className="relative">
-// // //                         <img
-// // //                             src={file}
-// // //                             alt="Media"
-// // //                             className="w-20 h-20 object-cover rounded-lg m-1"
-// // //                         />
-// // //                         <button
-// // //                             onClick={() => removeFile(index)}
-// // //                             className="absolute top-0 right-0 bg-red-500 text-white rounded-full p-1"
-// // //                         >
-// // //                             X
-// // //                         </button>
-// // //                     </div>
-// // //                 ))}
-// // //                 {extraFiles > 0 && (
-// // //                     <div className="w-20 h-20 bg-gray-200 flex items-center justify-center rounded-lg m-1">
-// // //                         +{extraFiles}
-// // //                     </div>
-// // //                 )}
-// // //             </div>
-// // //         );
-// // //     };
-
-// // //     return (
-// // //         <div className="flex flex-col h-screen bg-gray-100">
-// // //             <div className="flex-none p-4 bg-white border-b border-gray-300">
-// // //                 <h2 className="text-xl text-center">{otherUser.name}</h2>
-// // //                 {lastSeen && (
-// // //                     <p className="text-sm text-gray-500 text-center">
-// // //                         {lastSeen.status} (Last seen: {new Date(lastSeen.timestamp).toLocaleString()})
-// // //                     </p>
-// // //                 )}
-// // //             </div>
-// // //             <div className="flex-1 overflow-y-auto p-4">
-// // //                 {/* Display messages */}
-// // //                 {messages.map((msg, index) => (
-// // //                     <div key={index} className={`mb-2 ${msg.sender === user.id ? 'text-right' : 'text-left'}`}>
-// // //                         <div 
-// // //                             className={`inline-block p-2 rounded-lg ${msg.sender === user.id ? 'bg-blue-500 text-white' : 'bg-gray-300'}`}
-// // //                             onContextMenu={(e) => {
-// // //                                 e.preventDefault();
-// // //                                 if (msg.sender === user.id) {
-// // //                                     handleEditMessage(msg.id); // Enable editing for the message
-// // //                                 } else {
-// // //                                     deleteMessage(msg.id); // Delete message for others
-// // //                                 }
-// // //                             }}
-// // //                         >
-// // //                             {msg.text}
-// // //                             {renderMedia(msg.files)}
-// // //                         </div>
-// // //                         <div className="text-xs text-gray-500 flex justify-end items-center">
-// // //                             {new Date(msg.timestamp).toLocaleTimeString()}
-// // //                             {msg.sender === user.id && (
-// // //                                 <span className="ml-2">
-// // //                                     {msg.read ? (
-// // //                                         <span className="text-blue-500">✔✔</span>
-// // //                                     ) : (
-// // //                                         <span>✔</span>
-// // //                                     )}
-// // //                                 </span>
-// // //                             )}
-// // //                             {msg.sender !== user.id && (
-// // //                                 <span className="ml-2">
-// // //                                     {msg.read ? (
-// // //                                         <span className="text-blue-500">✔✔</span>
-// // //                                     ) : (
-// // //                                         <span>✔✔</span>
-// // //                                     )}
-// // //                                 </span>
-// // //                             )}
-// // //                         </div>
-// // //                     </div>
-// // //                 ))}
-// // //             </div>
-// // //             <div className="flex-none p-4 border-t border-gray-300 flex items-center">
-// // //                 <input
-// // //                     type="file"
-// // //                     accept="image/*,video/*"
-// // //                     onChange={handleFileChange}
-// // //                     className="hidden"
-// // //                     id="file-input"
-// // //                     multiple
-// // //                 />
-// // //                 <label htmlFor="file-input" className="bg-gray-200 rounded-lg px-4 py-2 cursor-pointer">
-// // //                     📎
-// // //                 </label>
-// // //                 {renderMedia(selectedFiles)} {/* Render selected files */}
-// // //                 <input
-// // //                     type="text"
-// // //                     value={messageText}
-// // //                     onChange={(e) => {
-// // //                         setMessageText(e.target.value);
-// // //                         setIsTyping(true); // Set typing status to true
-// // //                     }}
-// // //                     placeholder="Type a message..."
-// // //                     className="flex-1 p-2 border border-gray-300 rounded-lg mx-2"
-// // //                 />
-// // //                 <button
-// // //                     onClick={editingMessageId ? updateMessage : sendMessage}
-// // //                     className="bg-blue-500 text-white rounded-lg px-4 py-2"
-// // //                 >
-// // //                     {editingMessageId ? 'Update' : 'Send'}
-// // //                 </button>
-// // //             </div>
-// // //         </div>
-// // //     );
-// // // };
-
-// // // export default Chat;
-
-
-
-// // // "use client"; // Enable client-side rendering
-// // // import React, { useState, useEffect } from 'react';
-// // // import { database, storage } from '../config/firebase'; // Pastikan Anda sudah mengkonfigurasi Firebase Storage
-// // // import { ref, onValue, push, update, remove } from 'firebase/database';
-// // // import { uploadBytes, getDownloadURL } from 'firebase/storage';
-// // // import 'tailwindcss/tailwind.css';
-
-// // // const Chat = ({ user }) => {
-// // //     const otherUser = user.id === 'user1' ? { id: 'user2', name: 'User 2' } : { id: 'user1', name: 'User 1' };
-
-// // //     const [messages, setMessages] = useState([]);
-// // //     const [messageText, setMessageText] = useState('');
-// // //     const [selectedFiles, setSelectedFiles] = useState([]);
-// // //     const [uploadingFiles, setUploadingFiles] = useState([]); // State untuk menyimpan status upload file
-// // //     const [lastSeen, setLastSeen] = useState(null); // State untuk menyimpan waktu terakhir dilihat
-// // //     const [editingMessageId, setEditingMessageId] = useState(null); // State untuk menyimpan ID pesan yang sedang diedit
-// // //     const [isTyping, setIsTyping] = useState(false); // State untuk menyimpan status mengetik
-// // //     const [isUploading, setIsUploading] = useState(false); // State untuk menyimpan status upload
-
-// // //     // Fetch messages from Firebase on component mount
-// // //     useEffect(() => {
-// // //         const messagesRef = ref(database, `messages/${user.id}/${otherUser.id}`);
-// // //         onValue(messagesRef, (snapshot) => {
-// // //             const data = snapshot.val();
-// // //             const loadedMessages = data ? Object.values(data) : [];
-// // //             setMessages(loadedMessages);
-
-// // //             // Mark all messages as read when the user views the chat
-// // //             loadedMessages.forEach((msg) => {
-// // //                 if (!msg.read && msg.sender !== user.id) {
-// // //                     update(ref(database, `messages/${user.id}/${otherUser.id}/${msg.id}`), { read: true });
-// // //                     update(ref(database, `messages/${otherUser.id}/${user.id}/${msg.id}`), { read: true });
-// // //                 }
-// // //             });
-// // //         });
-
-// // //         // Set last seen status
-// // //         const lastSeenRef = ref(database, `lastSeen/${user.id}`);
-// // //         onValue(lastSeenRef, (snapshot) => {
-// // //             setLastSeen(snapshot.val());
-// // //         });
-
-// // //         // Update last seen when user is active
-// // //         const updateLastSeen = () => {
-// // //             if (isTyping) {
-// // //                 update(lastSeenRef, { status: "Online", timestamp: Date.now() });
-// // //             } else {
-// // //                 update(lastSeenRef, { status: "Last Seen", timestamp: Date.now() });
-// // //             }
-// // //         };
-
-// // //         // Check typing status
-// // //         const typingInterval = setInterval(updateLastSeen, 5000); // Update every 5 seconds
-
-// // //         return () => clearInterval(typingInterval); // Clean up interval on unmount
-// // //     }, [user.id, otherUser.id, isTyping]);
-
-// // //     // Handle file selection
-// // //     const handleFileChange = (event) => {
-// // //         const files = Array.from(event.target.files);
-// // //         setSelectedFiles((prevFiles) => [...prevFiles, ...files]);
-// // //     };
-
-// // //     // Remove a selected file
-// // //     const removeFile = (index) => {
-// // //         setSelectedFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
-// // //         setUploadingFiles((prevUploads) => prevUploads.filter((_, i) => i !== index)); // Hapus status upload yang sesuai
-// // //     };
-
-// // //     // Function to send a new message
-// // //     const sendMessage = async () => {
-// // //         if (messageText.trim() === "" && selectedFiles.length === 0) return; // Prevent sending empty messages
-
-// // //         const messagesRef = ref(database, `messages/${user.id}/${otherUser.id}`);
-// // //         const newMessage = {
-// // //             text: messageText,
-// // //             sender: user.id,
-// // //             timestamp: Date.now(),
-// // //             read: false,
-// // //             files: [],
-// // //         };
-
-// // //         // Update newMessage with uploaded file URLs
-// // //         if (selectedFiles.length > 0) {
-// // //             setIsUploading(true); // Set uploading status to true
-// // //             const uploadedFiles = await Promise.all(selectedFiles.map(async (file) => {
-// // //                 const storageRef = ref(storage, `chatFiles/${file.name}`);
-// // //                 await uploadBytes(storageRef, file);
-// // //                 const url = await getDownloadURL(storageRef);
-// // //                 return url;
-// // //             }));
-// // //             newMessage.files = uploadedFiles;
-// // //             setIsUploading(false); // Reset uploading status
-// // //             setSelectedFiles([]); // Clear selected files after upload
-// // //         }
-
-// // //         // Push message to Firebase Database
-// // //         await push(messagesRef, newMessage);
-// // //         setMessageText(''); // Clear input after sending
-
-// // //         // Update the recipient's message status
-// // //         const recipientRef = ref(database, `messages/${otherUser.id}/${user.id}`);
-// // //         await push(recipientRef, newMessage);
-// // //     };
-
-// // //     // Handle message edit
-// // //     const handleEditMessage = async (id) => {
-// // //         const messageToEdit = messages.find((msg) => msg.id === id);
-// // //         setMessageText(messageToEdit.text);
-// // //         setEditingMessageId(id);
-// // //     };
-
-// // //     // Function to update the edited message
-// // //     const updateMessage = async () => {
-// // //         if (editingMessageId) {
-// // //             const messageRef = ref(database, `messages/${user.id}/${otherUser.id}/${editingMessageId}`);
-// // //             await update(messageRef, { text: messageText });
-// // //             setMessageText(''); // Clear input after updating
-// // //             setEditingMessageId(null); // Reset editing state
-// // //         }
-// // //     };
-
-// // //     // Function to delete a message
-// // //     const deleteMessage = async (id) => {
-// // //         const messageRef = ref(database, `messages/${user.id}/${otherUser.id}/${id}`);
-// // //         await remove(messageRef);
-// // //     };
-
-// // //     const renderMedia = (files) => {
-// // //         if (!files || files.length === 0) return null;
-
-// // //         const visibleFiles = files.slice(0, 3);
-// // //         const extraFiles = files.length - visibleFiles.length;
-
-// // //         return (
-// // //             <div className="flex flex-wrap mt-1">
-// // //                 {visibleFiles.map((file, index) => (
-// // //                     <img
-// // //                         key={index}
-// // //                         src={file}
-// // //                         alt="Media"
-// // //                         className="w-20 h-20 object-cover rounded-lg m-1"
-// // //                     />
-// // //                 ))}
-// // //                 {extraFiles > 0 && (
-// // //                     <div className="w-20 h-20 bg-gray-200 flex items-center justify-center rounded-lg m-1">
-// // //                         +{extraFiles}
-// // //                     </div>
-// // //                 )}
-// // //             </div>
-// // //         );
-// // //     };
-
-// // //     return (
-// // //         <div className="flex flex-col h-screen bg-gray-100">
-// // //             <div className="flex-none p-4 bg-white border-b border-gray-300">
-// // //                 <h2 className="text-xl text-center">{otherUser.name}</h2>
-// // //                 {lastSeen && (
-// // //                     <p className="text-sm text-gray-500 text-center">
-// // //                         {lastSeen.status} (Last seen: {new Date(lastSeen.timestamp).toLocaleString()})
-// // //                     </p>
-// // //                 )}
-// // //             </div>
-// // //             <div className="flex-1 overflow-y-auto p-4">
-// // //                 {/* Display messages */}
-// // //                 {messages.map((msg, index) => (
-// // //                     <div key={index} className={`mb-2 ${msg.sender === user.id ? 'text-right' : 'text-left'}`}>
-// // //                         <div 
-// // //                             className={`inline-block p-2 rounded-lg ${msg.sender === user.id ? 'bg-blue-500 text-white' : 'bg-gray-300'}`}
-// // //                             onContextMenu={(e) => {
-// // //                                 e.preventDefault();
-// // //                                 if (msg.sender === user.id) {
-// // //                                     handleEditMessage(msg.id); // Enable editing for the message
-// // //                                 } else {
-// // //                                     deleteMessage(msg.id); // Delete message for others
-// // //                                 }
-// // //                             }}
-// // //                         >
-// // //                             {msg.text}
-// // //                             {renderMedia(msg.files)}
-// // //                         </div>
-// // //                         <div className="text-xs text-gray-500 flex justify-end items-center">
-// // //                             {new Date(msg.timestamp).toLocaleTimeString()}
-// // //                             {msg.sender === user.id && (
-// // //                                 <span className="ml-2">
-// // //                                     {msg.read ? (
-// // //                                         <span className="text-blue-500">✔✔</span>
-// // //                                     ) : (
-// // //                                         <span>✔</span>
-// // //                                     )}
-// // //                                 </span>
-// // //                             )}
-// // //                             {msg.sender !== user.id && (
-// // //                                 <span className="ml-2">
-// // //                                     {msg.read ? (
-// // //                                         <span className="text-blue-500">✔✔</span>
-// // //                                     ) : (
-// // //                                         <span>✔✔</span>
-// // //                                     )}
-// // //                                 </span>
-// // //                             )}
-// // //                         </div>
-// // //                     </div>
-// // //                 ))}
-// // //             </div>
-// // //             <div className="flex-none p-4 border-t border-gray-300 flex items-center">
-// // //                 <input
-// // //                     type="file"
-// // //                     accept="image/*,video/*"
-// // //                     onChange={handleFileChange}
-// // //                     className="hidden"
-// // //                     id="file-input"
-// // //                     multiple
-// // //                 />
-// // //                <label htmlFor="file-input" className="mr-2 cursor-pointer">
-// // //                         <span className="text-gray-600 hover:text-blue-500">📎</span>
-// // //                     </label>
-// // //                 <input
-// // //                     type="text"
-// // //                     value={messageText}
-// // //                     onChange={(e) => {
-// // //                         setMessageText(e.target.value);
-// // //                         setIsTyping(true); // Set typing status to true
-// // //                     }}
-// // //                     placeholder="Type a message..."
-// // //                     className="flex-1 p-2 border border-gray-300 rounded-lg mx-2"
-// // //                 />
-// // //                 <button
-// // //                     onClick={editingMessageId ? updateMessage : sendMessage}
-// // //                     className="bg-blue-500 text-white rounded-lg px-4 py-2"
-// // //                 >
-// // //                     {editingMessageId ? 'Update' : 'Send'}
-// // //                 </button>
-// // //             </div>
-// // //         </div>
-// // //     );
-// // // };
-
-// // // export default Chat;
-
-// // // "use client"; // Enable client-side rendering
-// // // import React, { useState, useEffect } from 'react';
-// // // import { database, storage } from '../config/firebase'; // Pastikan Anda sudah mengkonfigurasi Firebase Storage
-// // // import { ref, onValue, push, update, remove } from 'firebase/database';
-// // // import { uploadBytes, getDownloadURL } from 'firebase/storage';
-// // // import 'tailwindcss/tailwind.css';
-
-// // // const Chat = ({ user }) => {
-// // //     const otherUser = user.id === 'user1' ? { id: 'user2', name: 'User 2' } : { id: 'user1', name: 'User 1' };
-
-// // //     const [messages, setMessages] = useState([]);
-// // //     const [messageText, setMessageText] = useState('');
-// // //     const [selectedFiles, setSelectedFiles] = useState([]);
-// // //     const [uploadingFiles, setUploadingFiles] = useState([]); // State untuk menyimpan status upload file
-// // //     const [lastSeen, setLastSeen] = useState(null); // State untuk menyimpan waktu terakhir dilihat
-// // //     const [editingMessageId, setEditingMessageId] = useState(null); // State untuk menyimpan ID pesan yang sedang diedit
-// // //     const [isTyping, setIsTyping] = useState(false); // State untuk menyimpan status mengetik
-
-// // //     // Fetch messages from Firebase on component mount
-// // //     useEffect(() => {
-// // //         const messagesRef = ref(database, `messages/${user.id}/${otherUser.id}`);
-// // //         onValue(messagesRef, (snapshot) => {
-// // //             const data = snapshot.val();
-// // //             const loadedMessages = data ? Object.values(data) : [];
-// // //             setMessages(loadedMessages);
-
-// // //             // Mark all messages as read when the user views the chat
-// // //             loadedMessages.forEach((msg) => {
-// // //                 if (!msg.read && msg.sender !== user.id) {
-// // //                     update(ref(database, `messages/${user.id}/${otherUser.id}/${msg.id}`), { read: true });
-// // //                     update(ref(database, `messages/${otherUser.id}/${user.id}/${msg.id}`), { read: true });
-// // //                 }
-// // //             });
-// // //         });
-
-// // //         // Set last seen status
-// // //         const lastSeenRef = ref(database, `lastSeen/${user.id}`);
-// // //         onValue(lastSeenRef, (snapshot) => {
-// // //             setLastSeen(snapshot.val());
-// // //         });
-
-// // //         // Update last seen when user is active
-// // //         const updateLastSeen = () => {
-// // //             if (isTyping) {
-// // //                 update(lastSeenRef, { status: "Online", timestamp: Date.now() });
-// // //             } else {
-// // //                 update(lastSeenRef, { status: "Last Seen", timestamp: Date.now() });
-// // //             }
-// // //         };
-
-// // //         // Check typing status
-// // //         const typingInterval = setInterval(updateLastSeen, 5000); // Update every 5 seconds
-
-// // //         return () => clearInterval(typingInterval); // Clean up interval on unmount
-// // //     }, [user.id, otherUser.id, isTyping]);
+// // //         update(lastSeenRef, { timestamp: Date.now() });
+// // //     }, [user.id, otherUser.id]);
 
 // // //     // Handle file selection
 // // //     const handleFileChange = (event) => {
@@ -1319,7 +818,7 @@ export default Chat;
 // // //                 <h2 className="text-xl text-center">{otherUser.name}</h2>
 // // //                 {lastSeen && (
 // // //                     <p className="text-sm text-gray-500 text-center">
-// // //                         {lastSeen.status} (Last seen: {new Date(lastSeen.timestamp).toLocaleString()})
+// // //                         Last seen: {new Date(lastSeen.timestamp).toLocaleString()}
 // // //                     </p>
 // // //                 )}
 // // //             </div>
@@ -1364,26 +863,37 @@ export default Chat;
 // // //                         </div>
 // // //                     </div>
 // // //                 ))}
+// // //                 {/* Tampilkan gambar yang sedang diupload */}
+// // //                 {selectedFiles.map((file, index) => (
+// // //                     <div key={index} className="flex items-center mb-2">
+// // //                         <img
+// // //                             src={URL.createObjectURL(file)}
+// // //                             alt="Uploading"
+// // //                             className="w-20 h-20 object-cover rounded-lg"
+// // //                         />
+// // //                         {uploadingFiles[index] && (
+// // //                             <span className="ml-2 text-sm text-gray-500">Uploading...</span>
+// // //                         )}
+// // //                     </div>
+// // //                 ))}
 // // //             </div>
-// // //             <div className="flex-none p-4 border-t border-gray-300 flex items-center">
+// // //             <div className="flex items-center p-4 border-t border-gray-300">
 // // //                 <input
 // // //                     type="file"
+// // //                     multiple
 // // //                     accept="image/*,video/*"
 // // //                     onChange={handleFileChange}
 // // //                     className="hidden"
 // // //                     id="file-input"
-// // //                     multiple
 // // //                 />
-// // //                 <label htmlFor="file-input" className="mr-2 cursor-pointer">
+               
+// // //                     <label htmlFor="file-input" className="mr-2 cursor-pointer">
 // // //                         <span className="text-gray-600 hover:text-blue-500">📎</span>
 // // //                     </label>
 // // //                 <input
 // // //                     type="text"
 // // //                     value={messageText}
-// // //                     onChange={(e) => {
-// // //                         setMessageText(e.target.value);
-// // //                         setIsTyping(true); // Set typing status to true
-// // //                     }}
+// // //                     onChange={(e) => setMessageText(e.target.value)}
 // // //                     placeholder="Type a message..."
 // // //                     className="flex-1 p-2 border border-gray-300 rounded-lg mx-2"
 // // //                 />
@@ -1399,216 +909,741 @@ export default Chat;
 // // // };
 
 // // // export default Chat;
+// // // // "use client"; // Enable client-side rendering
+// // // // import React, { useState, useEffect } from 'react';
+// // // // import { database, storage } from '../config/firebase'; // Pastikan Anda sudah mengkonfigurasi Firebase Storage
+// // // // import { ref, onValue, push, update, remove } from 'firebase/database';
+// // // // import { uploadBytes, getDownloadURL } from 'firebase/storage';
+// // // // import 'tailwindcss/tailwind.css';
+
+// // // // const Chat = ({ user }) => {
+// // // //     const otherUser = user.id === 'user1' ? { id: 'user2', name: 'User 2' } : { id: 'user1', name: 'User 1' };
+
+// // // //     const [messages, setMessages] = useState([]);
+// // // //     const [messageText, setMessageText] = useState('');
+// // // //     const [selectedFiles, setSelectedFiles] = useState([]);
+// // // //     const [uploadingFiles, setUploadingFiles] = useState([]); // State untuk menyimpan status upload file
+// // // //     const [lastSeen, setLastSeen] = useState(null); // State untuk menyimpan waktu terakhir dilihat
+// // // //     const [editingMessageId, setEditingMessageId] = useState(null); // State untuk menyimpan ID pesan yang sedang diedit
+// // // //     const [isTyping, setIsTyping] = useState(false); // State untuk menyimpan status mengetik
+// // // //     const [isUploading, setIsUploading] = useState(false); // State untuk menyimpan status upload
+
+// // // //     // Fetch messages from Firebase on component mount
+// // // //     useEffect(() => {
+// // // //         const messagesRef = ref(database, `messages/${user.id}/${otherUser.id}`);
+// // // //         onValue(messagesRef, (snapshot) => {
+// // // //             const data = snapshot.val();
+// // // //             const loadedMessages = data ? Object.values(data) : [];
+// // // //             setMessages(loadedMessages);
+
+// // // //             // Mark all messages as read when the user views the chat
+// // // //             loadedMessages.forEach((msg) => {
+// // // //                 if (!msg.read && msg.sender !== user.id) {
+// // // //                     update(ref(database, `messages/${user.id}/${otherUser.id}/${msg.id}`), { read: true });
+// // // //                     update(ref(database, `messages/${otherUser.id}/${user.id}/${msg.id}`), { read: true });
+// // // //                 }
+// // // //             });
+// // // //         });
+
+// // // //         // Set last seen status
+// // // //         const lastSeenRef = ref(database, `lastSeen/${user.id}`);
+// // // //         onValue(lastSeenRef, (snapshot) => {
+// // // //             setLastSeen(snapshot.val());
+// // // //         });
+
+// // // //         // Update last seen when user is active
+// // // //         const updateLastSeen = () => {
+// // // //             if (isTyping) {
+// // // //                 update(lastSeenRef, { status: "Online", timestamp: Date.now() });
+// // // //             } else {
+// // // //                 update(lastSeenRef, { status: "Last Seen", timestamp: Date.now() });
+// // // //             }
+// // // //         };
+
+// // // //         // Check typing status
+// // // //         const typingInterval = setInterval(updateLastSeen, 5000); // Update every 5 seconds
+
+// // // //         return () => clearInterval(typingInterval); // Clean up interval on unmount
+// // // //     }, [user.id, otherUser.id, isTyping]);
+
+// // // //     // Handle file selection
+// // // //     const handleFileChange = (event) => {
+// // // //         const files = Array.from(event.target.files);
+// // // //         setSelectedFiles((prevFiles) => [...prevFiles, ...files]);
+// // // //     };
+
+// // // //     // Remove a selected file
+// // // //     const removeFile = (index) => {
+// // // //         setSelectedFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
+// // // //         setUploadingFiles((prevUploads) => prevUploads.filter((_, i) => i !== index)); // Hapus status upload yang sesuai
+// // // //     };
+
+// // // //     // Function to send a new message
+// // // //     const sendMessage = async () => {
+// // // //         if (messageText.trim() === "" && selectedFiles.length === 0) return; // Prevent sending empty messages
+
+// // // //         const messagesRef = ref(database, `messages/${user.id}/${otherUser.id}`);
+// // // //         const newMessage = {
+// // // //             text: messageText,
+// // // //             sender: user.id,
+// // // //             timestamp: Date.now(),
+// // // //             read: false,
+// // // //             files: [],
+// // // //         };
+
+// // // //         // Update newMessage with uploaded file URLs
+// // // //         if (selectedFiles.length > 0) {
+// // // //             setIsUploading(true); // Set uploading status to true
+// // // //             const uploadedFiles = await Promise.all(selectedFiles.map(async (file) => {
+// // // //                 const storageRef = ref(storage, `chatFiles/${file.name}`);
+// // // //                 await uploadBytes(storageRef, file);
+// // // //                 const url = await getDownloadURL(storageRef);
+// // // //                 return url;
+// // // //             }));
+// // // //             newMessage.files = uploadedFiles;
+// // // //             setIsUploading(false); // Reset uploading status
+// // // //             setSelectedFiles([]); // Clear selected files after upload
+// // // //         }
+
+// // // //         // Push message to Firebase Database
+// // // //         await push(messagesRef, newMessage);
+// // // //         setMessageText(''); // Clear input after sending
+
+// // // //         // Update the recipient's message status
+// // // //         const recipientRef = ref(database, `messages/${otherUser.id}/${user.id}`);
+// // // //         await push(recipientRef, newMessage);
+// // // //     };
+
+// // // //     // Handle message edit
+// // // //     const handleEditMessage = async (id) => {
+// // // //         const messageToEdit = messages.find((msg) => msg.id === id);
+// // // //         setMessageText(messageToEdit.text);
+// // // //         setEditingMessageId(id);
+// // // //     };
+
+// // // //     // Function to update the edited message
+// // // //     const updateMessage = async () => {
+// // // //         if (editingMessageId) {
+// // // //             const messageRef = ref(database, `messages/${user.id}/${otherUser.id}/${editingMessageId}`);
+// // // //             await update(messageRef, { text: messageText });
+// // // //             setMessageText(''); // Clear input after updating
+// // // //             setEditingMessageId(null); // Reset editing state
+// // // //         }
+// // // //     };
+
+// // // //     // Function to delete a message
+// // // //     const deleteMessage = async (id) => {
+// // // //         const messageRef = ref(database, `messages/${user.id}/${otherUser.id}/${id}`);
+// // // //         await remove(messageRef);
+// // // //     };
+
+// // // //     const renderMedia = (files) => {
+// // // //         if (!files || files.length === 0) return null;
+
+// // // //         const visibleFiles = files.slice(0, 3);
+// // // //         const extraFiles = files.length - visibleFiles.length;
+
+// // // //         return (
+// // // //             <div className="flex flex-wrap mt-1">
+// // // //                 {visibleFiles.map((file, index) => (
+// // // //                     <div key={index} className="relative">
+// // // //                         <img
+// // // //                             src={file}
+// // // //                             alt="Media"
+// // // //                             className="w-20 h-20 object-cover rounded-lg m-1"
+// // // //                         />
+// // // //                         <button
+// // // //                             onClick={() => removeFile(index)}
+// // // //                             className="absolute top-0 right-0 bg-red-500 text-white rounded-full p-1"
+// // // //                         >
+// // // //                             X
+// // // //                         </button>
+// // // //                     </div>
+// // // //                 ))}
+// // // //                 {extraFiles > 0 && (
+// // // //                     <div className="w-20 h-20 bg-gray-200 flex items-center justify-center rounded-lg m-1">
+// // // //                         +{extraFiles}
+// // // //                     </div>
+// // // //                 )}
+// // // //             </div>
+// // // //         );
+// // // //     };
+
+// // // //     return (
+// // // //         <div className="flex flex-col h-screen bg-gray-100">
+// // // //             <div className="flex-none p-4 bg-white border-b border-gray-300">
+// // // //                 <h2 className="text-xl text-center">{otherUser.name}</h2>
+// // // //                 {lastSeen && (
+// // // //                     <p className="text-sm text-gray-500 text-center">
+// // // //                         {lastSeen.status} (Last seen: {new Date(lastSeen.timestamp).toLocaleString()})
+// // // //                     </p>
+// // // //                 )}
+// // // //             </div>
+// // // //             <div className="flex-1 overflow-y-auto p-4">
+// // // //                 {/* Display messages */}
+// // // //                 {messages.map((msg, index) => (
+// // // //                     <div key={index} className={`mb-2 ${msg.sender === user.id ? 'text-right' : 'text-left'}`}>
+// // // //                         <div 
+// // // //                             className={`inline-block p-2 rounded-lg ${msg.sender === user.id ? 'bg-blue-500 text-white' : 'bg-gray-300'}`}
+// // // //                             onContextMenu={(e) => {
+// // // //                                 e.preventDefault();
+// // // //                                 if (msg.sender === user.id) {
+// // // //                                     handleEditMessage(msg.id); // Enable editing for the message
+// // // //                                 } else {
+// // // //                                     deleteMessage(msg.id); // Delete message for others
+// // // //                                 }
+// // // //                             }}
+// // // //                         >
+// // // //                             {msg.text}
+// // // //                             {renderMedia(msg.files)}
+// // // //                         </div>
+// // // //                         <div className="text-xs text-gray-500 flex justify-end items-center">
+// // // //                             {new Date(msg.timestamp).toLocaleTimeString()}
+// // // //                             {msg.sender === user.id && (
+// // // //                                 <span className="ml-2">
+// // // //                                     {msg.read ? (
+// // // //                                         <span className="text-blue-500">✔✔</span>
+// // // //                                     ) : (
+// // // //                                         <span>✔</span>
+// // // //                                     )}
+// // // //                                 </span>
+// // // //                             )}
+// // // //                             {msg.sender !== user.id && (
+// // // //                                 <span className="ml-2">
+// // // //                                     {msg.read ? (
+// // // //                                         <span className="text-blue-500">✔✔</span>
+// // // //                                     ) : (
+// // // //                                         <span>✔✔</span>
+// // // //                                     )}
+// // // //                                 </span>
+// // // //                             )}
+// // // //                         </div>
+// // // //                     </div>
+// // // //                 ))}
+// // // //             </div>
+// // // //             <div className="flex-none p-4 border-t border-gray-300 flex items-center">
+// // // //                 <input
+// // // //                     type="file"
+// // // //                     accept="image/*,video/*"
+// // // //                     onChange={handleFileChange}
+// // // //                     className="hidden"
+// // // //                     id="file-input"
+// // // //                     multiple
+// // // //                 />
+// // // //                 <label htmlFor="file-input" className="bg-gray-200 rounded-lg px-4 py-2 cursor-pointer">
+// // // //                     📎
+// // // //                 </label>
+// // // //                 {renderMedia(selectedFiles)} {/* Render selected files */}
+// // // //                 <input
+// // // //                     type="text"
+// // // //                     value={messageText}
+// // // //                     onChange={(e) => {
+// // // //                         setMessageText(e.target.value);
+// // // //                         setIsTyping(true); // Set typing status to true
+// // // //                     }}
+// // // //                     placeholder="Type a message..."
+// // // //                     className="flex-1 p-2 border border-gray-300 rounded-lg mx-2"
+// // // //                 />
+// // // //                 <button
+// // // //                     onClick={editingMessageId ? updateMessage : sendMessage}
+// // // //                     className="bg-blue-500 text-white rounded-lg px-4 py-2"
+// // // //                 >
+// // // //                     {editingMessageId ? 'Update' : 'Send'}
+// // // //                 </button>
+// // // //             </div>
+// // // //         </div>
+// // // //     );
+// // // // };
+
+// // // // export default Chat;
 
 
-// // // // // // "use client"; // Enable client-side rendering
-// // // // // // import React, { useState, useEffect } from 'react';
-// // // // // // import { database, storage } from '../config/firebase'; // Pastikan Anda sudah mengkonfigurasi Firebase Storage
-// // // // // // import { ref, onValue, push, update } from 'firebase/database';
-// // // // // // import { uploadBytes, getDownloadURL } from 'firebase/storage';
-// // // // // // import 'tailwindcss/tailwind.css';
 
-// // // // // // const Chat = ({ user }) => {
-// // // // // //     const otherUser = user.id === 'user1' ? { id: 'user2', name: 'User 2' } : { id: 'user1', name: 'User 1' };
+// // // // "use client"; // Enable client-side rendering
+// // // // import React, { useState, useEffect } from 'react';
+// // // // import { database, storage } from '../config/firebase'; // Pastikan Anda sudah mengkonfigurasi Firebase Storage
+// // // // import { ref, onValue, push, update, remove } from 'firebase/database';
+// // // // import { uploadBytes, getDownloadURL } from 'firebase/storage';
+// // // // import 'tailwindcss/tailwind.css';
 
-// // // // // //     const [messages, setMessages] = useState([]);
-// // // // // //     const [messageText, setMessageText] = useState('');
-// // // // // //     const [selectedFiles, setSelectedFiles] = useState([]);
-// // // // // //     const [uploadingFiles, setUploadingFiles] = useState([]); // State untuk menyimpan status upload file
-// // // // // //     const [lastSeen, setLastSeen] = useState(null); // State untuk menyimpan waktu terakhir dilihat
+// // // // const Chat = ({ user }) => {
+// // // //     const otherUser = user.id === 'user1' ? { id: 'user2', name: 'User 2' } : { id: 'user1', name: 'User 1' };
 
-// // // // // //     // Fetch messages from Firebase on component mount
-// // // // // //     useEffect(() => {
-// // // // // //         const messagesRef = ref(database, `messages/${user.id}/${otherUser.id}`);
-// // // // // //         onValue(messagesRef, (snapshot) => {
-// // // // // //             const data = snapshot.val();
-// // // // // //             const loadedMessages = data ? Object.values(data) : [];
-// // // // // //             setMessages(loadedMessages);
+// // // //     const [messages, setMessages] = useState([]);
+// // // //     const [messageText, setMessageText] = useState('');
+// // // //     const [selectedFiles, setSelectedFiles] = useState([]);
+// // // //     const [uploadingFiles, setUploadingFiles] = useState([]); // State untuk menyimpan status upload file
+// // // //     const [lastSeen, setLastSeen] = useState(null); // State untuk menyimpan waktu terakhir dilihat
+// // // //     const [editingMessageId, setEditingMessageId] = useState(null); // State untuk menyimpan ID pesan yang sedang diedit
+// // // //     const [isTyping, setIsTyping] = useState(false); // State untuk menyimpan status mengetik
+// // // //     const [isUploading, setIsUploading] = useState(false); // State untuk menyimpan status upload
 
-// // // // // //             // Mark all messages as read when the user views the chat
-// // // // // //             loadedMessages.forEach((msg) => {
-// // // // // //                 if (!msg.read && msg.sender !== user.id) {
-// // // // // //                     update(ref(database, `messages/${user.id}/${otherUser.id}/${msg.id}`), { read: true });
-// // // // // //                     update(ref(database, `messages/${otherUser.id}/${user.id}/${msg.id}`), { read: true });
-// // // // // //                 }
-// // // // // //             });
-// // // // // //         });
+// // // //     // Fetch messages from Firebase on component mount
+// // // //     useEffect(() => {
+// // // //         const messagesRef = ref(database, `messages/${user.id}/${otherUser.id}`);
+// // // //         onValue(messagesRef, (snapshot) => {
+// // // //             const data = snapshot.val();
+// // // //             const loadedMessages = data ? Object.values(data) : [];
+// // // //             setMessages(loadedMessages);
 
-// // // // // //         // Set last seen status
-// // // // // //         const lastSeenRef = ref(database, `lastSeen/${user.id}`);
-// // // // // //         onValue(lastSeenRef, (snapshot) => {
-// // // // // //             setLastSeen(snapshot.val());
-// // // // // //         });
+// // // //             // Mark all messages as read when the user views the chat
+// // // //             loadedMessages.forEach((msg) => {
+// // // //                 if (!msg.read && msg.sender !== user.id) {
+// // // //                     update(ref(database, `messages/${user.id}/${otherUser.id}/${msg.id}`), { read: true });
+// // // //                     update(ref(database, `messages/${otherUser.id}/${user.id}/${msg.id}`), { read: true });
+// // // //                 }
+// // // //             });
+// // // //         });
 
-// // // // // //         // Update last seen when user is active
-// // // // // //         update(lastSeenRef, { timestamp: Date.now() });
-// // // // // //     }, [user.id, otherUser.id]);
+// // // //         // Set last seen status
+// // // //         const lastSeenRef = ref(database, `lastSeen/${user.id}`);
+// // // //         onValue(lastSeenRef, (snapshot) => {
+// // // //             setLastSeen(snapshot.val());
+// // // //         });
 
-// // // // // //     // Handle file selection
-// // // // // //     const handleFileChange = (event) => {
-// // // // // //         const files = Array.from(event.target.files);
-// // // // // //         setSelectedFiles((prevFiles) => [...prevFiles, ...files]);
-// // // // // //     };
+// // // //         // Update last seen when user is active
+// // // //         const updateLastSeen = () => {
+// // // //             if (isTyping) {
+// // // //                 update(lastSeenRef, { status: "Online", timestamp: Date.now() });
+// // // //             } else {
+// // // //                 update(lastSeenRef, { status: "Last Seen", timestamp: Date.now() });
+// // // //             }
+// // // //         };
 
-// // // // // //     // Remove a selected file
-// // // // // //     const removeFile = (index) => {
-// // // // // //         setSelectedFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
-// // // // // //         setUploadingFiles((prevUploads) => prevUploads.filter((_, i) => i !== index)); // Hapus status upload yang sesuai
-// // // // // //     };
+// // // //         // Check typing status
+// // // //         const typingInterval = setInterval(updateLastSeen, 5000); // Update every 5 seconds
 
-// // // // // //     // Function to send a new message
-// // // // // //     const sendMessage = async () => {
-// // // // // //         if (messageText.trim() === "" && selectedFiles.length === 0) return; // Prevent sending empty messages
+// // // //         return () => clearInterval(typingInterval); // Clean up interval on unmount
+// // // //     }, [user.id, otherUser.id, isTyping]);
 
-// // // // // //         const messagesRef = ref(database, `messages/${user.id}/${otherUser.id}`);
-// // // // // //         const newMessage = {
-// // // // // //             text: messageText,
-// // // // // //             sender: user.id,
-// // // // // //             timestamp: Date.now(),
-// // // // // //             read: false,
-// // // // // //             files: [],
-// // // // // //         };
+// // // //     // Handle file selection
+// // // //     const handleFileChange = (event) => {
+// // // //         const files = Array.from(event.target.files);
+// // // //         setSelectedFiles((prevFiles) => [...prevFiles, ...files]);
+// // // //     };
 
-// // // // // //         // Update the state to show loading for each file
-// // // // // //         const loadingStatus = Array(selectedFiles.length).fill(true);
-// // // // // //         setUploadingFiles(loadingStatus);
+// // // //     // Remove a selected file
+// // // //     const removeFile = (index) => {
+// // // //         setSelectedFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
+// // // //         setUploadingFiles((prevUploads) => prevUploads.filter((_, i) => i !== index)); // Hapus status upload yang sesuai
+// // // //     };
 
-// // // // // //         // Upload selected files to Firebase Storage
-// // // // // //         const uploadedFiles = await Promise.all(selectedFiles.map(async (file, index) => {
-// // // // // //             const storageRef = ref(storage, `chatFiles/${file.name}`);
-// // // // // //             await uploadBytes(storageRef, file);
-// // // // // //             const url = await getDownloadURL(storageRef);
-// // // // // //             // Update the loading status for the uploaded file
-// // // // // //             loadingStatus[index] = false;
-// // // // // //             setUploadingFiles([...loadingStatus]); // Update loading state
-// // // // // //             return url;
-// // // // // //         }));
+// // // //     // Function to send a new message
+// // // //     const sendMessage = async () => {
+// // // //         if (messageText.trim() === "" && selectedFiles.length === 0) return; // Prevent sending empty messages
 
-// // // // // //         // Update newMessage with uploaded file URLs
-// // // // // //         newMessage.files = uploadedFiles;
+// // // //         const messagesRef = ref(database, `messages/${user.id}/${otherUser.id}`);
+// // // //         const newMessage = {
+// // // //             text: messageText,
+// // // //             sender: user.id,
+// // // //             timestamp: Date.now(),
+// // // //             read: false,
+// // // //             files: [],
+// // // //         };
 
-// // // // // //         // Push message to Firebase Database
-// // // // // //         await push(messagesRef, newMessage);
-// // // // // //         setMessageText(''); // Clear input after sending
-// // // // // //         setSelectedFiles([]); // Clear selected files
-// // // // // //         setUploadingFiles([]); // Clear uploading status
+// // // //         // Update newMessage with uploaded file URLs
+// // // //         if (selectedFiles.length > 0) {
+// // // //             setIsUploading(true); // Set uploading status to true
+// // // //             const uploadedFiles = await Promise.all(selectedFiles.map(async (file) => {
+// // // //                 const storageRef = ref(storage, `chatFiles/${file.name}`);
+// // // //                 await uploadBytes(storageRef, file);
+// // // //                 const url = await getDownloadURL(storageRef);
+// // // //                 return url;
+// // // //             }));
+// // // //             newMessage.files = uploadedFiles;
+// // // //             setIsUploading(false); // Reset uploading status
+// // // //             setSelectedFiles([]); // Clear selected files after upload
+// // // //         }
 
-// // // // // //         // Update the recipient's message status
-// // // // // //         const recipientRef = ref(database, `messages/${otherUser.id}/${user.id}`);
-// // // // // //         await push(recipientRef, newMessage);
-// // // // // //     };
+// // // //         // Push message to Firebase Database
+// // // //         await push(messagesRef, newMessage);
+// // // //         setMessageText(''); // Clear input after sending
 
-// // // // // //     const renderMedia = (files) => {
-// // // // // //         if (!files || files.length === 0) return null;
+// // // //         // Update the recipient's message status
+// // // //         const recipientRef = ref(database, `messages/${otherUser.id}/${user.id}`);
+// // // //         await push(recipientRef, newMessage);
+// // // //     };
 
-// // // // // //         const visibleFiles = files.slice(0, 3);
-// // // // // //         const extraFiles = files.length - visibleFiles.length;
+// // // //     // Handle message edit
+// // // //     const handleEditMessage = async (id) => {
+// // // //         const messageToEdit = messages.find((msg) => msg.id === id);
+// // // //         setMessageText(messageToEdit.text);
+// // // //         setEditingMessageId(id);
+// // // //     };
 
-// // // // // //         return (
-// // // // // //             <div className="flex flex-wrap mt-1">
-// // // // // //                 {visibleFiles.map((file, index) => (
-// // // // // //                     <img
-// // // // // //                         key={index}
-// // // // // //                         src={file}
-// // // // // //                         alt="Media"
-// // // // // //                         className="w-20 h-20 object-cover rounded-lg m-1"
-// // // // // //                     />
-// // // // // //                 ))}
-// // // // // //                 {extraFiles > 0 && (
-// // // // // //                     <div className="w-20 h-20 bg-gray-200 flex items-center justify-center rounded-lg m-1">
-// // // // // //                         +{extraFiles}
-// // // // // //                     </div>
-// // // // // //                 )}
-// // // // // //             </div>
-// // // // // //         );
-// // // // // //     };
+// // // //     // Function to update the edited message
+// // // //     const updateMessage = async () => {
+// // // //         if (editingMessageId) {
+// // // //             const messageRef = ref(database, `messages/${user.id}/${otherUser.id}/${editingMessageId}`);
+// // // //             await update(messageRef, { text: messageText });
+// // // //             setMessageText(''); // Clear input after updating
+// // // //             setEditingMessageId(null); // Reset editing state
+// // // //         }
+// // // //     };
 
-// // // // // //     return (
-// // // // // //         <div className="flex flex-col h-screen bg-gray-100">
-// // // // // //             <div className="flex-none p-4 bg-white border-b border-gray-300">
-// // // // // //                 <h2 className="text-xl text-center">{otherUser.name}</h2>
-// // // // // //                 {lastSeen && (
-// // // // // //                     <p className="text-sm text-gray-500 text-center">
-// // // // // //                         Last seen: {new Date(lastSeen.timestamp).toLocaleString()}
-// // // // // //                     </p>
-// // // // // //                 )}
-// // // // // //             </div>
-// // // // // //             <div className="flex-1 overflow-y-auto p-4">
-// // // // // //                 {/* Display messages */}
-// // // // // //                 {messages.map((msg, index) => (
-// // // // // //                     <div key={index} className={`mb-2 ${msg.sender === user.id ? 'text-right' : 'text-left'}`}>
-// // // // // //                         <div className={`inline-block p-2 rounded-lg ${msg.sender === user.id ? 'bg-blue-500 text-white' : 'bg-gray-300'}`}>
-// // // // // //                             {msg.text}
-// // // // // //                             {renderMedia(msg.files)}
-// // // // // //                         </div>
-// // // // // //                         <div className="text-xs text-gray-500 flex justify-end items-center">
-// // // // // //                             {new Date(msg.timestamp).toLocaleTimeString()}
-// // // // // //                             {msg.sender === user.id && (
-// // // // // //                                 <span className="ml-2">
-// // // // // //                                     {msg.read ? (
-// // // // // //                                         <span className="text-blue-500">✔✔</span>
-// // // // // //                                     ) : (
-// // // // // //                                         <span>✔</span>
-// // // // // //                                     )}
-// // // // // //                                 </span>
-// // // // // //                             )}
-// // // // // //                             {msg.sender !== user.id && (
-// // // // // //                                 <span className="ml-2">
-// // // // // //                                     {msg.read ? (
-// // // // // //                                         <span className="text-blue-500">✔✔</span>
-// // // // // //                                     ) : (
-// // // // // //                                         <span>✔✔</span>
-// // // // // //                                     )}
-// // // // // //                                 </span>
-// // // // // //                             )}
-// // // // // //                         </div>
-// // // // // //                     </div>
-// // // // // //                 ))}
-// // // // // //                 {/* Tampilkan gambar yang sedang diupload */}
-// // // // // //                 {selectedFiles.map((file, index) => (
-// // // // // //                     <div key={index} className="flex items-center mb-2">
-// // // // // //                         <img
-// // // // // //                             src={URL.createObjectURL(file)}
-// // // // // //                             alt="Uploading"
-// // // // // //                             className="w-20 h-20 object-cover rounded-lg"
-// // // // // //                         />
-// // // // // //                         {uploadingFiles[index] && (
-// // // // // //                             <span className="ml-2 text-sm text-gray-500">Uploading...</span>
-// // // // // //                         )}
-// // // // // //                     </div>
-// // // // // //                 ))}
-// // // // // //             </div>
-// // // // // //             <div className="flex items-center p-4 border-t border-gray-300">
-// // // // // //                 <input
-// // // // // //                     type="file"
-// // // // // //                     multiple
-// // // // // //                     accept="image/*,video/*"
-// // // // // //                     className="hidden"
-// // // // // //                     id="fileInput"
-// // // // // //                     onChange={handleFileChange}
-// // // // // //                 />
-// // // // // //                 <label htmlFor="fileInput" className="cursor-pointer flex items-center">
-// // // // // //                     <span className="material-icons">attach_file</span> {/* Ganti dengan ikon klip */}
-// // // // // //                 </label>
-// // // // // //                 <input
-// // // // // //                     type="text"
-// // // // // //                     className="border rounded-lg p-2 flex-1 mx-2"
-// // // // // //                     placeholder="Type a message..."
-// // // // // //                     value={messageText}
-// // // // // //                     onChange={(e) => setMessageText(e.target.value)}
-// // // // // //                 />
-// // // // // //                 <button
-// // // // // //                     className="ml-2 p-2 bg-blue-500 text-white rounded-lg"
-// // // // // //                     onClick={sendMessage}
-// // // // // //                 >
-// // // // // //                     Send
-// // // // // //                 </button>
-// // // // // //             </div>
-// // // // // //         </div>
-// // // // // //     );
-// // // // // // };
+// // // //     // Function to delete a message
+// // // //     const deleteMessage = async (id) => {
+// // // //         const messageRef = ref(database, `messages/${user.id}/${otherUser.id}/${id}`);
+// // // //         await remove(messageRef);
+// // // //     };
 
-// // // // // // export default Chat;
+// // // //     const renderMedia = (files) => {
+// // // //         if (!files || files.length === 0) return null;
+
+// // // //         const visibleFiles = files.slice(0, 3);
+// // // //         const extraFiles = files.length - visibleFiles.length;
+
+// // // //         return (
+// // // //             <div className="flex flex-wrap mt-1">
+// // // //                 {visibleFiles.map((file, index) => (
+// // // //                     <img
+// // // //                         key={index}
+// // // //                         src={file}
+// // // //                         alt="Media"
+// // // //                         className="w-20 h-20 object-cover rounded-lg m-1"
+// // // //                     />
+// // // //                 ))}
+// // // //                 {extraFiles > 0 && (
+// // // //                     <div className="w-20 h-20 bg-gray-200 flex items-center justify-center rounded-lg m-1">
+// // // //                         +{extraFiles}
+// // // //                     </div>
+// // // //                 )}
+// // // //             </div>
+// // // //         );
+// // // //     };
+
+// // // //     return (
+// // // //         <div className="flex flex-col h-screen bg-gray-100">
+// // // //             <div className="flex-none p-4 bg-white border-b border-gray-300">
+// // // //                 <h2 className="text-xl text-center">{otherUser.name}</h2>
+// // // //                 {lastSeen && (
+// // // //                     <p className="text-sm text-gray-500 text-center">
+// // // //                         {lastSeen.status} (Last seen: {new Date(lastSeen.timestamp).toLocaleString()})
+// // // //                     </p>
+// // // //                 )}
+// // // //             </div>
+// // // //             <div className="flex-1 overflow-y-auto p-4">
+// // // //                 {/* Display messages */}
+// // // //                 {messages.map((msg, index) => (
+// // // //                     <div key={index} className={`mb-2 ${msg.sender === user.id ? 'text-right' : 'text-left'}`}>
+// // // //                         <div 
+// // // //                             className={`inline-block p-2 rounded-lg ${msg.sender === user.id ? 'bg-blue-500 text-white' : 'bg-gray-300'}`}
+// // // //                             onContextMenu={(e) => {
+// // // //                                 e.preventDefault();
+// // // //                                 if (msg.sender === user.id) {
+// // // //                                     handleEditMessage(msg.id); // Enable editing for the message
+// // // //                                 } else {
+// // // //                                     deleteMessage(msg.id); // Delete message for others
+// // // //                                 }
+// // // //                             }}
+// // // //                         >
+// // // //                             {msg.text}
+// // // //                             {renderMedia(msg.files)}
+// // // //                         </div>
+// // // //                         <div className="text-xs text-gray-500 flex justify-end items-center">
+// // // //                             {new Date(msg.timestamp).toLocaleTimeString()}
+// // // //                             {msg.sender === user.id && (
+// // // //                                 <span className="ml-2">
+// // // //                                     {msg.read ? (
+// // // //                                         <span className="text-blue-500">✔✔</span>
+// // // //                                     ) : (
+// // // //                                         <span>✔</span>
+// // // //                                     )}
+// // // //                                 </span>
+// // // //                             )}
+// // // //                             {msg.sender !== user.id && (
+// // // //                                 <span className="ml-2">
+// // // //                                     {msg.read ? (
+// // // //                                         <span className="text-blue-500">✔✔</span>
+// // // //                                     ) : (
+// // // //                                         <span>✔✔</span>
+// // // //                                     )}
+// // // //                                 </span>
+// // // //                             )}
+// // // //                         </div>
+// // // //                     </div>
+// // // //                 ))}
+// // // //             </div>
+// // // //             <div className="flex-none p-4 border-t border-gray-300 flex items-center">
+// // // //                 <input
+// // // //                     type="file"
+// // // //                     accept="image/*,video/*"
+// // // //                     onChange={handleFileChange}
+// // // //                     className="hidden"
+// // // //                     id="file-input"
+// // // //                     multiple
+// // // //                 />
+// // // //                <label htmlFor="file-input" className="mr-2 cursor-pointer">
+// // // //                         <span className="text-gray-600 hover:text-blue-500">📎</span>
+// // // //                     </label>
+// // // //                 <input
+// // // //                     type="text"
+// // // //                     value={messageText}
+// // // //                     onChange={(e) => {
+// // // //                         setMessageText(e.target.value);
+// // // //                         setIsTyping(true); // Set typing status to true
+// // // //                     }}
+// // // //                     placeholder="Type a message..."
+// // // //                     className="flex-1 p-2 border border-gray-300 rounded-lg mx-2"
+// // // //                 />
+// // // //                 <button
+// // // //                     onClick={editingMessageId ? updateMessage : sendMessage}
+// // // //                     className="bg-blue-500 text-white rounded-lg px-4 py-2"
+// // // //                 >
+// // // //                     {editingMessageId ? 'Update' : 'Send'}
+// // // //                 </button>
+// // // //             </div>
+// // // //         </div>
+// // // //     );
+// // // // };
+
+// // // // export default Chat;
+
+// // // // "use client"; // Enable client-side rendering
+// // // // import React, { useState, useEffect } from 'react';
+// // // // import { database, storage } from '../config/firebase'; // Pastikan Anda sudah mengkonfigurasi Firebase Storage
+// // // // import { ref, onValue, push, update, remove } from 'firebase/database';
+// // // // import { uploadBytes, getDownloadURL } from 'firebase/storage';
+// // // // import 'tailwindcss/tailwind.css';
+
+// // // // const Chat = ({ user }) => {
+// // // //     const otherUser = user.id === 'user1' ? { id: 'user2', name: 'User 2' } : { id: 'user1', name: 'User 1' };
+
+// // // //     const [messages, setMessages] = useState([]);
+// // // //     const [messageText, setMessageText] = useState('');
+// // // //     const [selectedFiles, setSelectedFiles] = useState([]);
+// // // //     const [uploadingFiles, setUploadingFiles] = useState([]); // State untuk menyimpan status upload file
+// // // //     const [lastSeen, setLastSeen] = useState(null); // State untuk menyimpan waktu terakhir dilihat
+// // // //     const [editingMessageId, setEditingMessageId] = useState(null); // State untuk menyimpan ID pesan yang sedang diedit
+// // // //     const [isTyping, setIsTyping] = useState(false); // State untuk menyimpan status mengetik
+
+// // // //     // Fetch messages from Firebase on component mount
+// // // //     useEffect(() => {
+// // // //         const messagesRef = ref(database, `messages/${user.id}/${otherUser.id}`);
+// // // //         onValue(messagesRef, (snapshot) => {
+// // // //             const data = snapshot.val();
+// // // //             const loadedMessages = data ? Object.values(data) : [];
+// // // //             setMessages(loadedMessages);
+
+// // // //             // Mark all messages as read when the user views the chat
+// // // //             loadedMessages.forEach((msg) => {
+// // // //                 if (!msg.read && msg.sender !== user.id) {
+// // // //                     update(ref(database, `messages/${user.id}/${otherUser.id}/${msg.id}`), { read: true });
+// // // //                     update(ref(database, `messages/${otherUser.id}/${user.id}/${msg.id}`), { read: true });
+// // // //                 }
+// // // //             });
+// // // //         });
+
+// // // //         // Set last seen status
+// // // //         const lastSeenRef = ref(database, `lastSeen/${user.id}`);
+// // // //         onValue(lastSeenRef, (snapshot) => {
+// // // //             setLastSeen(snapshot.val());
+// // // //         });
+
+// // // //         // Update last seen when user is active
+// // // //         const updateLastSeen = () => {
+// // // //             if (isTyping) {
+// // // //                 update(lastSeenRef, { status: "Online", timestamp: Date.now() });
+// // // //             } else {
+// // // //                 update(lastSeenRef, { status: "Last Seen", timestamp: Date.now() });
+// // // //             }
+// // // //         };
+
+// // // //         // Check typing status
+// // // //         const typingInterval = setInterval(updateLastSeen, 5000); // Update every 5 seconds
+
+// // // //         return () => clearInterval(typingInterval); // Clean up interval on unmount
+// // // //     }, [user.id, otherUser.id, isTyping]);
+
+// // // //     // Handle file selection
+// // // //     const handleFileChange = (event) => {
+// // // //         const files = Array.from(event.target.files);
+// // // //         setSelectedFiles((prevFiles) => [...prevFiles, ...files]);
+// // // //     };
+
+// // // //     // Remove a selected file
+// // // //     const removeFile = (index) => {
+// // // //         setSelectedFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
+// // // //         setUploadingFiles((prevUploads) => prevUploads.filter((_, i) => i !== index)); // Hapus status upload yang sesuai
+// // // //     };
+
+// // // //     // Function to send a new message
+// // // //     const sendMessage = async () => {
+// // // //         if (messageText.trim() === "" && selectedFiles.length === 0) return; // Prevent sending empty messages
+
+// // // //         const messagesRef = ref(database, `messages/${user.id}/${otherUser.id}`);
+// // // //         const newMessage = {
+// // // //             text: messageText,
+// // // //             sender: user.id,
+// // // //             timestamp: Date.now(),
+// // // //             read: false,
+// // // //             files: [],
+// // // //         };
+
+// // // //         // Update the state to show loading for each file
+// // // //         const loadingStatus = Array(selectedFiles.length).fill(true);
+// // // //         setUploadingFiles(loadingStatus);
+
+// // // //         // Upload selected files to Firebase Storage
+// // // //         const uploadedFiles = await Promise.all(selectedFiles.map(async (file, index) => {
+// // // //             const storageRef = ref(storage, `chatFiles/${file.name}`);
+// // // //             await uploadBytes(storageRef, file);
+// // // //             const url = await getDownloadURL(storageRef);
+// // // //             // Update the loading status for the uploaded file
+// // // //             loadingStatus[index] = false;
+// // // //             setUploadingFiles([...loadingStatus]); // Update loading state
+// // // //             return url;
+// // // //         }));
+
+// // // //         // Update newMessage with uploaded file URLs
+// // // //         newMessage.files = uploadedFiles;
+
+// // // //         // Push message to Firebase Database
+// // // //         await push(messagesRef, newMessage);
+// // // //         setMessageText(''); // Clear input after sending
+// // // //         setSelectedFiles([]); // Clear selected files
+// // // //         setUploadingFiles([]); // Clear uploading status
+
+// // // //         // Update the recipient's message status
+// // // //         const recipientRef = ref(database, `messages/${otherUser.id}/${user.id}`);
+// // // //         await push(recipientRef, newMessage);
+// // // //     };
+
+// // // //     // Handle message edit
+// // // //     const handleEditMessage = async (id) => {
+// // // //         const messageToEdit = messages.find((msg) => msg.id === id);
+// // // //         setMessageText(messageToEdit.text);
+// // // //         setEditingMessageId(id);
+// // // //     };
+
+// // // //     // Function to update the edited message
+// // // //     const updateMessage = async () => {
+// // // //         if (editingMessageId) {
+// // // //             const messageRef = ref(database, `messages/${user.id}/${otherUser.id}/${editingMessageId}`);
+// // // //             await update(messageRef, { text: messageText });
+// // // //             setMessageText(''); // Clear input after updating
+// // // //             setEditingMessageId(null); // Reset editing state
+// // // //         }
+// // // //     };
+
+// // // //     // Function to delete a message
+// // // //     const deleteMessage = async (id) => {
+// // // //         const messageRef = ref(database, `messages/${user.id}/${otherUser.id}/${id}`);
+// // // //         await remove(messageRef);
+// // // //     };
+
+// // // //     const renderMedia = (files) => {
+// // // //         if (!files || files.length === 0) return null;
+
+// // // //         const visibleFiles = files.slice(0, 3);
+// // // //         const extraFiles = files.length - visibleFiles.length;
+
+// // // //         return (
+// // // //             <div className="flex flex-wrap mt-1">
+// // // //                 {visibleFiles.map((file, index) => (
+// // // //                     <img
+// // // //                         key={index}
+// // // //                         src={file}
+// // // //                         alt="Media"
+// // // //                         className="w-20 h-20 object-cover rounded-lg m-1"
+// // // //                     />
+// // // //                 ))}
+// // // //                 {extraFiles > 0 && (
+// // // //                     <div className="w-20 h-20 bg-gray-200 flex items-center justify-center rounded-lg m-1">
+// // // //                         +{extraFiles}
+// // // //                     </div>
+// // // //                 )}
+// // // //             </div>
+// // // //         );
+// // // //     };
+
+// // // //     return (
+// // // //         <div className="flex flex-col h-screen bg-gray-100">
+// // // //             <div className="flex-none p-4 bg-white border-b border-gray-300">
+// // // //                 <h2 className="text-xl text-center">{otherUser.name}</h2>
+// // // //                 {lastSeen && (
+// // // //                     <p className="text-sm text-gray-500 text-center">
+// // // //                         {lastSeen.status} (Last seen: {new Date(lastSeen.timestamp).toLocaleString()})
+// // // //                     </p>
+// // // //                 )}
+// // // //             </div>
+// // // //             <div className="flex-1 overflow-y-auto p-4">
+// // // //                 {/* Display messages */}
+// // // //                 {messages.map((msg, index) => (
+// // // //                     <div key={index} className={`mb-2 ${msg.sender === user.id ? 'text-right' : 'text-left'}`}>
+// // // //                         <div 
+// // // //                             className={`inline-block p-2 rounded-lg ${msg.sender === user.id ? 'bg-blue-500 text-white' : 'bg-gray-300'}`}
+// // // //                             onContextMenu={(e) => {
+// // // //                                 e.preventDefault();
+// // // //                                 if (msg.sender === user.id) {
+// // // //                                     handleEditMessage(msg.id); // Enable editing for the message
+// // // //                                 } else {
+// // // //                                     deleteMessage(msg.id); // Delete message for others
+// // // //                                 }
+// // // //                             }}
+// // // //                         >
+// // // //                             {msg.text}
+// // // //                             {renderMedia(msg.files)}
+// // // //                         </div>
+// // // //                         <div className="text-xs text-gray-500 flex justify-end items-center">
+// // // //                             {new Date(msg.timestamp).toLocaleTimeString()}
+// // // //                             {msg.sender === user.id && (
+// // // //                                 <span className="ml-2">
+// // // //                                     {msg.read ? (
+// // // //                                         <span className="text-blue-500">✔✔</span>
+// // // //                                     ) : (
+// // // //                                         <span>✔</span>
+// // // //                                     )}
+// // // //                                 </span>
+// // // //                             )}
+// // // //                             {msg.sender !== user.id && (
+// // // //                                 <span className="ml-2">
+// // // //                                     {msg.read ? (
+// // // //                                         <span className="text-blue-500">✔✔</span>
+// // // //                                     ) : (
+// // // //                                         <span>✔✔</span>
+// // // //                                     )}
+// // // //                                 </span>
+// // // //                             )}
+// // // //                         </div>
+// // // //                     </div>
+// // // //                 ))}
+// // // //             </div>
+// // // //             <div className="flex-none p-4 border-t border-gray-300 flex items-center">
+// // // //                 <input
+// // // //                     type="file"
+// // // //                     accept="image/*,video/*"
+// // // //                     onChange={handleFileChange}
+// // // //                     className="hidden"
+// // // //                     id="file-input"
+// // // //                     multiple
+// // // //                 />
+// // // //                 <label htmlFor="file-input" className="mr-2 cursor-pointer">
+// // // //                         <span className="text-gray-600 hover:text-blue-500">📎</span>
+// // // //                     </label>
+// // // //                 <input
+// // // //                     type="text"
+// // // //                     value={messageText}
+// // // //                     onChange={(e) => {
+// // // //                         setMessageText(e.target.value);
+// // // //                         setIsTyping(true); // Set typing status to true
+// // // //                     }}
+// // // //                     placeholder="Type a message..."
+// // // //                     className="flex-1 p-2 border border-gray-300 rounded-lg mx-2"
+// // // //                 />
+// // // //                 <button
+// // // //                     onClick={editingMessageId ? updateMessage : sendMessage}
+// // // //                     className="bg-blue-500 text-white rounded-lg px-4 py-2"
+// // // //                 >
+// // // //                     {editingMessageId ? 'Update' : 'Send'}
+// // // //                 </button>
+// // // //             </div>
+// // // //         </div>
+// // // //     );
+// // // // };
+
+// // // // export default Chat;
+
 
 // // // // // // // "use client"; // Enable client-side rendering
 // // // // // // // import React, { useState, useEffect } from 'react';
@@ -1623,7 +1658,7 @@ export default Chat;
 // // // // // // //     const [messages, setMessages] = useState([]);
 // // // // // // //     const [messageText, setMessageText] = useState('');
 // // // // // // //     const [selectedFiles, setSelectedFiles] = useState([]);
-// // // // // // //     const [uploading, setUploading] = useState(false);
+// // // // // // //     const [uploadingFiles, setUploadingFiles] = useState([]); // State untuk menyimpan status upload file
 // // // // // // //     const [lastSeen, setLastSeen] = useState(null); // State untuk menyimpan waktu terakhir dilihat
 
 // // // // // // //     // Fetch messages from Firebase on component mount
@@ -1662,6 +1697,7 @@ export default Chat;
 // // // // // // //     // Remove a selected file
 // // // // // // //     const removeFile = (index) => {
 // // // // // // //         setSelectedFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
+// // // // // // //         setUploadingFiles((prevUploads) => prevUploads.filter((_, i) => i !== index)); // Hapus status upload yang sesuai
 // // // // // // //     };
 
 // // // // // // //     // Function to send a new message
@@ -1677,13 +1713,19 @@ export default Chat;
 // // // // // // //             files: [],
 // // // // // // //         };
 
-// // // // // // //         setUploading(true);
+// // // // // // //         // Update the state to show loading for each file
+// // // // // // //         const loadingStatus = Array(selectedFiles.length).fill(true);
+// // // // // // //         setUploadingFiles(loadingStatus);
 
 // // // // // // //         // Upload selected files to Firebase Storage
-// // // // // // //         const uploadedFiles = await Promise.all(selectedFiles.map(async (file) => {
+// // // // // // //         const uploadedFiles = await Promise.all(selectedFiles.map(async (file, index) => {
 // // // // // // //             const storageRef = ref(storage, `chatFiles/${file.name}`);
 // // // // // // //             await uploadBytes(storageRef, file);
-// // // // // // //             return getDownloadURL(storageRef);
+// // // // // // //             const url = await getDownloadURL(storageRef);
+// // // // // // //             // Update the loading status for the uploaded file
+// // // // // // //             loadingStatus[index] = false;
+// // // // // // //             setUploadingFiles([...loadingStatus]); // Update loading state
+// // // // // // //             return url;
 // // // // // // //         }));
 
 // // // // // // //         // Update newMessage with uploaded file URLs
@@ -1693,12 +1735,11 @@ export default Chat;
 // // // // // // //         await push(messagesRef, newMessage);
 // // // // // // //         setMessageText(''); // Clear input after sending
 // // // // // // //         setSelectedFiles([]); // Clear selected files
+// // // // // // //         setUploadingFiles([]); // Clear uploading status
 
 // // // // // // //         // Update the recipient's message status
 // // // // // // //         const recipientRef = ref(database, `messages/${otherUser.id}/${user.id}`);
 // // // // // // //         await push(recipientRef, newMessage);
-
-// // // // // // //         setUploading(false);
 // // // // // // //     };
 
 // // // // // // //     const renderMedia = (files) => {
@@ -1767,6 +1808,19 @@ export default Chat;
 // // // // // // //                         </div>
 // // // // // // //                     </div>
 // // // // // // //                 ))}
+// // // // // // //                 {/* Tampilkan gambar yang sedang diupload */}
+// // // // // // //                 {selectedFiles.map((file, index) => (
+// // // // // // //                     <div key={index} className="flex items-center mb-2">
+// // // // // // //                         <img
+// // // // // // //                             src={URL.createObjectURL(file)}
+// // // // // // //                             alt="Uploading"
+// // // // // // //                             className="w-20 h-20 object-cover rounded-lg"
+// // // // // // //                         />
+// // // // // // //                         {uploadingFiles[index] && (
+// // // // // // //                             <span className="ml-2 text-sm text-gray-500">Uploading...</span>
+// // // // // // //                         )}
+// // // // // // //                     </div>
+// // // // // // //                 ))}
 // // // // // // //             </div>
 // // // // // // //             <div className="flex items-center p-4 border-t border-gray-300">
 // // // // // // //                 <input
@@ -1780,23 +1834,6 @@ export default Chat;
 // // // // // // //                 <label htmlFor="fileInput" className="cursor-pointer flex items-center">
 // // // // // // //                     <span className="material-icons">attach_file</span> {/* Ganti dengan ikon klip */}
 // // // // // // //                 </label>
-// // // // // // //                 <div className="flex flex-wrap w-full">
-// // // // // // //                     {selectedFiles.map((file, index) => (
-// // // // // // //                         <div key={index} className="relative mr-2 mb-2">
-// // // // // // //                             <span
-// // // // // // //                                 className="absolute top-0 right-0 cursor-pointer text-red-500"
-// // // // // // //                                 onClick={() => removeFile(index)}
-// // // // // // //                             >
-// // // // // // //                                 &times;
-// // // // // // //                             </span>
-// // // // // // //                             <img
-// // // // // // //                                 src={URL.createObjectURL(file)} // Menampilkan gambar sebagai preview
-// // // // // // //                                 alt="Preview"
-// // // // // // //                                 className="w-20 h-20 object-cover rounded-lg"
-// // // // // // //                             />
-// // // // // // //                         </div>
-// // // // // // //                     ))}
-// // // // // // //                 </div>
 // // // // // // //                 <input
 // // // // // // //                     type="text"
 // // // // // // //                     className="border rounded-lg p-2 flex-1 mx-2"
@@ -1807,9 +1844,8 @@ export default Chat;
 // // // // // // //                 <button
 // // // // // // //                     className="ml-2 p-2 bg-blue-500 text-white rounded-lg"
 // // // // // // //                     onClick={sendMessage}
-// // // // // // //                     disabled={uploading}
 // // // // // // //                 >
-// // // // // // //                     {uploading ? "Sending..." : "Send"}
+// // // // // // //                     Send
 // // // // // // //                 </button>
 // // // // // // //             </div>
 // // // // // // //         </div>
@@ -1817,3 +1853,211 @@ export default Chat;
 // // // // // // // };
 
 // // // // // // // export default Chat;
+
+// // // // // // // // "use client"; // Enable client-side rendering
+// // // // // // // // import React, { useState, useEffect } from 'react';
+// // // // // // // // import { database, storage } from '../config/firebase'; // Pastikan Anda sudah mengkonfigurasi Firebase Storage
+// // // // // // // // import { ref, onValue, push, update } from 'firebase/database';
+// // // // // // // // import { uploadBytes, getDownloadURL } from 'firebase/storage';
+// // // // // // // // import 'tailwindcss/tailwind.css';
+
+// // // // // // // // const Chat = ({ user }) => {
+// // // // // // // //     const otherUser = user.id === 'user1' ? { id: 'user2', name: 'User 2' } : { id: 'user1', name: 'User 1' };
+
+// // // // // // // //     const [messages, setMessages] = useState([]);
+// // // // // // // //     const [messageText, setMessageText] = useState('');
+// // // // // // // //     const [selectedFiles, setSelectedFiles] = useState([]);
+// // // // // // // //     const [uploading, setUploading] = useState(false);
+// // // // // // // //     const [lastSeen, setLastSeen] = useState(null); // State untuk menyimpan waktu terakhir dilihat
+
+// // // // // // // //     // Fetch messages from Firebase on component mount
+// // // // // // // //     useEffect(() => {
+// // // // // // // //         const messagesRef = ref(database, `messages/${user.id}/${otherUser.id}`);
+// // // // // // // //         onValue(messagesRef, (snapshot) => {
+// // // // // // // //             const data = snapshot.val();
+// // // // // // // //             const loadedMessages = data ? Object.values(data) : [];
+// // // // // // // //             setMessages(loadedMessages);
+
+// // // // // // // //             // Mark all messages as read when the user views the chat
+// // // // // // // //             loadedMessages.forEach((msg) => {
+// // // // // // // //                 if (!msg.read && msg.sender !== user.id) {
+// // // // // // // //                     update(ref(database, `messages/${user.id}/${otherUser.id}/${msg.id}`), { read: true });
+// // // // // // // //                     update(ref(database, `messages/${otherUser.id}/${user.id}/${msg.id}`), { read: true });
+// // // // // // // //                 }
+// // // // // // // //             });
+// // // // // // // //         });
+
+// // // // // // // //         // Set last seen status
+// // // // // // // //         const lastSeenRef = ref(database, `lastSeen/${user.id}`);
+// // // // // // // //         onValue(lastSeenRef, (snapshot) => {
+// // // // // // // //             setLastSeen(snapshot.val());
+// // // // // // // //         });
+
+// // // // // // // //         // Update last seen when user is active
+// // // // // // // //         update(lastSeenRef, { timestamp: Date.now() });
+// // // // // // // //     }, [user.id, otherUser.id]);
+
+// // // // // // // //     // Handle file selection
+// // // // // // // //     const handleFileChange = (event) => {
+// // // // // // // //         const files = Array.from(event.target.files);
+// // // // // // // //         setSelectedFiles((prevFiles) => [...prevFiles, ...files]);
+// // // // // // // //     };
+
+// // // // // // // //     // Remove a selected file
+// // // // // // // //     const removeFile = (index) => {
+// // // // // // // //         setSelectedFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
+// // // // // // // //     };
+
+// // // // // // // //     // Function to send a new message
+// // // // // // // //     const sendMessage = async () => {
+// // // // // // // //         if (messageText.trim() === "" && selectedFiles.length === 0) return; // Prevent sending empty messages
+
+// // // // // // // //         const messagesRef = ref(database, `messages/${user.id}/${otherUser.id}`);
+// // // // // // // //         const newMessage = {
+// // // // // // // //             text: messageText,
+// // // // // // // //             sender: user.id,
+// // // // // // // //             timestamp: Date.now(),
+// // // // // // // //             read: false,
+// // // // // // // //             files: [],
+// // // // // // // //         };
+
+// // // // // // // //         setUploading(true);
+
+// // // // // // // //         // Upload selected files to Firebase Storage
+// // // // // // // //         const uploadedFiles = await Promise.all(selectedFiles.map(async (file) => {
+// // // // // // // //             const storageRef = ref(storage, `chatFiles/${file.name}`);
+// // // // // // // //             await uploadBytes(storageRef, file);
+// // // // // // // //             return getDownloadURL(storageRef);
+// // // // // // // //         }));
+
+// // // // // // // //         // Update newMessage with uploaded file URLs
+// // // // // // // //         newMessage.files = uploadedFiles;
+
+// // // // // // // //         // Push message to Firebase Database
+// // // // // // // //         await push(messagesRef, newMessage);
+// // // // // // // //         setMessageText(''); // Clear input after sending
+// // // // // // // //         setSelectedFiles([]); // Clear selected files
+
+// // // // // // // //         // Update the recipient's message status
+// // // // // // // //         const recipientRef = ref(database, `messages/${otherUser.id}/${user.id}`);
+// // // // // // // //         await push(recipientRef, newMessage);
+
+// // // // // // // //         setUploading(false);
+// // // // // // // //     };
+
+// // // // // // // //     const renderMedia = (files) => {
+// // // // // // // //         if (!files || files.length === 0) return null;
+
+// // // // // // // //         const visibleFiles = files.slice(0, 3);
+// // // // // // // //         const extraFiles = files.length - visibleFiles.length;
+
+// // // // // // // //         return (
+// // // // // // // //             <div className="flex flex-wrap mt-1">
+// // // // // // // //                 {visibleFiles.map((file, index) => (
+// // // // // // // //                     <img
+// // // // // // // //                         key={index}
+// // // // // // // //                         src={file}
+// // // // // // // //                         alt="Media"
+// // // // // // // //                         className="w-20 h-20 object-cover rounded-lg m-1"
+// // // // // // // //                     />
+// // // // // // // //                 ))}
+// // // // // // // //                 {extraFiles > 0 && (
+// // // // // // // //                     <div className="w-20 h-20 bg-gray-200 flex items-center justify-center rounded-lg m-1">
+// // // // // // // //                         +{extraFiles}
+// // // // // // // //                     </div>
+// // // // // // // //                 )}
+// // // // // // // //             </div>
+// // // // // // // //         );
+// // // // // // // //     };
+
+// // // // // // // //     return (
+// // // // // // // //         <div className="flex flex-col h-screen bg-gray-100">
+// // // // // // // //             <div className="flex-none p-4 bg-white border-b border-gray-300">
+// // // // // // // //                 <h2 className="text-xl text-center">{otherUser.name}</h2>
+// // // // // // // //                 {lastSeen && (
+// // // // // // // //                     <p className="text-sm text-gray-500 text-center">
+// // // // // // // //                         Last seen: {new Date(lastSeen.timestamp).toLocaleString()}
+// // // // // // // //                     </p>
+// // // // // // // //                 )}
+// // // // // // // //             </div>
+// // // // // // // //             <div className="flex-1 overflow-y-auto p-4">
+// // // // // // // //                 {/* Display messages */}
+// // // // // // // //                 {messages.map((msg, index) => (
+// // // // // // // //                     <div key={index} className={`mb-2 ${msg.sender === user.id ? 'text-right' : 'text-left'}`}>
+// // // // // // // //                         <div className={`inline-block p-2 rounded-lg ${msg.sender === user.id ? 'bg-blue-500 text-white' : 'bg-gray-300'}`}>
+// // // // // // // //                             {msg.text}
+// // // // // // // //                             {renderMedia(msg.files)}
+// // // // // // // //                         </div>
+// // // // // // // //                         <div className="text-xs text-gray-500 flex justify-end items-center">
+// // // // // // // //                             {new Date(msg.timestamp).toLocaleTimeString()}
+// // // // // // // //                             {msg.sender === user.id && (
+// // // // // // // //                                 <span className="ml-2">
+// // // // // // // //                                     {msg.read ? (
+// // // // // // // //                                         <span className="text-blue-500">✔✔</span>
+// // // // // // // //                                     ) : (
+// // // // // // // //                                         <span>✔</span>
+// // // // // // // //                                     )}
+// // // // // // // //                                 </span>
+// // // // // // // //                             )}
+// // // // // // // //                             {msg.sender !== user.id && (
+// // // // // // // //                                 <span className="ml-2">
+// // // // // // // //                                     {msg.read ? (
+// // // // // // // //                                         <span className="text-blue-500">✔✔</span>
+// // // // // // // //                                     ) : (
+// // // // // // // //                                         <span>✔✔</span>
+// // // // // // // //                                     )}
+// // // // // // // //                                 </span>
+// // // // // // // //                             )}
+// // // // // // // //                         </div>
+// // // // // // // //                     </div>
+// // // // // // // //                 ))}
+// // // // // // // //             </div>
+// // // // // // // //             <div className="flex items-center p-4 border-t border-gray-300">
+// // // // // // // //                 <input
+// // // // // // // //                     type="file"
+// // // // // // // //                     multiple
+// // // // // // // //                     accept="image/*,video/*"
+// // // // // // // //                     className="hidden"
+// // // // // // // //                     id="fileInput"
+// // // // // // // //                     onChange={handleFileChange}
+// // // // // // // //                 />
+// // // // // // // //                 <label htmlFor="fileInput" className="cursor-pointer flex items-center">
+// // // // // // // //                     <span className="material-icons">attach_file</span> {/* Ganti dengan ikon klip */}
+// // // // // // // //                 </label>
+// // // // // // // //                 <div className="flex flex-wrap w-full">
+// // // // // // // //                     {selectedFiles.map((file, index) => (
+// // // // // // // //                         <div key={index} className="relative mr-2 mb-2">
+// // // // // // // //                             <span
+// // // // // // // //                                 className="absolute top-0 right-0 cursor-pointer text-red-500"
+// // // // // // // //                                 onClick={() => removeFile(index)}
+// // // // // // // //                             >
+// // // // // // // //                                 &times;
+// // // // // // // //                             </span>
+// // // // // // // //                             <img
+// // // // // // // //                                 src={URL.createObjectURL(file)} // Menampilkan gambar sebagai preview
+// // // // // // // //                                 alt="Preview"
+// // // // // // // //                                 className="w-20 h-20 object-cover rounded-lg"
+// // // // // // // //                             />
+// // // // // // // //                         </div>
+// // // // // // // //                     ))}
+// // // // // // // //                 </div>
+// // // // // // // //                 <input
+// // // // // // // //                     type="text"
+// // // // // // // //                     className="border rounded-lg p-2 flex-1 mx-2"
+// // // // // // // //                     placeholder="Type a message..."
+// // // // // // // //                     value={messageText}
+// // // // // // // //                     onChange={(e) => setMessageText(e.target.value)}
+// // // // // // // //                 />
+// // // // // // // //                 <button
+// // // // // // // //                     className="ml-2 p-2 bg-blue-500 text-white rounded-lg"
+// // // // // // // //                     onClick={sendMessage}
+// // // // // // // //                     disabled={uploading}
+// // // // // // // //                 >
+// // // // // // // //                     {uploading ? "Sending..." : "Send"}
+// // // // // // // //                 </button>
+// // // // // // // //             </div>
+// // // // // // // //         </div>
+// // // // // // // //     );
+// // // // // // // // };
+
+// // // // // // // // export default Chat;
