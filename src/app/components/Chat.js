@@ -10,8 +10,8 @@ const Chat = ({ user }) => {
 
     const [messages, setMessages] = useState([]); // State for messages
     const [messageText, setMessageText] = useState(''); // State for input message
-    const [files, setFiles] = useState([]); // State for selected files
-    const [previews, setPreviews] = useState([]); // State for file previews
+    const [file, setFile] = useState(null); // State for file input
+    const [preview, setPreview] = useState(null); // State for previewing the selected file
     const [isUploading, setIsUploading] = useState(false); // State to track if file is uploading
     const [otherUserStatus, setOtherUserStatus] = useState(null); // State for tracking other user's online status
     const [isOtherUserTyping, setIsOtherUserTyping] = useState(false); // State to track typing status
@@ -46,7 +46,7 @@ const Chat = ({ user }) => {
         onDisconnect(userStatusRef).update({ online: false, lastSeen: Date.now() });
 
         // Update typing status when the user types
-        if (messageText.trim() || files.length > 0) {
+        if (messageText.trim() || file) {
             update(typingRef, { typing: true });
         } else {
             update(typingRef, { typing: false });
@@ -71,50 +71,53 @@ const Chat = ({ user }) => {
             update(typingRef, { typing: false });
             onDisconnect(userStatusRef).cancel();
         };
-    }, [messageText, files, user.id, otherUser.id]);
+    }, [messageText, file, user.id, otherUser.id]);
 
     // Function to handle file input and preview
     const handleFileChange = (e) => {
-        const selectedFiles = Array.from(e.target.files);
-        setFiles([...files, ...selectedFiles]);
-
-        // Generate previews for selected files
-        const newPreviews = selectedFiles.map((file) => ({
-            id: URL.createObjectURL(file),
-            file,
-        }));
-        setPreviews([...previews, ...newPreviews]);
+        const selectedFile = e.target.files[0];
+        if (selectedFile) {
+            setFile(selectedFile);
+            setPreview(URL.createObjectURL(selectedFile)); // Create a preview URL for the selected file
+        }
     };
 
-    // Function to remove a file from preview
-    const removeFile = (previewId) => {
-        setPreviews(previews.filter((preview) => preview.id !== previewId));
-        setFiles(files.filter((file) => URL.createObjectURL(file) !== previewId));
-    };
+    // Function to upload file to Firebase Storage
+    const uploadFile = async (file) => {
+        if (!file) return null;
 
-    // Function to upload files to Firebase Storage
-    const uploadFiles = async () => {
-        const uploadPromises = files.map((file) => {
-            const storageReference = storageRef(storage, `files/${user.id}/${Date.now()}_${file.name}`);
-            return uploadBytes(storageReference, file).then(() => getDownloadURL(storageReference));
-        });
-        return await Promise.all(uploadPromises); // Return all download URLs
+        // Create a storage reference
+        const storageReference = storageRef(storage, `files/${user.id}/${Date.now()}_${file.name}`);
+        
+        try {
+            setIsUploading(true); // Start loading
+            // Upload file to Firebase Storage
+            await uploadBytes(storageReference, file);
+
+            // Get the download URL after upload
+            const downloadURL = await getDownloadURL(storageReference);
+            setIsUploading(false); // End loading
+            return downloadURL;
+        } catch (error) {
+            console.error("Error uploading file:", error);
+            setIsUploading(false); // End loading on error
+            return null;
+        }
     };
 
     // Function to send a new message
     const sendMessage = async () => {
-        if (messageText.trim() === "" && files.length === 0) return; // Prevent sending empty messages
+        if (messageText.trim() === "" && !file) return; // Prevent sending empty messages
 
         const messagesRef = ref(database, `messages/${user.id}/${otherUser.id}`);
         const newMessageKey = push(messagesRef).key;
 
-        let fileURLs = [];
-        if (files.length > 0) {
-            setIsUploading(true);
-            fileURLs = await uploadFiles(); // Upload all files and get URLs
-            setIsUploading(false);
-            setFiles([]); // Clear files after uploading
-            setPreviews([]); // Clear previews after sending
+        let fileURL = null;
+        if (file) {
+            // Upload the file and get its URL
+            fileURL = await uploadFile(file);
+            setFile(null); // Clear file state after uploading
+            setPreview(null); // Clear preview after sending
         }
 
         const newMessage = {
@@ -122,8 +125,8 @@ const Chat = ({ user }) => {
             sender: user.id,
             timestamp: Date.now(),
             read: false, // Initially mark as unread
-            id: newMessageKey,
-            files: fileURLs // Store uploaded file URLs
+            id: newMessageKey, // Ensure message has unique ID
+            file: fileURL // Set file URL (null if no file)
         };
 
         // Save message for both users
@@ -134,51 +137,6 @@ const Chat = ({ user }) => {
         update(ref(database), updates).then(() => {
             setMessageText(''); // Clear input after sending
         });
-    };
-
-    // Render previews of selected files
-    const renderPreviews = () => {
-        return previews.map((preview, index) => (
-            <div key={index} className="relative inline-block m-1">
-                <img
-                    src={preview.id}
-                    alt="Preview"
-                    className="w-20 h-20 object-cover rounded-lg"
-                />
-                <button
-                    className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center"
-                    onClick={() => removeFile(preview.id)}
-                >
-                    X
-                </button>
-            </div>
-        ));
-    };
-
-    // Render media in chat (with +X for extra media)
-    const renderMedia = (files) => {
-        if (files.length === 0) return null;
-
-        const visibleFiles = files.slice(0, 3);
-        const extraFiles = files.length > 3 ? files.length - 3 : 0;
-
-        return (
-            <div className="flex space-x-2">
-                {visibleFiles.map((file, index) => (
-                    <img
-                        key={index}
-                        src={file}
-                        alt={`Media ${index + 1}`}
-                        className="w-24 h-24 object-cover rounded-lg"
-                    />
-                ))}
-                {extraFiles > 0 && (
-                    <div className="relative w-24 h-24 bg-gray-200 rounded-lg flex items-center justify-center">
-                        <span className="text-xl font-bold">+{extraFiles}</span>
-                    </div>
-                )}
-            </div>
-        );
     };
 
     return (
@@ -193,47 +151,57 @@ const Chat = ({ user }) => {
                     ) : (
                         <span>Last seen at {new Date(otherUserStatus?.lastSeen).toLocaleTimeString()}</span>
                     )}
-                    {isOtherUserTyping && <span>...typing</span>}
                 </div>
             </div>
 
-            {/* Chat messages */}
-            <div className="flex-1 p-4 overflow-y-scroll">
-                {messages.map((message, index) => (
-                    <div
-                        key={index}
-                        className={`mb-4 ${message.sender === user.id ? 'text-right' : 'text-left'}`}
-                    >
-                        <div className={`inline-block p-2 rounded-lg ${message.sender === user.id ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}>
-                            <p>{message.text}</p>
-                            {renderMedia(message.files)}
+            {/* Scrollable chat area */}
+            <div className="flex-1 overflow-y-auto p-4">
+                {/* Display messages */}
+                {messages.map((msg, index) => (
+                    <div key={index} className={`mb-2 ${msg.sender === user.id ? 'text-right' : 'text-left'}`}>
+                        <div className={`inline-block p-2 rounded-lg ${msg.sender === user.id ? 'bg-blue-500 text-white' : 'bg-gray-300'}`}>
+                            {msg.text}
+                            {msg.file && <a href={msg.file} className="block text-blue-500 underline">Download File</a>}
+                        </div>
+                        <div className="text-xs text-gray-500 flex justify-end items-center">
+                            {new Date(msg.timestamp).toLocaleTimeString()}
+                            {msg.sender === user.id && (
+                                <span className="ml-2">
+                                    {msg.read ? (
+                                        <span className="text-blue-500">✔✔</span> // Blue double ticks for read messages
+                                    ) : (
+                                        <span>✔</span> // Grey single tick for sent messages
+                                    )}
+                                </span>
+                            )}
                         </div>
                     </div>
                 ))}
+
+                {/* Show typing indicator */}
+                {isOtherUserTyping && (
+                    <div className="text-sm text-gray-500 text-center">
+                        {otherUser.name} is typing...
+                    </div>
+                )}
             </div>
 
-            {/* File previews */}
-            {previews.length > 0 && (
-                <div className="p-2 border-t border-gray-300">
-                    <div className="flex overflow-x-auto">
-                        {renderPreviews()}
+            {/* Message input area */}
+            <div className="p-4 border-t border-gray-300">
+                {/* Show file preview if a file is selected */}
+                {preview && (
+                    <div className="mb-2">
+                        <img src={preview} alt="File preview" className="max-w-full h-32 object-cover" />
                     </div>
-                </div>
-            )}
+                )}
 
-            {/* Input area */}
-            <div className="p-4 bg-white border-t border-gray-300">
                 <div className="flex items-center">
                     {/* File input */}
-                    <input
-                        type="file"
-                        multiple
-                        onChange={handleFileChange}
-                        className="hidden"
-                        id="fileInput"
-                    />
+                    <input type="file" onChange={handleFileChange} className="hidden" id="fileInput" />
                     <label htmlFor="fileInput" className="mr-2 cursor-pointer">
-                        <span className="text-gray-600 hover:text-blue-500">📎</span>
+                        <span className="text-gray-600 hover:text-blue-500">
+                            📎
+                        </span>
                     </label>
 
                     {/* Text input */}
@@ -249,7 +217,7 @@ const Chat = ({ user }) => {
                     <button
                         className="bg-blue-500 text-white p-2 rounded-lg ml-2"
                         onClick={sendMessage}
-                        disabled={isUploading}
+                        disabled={isUploading} // Disable button if uploading
                     >
                         {isUploading ? 'Uploading...' : 'Send'}
                     </button>
