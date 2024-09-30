@@ -183,87 +183,87 @@ const Chat = ({ user }) => {
     //     );
     // };
     const renderPreviews = () => {
-    return previews.map((preview, index) => (
-        <div key={index} className="relative inline-block m-1">
-            {preview.file.type.startsWith('image/') ? (
-                <img src={preview.id} alt="Preview" className="w-20 h-20 object-cover rounded-lg" />
-            ) else if (preview.file.type.startsWith('video/')) {
-                return (
-                    <video key={index} className="w-20 h-20 object-cover rounded-lg" controls>
-                        <source src={preview.id} type={preview.file.type} />
-                        Your browser does not support the video tag.
-                    </video>
-                );
-            ) else if (preview.file.type === 'application/pdf') {
-                return (
-                    <div key={index} className="w-20 h-20 bg-gray-200 flex items-center justify-center rounded-lg">
-                        <a href={preview.id} target="_blank" rel="noopener noreferrer" className="text-blue-500">
-                            {preview.file.name}
-                        </a>
-                    </div>
-                );
-            ) else {
-                return (
-                    <div key={index} className="w-20 h-20 bg-gray-200 flex items-center justify-center rounded-lg">
-                        <a href={preview.id} target="_blank" rel="noopener noreferrer" className="text-blue-500">
-                            {preview.file.name}
-                        </a>
-                    </div>
-                );
-            }}
-            <button
-                className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center"
-                onClick={() => removeFile(preview.id)}
-            >
-                X
-            </button>
-        </div>
-    ));
-};
-
-const renderMedia = (files) => {
-    if (files.length === 0) return null;
-
-    const visibleFiles = files.slice(0, 3);
-    const extraFiles = files.length > 3 ? files.length - 3 : 0;
-
-    return (
-        <div className="flex space-x-2">
-            {visibleFiles.map((file, index) => {
-                if (file.endsWith('.pdf')) {
+        return previews.map((preview, index) => (
+            <div key={index} className="relative inline-block m-1">
+                {preview.file.type.startsWith('image/') ? (
+                    <img src={preview.id} alt="Preview" className="w-20 h-20 object-cover rounded-lg" />
+                ) else if (preview.file.type.startsWith('video/')) {
                     return (
-                        <div key={index} className="w-24 h-24 bg-gray-200 flex items-center justify-center rounded-lg">
-                            <a href={file} target="_blank" rel="noopener noreferrer" className="text-blue-500">
-                                PDF
-                            </a>
-                        </div>
-                    );
-                } else if (file.startsWith('data:video/')) {
-                    return (
-                        <video key={index} className="w-24 h-24 object-cover rounded-lg" controls>
-                            <source src={file} />
+                        <video key={index} className="w-20 h-20 object-cover rounded-lg" controls>
+                            <source src={preview.id} type={preview.file.type} />
                             Your browser does not support the video tag.
                         </video>
                     );
-                } else {
+                ) else if (preview.file.type === 'application/pdf') {
                     return (
-                        <img
-                            key={index}
-                            src={file}
-                            alt={`Media ${index + 1}`}
-                            className="w-24 h-24 object-cover rounded-lg"
-                        />
+                        <div key={index} className="w-20 h-20 bg-gray-200 flex items-center justify-center rounded-lg">
+                            <a href={preview.id} target="_blank" rel="noopener noreferrer" className="text-blue-500">
+                                {preview.file.name}
+                            </a>
+                        </div>
                     );
-                }
-            })}
-            {extraFiles > 0 && (
-                <div className="relative w-24 h-24 bg-gray-200 rounded-lg flex items-center justify-center">
-                    <span className="text-xl font-bold">+{extraFiles}</span>
-                </div>
-            )}
-        </div>
-    );
-};
+                ) else {
+                    return (
+                        <div key={index} className="w-20 h-20 bg-gray-200 flex items-center justify-center rounded-lg">
+                            <a href={preview.id} target="_blank" rel="noopener noreferrer" className="text-blue-500">
+                                {preview.file.name}
+                            </a>
+                        </div>
+                    );
+                }}
+                <button
+                    className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center"
+                    onClick={() => removeFile(preview.id)}
+                >
+                    X
+                </button>
+            </div>
+        ));
+    };
+
+    const renderMedia = (files) => {
+        if (files.length === 0) return null;
+    
+        const visibleFiles = files.slice(0, 3);
+        const extraFiles = files.length > 3 ? files.length - 3 : 0;
+
+        return (
+            <div className="flex space-x-2">
+                {visibleFiles.map((file, index) => {
+                    if (file.endsWith('.pdf')) {
+                        return (
+                            <div key={index} className="w-24 h-24 bg-gray-200 flex items-center justify-center rounded-lg">
+                                <a href={file} target="_blank" rel="noopener noreferrer" className="text-blue-500">
+                                    PDF
+                                </a>
+                            </div>
+                        );
+                    } else if (file.startsWith('data:video/')) {
+                        return (
+                            <video key={index} className="w-24 h-24 object-cover rounded-lg" controls>
+                                <source src={file} />
+                                Your browser does not support the video tag.
+                            </video>
+                        );
+                    } else {
+                        return (
+                            <img
+                                key={index}
+                                src={file}
+                                alt={`Media ${index + 1}`}
+                                className="w-24 h-24 object-cover rounded-lg"
+                            />
+                        );
+                    }
+                })}
+                {extraFiles > 0 && (
+                    <div className="relative w-24 h-24 bg-gray-200 rounded-lg flex items-center justify-center">
+                        <span className="text-xl font-bold">+{extraFiles}</span>
+                    </div>
+                )}
+            </div>
+        );
+    };
 
 
     return (
