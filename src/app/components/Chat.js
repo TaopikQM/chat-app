@@ -209,13 +209,7 @@ const Chat = ({ user }) => {
                                 <span className="text-center">{fileType.toUpperCase()} File</span>
                             </div>
                         );
-                    } else {
-                        mediaElement = (
-                            <div key={index} className="w-24 h-24 bg-gray-200 rounded-lg flex items-center justify-center">
-                                <span className="text-center">File</span>
-                            </div>
-                        );
-                    }
+                    } 
 
                     return mediaElement;
                 })}
