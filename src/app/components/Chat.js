@@ -203,6 +203,49 @@ const Chat = ({ user }) => {
 //         </div>
 //     );
 // };
+//     const renderMedia = (files) => {
+//     if (files.length === 0) return null;
+
+//     const visibleFiles = files.slice(0, 3);
+//     const extraFiles = files.length > 3 ? files.length - 3 : 0;
+
+//     return (
+//         <div className="flex space-x-2">
+//             {visibleFiles.map((file, index) => {
+//                 const fileType = file.split('.').pop().toLowerCase();
+
+//                 if (['jpg', 'jpeg', 'png', 'gif'].includes(fileType)) {
+//                     return (
+//                         <img
+//                             key={index}
+//                             src={file}
+//                             alt={`Image ${index + 1}`}
+//                             className="w-24 h-24 object-cover rounded-lg"
+//                         />
+//                     );
+//                 } else if (['mp4', 'mkv', 'webm', 'ogg'].includes(fileType)) {
+//                     return (
+//                         <video key={index} controls className="w-24 h-24 rounded-lg">
+//                             <source src={file} type={`video/${fileType}`} />
+//                             Your browser does not support the video tag.
+//                         </video>
+//                     );
+//                 } else {
+//                     return (
+//                         <div key={index} className="w-24 h-24 bg-gray-200 rounded-lg flex items-center justify-center">
+//                             <span className="text-center text-sm">Document: {file.split('/').pop()}</span>
+//                         </div>
+//                     );
+//                 }
+//             })}
+//             {extraFiles > 0 && (
+//                 <div className="relative w-24 h-24 bg-gray-200 rounded-lg flex items-center justify-center">
+//                     <span className="text-xl font-bold">+{extraFiles}</span>
+//                 </div>
+//             )}
+//         </div>
+//     );
+// };
     const renderMedia = (files) => {
     if (files.length === 0) return null;
 
@@ -246,6 +289,7 @@ const Chat = ({ user }) => {
         </div>
     );
 };
+
 
 
 
