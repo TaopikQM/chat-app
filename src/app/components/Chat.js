@@ -1,102 +1,224 @@
-// src/app/components/Chat.js
-"use client"; 
-import React, { useState, useEffect, useContext } from 'react';
-import Message from './Message';
-import ContactList from './ContactList';
-import { UserContext } from '../context/UserContext'; // Import UserContext
-import { database } from '../firebase'; // Pastikan sudah mengkonfigurasi Firebase
-import { ref, onValue, push } from 'firebase/database';
+"use client"; // Enable client-side rendering
+import React, { useState, useEffect } from 'react';
+import { database, storage } from '../config/firebase';
+import { ref, onValue, push, update, remove } from 'firebase/database';
+import { uploadBytes, getDownloadURL } from 'firebase/storage';
+import 'tailwindcss/tailwind.css';
 
-const Chat = () => {
-    const { user } = useContext(UserContext); // Ambil informasi pengguna dari context
-    const [contacts, setContacts] = useState([]);
-    const [selectedContact, setSelectedContact] = useState(null);
+const Chat = ({ user }) => {
+    const otherUser = user.id === 'user1' ? { id: 'user2', name: 'User 2' } : { id: 'user1', name: 'User 1' };
+
     const [messages, setMessages] = useState([]);
     const [messageText, setMessageText] = useState('');
+    const [selectedFiles, setSelectedFiles] = useState([]);
+    const [uploadingFiles, setUploadingFiles] = useState([]);
+    const [lastSeen, setLastSeen] = useState(null);
+    const [editingMessageId, setEditingMessageId] = useState(null);
 
-    // Mengambil daftar kontak dari database (ganti dengan logika sesuai kebutuhan)
     useEffect(() => {
-        const fetchContacts = async () => {
-            // Ganti ini dengan pengambilan kontak dari database
-            const fetchedContacts = [
-                { id: 'user1', name: 'Alice' },
-                { id: 'user2', name: 'Bob' },
-            ];
-            setContacts(fetchedContacts);
-        };
+        const messagesRef = ref(database, `messages/${user.id}/${otherUser.id}`);
+        onValue(messagesRef, (snapshot) => {
+            const data = snapshot.val();
+            const loadedMessages = data ? Object.values(data) : [];
+            setMessages(loadedMessages);
 
-        fetchContacts();
-    }, []);
-
-    // Mengambil pesan ketika kontak dipilih
-    useEffect(() => {
-        if (selectedContact) {
-            const messagesRef = ref(database, `messages/${user.id}/${selectedContact.id}`);
-            onValue(messagesRef, (snapshot) => {
-                const data = snapshot.val();
-                if (data) {
-                    setMessages(Object.values(data)); // Mengubah objek menjadi array
-                } else {
-                    setMessages([]); // Jika tidak ada pesan
+            loadedMessages.forEach((msg) => {
+                if (!msg.read && msg.sender !== user.id) {
+                    update(ref(database, `messages/${user.id}/${otherUser.id}/${msg.id}`), { read: true });
+                    update(ref(database, `messages/${otherUser.id}/${user.id}/${msg.id}`), { read: true });
                 }
             });
-        }
-    }, [selectedContact, user.id]);
+        });
 
-    // Fungsi untuk mengirim pesan
+        const lastSeenRef = ref(database, `lastSeen/${user.id}`);
+        onValue(lastSeenRef, (snapshot) => {
+            setLastSeen(snapshot.val());
+        });
+
+        update(lastSeenRef, { timestamp: Date.now() });
+    }, [user.id, otherUser.id]);
+
+    const handleFileChange = (event) => {
+        const files = Array.from(event.target.files);
+        setSelectedFiles((prevFiles) => [...prevFiles, ...files]);
+    };
+
+    const removeFile = (index) => {
+        setSelectedFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
+        setUploadingFiles((prevUploads) => prevUploads.filter((_, i) => i !== index));
+    };
+
+    // Kirim pesan terlebih dahulu tanpa media
     const sendMessage = async () => {
-        if (!selectedContact || messageText.trim() === '') return;
+        if (messageText.trim() === "" && selectedFiles.length === 0) return;
 
-        const messagesRef = ref(database, `messages/${user.id}/${selectedContact.id}`);
+        const messagesRef = ref(database, `messages/${user.id}/${otherUser.id}`);
         const newMessage = {
             text: messageText,
             sender: user.id,
             timestamp: Date.now(),
-            read: false, // Atur status baca sesuai logika
+            read: false,
+            files: [],
         };
 
-        await push(messagesRef, newMessage);
-        setMessageText('');
+        // Push pesan terlebih dahulu tanpa media
+        const newMessageRef = await push(messagesRef, newMessage);
+        setMessageText(''); // Hapus input pesan
+        const newMessageId = newMessageRef.key;
+
+        // Update message di database penerima
+        const recipientRef = ref(database, `messages/${otherUser.id}/${user.id}`);
+        await push(recipientRef, { ...newMessage, id: newMessageId });
+
+        // Jika ada file, upload file setelah pesan terkirim
+        if (selectedFiles.length > 0) {
+            const uploadedFiles = await Promise.all(selectedFiles.map(async (file) => {
+                const storageRef = ref(storage, `chatFiles/${file.name}`);
+                await uploadBytes(storageRef, file);
+                return getDownloadURL(storageRef);
+            }));
+
+            // Setelah upload selesai, update pesan dengan file URL
+            await update(ref(database, `messages/${user.id}/${otherUser.id}/${newMessageId}`), { files: uploadedFiles });
+            await update(ref(database, `messages/${otherUser.id}/${user.id}/${newMessageId}`), { files: uploadedFiles });
+
+            setSelectedFiles([]); // Kosongkan file yang dipilih
+        }
+    };
+
+    const handleEditMessage = async (id) => {
+        const messageToEdit = messages.find((msg) => msg.id === id);
+        setMessageText(messageToEdit.text);
+        setEditingMessageId(id);
+    };
+
+    const updateMessage = async () => {
+        if (editingMessageId) {
+            const messageRef = ref(database, `messages/${user.id}/${otherUser.id}/${editingMessageId}`);
+            await update(messageRef, { text: messageText });
+            setMessageText(''); // Hapus input pesan setelah update
+            setEditingMessageId(null); // Reset state edit
+        }
+    };
+
+    const deleteMessage = async (id) => {
+        const messageRef = ref(database, `messages/${user.id}/${otherUser.id}/${id}`);
+        await remove(messageRef);
+    };
+
+    const renderMedia = (files) => {
+        if (!files || files.length === 0) return null;
+
+        const visibleFiles = files.slice(0, 3);
+        const extraFiles = files.length - visibleFiles.length;
+
+        return (
+            <div className="flex flex-wrap mt-1">
+                {visibleFiles.map((file, index) => (
+                    <img
+                        key={index}
+                        src={file}
+                        alt="Media"
+                        className="w-20 h-20 object-cover rounded-lg m-1"
+                    />
+                ))}
+                {extraFiles > 0 && (
+                    <div className="w-20 h-20 bg-gray-200 flex items-center justify-center rounded-lg m-1">
+                        +{extraFiles}
+                    </div>
+                )}
+            </div>
+        );
     };
 
     return (
-        <div className="flex h-screen">
-            {/* Daftar Kontak */}
-            <div className="w-1/4 border-r border-gray-300 p-4">
-                <h2 className="text-lg font-bold">Contacts</h2>
-                <ContactList contacts={contacts} setSelectedContact={setSelectedContact} />
-            </div>
-            {/* Komponen Chat */}
-            <div className="flex-1 p-4">
-                {selectedContact ? (
-                    <>
-                        <h1 className="text-2xl font-bold mb-4">{selectedContact.name}</h1>
-                        <div className="flex-1 overflow-y-auto p-4 border border-gray-300 rounded-lg mb-4">
-                            {messages.map((msg, index) => (
-                                <Message key={index} message={msg} userId={user.id} />
-                            ))}
-                        </div>
-                        <div className="flex">
-                            <input
-                                type="text"
-                                value={messageText}
-                                onChange={(e) => setMessageText(e.target.value)}
-                                className="border rounded px-4 py-2 flex-1"
-                                placeholder="Type a message..."
-                            />
-                            <button
-                                onClick={sendMessage}
-                                className="bg-blue-500 text-white px-4 py-2 rounded ml-2"
-                            >
-                                Send
-                            </button>
-                        </div>
-                    </>
-                ) : (
-                    <div className="text-center">
-                        <p className="text-gray-500">Select a contact to start chatting.</p>
-                    </div>
+        <div className="flex flex-col h-screen bg-gray-100">
+            <div className="flex-none p-4 bg-white border-b border-gray-300">
+                <h2 className="text-xl text-center">{otherUser.name}</h2>
+                {lastSeen && (
+                    <p className="text-sm text-gray-500 text-center">
+                        Last seen: {new Date(lastSeen.timestamp).toLocaleString()}
+                    </p>
                 )}
+            </div>
+            <div className="flex-1 overflow-y-auto p-4">
+                {messages.map((msg, index) => (
+                    <div key={index} className={`mb-2 ${msg.sender === user.id ? 'text-right' : 'text-left'}`}>
+                        <div 
+                            className={`inline-block p-2 rounded-lg ${msg.sender === user.id ? 'bg-blue-500 text-white' : 'bg-gray-300'}`}
+                            onContextMenu={(e) => {
+                                e.preventDefault();
+                                if (msg.sender === user.id) {
+                                    handleEditMessage(msg.id);
+                                } else {
+                                    deleteMessage(msg.id);
+                                }
+                            }}
+                        >
+                            {msg.text}
+                            {renderMedia(msg.files)}
+                        </div>
+                        <div className="text-xs text-gray-500 flex justify-end items-center">
+                            {new Date(msg.timestamp).toLocaleTimeString()}
+                            {msg.sender === user.id && (
+                                <span className="ml-2">
+                                    {msg.read ? (
+                                        <span className="text-blue-500">✔✔</span>
+                                    ) : (
+                                        <span>✔</span>
+                                    )}
+                                </span>
+                            )}
+                            {msg.sender !== user.id && (
+                                <span className="ml-2">
+                                    {msg.read ? (
+                                        <span className="text-blue-500">✔✔</span>
+                                    ) : (
+                                        <span>✔✔</span>
+                                    )}
+                                </span>
+                            )}
+                        </div>
+                    </div>
+                ))}
+                {selectedFiles.map((file, index) => (
+                    <div key={index} className="flex items-center mb-2">
+                        <img
+                            src={URL.createObjectURL(file)}
+                            alt="Uploading"
+                            className="w-20 h-20 object-cover rounded-lg"
+                        />
+                        {uploadingFiles[index] && (
+                            <span className="ml-2 text-sm text-gray-500">Uploading...</span>
+                        )}
+                    </div>
+                ))}
+            </div>
+            <div className="flex items-center p-4 border-t border-gray-300">
+                <input
+                    type="file"
+                    multiple
+                    accept="image/*,video/*"
+                    onChange={handleFileChange}
+                    className="hidden"
+                    id="file-input"
+                />
+                <label htmlFor="file-input" className="mr-2 cursor-pointer">
+                    <span className="text-gray-600 hover:text-blue-500">📎</span>
+                </label>
+                <input
+                    type="text"
+                    value={messageText}
+                    onChange={(e) => setMessageText(e.target.value)}
+                    placeholder="Type a message..."
+                    className="flex-1 p-2 border border-gray-300 rounded-lg mx-2"
+                />
+                <button
+                    onClick={editingMessageId ? updateMessage : sendMessage}
+                    className="bg-blue-500 text-white rounded-lg px-4 py-2"
+                >
+                    {editingMessageId ? 'Update' : 'Send'}
+                </button>
             </div>
         </div>
     );
