@@ -18,7 +18,7 @@ const Chat = ({ user }) => {
 
     useEffect(() => {
         const messagesRef = ref(database, `messages/${user.id}/${otherUser.id}`);
-        onValue(messagesRef, (snapshot) => {
+        const unsubscribe = onValue(messagesRef, (snapshot) => {
             const data = snapshot.val();
             const loadedMessages = data ? Object.values(data) : [];
             setMessages(loadedMessages);
@@ -30,6 +30,8 @@ const Chat = ({ user }) => {
                 }
             });
         });
+
+        return () => unsubscribe();
     }, [user.id, otherUser.id]);
 
     useEffect(() => {
@@ -39,20 +41,14 @@ const Chat = ({ user }) => {
         update(userStatusRef, { online: true, lastSeen: Date.now() });
         onDisconnect(userStatusRef).update({ online: false, lastSeen: Date.now() });
 
-        if (messageText.trim() || files.length > 0) {
-            update(typingRef, { typing: true });
-        } else {
-            update(typingRef, { typing: false });
-        }
-
         const otherUserStatusRef = ref(database, `status/${otherUser.id}`);
-        onValue(otherUserStatusRef, (snapshot) => {
+        const unsubscribeStatus = onValue(otherUserStatusRef, (snapshot) => {
             const status = snapshot.val();
             setOtherUserStatus(status);
         });
 
         const otherUserTypingRef = ref(database, `typing/${otherUser.id}`);
-        onValue(otherUserTypingRef, (snapshot) => {
+        const unsubscribeTyping = onValue(otherUserTypingRef, (snapshot) => {
             const data = snapshot.val();
             setIsOtherUserTyping(data?.typing || false);
         });
@@ -60,23 +56,25 @@ const Chat = ({ user }) => {
         return () => {
             update(typingRef, { typing: false });
             onDisconnect(userStatusRef).cancel();
+            unsubscribeStatus();
+            unsubscribeTyping();
         };
-    }, [messageText, files, user.id, otherUser.id]);
+    }, [user.id, otherUser.id, messageText, files]);
 
     const handleFileChange = (e) => {
         const selectedFiles = Array.from(e.target.files);
-        setFiles([...files, ...selectedFiles]);
+        setFiles((prevFiles) => [...prevFiles, ...selectedFiles]);
 
         const newPreviews = selectedFiles.map((file) => ({
             id: URL.createObjectURL(file),
             file,
         }));
-        setPreviews([...previews, ...newPreviews]);
+        setPreviews((prevPreviews) => [...prevPreviews, ...newPreviews]);
     };
 
     const removeFile = (previewId) => {
-        setPreviews(previews.filter((preview) => preview.id !== previewId));
-        setFiles(files.filter((file) => URL.createObjectURL(file) !== previewId));
+        setPreviews((prevPreviews) => prevPreviews.filter((preview) => preview.id !== previewId));
+        setFiles((prevFiles) => prevFiles.filter((file) => URL.createObjectURL(file) !== previewId));
     };
 
     const uploadFiles = async () => {
@@ -223,27 +221,32 @@ const Chat = ({ user }) => {
                 <div className="flex items-center">
                     <input
                         type="file"
+                        id="fileInput"
+                        className="hidden"
                         multiple
                         onChange={handleFileChange}
-                        className="hidden"
-                        id="fileInput"
                     />
-                    <label htmlFor="fileInput" className="mr-2 cursor-pointer">
-                        <span className="text-gray-600 hover:text-blue-500">📎</span>
-                    </label>
+                    <button
+                        onClick={() => document.getElementById('fileInput').click()}
+                        className="mr-2 bg-blue-500 text-white px-4 py-2 rounded-lg"
+                    >
+                        Upload File
+                    </button>
                     <input
                         type="text"
                         value={messageText}
                         onChange={(e) => setMessageText(e.target.value)}
-                        placeholder="Type your message"
+                        placeholder="Type your message..."
                         className="flex-1 p-2 border border-gray-300 rounded-lg"
+                        onFocus={() => update(ref(database, `typing/${user.id}`), { typing: true })}
+                        onBlur={() => update(ref(database, `typing/${user.id}`), { typing: false })}
                     />
                     <button
                         onClick={sendMessage}
-                        className={`ml-2 p-2 bg-blue-500 text-white rounded-lg ${isUploading ? 'opacity-50' : ''}`}
+                        className="ml-2 bg-blue-500 text-white px-4 py-2 rounded-lg"
                         disabled={isUploading}
                     >
-                        Send
+                        {isUploading ? 'Sending...' : 'Send'}
                     </button>
                 </div>
             </div>
