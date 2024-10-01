@@ -1,11 +1,14 @@
 // src/app/components/Chat.js
-import React, { useState, useEffect } from 'react';
+"use client"; 
+import React, { useState, useEffect, useContext } from 'react';
 import Message from './Message';
 import ContactList from './ContactList';
+import { UserContext } from '../context/UserContext'; // Import UserContext
 import { database } from '../firebase'; // Pastikan sudah mengkonfigurasi Firebase
 import { ref, onValue, push } from 'firebase/database';
 
-const Chat = ({ userId }) => {
+const Chat = () => {
+    const { user } = useContext(UserContext); // Ambil informasi pengguna dari context
     const [contacts, setContacts] = useState([]);
     const [selectedContact, setSelectedContact] = useState(null);
     const [messages, setMessages] = useState([]);
@@ -28,7 +31,7 @@ const Chat = ({ userId }) => {
     // Mengambil pesan ketika kontak dipilih
     useEffect(() => {
         if (selectedContact) {
-            const messagesRef = ref(database, `messages/${userId}/${selectedContact.id}`);
+            const messagesRef = ref(database, `messages/${user.id}/${selectedContact.id}`);
             onValue(messagesRef, (snapshot) => {
                 const data = snapshot.val();
                 if (data) {
@@ -38,16 +41,16 @@ const Chat = ({ userId }) => {
                 }
             });
         }
-    }, [selectedContact, userId]);
+    }, [selectedContact, user.id]);
 
     // Fungsi untuk mengirim pesan
     const sendMessage = async () => {
         if (!selectedContact || messageText.trim() === '') return;
 
-        const messagesRef = ref(database, `messages/${userId}/${selectedContact.id}`);
+        const messagesRef = ref(database, `messages/${user.id}/${selectedContact.id}`);
         const newMessage = {
             text: messageText,
-            sender: userId,
+            sender: user.id,
             timestamp: Date.now(),
             read: false, // Atur status baca sesuai logika
         };
@@ -70,7 +73,7 @@ const Chat = ({ userId }) => {
                         <h1 className="text-2xl font-bold mb-4">{selectedContact.name}</h1>
                         <div className="flex-1 overflow-y-auto p-4 border border-gray-300 rounded-lg mb-4">
                             {messages.map((msg, index) => (
-                                <Message key={index} message={msg} userId={userId} />
+                                <Message key={index} message={msg} userId={user.id} />
                             ))}
                         </div>
                         <div className="flex">
@@ -100,6 +103,7 @@ const Chat = ({ userId }) => {
 };
 
 export default Chat;
+
 
 // "use client"; // Enable client-side rendering
 // import React, { useState, useEffect } from 'react';
