@@ -11,46 +11,22 @@ const Chat = ({ user }) => {
     const [messages, setMessages] = useState([]); // State for messages
     const [messageText, setMessageText] = useState(''); // State for input message
 
-    // Function to fetch messages bidirectionally from both user1->user2 and user2->user1 paths
-    const fetchMessages = () => {
-        const user1ToUser2Ref = ref(database, `messages/${user.id}/${otherUser.id}`);
-        const user2ToUser1Ref = ref(database, `messages/${otherUser.id}/${user.id}`);
-
-        const allMessages = [];
-
-        // Listen for new messages from user1 -> user2
-        onValue(user1ToUser2Ref, (snapshot) => {
-            const data = snapshot.val();
-            if (data) {
-                const user1Messages = Object.values(data);
-                allMessages.push(...user1Messages);
-            }
-        });
-
-        // Listen for new messages from user2 -> user1
-        onValue(user2ToUser1Ref, (snapshot) => {
-            const data = snapshot.val();
-            if (data) {
-                const user2Messages = Object.values(data);
-                allMessages.push(...user2Messages);
-            }
-        });
-
-        // Sort messages by timestamp after fetching them
-        const sortedMessages = allMessages.sort((a, b) => a.timestamp - b.timestamp);
-        setMessages(sortedMessages);
-
-        // Mark messages as read if they are from the other user and not yet read
-        sortedMessages.forEach((msg) => {
-            if (!msg.read && msg.sender !== user.id) {
-                update(ref(database, `messages/${msg.sender}/${user.id}/${msg.id}`), { read: true });
-            }
-        });
-    };
-
-    // Fetch messages once when component mounts
+    // Fetch messages from Firebase on component mount
     useEffect(() => {
-        fetchMessages();
+        const messagesRef = ref(database, `messages/${user.id}/${otherUser.id}`);
+        onValue(messagesRef, (snapshot) => {
+            const data = snapshot.val();
+            const loadedMessages = data ? Object.values(data) : [];
+
+            setMessages(loadedMessages);
+
+            // Mark all messages as read when the user views the chat
+            loadedMessages.forEach((msg) => {
+                if (!msg.read && msg.sender !== user.id) {
+                    update(ref(database, `messages/${user.id}/${otherUser.id}/${msg.id}`), { read: true });
+                }
+            });
+        });
     }, [user.id, otherUser.id]);
 
     // Function to send a new message
@@ -59,7 +35,6 @@ const Chat = ({ user }) => {
 
         const messagesRef = ref(database, `messages/${user.id}/${otherUser.id}`);
         const newMessage = {
-            id: Date.now().toString(), // Ensure unique ID
             text: messageText,
             sender: user.id,
             timestamp: Date.now(),
