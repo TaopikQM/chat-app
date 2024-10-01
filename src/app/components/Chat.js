@@ -136,52 +136,49 @@ const Chat = ({ user }) => {
         });
     };
 
-    // Function to render media based on file type
+    // Render previews of selected files
+    const renderPreviews = () => {
+        return previews.map((preview, index) => (
+            <div key={index} className="relative inline-block m-1">
+                <img
+                    src={preview.id}
+                    alt="Preview"
+                    className="w-20 h-20 object-cover rounded-lg"
+                />
+                <button
+                    className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center"
+                    onClick={() => removeFile(preview.id)}
+                >
+                    X
+                </button>
+            </div>
+        ));
+    };
+
+    // Render media in chat (with +X for extra media)
     const renderMedia = (files) => {
         if (files.length === 0) return null;
 
-        return files.map((file, index) => {
-            const fileType = file.split('.').pop(); // Get the file extension
+        const visibleFiles = files.slice(0, 3);
+        const extraFiles = files.length > 3 ? files.length - 3 : 0;
 
-            if (['png', 'jpg', 'jpeg', 'gif'].includes(fileType.toLowerCase())) {
-                // Render image
-                return (
+        return (
+            <div className="flex space-x-2">
+                {visibleFiles.map((file, index) => (
                     <img
                         key={index}
                         src={file}
                         alt={`Media ${index + 1}`}
                         className="w-24 h-24 object-cover rounded-lg"
                     />
-                );
-            } else if (['mp4', 'mkv', 'webm', 'ogg'].includes(fileType.toLowerCase())) {
-                // Render video
-                return (
-                    <video
-                        key={index}
-                        controls
-                        className="w-24 h-24 object-cover rounded-lg"
-                    >
-                        <source src={file} type={`video/${fileType}`} />
-                        Your browser does not support the video tag.
-                    </video>
-                );
-            } else if (['pdf', 'doc', 'docx', 'xls', 'xlsx'].includes(fileType.toLowerCase())) {
-                // Render document link
-                return (
-                    <a
-                        key={index}
-                        href={file}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="w-24 h-24 bg-gray-200 rounded-lg flex items-center justify-center text-center"
-                    >
-                        <span>{file.split('/').pop()}</span>
-                    </a>
-                );
-            } else {
-                return null; // Unsupported file type
-            }
-        });
+                ))}
+                {extraFiles > 0 && (
+                    <div className="relative w-24 h-24 bg-gray-200 rounded-lg flex items-center justify-center">
+                        <span className="text-xl font-bold">+{extraFiles}</span>
+                    </div>
+                )}
+            </div>
+        );
     };
 
     return (
@@ -215,28 +212,48 @@ const Chat = ({ user }) => {
                 ))}
             </div>
 
-            {/* Message input */}
-            <div className="flex items-center p-4 bg-white border-t">
-                <input
-                    type="file"
-                    onChange={handleFileChange}
-                    multiple
-                    className="mr-2"
-                />
-                <input
-                    type="text"
-                    value={messageText}
-                    onChange={(e) => setMessageText(e.target.value)}
-                    placeholder="Type a message..."
-                    className="flex-1 border rounded-lg p-2"
-                />
-                <button
-                    onClick={sendMessage}
-                    disabled={isUploading}
-                    className={`ml-2 p-2 rounded-lg ${isUploading ? 'bg-gray-300' : 'bg-blue-500 text-white'}`}
-                >
-                    Send
-                </button>
+            {/* File previews */}
+            {previews.length > 0 && (
+                <div className="p-2 border-t border-gray-300">
+                    <div className="flex overflow-x-auto">
+                        {renderPreviews()}
+                    </div>
+                </div>
+            )}
+
+            {/* Input area */}
+            <div className="p-4 bg-white border-t border-gray-300">
+                <div className="flex items-center">
+                    {/* File input */}
+                    <input
+                        type="file"
+                        multiple
+                        onChange={handleFileChange}
+                        className="hidden"
+                        id="fileInput"
+                    />
+                    <label htmlFor="fileInput" className="mr-2 cursor-pointer">
+                        <span className="text-gray-600 hover:text-blue-500">📎</span>
+                    </label>
+
+                    {/* Text input */}
+                    <input
+                        type="text"
+                        value={messageText}
+                        onChange={(e) => setMessageText(e.target.value)}
+                        placeholder="Type your message..."
+                        className="flex-1 p-2 border border-gray-300 rounded-lg focus:outline-none"
+                    />
+
+                    {/* Send button */}
+                    <button
+                        className="bg-blue-500 text-white p-2 rounded-lg ml-2"
+                        onClick={sendMessage}
+                        disabled={isUploading}
+                    >
+                        {isUploading ? 'Uploading...' : 'Send'}
+                    </button>
+                </div>
             </div>
         </div>
     );
