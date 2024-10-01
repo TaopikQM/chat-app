@@ -1,6 +1,7 @@
-"use client"; // Enable client-side rendering 
+"use client"; // Enable client-side rendering
+
 import React, { useState, useEffect } from 'react';
-import { database } from '../config/firebase'; // Adjust this import based on your firebase setup
+import { database } from '../const/firebase'; // Adjust this import based on your firebase setup
 import { ref, onValue, push, update } from 'firebase/database';
 import 'tailwindcss/tailwind.css';
 
@@ -10,31 +11,55 @@ const Chat = ({ user }) => {
     const [messages, setMessages] = useState([]); // State for messages
     const [messageText, setMessageText] = useState(''); // State for input message
 
-    // Fetch messages from Firebase on component mount
-    useEffect(() => {
-        const messagesRef = ref(database, messages/${user.id}/${otherUser.id});
-        onValue(messagesRef, (snapshot) => {
+    // Function to fetch messages bidirectionally from both user1->user2 and user2->user1 paths
+    const fetchMessages = () => {
+        const user1ToUser2Ref = ref(database, `messages/${user.id}/${otherUser.id}`);
+        const user2ToUser1Ref = ref(database, `messages/${otherUser.id}/${user.id}`);
+
+        const allMessages = [];
+
+        // Listen for new messages from user1 -> user2
+        onValue(user1ToUser2Ref, (snapshot) => {
             const data = snapshot.val();
-            const loadedMessages = data ? Object.values(data) : [];
-
-            setMessages(loadedMessages);
-
-            // Mark all messages as read when the user views the chat
-            loadedMessages.forEach((msg) => {
-                if (!msg.read && msg.sender !== user.id) {
-                    update(ref(database, messages/${user.id}/${otherUser.id}/${msg.id}), { read: true });
-                    update(ref(database, messages/${otherUser.id}/${user.id}/${msg.id}), { read: true });
-                }
-            });
+            if (data) {
+                const user1Messages = Object.values(data);
+                allMessages.push(...user1Messages);
+            }
         });
+
+        // Listen for new messages from user2 -> user1
+        onValue(user2ToUser1Ref, (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                const user2Messages = Object.values(data);
+                allMessages.push(...user2Messages);
+            }
+        });
+
+        // Sort messages by timestamp after fetching them
+        const sortedMessages = allMessages.sort((a, b) => a.timestamp - b.timestamp);
+        setMessages(sortedMessages);
+
+        // Mark messages as read if they are from the other user and not yet read
+        sortedMessages.forEach((msg) => {
+            if (!msg.read && msg.sender !== user.id) {
+                update(ref(database, `messages/${msg.sender}/${user.id}/${msg.id}`), { read: true });
+            }
+        });
+    };
+
+    // Fetch messages once when component mounts
+    useEffect(() => {
+        fetchMessages();
     }, [user.id, otherUser.id]);
 
     // Function to send a new message
     const sendMessage = () => {
         if (messageText.trim() === "") return; // Prevent sending empty messages
 
-        const messagesRef = ref(database, messages/${user.id}/${otherUser.id});
+        const messagesRef = ref(database, `messages/${user.id}/${otherUser.id}`);
         const newMessage = {
+            id: Date.now().toString(), // Ensure unique ID
             text: messageText,
             sender: user.id,
             timestamp: Date.now(),
@@ -43,12 +68,6 @@ const Chat = ({ user }) => {
 
         push(messagesRef, newMessage).then(() => {
             setMessageText(''); // Clear input after sending
-
-            // Update the recipient's message status
-            const recipientRef = ref(database, messages/${otherUser.id}/${user.id});
-            push(recipientRef, newMessage).then(() => {
-                update(ref(database, messages/${otherUser.id}/${user.id}/${newMessage.id}), { read: false });
-            });
         });
     };
 
@@ -58,23 +77,14 @@ const Chat = ({ user }) => {
                 <h2 className="text-xl text-center mb-4">{otherUser.name}</h2>
                 {/* Display messages */}
                 {messages.map((msg, index) => (
-                    <div key={index} className={mb-2 ${msg.sender === user.id ? 'text-right' : 'text-left'}}>
-                        <div className={inline-block p-2 rounded-lg ${msg.sender === user.id ? 'bg-blue-500 text-white' : 'bg-gray-300'}}>
+                    <div key={index} className={`mb-2 ${msg.sender === user.id ? 'text-right' : 'text-left'}`}>
+                        <div className={`inline-block p-2 rounded-lg ${msg.sender === user.id ? 'bg-blue-500 text-white' : 'bg-gray-300'}`}>
                             {msg.text}
                         </div>
                         <div className="text-xs text-gray-500 flex justify-end items-center">
                             {new Date(msg.timestamp).toLocaleTimeString()}
                             {/* Show ticks: single for sent, double for delivered, blue double for read */}
                             {msg.sender === user.id && (
-                                <span className="ml-2">
-                                    {msg.read ? (
-                                        <span className="text-blue-500">✔✔</span> // Blue double ticks for read messages
-                                    ) : (
-                                        <span>✔</span> // Grey single tick for sent messages
-                                    )}
-                                </span>
-                            )}
-                            {msg.sender !== user.id && (
                                 <span className="ml-2">
                                     {msg.read ? (
                                         <span className="text-blue-500">✔✔</span> // Blue double ticks for read messages
