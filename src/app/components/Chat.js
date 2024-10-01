@@ -1,4 +1,4 @@
-"use client"; // Enable client-side rendering 
+"use client"; // Enable client-side rendering
 import React, { useState, useEffect } from 'react';
 import { database, storage } from '../config/firebase'; // Pastikan Anda sudah mengkonfigurasi Firebase Storage
 import { ref, onValue, push, update } from 'firebase/database';
@@ -12,6 +12,7 @@ const Chat = ({ user }) => {
     const [messageText, setMessageText] = useState('');
     const [selectedFiles, setSelectedFiles] = useState([]);
     const [uploading, setUploading] = useState(false);
+    const [lastSeen, setLastSeen] = useState(null); // State untuk menyimpan waktu terakhir dilihat
 
     // Fetch messages from Firebase on component mount
     useEffect(() => {
@@ -29,6 +30,15 @@ const Chat = ({ user }) => {
                 }
             });
         });
+
+        // Set last seen status
+        const lastSeenRef = ref(database, `lastSeen/${user.id}`);
+        onValue(lastSeenRef, (snapshot) => {
+            setLastSeen(snapshot.val());
+        });
+
+        // Update last seen when user is active
+        update(lastSeenRef, { timestamp: Date.now() });
     }, [user.id, otherUser.id]);
 
     // Handle file selection
@@ -108,6 +118,11 @@ const Chat = ({ user }) => {
         <div className="flex flex-col h-screen bg-gray-100">
             <div className="flex-none p-4 bg-white border-b border-gray-300">
                 <h2 className="text-xl text-center">{otherUser.name}</h2>
+                {lastSeen && (
+                    <p className="text-sm text-gray-500 text-center">
+                        Last seen: {new Date(lastSeen.timestamp).toLocaleString()}
+                    </p>
+                )}
             </div>
             <div className="flex-1 overflow-y-auto p-4">
                 {/* Display messages */}
@@ -150,19 +165,23 @@ const Chat = ({ user }) => {
                     id="fileInput"
                     onChange={handleFileChange}
                 />
-                <label htmlFor="fileInput" className="cursor-pointer">
-                    <span className="material-icons">attach_file</span>
+                <label htmlFor="fileInput" className="cursor-pointer flex items-center">
+                    <span className="material-icons">attach_file</span> {/* Ganti dengan ikon klip */}
                 </label>
-                <div className="flex flex-wrap w-64">
+                <div className="flex flex-wrap w-full">
                     {selectedFiles.map((file, index) => (
-                        <div key={index} className="relative mr-2">
+                        <div key={index} className="relative mr-2 mb-2">
                             <span
                                 className="absolute top-0 right-0 cursor-pointer text-red-500"
                                 onClick={() => removeFile(index)}
                             >
                                 &times;
                             </span>
-                            <span>{file.name}</span>
+                            <img
+                                src={URL.createObjectURL(file)} // Menampilkan gambar sebagai preview
+                                alt="Preview"
+                                className="w-20 h-20 object-cover rounded-lg"
+                            />
                         </div>
                     ))}
                 </div>
