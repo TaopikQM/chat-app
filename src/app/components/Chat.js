@@ -192,7 +192,7 @@ const Chat = ({ user }) => {
                 <label htmlFor="fileInput" className="cursor-pointer">
                     <span className="material-icons">📎</span>
                 </label>
-                <div className="flex flex-wrap w-64">
+                <div className="flex flex-wrap">
                     {selectedFiles.map((file, index) => (
                         <div key={index} className="relative mr-2">
                             <span
