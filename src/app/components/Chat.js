@@ -190,7 +190,7 @@ const Chat = ({ user }) => {
                     onChange={handleFileChange}
                 />
                 <label htmlFor="fileInput" className="cursor-pointer">
-                    <span className="material-icons">attach_file</span>
+                    <span className="material-icons">📎</span>
                 </label>
                 <div className="flex flex-wrap w-64">
                     {selectedFiles.map((file, index) => (
