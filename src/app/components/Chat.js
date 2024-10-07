@@ -38,11 +38,14 @@ const Chat = ({ user }) => {
             if (status) {
                 if (status.online) {
                     setOtherUserStatus('Online');
+                } else if (status.lastSeen) {
+                    const lastSeenTime = new Date(status.lastSeen);
+                    setOtherUserStatus('Last seen: ' + lastSeenTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
                 } else {
-                    setOtherUserStatus('Last seen: ' + new Date(status.lastSeen).toLocaleTimeString());
+                    setOtherUserStatus('Last seen: Unknown'); // Bisa diubah jika ingin
                 }
             } else {
-                setOtherUserStatus('Status not available');
+                setOtherUserStatus('Last seen: Unknown'); // Jika data status tidak tersedia
             }
         });
 
@@ -201,6 +204,236 @@ const Chat = ({ user }) => {
 };
 
 export default Chat;
+
+// "use client"; // Enable client-side rendering
+// import React, { useState, useEffect } from 'react';
+// import { database, storage } from '../config/firebase'; // Pastikan Firebase Storage sudah dikonfigurasi
+// import { ref as databaseRef, onValue, push, update } from 'firebase/database';
+// import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
+// import 'tailwindcss/tailwind.css';
+
+// const Chat = ({ user }) => {
+//     const otherUser = user.id === 'user1' ? { id: 'user2', name: 'User 2' } : { id: 'user1', name: 'User 1' };
+
+//     const [messages, setMessages] = useState([]);
+//     const [messageText, setMessageText] = useState('');
+//     const [selectedFiles, setSelectedFiles] = useState([]);
+//     const [uploading, setUploading] = useState(false);
+//     const [otherUserStatus, setOtherUserStatus] = useState(''); // Online status or last seen
+
+//     // Fetch messages from Firebase on component mount
+//     useEffect(() => {
+//         const messagesRef = databaseRef(database, `messages/${user.id}/${otherUser.id}`);
+//         onValue(messagesRef, (snapshot) => {
+//             const data = snapshot.val();
+//             const loadedMessages = data ? Object.values(data) : [];
+//             setMessages(loadedMessages);
+
+//             // Mark all messages as read when the user views the chat
+//             loadedMessages.forEach((msg) => {
+//                 if (!msg.read && msg.sender !== user.id) {
+//                     update(databaseRef(database, `messages/${user.id}/${otherUser.id}/${msg.id}`), { read: true });
+//                     update(databaseRef(database, `messages/${otherUser.id}/${user.id}/${msg.id}`), { read: true });
+//                 }
+//             });
+//         });
+
+//         // Fetch user's status
+//         const userStatusRef = databaseRef(database, `users/${otherUser.id}/status`);
+//         onValue(userStatusRef, (snapshot) => {
+//             const status = snapshot.val();
+//             if (status) {
+//                 if (status.online) {
+//                     setOtherUserStatus('Online');
+//                 } else {
+//                     setOtherUserStatus('Last seen: ' + new Date(status.lastSeen).toLocaleTimeString());
+//                 }
+//             } else {
+//                 setOtherUserStatus('Status not available');
+//             }
+//         });
+
+//         // Update user status to online when the component mounts
+//         update(databaseRef(database, `users/${user.id}/status`), { online: true, lastSeen: null });
+
+//         // Set user to offline when the component unmounts
+//         return () => {
+//             update(databaseRef(database, `users/${user.id}/status`), { online: false, lastSeen: Date.now() });
+//         };
+//     }, [user.id, otherUser.id]);
+
+//     // Handle file selection
+//     const handleFileChange = (event) => {
+//         const files = Array.from(event.target.files);
+//         setSelectedFiles((prevFiles) => [...prevFiles, ...files]);
+//     };
+
+//     // Remove a selected file
+//     const removeFile = (index) => {
+//         setSelectedFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
+//     };
+
+//     // Function to send a new message with media support
+//     const sendMessage = async () => {
+//         if (messageText.trim() === "" && selectedFiles.length === 0) return; // Prevent sending empty messages
+
+//         const messagesRef = databaseRef(database, `messages/${user.id}/${otherUser.id}`);
+//         const newMessage = {
+//             text: messageText,
+//             sender: user.id,
+//             timestamp: Date.now(),
+//             read: false,
+//             files: [],
+//         };
+
+//         setUploading(true);
+
+//         // Upload selected files (images and videos) to Firebase Storage
+//         const uploadedFiles = await Promise.all(selectedFiles.map(async (file) => {
+//             const fileRef = storageRef(storage, `chatFiles/${file.name}`);
+//             await uploadBytes(fileRef, file);
+//             return getDownloadURL(fileRef);
+//         }));
+
+//         // Update newMessage with uploaded file URLs
+//         newMessage.files = uploadedFiles;
+
+//         // Push message to Firebase Database
+//         const newMsgRef = await push(messagesRef, newMessage);
+//         setMessageText(''); // Clear input after sending
+//         setSelectedFiles([]); // Clear selected files
+
+//         // Update the recipient's message status
+//         const recipientRef = databaseRef(database, `messages/${otherUser.id}/${user.id}`);
+//         await push(recipientRef, { ...newMessage, id: newMsgRef.key });
+
+//         setUploading(false);
+//     };
+
+//     const renderMedia = (files) => {
+//         if (!files || files.length === 0) return null;
+
+//         return (
+//             <div className="flex flex-wrap mt-1">
+//                 {files.map((file, index) => (
+//                     <a
+//                         key={index}
+//                         href={file}
+//                         target="_blank"
+//                         rel="noopener noreferrer"
+//                         className="w-20 h-20 flex items-center justify-center border border-gray-300 rounded-lg m-1"
+//                     >
+//                         {file.endsWith('.jpg') || file.endsWith('.png') || file.endsWith('.gif') ? (
+//                             <img src={file} alt="Media" className="object-cover h-full w-full rounded-lg" />
+//                         ) : (
+//                             <span className="text-sm">File</span>
+//                         )}
+//                     </a>
+//                 ))}
+//             </div>
+//         );
+//     };
+
+//     return (
+//         <div className="flex flex-col h-screen bg-gray-100">
+//             <div className="flex-none p-4 bg-white border-b border-gray-300">
+//                 <h2 className="text-xl text-center">{otherUser.name}</h2>
+//                 <p className="text-sm text-center">{otherUserStatus}</p>
+//             </div>
+//             <div className="flex-1 overflow-y-auto p-4">
+//                 {/* Display messages */}
+//                 {messages.map((msg, index) => (
+//                     <div key={index} className={`mb-2 ${msg.sender === user.id ? 'text-right' : 'text-left'}`}>
+//                         <div className={`inline-block p-2 rounded-lg ${msg.sender === user.id ? 'bg-blue-500 text-white' : 'bg-gray-300'}`}>
+//                             {msg.text}
+//                             {renderMedia(msg.files)}
+//                         </div>
+//                         <div className="text-xs text-gray-500 flex justify-end items-center">
+//                             {new Date(msg.timestamp).toLocaleTimeString()}
+//                             {msg.sender === user.id && (
+//                                 <span className="ml-2">
+//                                     {msg.read ? (
+//                                         <span className="text-blue-500">✔✔</span>
+//                                     ) : (
+//                                         <span>✔</span>
+//                                     )}
+//                                 </span>
+//                             )}
+//                         </div>
+//                     </div>
+//                 ))}
+//             </div>
+//             <div className="flex items-center p-4 border-t border-gray-300">
+//                 <input
+//                     type="file"
+//                     multiple
+//                     accept="image/*,video/*"
+//                     className="hidden"
+//                     id="fileInput"
+//                     onChange={handleFileChange}
+//                 />
+//                 <label htmlFor="fileInput" className="cursor-pointer">
+//                     <span className="material-icons">attach_file</span>
+//                 </label>
+//                 <div className="flex flex-wrap w-64">
+//                     {selectedFiles.map((file, index) => (
+//                         <div key={index} className="relative mr-2">
+//                             <span
+//                                 className="absolute top-0 right-0 cursor-pointer text-red-500"
+//                                 onClick={() => removeFile(index)}
+//                             >
+//                                 &times;
+//                             </span>
+//                             <span>{file.name}</span>
+//                         </div>
+//                     ))}
+//                 </div>
+//                 <input
+//                     type="text"
+//                     className="border rounded-lg p-2 flex-1 mx-2"
+//                     placeholder="Type a message..."
+//                     value={messageText}
+//                     onChange={(e) => setMessageText(e.target.value)}
+//                 />
+//                 <button
+//                     className="ml-2 p-2 bg-blue-500 text-white rounded-lg"
+//                     onClick={sendMessage}
+//                     disabled={uploading}
+//                 >
+//                     {uploading ? "Sending..." : "Send"}
+//                 </button>
+//             </div>
+//         </div>
+//     );
+// };
+
+// export default Chat;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // "use client"; // Enable client-side rendering
 // import React, { useState, useEffect } from 'react';
