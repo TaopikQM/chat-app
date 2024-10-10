@@ -1,5 +1,5 @@
-import Chat from './components/Chat';
-import { UserProvider } from './context/UserContext';
+import Chat from '../components/Chat';
+import { UserProvider } from '../context/UserContext';
 
 const User1Page = () => {
     return (
