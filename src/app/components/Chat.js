@@ -6,7 +6,7 @@ import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage
 import 'tailwindcss/tailwind.css';
 
 const Chat = ({ user }) => {
-    const otherUser = user.id === 'user1' ? { id: 'user2', name: 'User 2' } : { id: 'user1', name: 'User 1' }: { id: 'user4', name: 'User gab' };
+    const otherUser = user.id === 'user1' ? { id: 'user2', name: 'User 2' } : { id: 'user1', name: 'User 1' };
 
     const [messages, setMessages] = useState([]);
     const [messageText, setMessageText] = useState('');
