@@ -28,7 +28,6 @@ const Chat = ({ user }) => {
                 if (!msg.read && msg.sender !== user.id) {
                     update(databaseRef(database, `messages/${user.id}/${otherUser.id}/${msg.id}`), { read: true });
                     update(databaseRef(database, `messages/${otherUser.id}/${user.id}/${msg.id}`), { read: true });
-                    update(databaseRef(database, `messages/${otherUser.id}/${user.id}/${msg.id}`), { read: false });
                 }
             });
         });
