@@ -6,7 +6,7 @@ import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage
 import 'tailwindcss/tailwind.css';
 
 const Chat = ({ user }) => {
-    const otherUser = user.id === 'user1' ? { id: 'user2', name: 'User 2' } : { id: 'user1', name: 'User 1' };
+    const otherUser = user.id === 'user1' ? { id: 'user2', name: 'User 2' } : { id: 'user1', name: 'User 1' }: { id: 'user4', name: 'User gab' };
 
     const [messages, setMessages] = useState([]);
     const [messageText, setMessageText] = useState('');
@@ -28,6 +28,7 @@ const Chat = ({ user }) => {
                 if (!msg.read && msg.sender !== user.id) {
                     update(databaseRef(database, `messages/${user.id}/${otherUser.id}/${msg.id}`), { read: true });
                     update(databaseRef(database, `messages/${otherUser.id}/${user.id}/${msg.id}`), { read: true });
+                    update(databaseRef(database, `messages/${otherUser.id}/${user.id}/${msg.id}`), { read: false });
                 }
             });
         });
