@@ -1,11 +1,11 @@
 
-import Chat from '../components/Chat';
+import ChatA from '../components/ChatA';
 import { UserProvider } from '../context/UserContext';
 
 const User4Page = () => {
     return (
         <UserProvider>
-            <Chat user={{ id: 'user4', name: 'User gab' }} />
+            <ChatA user={{ id: 'admin', name: 'User gab' }} />
         </UserProvider>
     );
 };
