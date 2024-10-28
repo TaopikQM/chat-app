@@ -179,29 +179,29 @@ const Chat = ({ user }) => {
                     //     </div>
                     // ))}
                         {selectedFiles.map((file, index) => (
-            <div key={index} className="relative mr-2 flex items-center">
-                <span
-                    className="absolute top-0 right-0 cursor-pointer text-red-500"
-                    onClick={() => removeFile(index)}
-                >
-                    &times;
-                </span>
-                {/* Show file name or thumbnail */}
-                {file.type.startsWith("video") ? (
-                    <video
-                        src={URL.createObjectURL(file)}
-                        className="w-20 h-20 object-cover rounded-lg m-1"
-                        controls
-                    />
-                ) : (
-                    <img
-                        src={URL.createObjectURL(file)}
-                        alt="Selected file"
-                        className="w-20 h-20 object-cover rounded-lg m-1"
-                    />
-                )}
-            </div>
-        ))}
+                            <div key={index} className="relative mr-2 flex items-center">
+                                <span
+                                    className="absolute top-0 right-0 cursor-pointer text-red-500"
+                                    onClick={() => removeFile(index)}
+                                >
+                                    &times;
+                                </span>
+                                {/* Show file name or thumbnail */}
+                                {file.type.startsWith("video") ? (
+                                    <video
+                                        src={URL.createObjectURL(file)}
+                                        className="w-20 h-20 object-cover rounded-lg m-1"
+                                        controls
+                                    />
+                                ) : (
+                                    <img
+                                        src={URL.createObjectURL(file)}
+                                        alt="Selected file"
+                                        className="w-20 h-20 object-cover rounded-lg m-1"
+                                    />
+                                )}
+                            </div>
+                        ))}
                 </div>
                 <input
                     type="text"
