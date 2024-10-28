@@ -167,42 +167,32 @@ const Chat = ({ user }) => {
                     <span className="material-icons">file</span>
                 </label>
                 <div className="flex flex-wrap">
-                    // {selectedFiles.map((file, index) => (
-                    //     <div key={index} className="relative mr-2">
-                    //         <span
-                    //             className="absolute top-0 right-0 cursor-pointer text-red-500"
-                    //             onClick={() => removeFile(index)}
-                    //         >
-                    //             &times;
-                    //         </span>
-                    //         <span>{file.name}</span>
-                    //     </div>
-                    // ))}
-                        {selectedFiles.map((file, index) => (
-                            <div key={index} className="relative mr-2 flex items-center">
-                                <span
-                                    className="absolute top-0 right-0 cursor-pointer text-red-500"
-                                    onClick={() => removeFile(index)}
-                                >
-                                    &times;
-                                </span>
-                                {/* Show file name or thumbnail */}
-                                {file.type.startsWith("video") ? (
-                                    <video
-                                        src={URL.createObjectURL(file)}
-                                        className="w-20 h-20 object-cover rounded-lg m-1"
-                                        controls
-                                    />
-                                ) : (
-                                    <img
-                                        src={URL.createObjectURL(file)}
-                                        alt="Selected file"
-                                        className="w-20 h-20 object-cover rounded-lg m-1"
-                                    />
-                                )}
-                            </div>
-                        ))}
+                    {selectedFiles.map((file, index) => (
+                        <div key={index} className="relative mr-2 flex items-center">
+                            <span
+                                className="absolute top-0 right-0 cursor-pointer text-red-500"
+                                onClick={() => removeFile(index)}
+                            >
+                                &times;
+                            </span>
+                            {/* Display a thumbnail or video preview based on file type */}
+                            {file.type.startsWith("video") ? (
+                                <video
+                                    src={URL.createObjectURL(file)}
+                                    className="w-20 h-20 object-cover rounded-lg m-1"
+                                    controls
+                                />
+                            ) : (
+                                <img
+                                    src={URL.createObjectURL(file)}
+                                    alt="Selected file"
+                                    className="w-20 h-20 object-cover rounded-lg m-1"
+                                />
+                            )}
+                        </div>
+                    ))}
                 </div>
+
                 <input
                     type="text"
                     className="border rounded-lg p-2 flex-1 mx-2"
@@ -223,6 +213,7 @@ const Chat = ({ user }) => {
 };
 
 export default Chat;
+
 
 
 // "use client"; // Enable client-side rendering
