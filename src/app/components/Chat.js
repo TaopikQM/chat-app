@@ -33,10 +33,21 @@ const Chat = ({ user }) => {
         });
 
         // Fetch other user's last seen status
+        // const userStatusRef = databaseRef(database, `lastSeen/${otherUser.id}`);
+        // onValue(userStatusRef, (snapshot) => {
+        //     const status = snapshot.val();
+        //     setLastSeen(status ? new Date(status.timestamp).toLocaleTimeString() : 'Offline');
+        // });
+        // Fetch other user's last seen status
         const userStatusRef = databaseRef(database, `lastSeen/${otherUser.id}`);
         onValue(userStatusRef, (snapshot) => {
             const status = snapshot.val();
-            setLastSeen(status ? new Date(status.timestamp).toLocaleTimeString() : 'Offline');
+            if (status && status.timestamp) {
+                const date = new Date(status.timestamp);
+                setLastSeen(!isNaN(date.getTime()) ? date.toLocaleTimeString() : 'Offline');
+            } else {
+                setLastSeen('Offline');
+            }
         });
 
         // Update last seen when user is active
