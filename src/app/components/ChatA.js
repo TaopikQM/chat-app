@@ -214,68 +214,114 @@ const Chat = ({ user }) => {
                 <h2 className="text-xl text-center">{otherUser.name}</h2>
                 <p className="text-sm text-center">{lastSeen ? 'Last seen: ' + lastSeen : 'Offline'}</p>
             </div>
-             <div className="flex-1 overflow-y-auto p-4">
-                {/* Display messages */}
-                {messages.map((msg, index) => (
-                    msg.text && (
-                        <div 
-                            key={msg.id || msg.timestamp} 
-                            className={`mb-2 flex items-start ${msg.sender === user.id ? 'justify-end' : 'justify-start'}`}
-                        >
-                            {msg.sender !== user.id && (
-                                <img className="w-8 h-8 rounded-full mr-2" src="/path-to-image.jpg" alt="Sender Image" />
-                            )}
-            
-                            <div className={`relative max-w-[320px] p-4 rounded-xl ${msg.sender === user.id ? 'bg-blue-500 text-white rounded-br-xl' : 'bg-gray-100 rounded-bl-xl'}`}>
-                                {/* Message header */}
-                                <div className="flex items-center space-x-2">
-                                    <span className="text-sm font-semibold">{msg.senderName || 'User'}</span>
-                                    <span className="text-xs text-gray-500">{msg.timestamp && new Date(msg.timestamp).toLocaleTimeString()}</span>
-                                </div>
-            
-                                {/* Message text */}
-                                <p className="text-sm mt-2">{msg.text}</p>
-            
-                                {/* Optional media rendering */}
-                                {msg.files && renderMedia(msg.files)}
-            
-                                {/* Message status */}
-                                {msg.sender === user.id && (
-                                    <span className="text-xs text-gray-500 flex justify-end mt-1">
-                                        {msg.read ? (
-                                            <span className="text-blue-500">✔✔</span>
-                                        ) : (
-                                            <span>✔</span>
-                                        )}
-                                    </span>
-                                )}
-                            </div>
-            
-                            {/* Dropdown button */}
-                            <div className="relative">
-                                <button
-                                    onClick={() => toggleDropdown(index)}
-                                    className="ml-2 p-2 text-gray-500 bg-white rounded-full focus:outline-none hover:bg-gray-100"
-                                >
-                                    <svg className="w-4 h-4" aria-hidden="true" fill="currentColor" viewBox="0 0 4 15">
-                                        <path d="M3.5 1.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm0 6.041a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm0 5.959a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Z"/>
-                                    </svg>
-                                </button>
-                                {isDropdownOpen(index) && (
-                                    <div className="absolute z-10 right-0 w-40 mt-2 bg-white rounded-lg shadow-lg divide-y divide-gray-100">
-                                        <ul className="py-2 text-sm text-gray-700">
-                                            <li><a href="#" className="block px-4 py-2 hover:bg-gray-100">Reply</a></li>
-                                            <li><a href="#" className="block px-4 py-2 hover:bg-gray-100">Forward</a></li>
-                                            <li><a href="#" className="block px-4 py-2 hover:bg-gray-100">Copy</a></li>
-                                            <li><a href="#" className="block px-4 py-2 hover:bg-gray-100">Report</a></li>
-                                            <li><a href="#" className="block px-4 py-2 hover:bg-gray-100">Delete</a></li>
-                                        </ul>
-                                    </div>
-                                )}
-                            </div>
+            <div className="flex-1 overflow-y-auto p-4">
+              {messages.map((msg, index) => {
+                // Determine if a new date header is needed
+                const showDateHeader =
+                  index === 0 || new Date(msg.timestamp).toDateString() !== new Date(messages[index - 1].timestamp).toDateString();
+        
+                return (
+                  <React.Fragment key={msg.id || msg.timestamp}>
+                    {/* Date Header */}
+                    {showDateHeader && (
+                      <div className="text-center text-gray-500 dark:text-gray-400 my-4">
+                        {new Date(msg.timestamp).toLocaleDateString()}
+                      </div>
+                    )}
+        
+                    {/* Message Bubble */}
+                    <div
+                      className={`flex items-start gap-2.5 mb-4 ${
+                        msg.sender === 'user1' ? 'flex-row-reverse' : ''
+                      }`}
+                    >
+                      {/* Profile Picture */}
+                      <img
+                        className="w-8 h-8 rounded-full"
+                        src={msg.profileImage}
+                        alt={`${msg.senderName} profile`}
+                      />
+        
+                      {/* Message Content */}
+                      <div
+                        className={`flex flex-col w-full max-w-[326px] p-4 ${
+                          msg.sender === 'user1'
+                            ? 'bg-blue-100 dark:bg-blue-800 rounded-s-xl rounded-es-xl'
+                            : 'bg-gray-100 dark:bg-gray-700 rounded-e-xl rounded-es-xl'
+                        } border border-gray-200 dark:border-gray-600`}
+                      >
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm font-semibold text-gray-900 dark:text-white">
+                            {msg.senderName}
+                          </span>
+                          <span className="text-sm font-normal text-gray-500 dark:text-gray-400">
+                            {new Date(msg.timestamp).toLocaleTimeString()}
+                          </span>
                         </div>
-                    )
-                ))}
+        
+                        {/* Message Text */}
+                        <p className="text-sm font-normal text-gray-900 dark:text-white mb-2">{msg.text}</p>
+        
+                        {/* Media Grid (if any) */}
+                        {msg.files && msg.files.length > 0 && (
+                          <div className="grid grid-cols-2 gap-4 my-2.5">
+                            {msg.files.slice(0, 3).map((file, i) => (
+                              <div key={i} className="group relative">
+                                <img src={file.url} className="rounded-lg" alt={`file-${i}`} />
+                              </div>
+                            ))}
+                            {msg.files.length > 3 && (
+                              <div className="group relative">
+                                <button className="absolute w-full h-full bg-gray-900/90 text-white rounded-lg flex items-center justify-center">
+                                  +{msg.files.length - 3}
+                                </button>
+                                <img src={msg.files[0].url} className="rounded-lg" alt="Additional files" />
+                              </div>
+                            )}
+                          </div>
+                        )}
+        
+                        {/* Message Status */}
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm font-normal text-gray-500 dark:text-gray-400">
+                            {msg.read ? '✔✔' : '✔'}
+                          </span>
+                        </div>
+                      </div>
+        
+                      {/* Dropdown Menu Button */}
+                      <button
+                        id={`dropdownMenuIconButton-${index}`}
+                        className="inline-flex self-center items-center p-2 text-sm font-medium text-gray-900 bg-white rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none dark:text-white focus:ring-gray-50 dark:bg-gray-900 dark:hover:bg-gray-800 dark:focus:ring-gray-600"
+                        type="button"
+                      >
+                        <svg
+                          className="w-4 h-4 text-gray-500 dark:text-gray-400"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="currentColor"
+                          viewBox="0 0 4 15"
+                        >
+                          <path d="M3.5 1.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm0 6.041a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm0 5.959a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Z" />
+                        </svg>
+                      </button>
+        
+                      {/* Dropdown Menu Content */}
+                      <div
+                        id={`dropdownDots-${index}`}
+                        className="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-40 dark:bg-gray-700 dark:divide-gray-600"
+                      >
+                        <ul className="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby={`dropdownMenuIconButton-${index}`}>
+                          <li><a href="#" className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600">Reply</a></li>
+                          <li><a href="#" className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600">Forward</a></li>
+                          <li><a href="#" className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600">Copy</a></li>
+                          <li><a href="#" className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600">Report</a></li>
+                          <li><a href="#" className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600">Delete</a></li>
+                        </ul>
+                      </div>
+                    </div>
+                  </React.Fragment>
+                );
+              })}
             </div>
 
 
