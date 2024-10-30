@@ -426,7 +426,7 @@ const Chat = ({ user }) => {
                     //         </div>
                     //     </div>
                     // )}
-                </div>    
+            </div>    
 
 
 
