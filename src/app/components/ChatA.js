@@ -27,7 +27,7 @@ const Chat = ({ user }) => {
             setChatBubbleColor(savedSettings.bubbleColor);
             setChatTextColor(savedSettings.textColor);
         }
-    }, [userId]);
+    }, [user.id]);
 
     // Save settings to localStorage when updated
     const saveSettings = (newSettings) => {
@@ -37,7 +37,7 @@ const Chat = ({ user }) => {
         };
         setChatBubbleColor(settings.bubbleColor);
         setChatTextColor(settings.textColor);
-        localStorage.setItem(`chatSettings-${userId}`, JSON.stringify(settings));
+        localStorage.setItem(`chatSettings-${user.id}`, JSON.stringify(settings));
     };
     
     
