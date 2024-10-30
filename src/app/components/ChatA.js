@@ -326,6 +326,37 @@ const Chat = ({ user }) => {
 //     );
 // };
 
+//     const renderMedia = (files) => {
+//     if (!files || files.length === 0) return null;
+
+//     return (
+//         <div className="grid grid-cols-4 gap-2 mt-2">
+//             {files.map((file, index) => {
+//                 const fileExtension = file.split('.').pop().toLowerCase();
+
+//                 return (
+//                     <div
+//                         key={index}
+//                         className="relative w-20 h-20 border border-gray-300 rounded-lg overflow-hidden cursor-pointer flex items-center justify-center bg-white"
+//                         onClick={() => setPopupFile(file)}
+//                     >
+//                         {fileExtension === 'jpg' || fileExtension === 'jpeg' || fileExtension === 'png' || fileExtension === 'gif' ? (
+//                             <img src={file} alt="Media" className="object-cover w-full h-full rounded-lg" />
+//                         ) : fileExtension === 'mp4' || fileExtension === 'webm' || fileExtension === 'ogg' ? (
+//                             <video src={file} className="object-cover w-full h-full rounded-lg" controls />
+//                         ) : fileExtension === 'pdf' ? (
+//                             <span className="text-sm text-red-500 font-semibold">PDF</span>
+//                         ) : fileExtension === 'doc' || fileExtension === 'docx' ? (
+//                             <span className="text-sm text-blue-500 font-semibold">DOC</span>
+//                         ) : (
+//                             <span className="text-sm text-gray-500 font-semibold">File</span>
+//                         )}
+//                     </div>
+//                 );
+//             })}
+//         </div>
+//     );
+// };
     const renderMedia = (files) => {
     if (!files || files.length === 0) return null;
 
@@ -334,20 +365,26 @@ const Chat = ({ user }) => {
             {files.map((file, index) => {
                 const fileExtension = file.split('.').pop().toLowerCase();
 
+                const handleFileClick = (e) => {
+                    if (fileExtension === 'jpg' || fileExtension === 'jpeg' || fileExtension === 'png' || fileExtension === 'gif' || 
+                        fileExtension === 'mp4' || fileExtension === 'webm' || fileExtension === 'ogg') {
+                        e.stopPropagation(); // Prevents the click from bubbling up
+                        setPopupFile(file);
+                    } else {
+                        window.open(file, '_blank'); // Opens non-image/video files in a new tab
+                    }
+                };
+
                 return (
                     <div
                         key={index}
                         className="relative w-20 h-20 border border-gray-300 rounded-lg overflow-hidden cursor-pointer flex items-center justify-center bg-white"
-                        onClick={() => setPopupFile(file)}
+                        onClick={handleFileClick}
                     >
                         {fileExtension === 'jpg' || fileExtension === 'jpeg' || fileExtension === 'png' || fileExtension === 'gif' ? (
                             <img src={file} alt="Media" className="object-cover w-full h-full rounded-lg" />
                         ) : fileExtension === 'mp4' || fileExtension === 'webm' || fileExtension === 'ogg' ? (
                             <video src={file} className="object-cover w-full h-full rounded-lg" controls />
-                        ) : fileExtension === 'pdf' ? (
-                            <span className="text-sm text-red-500 font-semibold">PDF</span>
-                        ) : fileExtension === 'doc' || fileExtension === 'docx' ? (
-                            <span className="text-sm text-blue-500 font-semibold">DOC</span>
                         ) : (
                             <span className="text-sm text-gray-500 font-semibold">File</span>
                         )}
@@ -357,6 +394,8 @@ const Chat = ({ user }) => {
         </div>
     );
 };
+
+
 
 
     return (
@@ -378,7 +417,7 @@ const Chat = ({ user }) => {
         )
     ))}
 
-   {popupFile && (
+  {popupFile && (
     <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
         <button
             onClick={() => setPopupFile(null)}
@@ -391,16 +430,11 @@ const Chat = ({ user }) => {
                 <img src={popupFile} alt="Popup Media" className="max-w-full max-h-full rounded-lg border border-gray-300" />
             ) : popupFile.endsWith('.mp4') || popupFile.endsWith('.webm') || popupFile.endsWith('.ogg') ? (
                 <video src={popupFile} className="max-w-full max-h-full rounded-lg border border-gray-300" controls />
-            ) : popupFile.endsWith('.pdf') ? (
-                <iframe src={popupFile} className="max-w-full max-h-full rounded-lg border border-gray-300" title="PDF Document" />
-            ) : popupFile.endsWith('.doc') || popupFile.endsWith('.docx') ? (
-                <iframe src={`https://docs.google.com/gview?url=${popupFile}&embedded=true`} className="max-w-full max-h-full rounded-lg border border-gray-300" title="DOC Document" />
-            ) : (
-                <span className="text-white">File tidak dapat ditampilkan</span>
-            )}
+            ) : null}
         </div>
     </div>
 )}
+
 
         </div>    
 
