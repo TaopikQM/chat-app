@@ -441,6 +441,54 @@ const Chat = ({ user }) => {
 //     );
 // };
 
+//     const renderMedia = (files) => {
+//     if (!files || files.length === 0) return null;
+
+//     return (
+//         <div className="grid grid-cols-4 gap-2 mt-2">
+//             {files.map((file, index) => {
+//                 const fileExtension = file.split('.').pop().toLowerCase();
+
+//                 const handleFileClick = (e) => {
+//                     // Check if the file is an image or video
+//                     if (
+//                         fileExtension === 'jpg' ||
+//                         fileExtension === 'jpeg' ||
+//                         fileExtension === 'png' ||
+//                         fileExtension === 'gif' ||
+//                         fileExtension === 'mp4' ||
+//                         fileExtension === 'webm' ||
+//                         fileExtension === 'ogg'
+//                     ) {
+//                         e.preventDefault(); // Prevent the default link action
+//                         e.stopPropagation(); // Prevent the click from bubbling up
+//                         setPopupFile(file); // Set file to show in popup
+//                     } else {
+//                         // Open other files in a new tab
+//                         window.open(file, '_blank');
+//                     }
+//                 };
+
+//                 return (
+//                     <div
+//                         key={index}
+//                         className="relative w-20 h-20 border border-gray-300 rounded-lg overflow-hidden cursor-pointer flex items-center justify-center bg-white"
+//                         onClick={handleFileClick}
+//                     >
+//                         {fileExtension === 'jpg' || fileExtension === 'jpeg' || fileExtension === 'png' || fileExtension === 'gif' ? (
+//                             <img src={file} alt="Media" className="object-cover w-full h-full rounded-lg" />
+//                         ) : fileExtension === 'mp4' || fileExtension === 'webm' || fileExtension === 'ogg' ? (
+//                             <video src={file} className="object-cover w-full h-full rounded-lg" controls />
+//                         ) : (
+//                             <span className="text-sm text-gray-500 font-semibold">File</span>
+//                         )}
+//                     </div>
+//                 );
+//             })}
+//         </div>
+//     );
+// };
+
     const renderMedia = (files) => {
     if (!files || files.length === 0) return null;
 
@@ -450,22 +498,11 @@ const Chat = ({ user }) => {
                 const fileExtension = file.split('.').pop().toLowerCase();
 
                 const handleFileClick = (e) => {
-                    // Check if the file is an image or video
-                    if (
-                        fileExtension === 'jpg' ||
-                        fileExtension === 'jpeg' ||
-                        fileExtension === 'png' ||
-                        fileExtension === 'gif' ||
-                        fileExtension === 'mp4' ||
-                        fileExtension === 'webm' ||
-                        fileExtension === 'ogg'
-                    ) {
-                        e.preventDefault(); // Prevent the default link action
-                        e.stopPropagation(); // Prevent the click from bubbling up
-                        setPopupFile(file); // Set file to show in popup
+                    if (fileExtension === 'jpg' || fileExtension === 'png' || fileExtension === 'gif') {
+                        e.preventDefault(); // Mencegah aksi default untuk gambar
+                        setPopupFile(file); // Set gambar ke popup
                     } else {
-                        // Open other files in a new tab
-                        window.open(file, '_blank');
+                        window.open(file, '_blank'); // Buka file lain di tab baru
                     }
                 };
 
@@ -475,10 +512,14 @@ const Chat = ({ user }) => {
                         className="relative w-20 h-20 border border-gray-300 rounded-lg overflow-hidden cursor-pointer flex items-center justify-center bg-white"
                         onClick={handleFileClick}
                     >
-                        {fileExtension === 'jpg' || fileExtension === 'jpeg' || fileExtension === 'png' || fileExtension === 'gif' ? (
+                        {fileExtension === 'jpg' || fileExtension === 'png' || fileExtension === 'gif' ? (
                             <img src={file} alt="Media" className="object-cover w-full h-full rounded-lg" />
                         ) : fileExtension === 'mp4' || fileExtension === 'webm' || fileExtension === 'ogg' ? (
                             <video src={file} className="object-cover w-full h-full rounded-lg" controls />
+                        ) : fileExtension === 'pdf' ? (
+                            <span className="text-sm text-red-500 font-semibold">PDF</span>
+                        ) : fileExtension === 'doc' || fileExtension === 'docx' ? (
+                            <span className="text-sm text-blue-500 font-semibold">DOC</span>
                         ) : (
                             <span className="text-sm text-gray-500 font-semibold">File</span>
                         )}
@@ -493,7 +534,6 @@ const Chat = ({ user }) => {
 
 
 
-
     return (
         <div className="flex flex-col h-screen bg-gray-100">
             <div className="flex-none p-4 bg-white border-b border-gray-300">
@@ -501,7 +541,7 @@ const Chat = ({ user }) => {
                 <p className="text-sm text-center">{lastSeen ? 'Last seen: ' + lastSeen : 'Offline'}</p>
             </div>
                 <div className="flex-1 overflow-y-auto p-4">
-            {/* Display messages */}
+           {/* Display messages */}
     {messages.map((msg, index) => (
         (msg.text || (msg.files && msg.files.length > 0)) && (
             <div key={msg.id || msg.timestamp} className={`mb-2 ${msg.sender === user.id ? 'text-right' : 'text-left'}`}>
@@ -513,27 +553,21 @@ const Chat = ({ user }) => {
         )
     ))}
 
- {popupFile && (
-    <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
-        <button
-            onClick={() => setPopupFile(null)}
-            className="absolute top-5 right-5 text-white bg-gray-600 rounded-full p-2 z-50"
-        >
-            X
-        </button>
-        <div className="relative p-4">
-            {popupFile.endsWith('.jpg') || popupFile.endsWith('.jpeg') || popupFile.endsWith('.png') || popupFile.endsWith('.gif') ? (
+    {/* Popup modal for viewing media */}
+    {popupFile && (
+        <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
+            {/* Close button outside media */}
+            <button
+                onClick={() => setPopupFile(null)}
+                className="absolute top-5 right-5 text-white bg-gray-600 rounded-full p-2 z-50"
+            >
+                X
+            </button>
+            <div className="relative p-4">
                 <img src={popupFile} alt="Popup Media" className="max-w-full max-h-full rounded-lg border border-gray-300" />
-            ) : popupFile.endsWith('.mp4') || popupFile.endsWith('.webm') || popupFile.endsWith('.ogg') ? (
-                <video src={popupFile} className="max-w-full max-h-full rounded-lg border border-gray-300" controls />
-            ) : null}
+            </div>
         </div>
-    </div>
-)}
-
-
-
-
+    )}
         </div>    
 
 
