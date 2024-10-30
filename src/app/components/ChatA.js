@@ -22,7 +22,7 @@ const Chat = ({ user }) => {
 
     // Load settings from localStorage (or fetch from server if available)
     useEffect(() => {
-        const savedSettings = JSON.parse(localStorage.getItem(`chatSettings-${userId}`));
+        const savedSettings = JSON.parse(localStorage.getItem(`chatSettings-${user.id}`));
         if (savedSettings) {
             setChatBubbleColor(savedSettings.bubbleColor);
             setChatTextColor(savedSettings.textColor);
@@ -770,14 +770,14 @@ const ChatMessage = ({ message, senderId, userId }) => {
     const [settings, setSettings] = useState({ bubbleColor: 'bg-gray-300', textColor: 'text-black' });
 
     useEffect(() => {
-        const savedSettings = JSON.parse(localStorage.getItem(`chatSettings-${userId}`));
+        const savedSettings = JSON.parse(localStorage.getItem(`chatSettings-${user.id}`));
         if (savedSettings) {
             setSettings(savedSettings);
         }
     }, [userId]);
 
     return (
-        <div className={`p-2 rounded-lg ${senderId === userId ? 'bg-blue-500 text-white' : settings.bubbleColor} ${settings.textColor}`}>
+        <div className={`p-2 rounded-lg ${senderId === user.id ? 'bg-blue-500 text-white' : settings.bubbleColor} ${settings.textColor}`}>
             {message.text}
         </div>
     );
