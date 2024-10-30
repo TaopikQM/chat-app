@@ -121,32 +121,55 @@ const Chat = ({ user }) => {
         update(lastSeenRef, { timestamp: Date.now() });
     };
 
-    const renderMedia = (files) => {
-        if (!files || files.length === 0) return null;
+    // const renderMedia = (files) => {
+    //     if (!files || files.length === 0) return null;
 
-        return (
-            <div className="grid grid-cols-4 gap-2 mt-2">
-                {files.map((file, index) => (
-                    <a
-                        key={index}
-                        href={file}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        // className="w-20 h-20 flex items-center justify-center border border-gray-300 rounded-lg m-1"
-                        className="relative w-20 h-20 border border-gray-300 rounded-lg overflow-hidden cursor-pointer"
+    //     return (
+    //         <div className="grid grid-cols-4 gap-2 mt-2">
+    //             {files.map((file, index) => (
+    //                 <a
+    //                     key={index}
+    //                     href={file}
+    //                     target="_blank"
+    //                     rel="noopener noreferrer"
+    //                     // className="w-20 h-20 flex items-center justify-center border border-gray-300 rounded-lg m-1"
+    //                     className="relative w-20 h-20 border border-gray-300 rounded-lg overflow-hidden cursor-pointer"
                         
-                    >
-                        {file.endsWith('.jpg') || file.endsWith('.png') || file.endsWith('.gif') ? (
-                            <img src={file} alt="Media" className="object-cover h-full w-full rounded-lg" />
-                        ) : (
-                            // <span className="text-sm">File</span>
-                            <span className="text-sm flex items-center justify-center h-full">File</span>
-                        )}
-                    </a>
-                ))}
-            </div>
-        );
-    };
+    //                 >
+    //                     {file.endsWith('.jpg') || file.endsWith('.png') || file.endsWith('.gif') ? (
+    //                         <img src={file} alt="Media" className="object-cover h-full w-full rounded-lg" />
+    //                     ) : (
+    //                         // <span className="text-sm">File</span>
+    //                         <span className="text-sm flex items-center justify-center h-full">File</span>
+    //                     )}
+    //                 </a>
+    //             ))}
+    //         </div>
+    //     );
+    // };
+    const renderMedia = (files) => {
+    if (!files || files.length === 0) return null;
+
+    return (
+        <div className="grid grid-cols-4 gap-2 mt-2">
+            {files.map((file, index) => (
+                <a
+                    key={index}
+                    href={file}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="relative w-20 h-20 border border-gray-300 rounded-lg overflow-hidden cursor-pointer flex items-center justify-center bg-white"
+                >
+                    {file.endsWith('.jpg') || file.endsWith('.png') || file.endsWith('.gif') ? (
+                        <img src={file} alt="Media" className="object-cover h-full w-full rounded-lg" />
+                    ) : (
+                        <span className="text-sm flex items-center justify-center h-full text-gray-600">File</span>
+                    )}
+                </a>
+            ))}
+        </div>
+    );
+};
     //  const renderMedia = (files) => {
     //     if (!files || files.length === 0) return null;
 
