@@ -215,7 +215,10 @@ const Chat = ({ user }) => {
                             {renderMedia(msg.files)}
                         </div>
                         <div className="text-xs text-gray-500 flex justify-end items-center">
-                            
+                            {msg.timestamp && !isNaN(Number(msg.timestamp))
+                                ? new Date(Number(msg.timestamp)).toLocaleString()  // Convert timestamp and format if valid
+                                : 'Date not available'  // Placeholder if timestamp is invalid
+                            }
                            
                             {msg.sender === user.id && (
                                 <span className="ml-2">
