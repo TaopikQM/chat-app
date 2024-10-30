@@ -125,19 +125,22 @@ const Chat = ({ user }) => {
         if (!files || files.length === 0) return null;
 
         return (
-            <div className="flex flex-wrap mt-1">
+            <div className="grid grid-cols-4 gap-2 mt-2">
                 {files.map((file, index) => (
                     <a
                         key={index}
                         href={file}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="w-20 h-20 flex items-center justify-center border border-gray-300 rounded-lg m-1"
+                        // className="w-20 h-20 flex items-center justify-center border border-gray-300 rounded-lg m-1"
+                        className="relative w-20 h-20 border border-gray-300 rounded-lg overflow-hidden cursor-pointer"
+                        
                     >
                         {file.endsWith('.jpg') || file.endsWith('.png') || file.endsWith('.gif') ? (
                             <img src={file} alt="Media" className="object-cover h-full w-full rounded-lg" />
                         ) : (
-                            <span className="text-sm">File</span>
+                            // <span className="text-sm">File</span>
+                            <span className="text-sm flex items-center justify-center h-full">File</span>
                         )}
                     </a>
                 ))}
