@@ -65,21 +65,34 @@ const Chat = ({ user }) => {
         });
     
         // Fetch other user's last seen status
-        const userStatusRef = databaseRef(database, `lastSeenA/${otherUser.id}`);
+        // const userStatusRef = databaseRef(database, `lastSeenA/${otherUser.id}`);
+        // onValue(userStatusRef, (snapshot) => {
+        //     const status = snapshot.val();
+        //     const timestamp = status && status.timestamp ? status.timestamp : null;
+            
+        //     // Only attempt to convert to Date if timestamp exists
+        //     if (timestamp) {
+        //         try {
+        //             const date = new Date(parseInt(timestamp, 10)); // Ensures timestamp is treated as an integer
+        //             setLastSeen(!isNaN(date.getTime()) ? date.toLocaleTimeString() : 'Offline');
+        //         } catch (error) {
+        //             console.error("Error parsing date:", error);
+        //             setLastSeen('Offline');
+        //         }
+        //     } else {
+        //         setLastSeen('Offline');
+        //     }
+        // });
+        const userStatusRef = databaseRef(database, `lastSeen/${otherUser.id}`);
         onValue(userStatusRef, (snapshot) => {
             const status = snapshot.val();
-            const timestamp = status && status.timestamp ? status.timestamp : null;
-            
-            // Only attempt to convert to Date if timestamp exists
-            if (timestamp) {
-                try {
-                    const date = new Date(parseInt(timestamp, 10)); // Ensures timestamp is treated as an integer
-                    setLastSeen(!isNaN(date.getTime()) ? date.toLocaleTimeString() : 'Offline');
-                } catch (error) {
-                    console.error("Error parsing date:", error);
-                    setLastSeen('Offline');
-                }
+            const timestamp = status && status.timestamp ? Number(status.timestamp) : null;
+    
+            if (timestamp && timestamp.toString().length === 13) {  // Check if in milliseconds
+                const date = new Date(timestamp);
+                setLastSeen(!isNaN(date.getTime()) ? date.toLocaleTimeString() : 'Offline');
             } else {
+                console.error("Timestamp is invalid or missing:", timestamp);
                 setLastSeen('Offline');
             }
         });
@@ -179,7 +192,7 @@ const Chat = ({ user }) => {
             </div>
             <div className="flex-1 overflow-y-auto p-4">
                 {/* Display messages */}
-                {messages.map((msg, index) => (
+                {messagesA.map((msg, index) => (
                     <div key={index} className={`mb-2 ${msg.sender === user.id ? 'text-right' : 'text-left'}`}>
                         <div className={`inline-block p-2 rounded-lg ${msg.sender === user.id ? 'bg-blue-500 text-white' : 'bg-gray-300'}`}>
                             {msg.text}
