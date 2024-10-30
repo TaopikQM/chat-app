@@ -208,37 +208,77 @@ const Chat = ({ user }) => {
     //     );
     // };
 
-    const renderMedia = (files) => {
-    if (!files || files.length === 0) return null;
+//     const renderMedia = (files) => {
+//     if (!files || files.length === 0) return null;
 
-    return (
-        <div className="grid grid-cols-4 gap-2 mt-2">
-            {files.map((file, index) => {
-                const fileExtension = file.split('.').pop().toLowerCase();
+//     return (
+//         <div className="grid grid-cols-4 gap-2 mt-2">
+//             {files.map((file, index) => {
+//                 const fileExtension = file.split('.').pop().toLowerCase();
 
-                return (
-                    <div
-                        key={index}
-                        className="relative w-20 h-20 border border-gray-300 rounded-lg overflow-hidden cursor-pointer flex items-center justify-center bg-white"
-                        onClick={() => setPopupFile(file)}
-                    >
-                        {fileExtension === 'jpg' || fileExtension === 'png' || fileExtension === 'gif' ? (
-                            <img src={file} alt="Media" className="object-cover w-full h-full rounded-lg" />
-                        ) : fileExtension === 'mp4' || fileExtension === 'webm' || fileExtension === 'ogg' ? (
-                            <video src={file} className="object-cover w-full h-full rounded-lg" controls />
-                        ) : fileExtension === 'pdf' ? (
-                            <span className="text-sm text-red-500 font-semibold">PDF</span>
-                        ) : fileExtension === 'doc' || fileExtension === 'docx' ? (
-                            <span className="text-sm text-blue-500 font-semibold">DOC</span>
-                        ) : (
-                            <span className="text-sm text-gray-500 font-semibold">File</span>
-                        )}
-                    </div>
-                );
-            })}
-        </div>
-    );
-};
+//                 return (
+//                     <div
+//                         key={index}
+//                         className="relative w-20 h-20 border border-gray-300 rounded-lg overflow-hidden cursor-pointer flex items-center justify-center bg-white"
+//                         onClick={() => setPopupFile(file)}
+//                     >
+//                         {fileExtension === 'jpg' || fileExtension === 'png' || fileExtension === 'gif' ? (
+//                             <img src={file} alt="Media" className="object-cover w-full h-full rounded-lg" />
+//                         ) : fileExtension === 'mp4' || fileExtension === 'webm' || fileExtension === 'ogg' ? (
+//                             <video src={file} className="object-cover w-full h-full rounded-lg" controls />
+//                         ) : fileExtension === 'pdf' ? (
+//                             <span className="text-sm text-red-500 font-semibold">PDF</span>
+//                         ) : fileExtension === 'doc' || fileExtension === 'docx' ? (
+//                             <span className="text-sm text-blue-500 font-semibold">DOC</span>
+//                         ) : (
+//                             <span className="text-sm text-gray-500 font-semibold">File</span>
+//                         )}
+//                     </div>
+//                 );
+//             })}
+//         </div>
+//     );
+// };
+    const renderMedia = async (files) => {
+        if (!files || files.length === 0) return null;
+    
+        // Mengambil URL unduhan untuk setiap file
+        const getFileURL = async (file) => {
+            const fileRef = ref(storage, file.name); // file.name adalah path file di Storage
+            return await getDownloadURL(fileRef);
+        };
+    
+        return (
+            <div className="grid grid-cols-4 gap-2 mt-2">
+                {await Promise.all(
+                    files.map(async (file, index) => {
+                        const downloadURL = await getFileURL(file);
+                        const fileExtension = file.name.split('.').pop().toLowerCase();
+    
+                        return (
+                            <div
+                                key={index}
+                                className="relative w-20 h-20 border border-gray-300 rounded-lg overflow-hidden cursor-pointer flex items-center justify-center bg-white"
+                                onClick={() => setPopupFile(downloadURL)}
+                            >
+                                {fileExtension === 'jpg' || fileExtension === 'png' || fileExtension === 'gif' ? (
+                                    <img src={downloadURL} alt="Media" className="object-cover w-full h-full rounded-lg" />
+                                ) : fileExtension === 'mp4' || fileExtension === 'webm' || fileExtension === 'ogg' ? (
+                                    <video src={downloadURL} className="object-cover w-full h-full rounded-lg" controls />
+                                ) : fileExtension === 'pdf' ? (
+                                    <span className="text-sm text-red-500 font-semibold">PDF</span>
+                                ) : fileExtension === 'doc' || fileExtension === 'docx' ? (
+                                    <span className="text-sm text-blue-500 font-semibold">DOC</span>
+                                ) : (
+                                    <span className="text-sm text-gray-500 font-semibold">File</span>
+                                )}
+                            </div>
+                        );
+                    })
+                )}
+            </div>
+        );
+    };
 
     return (
         <div className="flex flex-col h-screen bg-gray-100">
