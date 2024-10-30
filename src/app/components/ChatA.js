@@ -83,7 +83,7 @@ const Chat = ({ user }) => {
         //         setLastSeen('Offline');
         //     }
         // });
-        const userStatusRef = databaseRef(database, `lastSeen/${otherUser.id}`);
+        const userStatusRef = databaseRef(database, `lastSeenA/${otherUser.id}`);
         onValue(userStatusRef, (snapshot) => {
             const status = snapshot.val();
             const timestamp = status && status.timestamp ? Number(status.timestamp) : null;
@@ -192,7 +192,7 @@ const Chat = ({ user }) => {
             </div>
             <div className="flex-1 overflow-y-auto p-4">
                 {/* Display messages */}
-                {messagesA.map((msg, index) => (
+                {messages.map((msg, index) => (
                     <div key={index} className={`mb-2 ${msg.sender === user.id ? 'text-right' : 'text-left'}`}>
                         <div className={`inline-block p-2 rounded-lg ${msg.sender === user.id ? 'bg-blue-500 text-white' : 'bg-gray-300'}`}>
                             {msg.text}
