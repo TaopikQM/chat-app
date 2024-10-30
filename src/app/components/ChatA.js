@@ -250,32 +250,29 @@ const Chat = ({ user }) => {
     
         return (
             <div className="grid grid-cols-4 gap-2 mt-2">
-                {await Promise.all(
-                    files.map(async (file, index) => {
-                        const downloadURL = await getFileURL(file);
-                        const fileExtension = file.name.split('.').pop().toLowerCase();
-    
-                        return (
-                            <div
-                                key={index}
-                                className="relative w-20 h-20 border border-gray-300 rounded-lg overflow-hidden cursor-pointer flex items-center justify-center bg-white"
-                                onClick={() => setPopupFile(downloadURL)}
-                            >
-                                {fileExtension === 'jpg' || fileExtension === 'png' || fileExtension === 'gif' ? (
-                                    <img src={downloadURL} alt="Media" className="object-cover w-full h-full rounded-lg" />
-                                ) : fileExtension === 'mp4' || fileExtension === 'webm' || fileExtension === 'ogg' ? (
-                                    <video src={downloadURL} className="object-cover w-full h-full rounded-lg" controls />
-                                ) : fileExtension === 'pdf' ? (
-                                    <span className="text-sm text-red-500 font-semibold">PDF</span>
-                                ) : fileExtension === 'doc' || fileExtension === 'docx' ? (
-                                    <span className="text-sm text-blue-500 font-semibold">DOC</span>
-                                ) : (
-                                    <span className="text-sm text-gray-500 font-semibold">File</span>
-                                )}
-                            </div>
-                        );
-                    })
-                )}
+               {files.map((file, index) => {
+                    const fileExtension = file.split('.').pop().split('?')[0].toLowerCase();
+
+                    return (
+                        <div
+                            key={index}
+                            className="relative w-20 h-20 border border-gray-300 rounded-lg overflow-hidden cursor-pointer flex items-center justify-center bg-white"
+                            onClick={() => setPopupFile(file)}
+                        >
+                            {fileExtension === 'jpg' || fileExtension === 'png' || fileExtension === 'gif' ? (
+                                <img src={file} alt="Media" className="object-cover w-full h-full rounded-lg" />
+                            ) : fileExtension === 'mp4' || fileExtension === 'webm' || fileExtension === 'ogg' ? (
+                                <video src={file} className="object-cover w-full h-full rounded-lg" controls />
+                            ) : fileExtension === 'pdf' ? (
+                                <span className="text-sm text-red-500 font-semibold">PDF</span>
+                            ) : fileExtension === 'doc' || fileExtension === 'docx' ? (
+                                <span className="text-sm text-blue-500 font-semibold">DOC</span>
+                            ) : (
+                                <span className="text-sm text-gray-500 font-semibold">File</span>
+                            )}
+                        </div>
+                    );
+                })}
             </div>
         );
     };
@@ -299,18 +296,42 @@ const Chat = ({ user }) => {
                         )
                     ))}
         
-                    {/* Popup modal for viewing media */}
+                    // {/* Popup modal for viewing media */}
+                    // {popupFile && (
+                    //     <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
+                    //         {/* Close button outside media */}
+                    //         <button
+                    //             onClick={() => setPopupFile(null)}
+                    //             className="absolute top-5 right-5 text-white bg-gray-600 rounded-full p-2 z-50"
+                    //         >
+                    //             X
+                    //         </button>
+                    //         <div className="relative p-4">
+                    //             <img src={popupFile} alt="Popup Media" className="max-w-full max-h-full rounded-lg border border-gray-300" />
+                    //         </div>
+                    //     </div>
+                    // )}
+                     {/* Popup untuk melihat file */}
                     {popupFile && (
-                        <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
-                            {/* Close button outside media */}
-                            <button
-                                onClick={() => setPopupFile(null)}
-                                className="absolute top-5 right-5 text-white bg-gray-600 rounded-full p-2 z-50"
-                            >
-                                X
-                            </button>
-                            <div className="relative p-4">
-                                <img src={popupFile} alt="Popup Media" className="max-w-full max-h-full rounded-lg border border-gray-300" />
+                        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                            <div className="relative bg-white p-4 rounded-lg max-w-lg w-full">
+                                <button
+                                    onClick={closePopup}
+                                    className="absolute top-2 right-2 text-gray-600 hover:text-black font-bold"
+                                >
+                                    X
+                                </button>
+                                {popupFile.endsWith('.jpg') || popupFile.endsWith('.png') || popupFile.endsWith('.gif') ? (
+                                    <img src={popupFile} alt="Popup Media" className="w-full h-auto rounded-lg" />
+                                ) : popupFile.endsWith('.mp4') || popupFile.endsWith('.webm') || popupFile.endsWith('.ogg') ? (
+                                    <video src={popupFile} className="w-full h-auto rounded-lg" controls />
+                                ) : (
+                                    <iframe
+                                        src={popupFile}
+                                        className="w-full h-96 border-none rounded-lg"
+                                        title="Document"
+                                    />
+                                )}
                             </div>
                         </div>
                     )}
