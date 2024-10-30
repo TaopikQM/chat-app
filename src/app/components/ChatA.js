@@ -209,7 +209,7 @@ const Chat = ({ user }) => {
             <div className="flex-1 overflow-y-auto p-4">
                 {/* Display messages */}
                 {messages.map((msg, index) => (
-                    <div key={index} className={`mb-2 ${msg.sender === user.id ? 'text-right' : 'text-left'}`}>
+                    <div key={msg.id || msg.timestamp} className={`mb-2 ${msg.sender === user.id ? 'text-right' : 'text-left'}`}>
                         <div className={`inline-block p-2 rounded-lg ${msg.sender === user.id ? 'bg-blue-500 text-white' : 'bg-gray-300'}`}>
                             {msg.text}
                             {renderMedia(msg.files)}
