@@ -394,6 +394,53 @@ const Chat = ({ user }) => {
 //         </div>
 //     );
 // };
+//     const renderMedia = (files) => {
+//     if (!files || files.length === 0) return null;
+
+//     return (
+//         <div className="grid grid-cols-4 gap-2 mt-2">
+//             {files.map((file, index) => {
+//                 const fileExtension = file.split('.').pop().toLowerCase();
+
+//                 const handleFileClick = (e) => {
+//                     // Check if the file is an image or video
+//                     if (
+//                         fileExtension === 'jpg' ||
+//                         fileExtension === 'jpeg' ||
+//                         fileExtension === 'png' ||
+//                         fileExtension === 'gif' ||
+//                         fileExtension === 'mp4' ||
+//                         fileExtension === 'webm' ||
+//                         fileExtension === 'ogg'
+//                     ) {
+//                         e.stopPropagation(); // Prevents the click from bubbling up
+//                         setPopupFile(file); // Set file to show in popup
+//                     } else {
+//                         // Open other files in a new tab
+//                         window.open(file, '_blank');
+//                     }
+//                 };
+
+//                 return (
+//                     <div
+//                         key={index}
+//                         className="relative w-20 h-20 border border-gray-300 rounded-lg overflow-hidden cursor-pointer flex items-center justify-center bg-white"
+//                         onClick={handleFileClick}
+//                     >
+//                         {fileExtension === 'jpg' || fileExtension === 'jpeg' || fileExtension === 'png' || fileExtension === 'gif' ? (
+//                             <img src={file} alt="Media" className="object-cover w-full h-full rounded-lg" />
+//                         ) : fileExtension === 'mp4' || fileExtension === 'webm' || fileExtension === 'ogg' ? (
+//                             <video src={file} className="object-cover w-full h-full rounded-lg" controls />
+//                         ) : (
+//                             <span className="text-sm text-gray-500 font-semibold">File</span>
+//                         )}
+//                     </div>
+//                 );
+//             })}
+//         </div>
+//     );
+// };
+
     const renderMedia = (files) => {
     if (!files || files.length === 0) return null;
 
@@ -413,7 +460,8 @@ const Chat = ({ user }) => {
                         fileExtension === 'webm' ||
                         fileExtension === 'ogg'
                     ) {
-                        e.stopPropagation(); // Prevents the click from bubbling up
+                        e.preventDefault(); // Prevent the default link action
+                        e.stopPropagation(); // Prevent the click from bubbling up
                         setPopupFile(file); // Set file to show in popup
                     } else {
                         // Open other files in a new tab
@@ -440,6 +488,7 @@ const Chat = ({ user }) => {
         </div>
     );
 };
+
 
 
 
@@ -481,6 +530,8 @@ const Chat = ({ user }) => {
         </div>
     </div>
 )}
+
+
 
 
         </div>    
