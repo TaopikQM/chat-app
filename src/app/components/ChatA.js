@@ -206,28 +206,33 @@ const Chat = ({ user }) => {
                 <h2 className="text-xl text-center">{otherUser.name}</h2>
                 <p className="text-sm text-center">{lastSeen ? 'Last seen: ' + lastSeen : 'Offline'}</p>
             </div>
-           <div className="flex-1 overflow-y-auto p-4">
-               {messages.map((msg, index) => (
-                    <div key={msg.id || msg.timestamp} className={`mb-2 ${msg.sender === user.id ? 'text-right' : 'text-left'}`}>
-                        <div className={`inline-block p-2 rounded-lg ${msg.sender === user.id ? 'bg-blue-500 text-white' : 'bg-gray-300'}`}>
-                            {msg.text}
-                            {renderMedia(msg.files)}
+          <div className="flex-1 overflow-y-auto p-4">
+                {/* Display messages */}
+                {messages.map((msg, index) => (
+                    // Check if the message has text before rendering
+                    msg.text && (
+                        <div key={msg.id || msg.timestamp} className={`mb-2 ${msg.sender === user.id ? 'text-right' : 'text-left'}`}>
+                            <div className={`inline-block p-2 rounded-lg ${msg.sender === user.id ? 'bg-blue-500 text-white' : 'bg-gray-300'}`}>
+                                {msg.text}
+                                {renderMedia(msg.files)}
+                            </div>
+                            <div className="text-xs text-gray-500 flex justify-end items-center mt-1">
+                                {msg.timestamp && new Date(msg.timestamp).toLocaleDateString() + ' ' + new Date(msg.timestamp).toLocaleTimeString()} {/* Display date and time */}
+                                {msg.sender === user.id && (
+                                    <span className="ml-2">
+                                        {msg.read ? (
+                                            <span className="text-blue-500">✔✔</span>
+                                        ) : (
+                                            <span>✔</span>
+                                        )}
+                                    </span>
+                                )}
+                            </div>
                         </div>
-                        <div className="text-xs text-gray-500 flex justify-end items-center mt-1">
-                            {msg.timestamp && new Date(msg.timestamp).toLocaleDateString() + ' ' + new Date(msg.timestamp).toLocaleTimeString()} {/* Display date and time */}
-                            {msg.sender === user.id && (
-                                <span className="ml-2">
-                                    {msg.read ? (
-                                        <span className="text-blue-500">✔✔</span>
-                                    ) : (
-                                        <span>✔</span>
-                                    )}
-                                </span>
-                            )}
-                        </div>
-                    </div>
+                    )
                 ))}
             </div>
+
 
             <div className="flex items-center p-4 border-t border-gray-300">
                 <input
