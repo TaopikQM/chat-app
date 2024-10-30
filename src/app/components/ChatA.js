@@ -214,7 +214,7 @@ const Chat = ({ user }) => {
                             {msg.text}
                             {renderMedia(msg.files)}
                         </div>
-                        <div className="text-xs text-gray-500 flex justify-end items-center">
+                        <div className="text-xs text-gray-500 flex justify-end items-center mt-1">
                              {msg.timestamp && 
                                 new Date(msg.timestamp).toLocaleDateString() + ' ' + new Date(msg.timestamp).toLocaleTimeString()} {/* Display date and time */}
                            
