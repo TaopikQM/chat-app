@@ -84,13 +84,29 @@ const Chat = ({ user }) => {
         //     }
         // });
         const userStatusRef = databaseRef(database, `lastSeenA/${otherUser.id}`);
+        // onValue(userStatusRef, (snapshot) => {
+        //     const status = snapshot.val();
+        //     const timestamp = status && status.timestamp ? Number(status.timestamp) : null;
+    
+        //     if (timestamp && timestamp.toString().length === 13) {  // Check if in milliseconds
+        //         const date = new Date(timestamp);
+        //         setLastSeen(!isNaN(date.getTime()) ? date.toLocaleTimeString() : 'Offline');
+        //     } else {
+        //         console.error("Timestamp is invalid or missing:", timestamp);
+        //         setLastSeen('Offline');
+        //     }
+        // });
         onValue(userStatusRef, (snapshot) => {
             const status = snapshot.val();
             const timestamp = status && status.timestamp ? Number(status.timestamp) : null;
     
             if (timestamp && timestamp.toString().length === 13) {  // Check if in milliseconds
                 const date = new Date(timestamp);
-                setLastSeen(!isNaN(date.getTime()) ? date.toLocaleTimeString() : 'Offline');
+                setLastSeen(
+                    !isNaN(date.getTime())
+                        ? `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`
+                        : 'Offline'
+                );
             } else {
                 console.error("Timestamp is invalid or missing:", timestamp);
                 setLastSeen('Offline');
