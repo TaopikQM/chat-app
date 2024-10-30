@@ -206,7 +206,7 @@ const Chat = ({ user }) => {
                 <h2 className="text-xl text-center">{otherUser.name}</h2>
                 <p className="text-sm text-center">{lastSeen ? 'Last seen: ' + lastSeen : 'Offline'}</p>
             </div>
-            <div className="flex-1 overflow-y-auto p-4">
+           <div className="flex-1 overflow-y-auto p-4">
                 {/* Display messages */}
                 {messages.map((msg, index) => (
                     <div key={msg.id || msg.timestamp} className={`mb-2 ${msg.sender === user.id ? 'text-right' : 'text-left'}`}>
@@ -215,9 +215,8 @@ const Chat = ({ user }) => {
                             {renderMedia(msg.files)}
                         </div>
                         <div className="text-xs text-gray-500 flex justify-end items-center mt-1">
-                             {msg.timestamp && 
+                            {msg.timestamp && 
                                 new Date(msg.timestamp).toLocaleDateString() + ' ' + new Date(msg.timestamp).toLocaleTimeString()} {/* Display date and time */}
-                           
                             {msg.sender === user.id && (
                                 <span className="ml-2">
                                     {msg.read ? (
@@ -231,6 +230,7 @@ const Chat = ({ user }) => {
                     </div>
                 ))}
             </div>
+
             <div className="flex items-center p-4 border-t border-gray-300">
                 <input
                     type="file"
