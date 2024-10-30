@@ -209,249 +209,68 @@ const Chat = ({ user }) => {
     // };
 
     // Function to render media with border and popup trigger
-    const renderMedia = (files) => {
-        if (!files || files.length === 0) return null;
-
-        return (
-            <div className="grid grid-cols-4 gap-2 mt-2">
-                {files.map((file, index) => (
-                    <div
-                        key={index}
-                        className="relative w-20 h-20 border border-gray-300 rounded-lg overflow-hidden cursor-pointer"
-                        onClick={() => setPopupFile(file)}
-                    >
-                        {file.endsWith('.jpg') || file.endsWith('.png') || file.endsWith('.gif') ? (
-                            <img src={file} alt="Media" className="object-cover w-full h-full rounded-lg" />
-                        ) : (
-                            <span className="text-sm flex items-center justify-center h-full">File</span>
-                        )}
-                    </div>
-                ))}
-            </div>
-        );
-    };
-
-//     const renderMedia = (files) => {
-//     if (!files || files.length === 0) return null;
-
-//     return (
-//         <div className="grid grid-cols-4 gap-2 mt-2">
-//             {files.map((file, index) => {
-//                 const fileExtension = file.split('.').pop().toLowerCase();
-
-//                 return (
-//                     <div
-//                         key={index}
-//                         className="relative w-20 h-20 border border-gray-300 rounded-lg overflow-hidden cursor-pointer flex items-center justify-center bg-white"
-//                         onClick={() => setPopupFile(file)}
-//                     >
-//                         {fileExtension === 'jpg' || fileExtension === 'png' || fileExtension === 'gif' ? (
-//                             <img src={file} alt="Media" className="object-cover w-full h-full rounded-lg" />
-//                         ) : fileExtension === 'mp4' || fileExtension === 'webm' || fileExtension === 'ogg' ? (
-//                             <video src={file} className="object-cover w-full h-full rounded-lg" controls />
-//                         ) : fileExtension === 'pdf' ? (
-//                             <span className="text-sm text-red-500 font-semibold">PDF</span>
-//                         ) : fileExtension === 'doc' || fileExtension === 'docx' ? (
-//                             <span className="text-sm text-blue-500 font-semibold">DOC</span>
-//                         ) : (
-//                             <span className="text-sm text-gray-500 font-semibold">File</span>
-//                         )}
-//                     </div>
-//                 );
-//             })}
-//         </div>
-//     );
-// };
     // const renderMedia = (files) => {
     //     if (!files || files.length === 0) return null;
 
     //     return (
     //         <div className="grid grid-cols-4 gap-2 mt-2">
-    //             {files.map((file, index) => {
-    //                 const fileExtension = file.split('.').pop().toLowerCase();
-
-    //                 return (
-    //                     <div
-    //                         key={index}
-    //                         className="relative w-20 h-20 border border-gray-300 rounded-lg overflow-hidden cursor-pointer flex items-center justify-center bg-white"
-    //                         onClick={() => setPopupFile(file)}
-    //                     >
-    //                         {fileExtension === 'jpg' || fileExtension === 'png' || fileExtension === 'gif' ? (
-    //                             <img src={file} alt="Media" className="object-cover w-full h-full rounded-lg" />
-    //                         ) : fileExtension === 'mp4' || fileExtension === 'webm' || fileExtension === 'ogg' ? (
-    //                             <video src={file} className="object-cover w-full h-full rounded-lg" controls />
-    //                         ) : fileExtension === 'pdf' ? (
-    //                             <span className="text-sm text-red-500 font-semibold">PDF</span>
-    //                         ) : fileExtension === 'doc' || fileExtension === 'docx' ? (
-    //                             <span className="text-sm text-blue-500 font-semibold">DOC</span>
-    //                         ) : (
-    //                             <span className="text-sm text-gray-500 font-semibold">File</span>
-    //                         )}
-    //                     </div>
-    //                 );
-    //             })}
-    //         </div>
-    //     );
-    // };
-    // const renderMedia = (files) => {
-    //     if (!files || files.length === 0) return null;
-
-    //     return (
-    //         <div className="grid grid-cols-4 gap-2 mt-2">
-    //             {files.map((file, index) => {
-    //                 const fileExtension = file.split('.').pop().toLowerCase();
-
-    //                 return (
-    //                     <div
-    //                         key={index}
-    //                         className="relative w-20 h-20 border border-gray-300 rounded-lg overflow-hidden cursor-pointer flex items-center justify-center bg-white"
-    //                         onClick={() => setPopupFile(file)}
-    //                     >
-    //                         {fileExtension === 'jpg' || fileExtension === 'png' || fileExtension === 'gif' ? (
-    //                             <img src={file} alt="Media" className="object-cover w-full h-full rounded-lg" />
-    //                         ) : fileExtension === 'mp4' || fileExtension === 'webm' || fileExtension === 'ogg' ? (
-    //                             <video src={file} className="object-cover w-full h-full rounded-lg" controls />
-    //                         ) : fileExtension === 'pdf' ? (
-    //                             <span className="text-sm text-red-500 font-semibold">PDF</span>
-    //                         ) : fileExtension === 'doc' || fileExtension === 'docx' ? (
-    //                             <span className="text-sm text-blue-500 font-semibold">DOC</span>
-    //                         ) : (
-    //                             <span className="text-sm text-gray-500 font-semibold">File</span>
-    //                         )}
-    //                     </div>
-    //                 );
-    //             })}
-    //         </div>
-    //     );
-    // };
-    // const renderMedia = async (files) => {
-    //     if (!files || files.length === 0) return null;
-    
-    //     // Mengambil URL unduhan untuk setiap file
-    //     const getFileURL = async (file) => {
-    //         const fileRef = ref(storage, file.name); // file.name adalah path file di Storage
-    //         return await getDownloadURL(fileRef);
-    //     };
-    
-    //     return (
-    //         <div>
-    //         <div className="grid grid-cols-4 gap-2 mt-2">
-    //            {files.map((file, index) => {
-    //                 const fileExtension = file.split('.').pop().split('?')[0].toLowerCase();
-
-    //                 return (
-    //                     <div
-    //                         key={index}
-    //                         className="relative w-20 h-20 border border-gray-300 rounded-lg overflow-hidden cursor-pointer flex items-center justify-center bg-white"
-    //                         onClick={() => setPopupFile(file)}
-    //                     >
-    //                         {fileExtension === 'jpg' || fileExtension === 'png' || fileExtension === 'gif' ? (
-    //                             <img src={file} alt="Media" className="object-cover w-full h-full rounded-lg" />
-    //                         ) : fileExtension === 'mp4' || fileExtension === 'webm' || fileExtension === 'ogg' ? (
-    //                             <video src={file} className="object-cover w-full h-full rounded-lg" controls />
-    //                         ) : fileExtension === 'pdf' ? (
-    //                             <span className="text-sm text-red-500 font-semibold">PDF</span>
-    //                         ) : fileExtension === 'doc' || fileExtension === 'docx' ? (
-    //                             <span className="text-sm text-blue-500 font-semibold">DOC</span>
-    //                         ) : (
-    //                             <span className="text-sm text-gray-500 font-semibold">File</span>
-    //                         )}
-    //                     </div>
-    //                 );
-    //             })}
-    //         </div>
-
-    //         {/* Popup untuk melihat file */}
-    //         {popupFile && (
-    //             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-    //                 <div className="relative bg-white p-4 rounded-lg max-w-lg w-full">
-    //                     <button
-    //                         onClick={closePopup}
-    //                         className="absolute top-2 right-2 text-gray-600 hover:text-black font-bold"
-    //                     >
-    //                         X
-    //                     </button>
-    //                     {popupFile.endsWith('.jpg') || popupFile.endsWith('.png') || popupFile.endsWith('.gif') ? (
-    //                         <img src={popupFile} alt="Popup Media" className="w-full h-auto rounded-lg" />
-    //                     ) : popupFile.endsWith('.mp4') || popupFile.endsWith('.webm') || popupFile.endsWith('.ogg') ? (
-    //                         <video src={popupFile} className="w-full h-auto rounded-lg" controls />
+    //             {files.map((file, index) => (
+    //                 <div
+    //                     key={index}
+    //                     className="relative w-20 h-20 border border-gray-300 rounded-lg overflow-hidden cursor-pointer"
+    //                     onClick={() => setPopupFile(file)}
+    //                 >
+    //                     {file.endsWith('.jpg') || file.endsWith('.png') || file.endsWith('.gif') ? (
+    //                         <img src={file} alt="Media" className="object-cover w-full h-full rounded-lg" />
     //                     ) : (
-    //                         <iframe
-    //                             src={popupFile}
-    //                             className="w-full h-96 border-none rounded-lg"
-    //                             title="Document"
-    //                         />
+    //                         <span className="text-sm flex items-center justify-center h-full">File</span>
     //                     )}
     //                 </div>
-    //             </div>
-    //         )}
-    //          </div>
+    //             ))}
+    //         </div>
     //     );
     // };
-        // const renderMedia = (files) => {
-        //     const [popupFile, setPopupFile] = useState(null);
-        
-        //     // Fungsi untuk menutup popup
-        //     const closePopup = () => setPopupFile(null);
-        
-        //     if (!files || files.length === 0) return null;
-        
-        //     return (
-        //         <div>
-        //             {/* Grid media */}
-        //             <div className="grid grid-cols-4 gap-2 mt-2">
-        //                 {files.map((file, index) => {
-        //                     const fileExtension = file.split('.').pop().split('?')[0].toLowerCase();
-        
-        //                     return (
-        //                         <div
-        //                             key={index}
-        //                             className="relative w-20 h-20 border border-gray-300 rounded-lg overflow-hidden cursor-pointer flex items-center justify-center bg-white"
-        //                             onClick={() => setPopupFile(file)}
-        //                         >
-        //                             {fileExtension === 'jpg' || fileExtension === 'png' || fileExtension === 'gif' ? (
-        //                                 <img src={file} alt="Media" className="object-cover w-full h-full rounded-lg" />
-        //                             ) : fileExtension === 'mp4' || fileExtension === 'webm' || fileExtension === 'ogg' ? (
-        //                                 <video src={file} className="object-cover w-full h-full rounded-lg" controls />
-        //                             ) : fileExtension === 'pdf' ? (
-        //                                 <span className="text-sm text-red-500 font-semibold">PDF</span>
-        //                             ) : fileExtension === 'doc' || fileExtension === 'docx' ? (
-        //                                 <span className="text-sm text-blue-500 font-semibold">DOC</span>
-        //                             ) : (
-        //                                 <span className="text-sm text-gray-500 font-semibold">File</span>
-        //                             )}
-        //                         </div>
-        //                     );
-        //                 })}
-        //             </div>
-        
-        //             {/* Popup untuk melihat file */}
-        //             {popupFile && (
-        //                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        //                     <div className="relative bg-white p-4 rounded-lg max-w-lg w-full">
-        //                         <button
-        //                             onClick={closePopup}
-        //                             className="absolute top-2 right-2 text-gray-600 hover:text-black font-bold"
-        //                         >
-        //                             X
-        //                         </button>
-        //                         {popupFile.endsWith('.jpg') || popupFile.endsWith('.png') || popupFile.endsWith('.gif') ? (
-        //                             <img src={popupFile} alt="Popup Media" className="w-full h-auto rounded-lg" />
-        //                         ) : popupFile.endsWith('.mp4') || popupFile.endsWith('.webm') || popupFile.endsWith('.ogg') ? (
-        //                             <video src={popupFile} className="w-full h-auto rounded-lg" controls />
-        //                         ) : (
-        //                             <iframe
-        //                                 src={popupFile}
-        //                                 className="w-full h-96 border-none rounded-lg"
-        //                                 title="Document"
-        //                             />
-        //                         )}
-        //                     </div>
-        //                 </div>
-        //             )}
-        //         </div>
-        //     );
-        // };
+    const renderMedia = async (files) => {
+    if (!files || files.length === 0) return null;
+
+    // Mengambil URL unduhan untuk setiap file
+    const getFileURL = async (file) => {
+        const fileRef = ref(storage, file.name); // file.name adalah path file di Storage
+        return await getDownloadURL(fileRef);
+    };
+
+    return (
+        <div className="grid grid-cols-4 gap-2 mt-2">
+            {await Promise.all(
+                files.map(async (file, index) => {
+                    const downloadURL = await getFileURL(file);
+                    const fileExtension = file.name.split('.').pop().toLowerCase();
+
+                    return (
+                        <div
+                            key={index}
+                            className="relative w-20 h-20 border border-gray-300 rounded-lg overflow-hidden cursor-pointer flex items-center justify-center bg-white"
+                            onClick={() => setPopupFile(downloadURL)}
+                        >
+                            {fileExtension === 'jpg' || fileExtension === 'png' || fileExtension === 'gif' ? (
+                                <img src={downloadURL} alt="Media" className="object-cover w-full h-full rounded-lg" />
+                            ) : fileExtension === 'mp4' || fileExtension === 'webm' || fileExtension === 'ogg' ? (
+                                <video src={downloadURL} className="object-cover w-full h-full rounded-lg" controls />
+                            ) : fileExtension === 'pdf' ? (
+                                <span className="text-sm text-red-500 font-semibold">PDF</span>
+                            ) : fileExtension === 'doc' || fileExtension === 'docx' ? (
+                                <span className="text-sm text-blue-500 font-semibold">DOC</span>
+                            ) : (
+                                <span className="text-sm text-gray-500 font-semibold">File</span>
+                            )}
+                        </div>
+                    );
+                })
+            )}
+        </div>
+    );
+};
+
 
     return (
         <div className="flex flex-col h-screen bg-gray-100">
