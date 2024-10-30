@@ -294,6 +294,38 @@ const Chat = ({ user }) => {
 //     );
 // };
 
+//     const renderMedia = (files) => {
+//     if (!files || files.length === 0) return null;
+
+//     return (
+//         <div className="grid grid-cols-4 gap-2 mt-2">
+//             {files.map((file, index) => {
+//                 const fileExtension = file.split('.').pop().toLowerCase();
+
+//                 return (
+//                     <div
+//                         key={index}
+//                         className="relative w-20 h-20 border border-gray-300 rounded-lg overflow-hidden cursor-pointer flex items-center justify-center bg-white"
+//                         onClick={() => setPopupFile(file)}
+//                     >
+//                         {fileExtension === 'jpg' || fileExtension === 'png' || fileExtension === 'gif' ? (
+//                             <img src={file} alt="Media" className="object-cover w-full h-full rounded-lg" />
+//                         ) : fileExtension === 'mp4' || fileExtension === 'webm' || fileExtension === 'ogg' ? (
+//                             <video src={file} className="object-cover w-full h-full rounded-lg" controls />
+//                         ) : fileExtension === 'pdf' ? (
+//                             <span className="text-sm text-red-500 font-semibold">PDF</span>
+//                         ) : fileExtension === 'doc' || fileExtension === 'docx' ? (
+//                             <span className="text-sm text-blue-500 font-semibold">DOC</span>
+//                         ) : (
+//                             <span className="text-sm text-gray-500 font-semibold">File</span>
+//                         )}
+//                     </div>
+//                 );
+//             })}
+//         </div>
+//     );
+// };
+
     const renderMedia = (files) => {
     if (!files || files.length === 0) return null;
 
@@ -308,7 +340,7 @@ const Chat = ({ user }) => {
                         className="relative w-20 h-20 border border-gray-300 rounded-lg overflow-hidden cursor-pointer flex items-center justify-center bg-white"
                         onClick={() => setPopupFile(file)}
                     >
-                        {fileExtension === 'jpg' || fileExtension === 'png' || fileExtension === 'gif' ? (
+                        {fileExtension === 'jpg' || fileExtension === 'jpeg' || fileExtension === 'png' || fileExtension === 'gif' ? (
                             <img src={file} alt="Media" className="object-cover w-full h-full rounded-lg" />
                         ) : fileExtension === 'mp4' || fileExtension === 'webm' || fileExtension === 'ogg' ? (
                             <video src={file} className="object-cover w-full h-full rounded-lg" controls />
@@ -355,7 +387,7 @@ const Chat = ({ user }) => {
             X
         </button>
         <div className="relative p-4">
-            {popupFile.endsWith('.jpg') || popupFile.endsWith('.png') || popupFile.endsWith('.gif') ? (
+            {popupFile.endsWith('.jpg') || popupFile.endsWith('.jpeg') || popupFile.endsWith('.png') || popupFile.endsWith('.gif') ? (
                 <img src={popupFile} alt="Popup Media" className="max-w-full max-h-full rounded-lg border border-gray-300" />
             ) : popupFile.endsWith('.mp4') || popupFile.endsWith('.webm') || popupFile.endsWith('.ogg') ? (
                 <video src={popupFile} className="max-w-full max-h-full rounded-lg border border-gray-300" controls />
