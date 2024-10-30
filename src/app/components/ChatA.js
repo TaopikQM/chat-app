@@ -766,7 +766,7 @@ const Chat = ({ user }) => {
 };
 
 // Usage in the chat area
-const ChatMessage = ({ message, senderId, userId }) => {
+const ChatMessage = ({ message, senderId }) => {
     const [settings, setSettings] = useState({ bubbleColor: 'bg-gray-300', textColor: 'text-black' });
 
     useEffect(() => {
