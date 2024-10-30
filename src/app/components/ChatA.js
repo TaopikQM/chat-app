@@ -387,45 +387,6 @@ const Chat = ({ user }) => {
                         )
                     ))}
         
-                    // {/* Popup modal for viewing media */}
-                    // {popupFile && (
-                    //     <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
-                    //         {/* Close button outside media */}
-                    //         <button
-                    //             onClick={() => setPopupFile(null)}
-                    //             className="absolute top-5 right-5 text-white bg-gray-600 rounded-full p-2 z-50"
-                    //         >
-                    //             X
-                    //         </button>
-                    //         <div className="relative p-4">
-                    //             <img src={popupFile} alt="Popup Media" className="max-w-full max-h-full rounded-lg border border-gray-300" />
-                    //         </div>
-                    //     </div>
-                    // )}
-                    //  {/* Popup untuk melihat file */}
-                    // {popupFile && (
-                    //     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                    //         <div className="relative bg-white p-4 rounded-lg max-w-lg w-full">
-                    //             <button
-                    //                 onClick={closePopup}
-                    //                 className="absolute top-2 right-2 text-gray-600 hover:text-black font-bold"
-                    //             >
-                    //                 X
-                    //             </button>
-                    //             {popupFile.endsWith('.jpg') || popupFile.endsWith('.png') || popupFile.endsWith('.gif') ? (
-                    //                 <img src={popupFile} alt="Popup Media" className="w-full h-auto rounded-lg" />
-                    //             ) : popupFile.endsWith('.mp4') || popupFile.endsWith('.webm') || popupFile.endsWith('.ogg') ? (
-                    //                 <video src={popupFile} className="w-full h-auto rounded-lg" controls />
-                    //             ) : (
-                    //                 <iframe
-                    //                     src={popupFile}
-                    //                     className="w-full h-96 border-none rounded-lg"
-                    //                     title="Document"
-                    //                 />
-                    //             )}
-                    //         </div>
-                    //     </div>
-                    // )}
             </div>    
 
 
