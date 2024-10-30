@@ -144,6 +144,27 @@ const Chat = ({ user }) => {
     //         </div>
     //     );
     // };
+    //  const renderMedia = (files) => {
+    //     if (!files || files.length === 0) return null;
+
+    //     return (
+    //         <div className="grid grid-cols-4 gap-2 mt-2">
+    //             {files.map((file, index) => (
+    //                 <div
+    //                     key={index}
+    //                     className="relative w-20 h-20 border border-gray-300 rounded-lg overflow-hidden cursor-pointer"
+    //                     onClick={() => setPopupFile(file)}
+    //                 >
+    //                     {file.endsWith('.jpg') || file.endsWith('.png') || file.endsWith('.gif') ? (
+    //                         <img src={file} alt="Media" className="object-cover w-full h-full" />
+    //                     ) : (
+    //                         <span className="text-sm flex items-center justify-center h-full">File</span>
+    //                     )}
+    //                 </div>
+    //             ))}
+    //         </div>
+    //     );
+    // };
      const renderMedia = (files) => {
         if (!files || files.length === 0) return null;
 
@@ -172,7 +193,7 @@ const Chat = ({ user }) => {
                 <h2 className="text-xl text-center">{otherUser.name}</h2>
                 <p className="text-sm text-center">{lastSeen ? 'Last seen: ' + lastSeen : 'Offline'}</p>
             </div>
-            <div className="flex-1 overflow-y-auto p-4">
+           <div className="flex-1 overflow-y-auto p-4">
                 {/* Display messages */}
                 {messages.map((msg, index) => (
                     (msg.text || (msg.files && msg.files.length > 0)) && (
@@ -188,14 +209,14 @@ const Chat = ({ user }) => {
                 {/* Popup modal for viewing media */}
                 {popupFile && (
                     <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
-                        <div className="relative">
+                        <div className="relative p-2">
                             <button
                                 onClick={() => setPopupFile(null)}
-                                className="absolute top-0 right-0 m-4 text-white bg-gray-600 rounded-full p-1"
+                                className="absolute top-2 left-1/2 transform -translate-x-1/2 text-white bg-gray-600 rounded-full p-1"
                             >
                                 X
                             </button>
-                            <img src={popupFile} alt="Popup Media" className="max-w-full max-h-full rounded-lg" />
+                            <img src={popupFile} alt="Popup Media" className="max-w-full max-h-full rounded-lg border border-gray-300" />
                         </div>
                     </div>
                 )}
