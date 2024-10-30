@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useEffect } from 'react';
 import { database } from '../config/firebase'; 
 import { ref as databaseRef, onValue, push } from 'firebase/database';
