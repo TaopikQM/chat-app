@@ -153,29 +153,33 @@ const Chat = ({ user }) => {
             <div className="flex-1 overflow-y-auto p-4">
                 {/* Display messages */}
                 {messages.map((msg, index) => (
-                    <div key={msg.id || msg.timestamp} className={`mb-2 ${msg.sender === user.id ? 'text-right' : 'text-left'}`}>
-                        <div className={`inline-block p-2 rounded-lg ${msg.sender === user.id ? 'bg-blue-500 text-white' : 'bg-gray-300'}`}>
-                            {/* Display text if available */}
-                            {msg.text && <div>{msg.text}</div>}
-                            
-                            {/* Display media if available */}
-                            {msg.files && renderMedia(msg.files)}
+                    // Render only if there is text or media files
+                    (msg.text || (msg.files && msg.files.length > 0)) && (
+                        <div key={msg.id || msg.timestamp} className={`mb-2 ${msg.sender === user.id ? 'text-right' : 'text-left'}`}>
+                            <div className={`inline-block p-2 rounded-lg ${msg.sender === user.id ? 'bg-blue-500 text-white' : 'bg-gray-300'}`}>
+                                {/* Display text if available */}
+                                {msg.text && <div>{msg.text}</div>}
+                                
+                                {/* Display media if available */}
+                                {msg.files && renderMedia(msg.files)}
+                            </div>
+                            <div className="text-xs text-gray-500 flex justify-end items-center mt-1">
+                                {msg.timestamp && new Date(msg.timestamp).toLocaleDateString() + ' ' + new Date(msg.timestamp).toLocaleTimeString()}
+                                {msg.sender === user.id && (
+                                    <span className="ml-2">
+                                        {msg.read ? (
+                                            <span className="text-blue-500">✔✔</span>
+                                        ) : (
+                                            <span>✔</span>
+                                        )}
+                                    </span>
+                                )}
+                            </div>
                         </div>
-                        <div className="text-xs text-gray-500 flex justify-end items-center mt-1">
-                            {msg.timestamp && new Date(msg.timestamp).toLocaleDateString() + ' ' + new Date(msg.timestamp).toLocaleTimeString()}
-                            {msg.sender === user.id && (
-                                <span className="ml-2">
-                                    {msg.read ? (
-                                        <span className="text-blue-500">✔✔</span>
-                                    ) : (
-                                        <span>✔</span>
-                                    )}
-                                </span>
-                            )}
-                        </div>
-                    </div>
+                    )
                 ))}
             </div>
+
 
 
 
