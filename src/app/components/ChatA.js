@@ -186,59 +186,59 @@ const Chat = ({ user }) => {
     //         </div>
     //     );
     // };
-    // const renderMedia = (files) => {
-    //     if (!files || files.length === 0) return null;
-
-    //     return (
-    //         <div className="grid grid-cols-4 gap-2 mt-2">
-    //             {files.map((file, index) => (
-    //                 <div
-    //                     key={index}
-    //                     className="relative w-20 h-20 border border-gray-300 rounded-lg overflow-hidden cursor-pointer"
-    //                     onClick={() => setPopupFile(file)}
-    //                 >
-    //                     {file.endsWith('.jpg') || file.endsWith('.png') || file.endsWith('.gif') ? (
-    //                         <img src={file} alt="Media" className="object-cover w-full h-full rounded-lg" />
-    //                     ) : (
-    //                         <span className="text-sm flex items-center justify-center h-full">File</span>
-    //                     )}
-    //                 </div>
-    //             ))}
-    //         </div>
-    //     );
-    // };
-
     const renderMedia = (files) => {
-    if (!files || files.length === 0) return null;
+        if (!files || files.length === 0) return null;
 
-    return (
-        <div className="grid grid-cols-4 gap-2 mt-2">
-            {files.map((file, index) => {
-                const fileExtension = file.split('.').pop().toLowerCase();
-
-                return (
+        return (
+            <div className="grid grid-cols-4 gap-2 mt-2">
+                {files.map((file, index) => (
                     <div
                         key={index}
-                        className="relative w-20 h-20 border border-gray-300 rounded-lg overflow-hidden cursor-pointer flex items-center justify-center bg-white"
+                        className="relative w-20 h-20 border border-gray-300 rounded-lg overflow-hidden cursor-pointer"
                         onClick={() => setPopupFile(file)}
                     >
-                        {fileExtension === 'jpg' || fileExtension === 'png' || fileExtension === 'gif' ? (
+                        {file.endsWith('.jpg') || file.endsWith('.png') || file.endsWith('.gif') ? (
                             <img src={file} alt="Media" className="object-cover w-full h-full rounded-lg" />
-                        ) : fileExtension === 'mp4' || fileExtension === 'webm' || fileExtension === 'ogg' ? (
-                            <video src={file} className="object-cover w-full h-full rounded-lg" controls />
-                        ) : fileExtension === 'pdf' ? (
-                            <span className="text-sm text-red-500 font-semibold">PDF</span>
-                        ) : fileExtension === 'doc' || fileExtension === 'docx' ? (
-                            <span className="text-sm text-blue-500 font-semibold">DOC</span>
                         ) : (
-                            <span className="text-sm text-gray-500 font-semibold">File</span>
+                            <span className="text-sm flex items-center justify-center h-full">File</span>
                         )}
                     </div>
-                );
-            })}
-        </div>
-    );
-};
+                ))}
+            </div>
+        );
+    };
+
+//     const renderMedia = (files) => {
+//     if (!files || files.length === 0) return null;
+
+//     return (
+//         <div className="grid grid-cols-4 gap-2 mt-2">
+//             {files.map((file, index) => {
+//                 const fileExtension = file.split('.').pop().toLowerCase();
+
+//                 return (
+//                     <div
+//                         key={index}
+//                         className="relative w-20 h-20 border border-gray-300 rounded-lg overflow-hidden cursor-pointer flex items-center justify-center bg-white"
+//                         onClick={() => setPopupFile(file)}
+//                     >
+//                         {fileExtension === 'jpg' || fileExtension === 'png' || fileExtension === 'gif' ? (
+//                             <img src={file} alt="Media" className="object-cover w-full h-full rounded-lg" />
+//                         ) : fileExtension === 'mp4' || fileExtension === 'webm' || fileExtension === 'ogg' ? (
+//                             <video src={file} className="object-cover w-full h-full rounded-lg" controls />
+//                         ) : fileExtension === 'pdf' ? (
+//                             <span className="text-sm text-red-500 font-semibold">PDF</span>
+//                         ) : fileExtension === 'doc' || fileExtension === 'docx' ? (
+//                             <span className="text-sm text-blue-500 font-semibold">DOC</span>
+//                         ) : (
+//                             <span className="text-sm text-gray-500 font-semibold">File</span>
+//                         )}
+//                     </div>
+//                 );
+//             })}
+//         </div>
+//     );
+// };
     // const renderMedia = (files) => {
     //     if (!files || files.length === 0) return null;
 
@@ -436,36 +436,36 @@ const Chat = ({ user }) => {
                 <h2 className="text-xl text-center">{otherUser.name}</h2>
                 <p className="text-sm text-center">{lastSeen ? 'Last seen: ' + lastSeen : 'Offline'}</p>
             </div>
-           <div className="flex-1 overflow-y-auto p-4">
-                    {/* Display messages */}
-                    {messages.map((msg, index) => (
-                        (msg.text || (msg.files && msg.files.length > 0)) && (
-                            <div key={msg.id || msg.timestamp} className={mb-2 ${msg.sender === user.id ? 'text-right' : 'text-left'}}>
-                                <div className={inline-block p-2 rounded-lg ${msg.sender === user.id ? 'bg-blue-500 text-white' : 'bg-gray-300'}}>
-                                    {msg.text && <div>{msg.text}</div>}
-                                    {msg.files && renderMedia(msg.files)}
+               <div className="flex-1 overflow-y-auto p-4">
+                        {/* Display messages */}
+                        {messages.map((msg, index) => (
+                            (msg.text || (msg.files && msg.files.length > 0)) && (
+                                <div key={msg.id || msg.timestamp} className={mb-2 ${msg.sender === user.id ? 'text-right' : 'text-left'}}>
+                                    <div className={inline-block p-2 rounded-lg ${msg.sender === user.id ? 'bg-blue-500 text-white' : 'bg-gray-300'}}>
+                                        {msg.text && <div>{msg.text}</div>}
+                                        {msg.files && renderMedia(msg.files)}
+                                    </div>
+                                </div>
+                            )
+                        ))}
+                        
+                        {/* Popup modal for viewing media */}
+                        {popupFile && (
+                            <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
+                                {/* Close button outside media */}
+                                <button
+                                    onClick={() => setPopupFile(null)}
+                                    className="absolute top-5 right-5 text-white bg-gray-600 rounded-full p-2 z-50"
+                                >
+                                    X
+                                </button>
+                                <div className="relative p-4">
+                                    <img src={popupFile} alt="Popup Media" className="max-w-full max-h-full rounded-lg border border-gray-300" />
                                 </div>
                             </div>
-                        )
-                    ))}
-                    
-                    {/* Popup modal for viewing media */}
-                    {popupFile && (
-                        <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
-                            {/* Close button outside media */}
-                            <button
-                                onClick={() => setPopupFile(null)}
-                                className="absolute top-5 right-5 text-white bg-gray-600 rounded-full p-2 z-50"
-                            >
-                                X
-                            </button>
-                            <div className="relative p-4">
-                                <img src={popupFile} alt="Popup Media" className="max-w-full max-h-full rounded-lg border border-gray-300" />
-                            </div>
-                        </div>
-                    )}
-                    
-            </div>    
+                        )}
+                        
+                </div>    
 
 
 
