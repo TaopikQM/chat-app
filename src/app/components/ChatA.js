@@ -239,6 +239,37 @@ const Chat = ({ user }) => {
 //         </div>
 //     );
 // };
+    // const renderMedia = (files) => {
+    //     if (!files || files.length === 0) return null;
+
+    //     return (
+    //         <div className="grid grid-cols-4 gap-2 mt-2">
+    //             {files.map((file, index) => {
+    //                 const fileExtension = file.split('.').pop().toLowerCase();
+
+    //                 return (
+    //                     <div
+    //                         key={index}
+    //                         className="relative w-20 h-20 border border-gray-300 rounded-lg overflow-hidden cursor-pointer flex items-center justify-center bg-white"
+    //                         onClick={() => setPopupFile(file)}
+    //                     >
+    //                         {fileExtension === 'jpg' || fileExtension === 'png' || fileExtension === 'gif' ? (
+    //                             <img src={file} alt="Media" className="object-cover w-full h-full rounded-lg" />
+    //                         ) : fileExtension === 'mp4' || fileExtension === 'webm' || fileExtension === 'ogg' ? (
+    //                             <video src={file} className="object-cover w-full h-full rounded-lg" controls />
+    //                         ) : fileExtension === 'pdf' ? (
+    //                             <span className="text-sm text-red-500 font-semibold">PDF</span>
+    //                         ) : fileExtension === 'doc' || fileExtension === 'docx' ? (
+    //                             <span className="text-sm text-blue-500 font-semibold">DOC</span>
+    //                         ) : (
+    //                             <span className="text-sm text-gray-500 font-semibold">File</span>
+    //                         )}
+    //                     </div>
+    //                 );
+    //             })}
+    //         </div>
+    //     );
+    // };
     const renderMedia = (files) => {
         if (!files || files.length === 0) return null;
 
@@ -406,43 +437,44 @@ const Chat = ({ user }) => {
                 <p className="text-sm text-center">{lastSeen ? 'Last seen: ' + lastSeen : 'Offline'}</p>
             </div>
             <div className="flex-1 overflow-y-auto p-4">
-                   {/* Display messages */}
-            {messages.map((msg, index) => (
-                (msg.text || (msg.files && msg.files.length > 0)) && (
-                    <div key={msg.id || msg.timestamp} className={`mb-2 ${msg.sender === user.id ? 'text-right' : 'text-left'}`}>
-                        <div className={`inline-block p-2 rounded-lg ${msg.sender === user.id ? 'bg-blue-500 text-white' : 'bg-gray-300'}`}>
-                            {msg.text && <div>{msg.text}</div>}
-                            {msg.files && renderMedia(msg.files)}
+                  {/* Display messages */}
+                    {messages.map((msg, index) => (
+                        (msg.text || (msg.files && msg.files.length > 0)) && (
+                            <div key={msg.id || msg.timestamp} className={`mb-2 ${msg.sender === user.id ? 'text-right' : 'text-left'}`}>
+                                <div className={`inline-block p-2 rounded-lg ${msg.sender === user.id ? 'bg-blue-500 text-white' : 'bg-gray-300'}`}>
+                                    {msg.text && <div>{msg.text}</div>}
+                                    {msg.files && renderMedia(msg.files)}
+                                </div>
+                            </div>
+                        )
+                    ))}
+        
+                    {/* Popup modal for viewing media */}
+                    {popupFile && (
+                        <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
+                            {/* Close button outside media */}
+                            <button
+                                onClick={() => setPopupFile(null)}
+                                className="absolute top-5 right-5 text-white bg-gray-600 rounded-full p-2 z-50"
+                            >
+                                X
+                            </button>
+                            <div className="relative p-4">
+                                {/* Check file type and display accordingly */}
+                                {popupFile.endsWith('.jpg') || popupFile.endsWith('.png') || popupFile.endsWith('.gif') ? (
+                                    <img src={popupFile} alt="Popup Media" className="max-w-full max-h-full rounded-lg border border-gray-300" />
+                                ) : popupFile.endsWith('.mp4') || popupFile.endsWith('.webm') || popupFile.endsWith('.ogg') ? (
+                                    <video src={popupFile} className="max-w-full max-h-full rounded-lg border border-gray-300" controls />
+                                ) : popupFile.endsWith('.pdf') ? (
+                                    <iframe src={popupFile} className="max-w-full max-h-full rounded-lg border border-gray-300" title="Document" />
+                                ) : popupFile.endsWith('.doc') || popupFile.endsWith('.docx') ? (
+                                    <iframe src={`https://docs.google.com/gview?url=${popupFile}&embedded=true`} className="max-w-full max-h-full rounded-lg border border-gray-300" title="Document" />
+                                ) : (
+                                    <span className="text-center text-gray-500">Format tidak didukung</span>
+                                )}
+                            </div>
                         </div>
-                    </div>
-                )
-            ))}
-
-            {/* Popup modal for viewing media */}
-            {popupFile && (
-                <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
-                    {/* Close button outside media */}
-                    <button
-                        onClick={() => setPopupFile(null)}
-                        className="absolute top-5 right-5 text-white bg-gray-600 rounded-full p-2 z-50"
-                    >
-                        X
-                    </button>
-                    <div className="relative p-4">
-                        {popupFile.endsWith('.jpg') || popupFile.endsWith('.png') || popupFile.endsWith('.gif') ? (
-                            <img src={popupFile} alt="Popup Media" className="max-w-full max-h-full rounded-lg border border-gray-300" />
-                        ) : popupFile.endsWith('.mp4') || popupFile.endsWith('.webm') || popupFile.endsWith('.ogg') ? (
-                            <video src={popupFile} className="max-w-full max-h-full rounded-lg border border-gray-300" controls />
-                        ) : popupFile.endsWith('.pdf') ? (
-                            <iframe src={popupFile} className="max-w-full max-h-full rounded-lg border border-gray-300" title="Document" />
-                        ) : popupFile.endsWith('.doc') || popupFile.endsWith('.docx') ? (
-                            <iframe src={popupFile} className="max-w-full max-h-full rounded-lg border border-gray-300" title="Document" />
-                        ) : (
-                            <span className="text-center text-gray-500">Format tidak didukung</span>
-                        )}
-                    </div>
-                </div>
-            )}
+                    )}
                     
             </div>    
 
