@@ -14,6 +14,7 @@ const Chat = ({ user }) => {
     const [uploading, setUploading] = useState(false);
     const [otherUserStatus, setOtherUserStatus] = useState(''); // Online status or last seen
     const [lastSeen, setLastSeen] = useState(''); // Last seen timestamp
+    const [popupFile, setPopupFile] = useState(null);
 
     useEffect(() => {
         const messagesRef = databaseRef(database, `messagesA/${user.id}/${otherUser.id}`);
@@ -120,25 +121,46 @@ const Chat = ({ user }) => {
         update(lastSeenRef, { timestamp: Date.now() });
     };
 
-    const renderMedia = (files) => {
+    // const renderMedia = (files) => {
+    //     if (!files || files.length === 0) return null;
+
+    //     return (
+    //         <div className="flex flex-wrap mt-1">
+    //             {files.map((file, index) => (
+    //                 <a
+    //                     key={index}
+    //                     href={file}
+    //                     target="_blank"
+    //                     rel="noopener noreferrer"
+    //                     className="w-20 h-20 flex items-center justify-center border border-gray-300 rounded-lg m-1"
+    //                 >
+    //                     {file.endsWith('.jpg') || file.endsWith('.png') || file.endsWith('.gif') ? (
+    //                         <img src={file} alt="Media" className="object-cover h-full w-full rounded-lg" />
+    //                     ) : (
+    //                         <span className="text-sm">File</span>
+    //                     )}
+    //                 </a>
+    //             ))}
+    //         </div>
+    //     );
+    // };
+     const renderMedia = (files) => {
         if (!files || files.length === 0) return null;
 
         return (
-            <div className="flex flex-wrap mt-1">
+            <div className="grid grid-cols-4 gap-2 mt-2">
                 {files.map((file, index) => (
-                    <a
+                    <div
                         key={index}
-                        href={file}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="w-20 h-20 flex items-center justify-center border border-gray-300 rounded-lg m-1"
+                        className="relative w-20 h-20 border border-gray-300 rounded-lg overflow-hidden cursor-pointer"
+                        onClick={() => setPopupFile(file)}
                     >
                         {file.endsWith('.jpg') || file.endsWith('.png') || file.endsWith('.gif') ? (
-                            <img src={file} alt="Media" className="object-cover h-full w-full rounded-lg" />
+                            <img src={file} alt="Media" className="object-cover w-full h-full" />
                         ) : (
-                            <span className="text-sm">File</span>
+                            <span className="text-sm flex items-center justify-center h-full">File</span>
                         )}
-                    </a>
+                    </div>
                 ))}
             </div>
         );
@@ -153,31 +175,30 @@ const Chat = ({ user }) => {
             <div className="flex-1 overflow-y-auto p-4">
                 {/* Display messages */}
                 {messages.map((msg, index) => (
-                    // Render only if there is text or media files
                     (msg.text || (msg.files && msg.files.length > 0)) && (
                         <div key={msg.id || msg.timestamp} className={`mb-2 ${msg.sender === user.id ? 'text-right' : 'text-left'}`}>
                             <div className={`inline-block p-2 rounded-lg ${msg.sender === user.id ? 'bg-blue-500 text-white' : 'bg-gray-300'}`}>
-                                {/* Display text if available */}
                                 {msg.text && <div>{msg.text}</div>}
-                                
-                                {/* Display media if available */}
                                 {msg.files && renderMedia(msg.files)}
-                            </div>
-                            <div className="text-xs text-gray-500 flex justify-end items-center mt-1">
-                                {msg.timestamp && new Date(msg.timestamp).toLocaleDateString() + ' ' + new Date(msg.timestamp).toLocaleTimeString()}
-                                {msg.sender === user.id && (
-                                    <span className="ml-2">
-                                        {msg.read ? (
-                                            <span className="text-blue-500">✔✔</span>
-                                        ) : (
-                                            <span>✔</span>
-                                        )}
-                                    </span>
-                                )}
                             </div>
                         </div>
                     )
                 ))}
+    
+                {/* Popup modal for viewing media */}
+                {popupFile && (
+                    <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
+                        <div className="relative">
+                            <button
+                                onClick={() => setPopupFile(null)}
+                                className="absolute top-0 right-0 m-4 text-white bg-gray-600 rounded-full p-1"
+                            >
+                                X
+                            </button>
+                            <img src={popupFile} alt="Popup Media" className="max-w-full max-h-full rounded-lg" />
+                        </div>
+                    </div>
+                )}
             </div>
 
 
