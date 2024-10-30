@@ -165,28 +165,7 @@ const Chat = ({ user }) => {
     //         </div>
     //     );
     // };
-    //  const renderMedia = (files) => {
-    //     if (!files || files.length === 0) return null;
-
-    //     return (
-    //         <div className="grid grid-cols-4 gap-2 mt-2">
-    //             {files.map((file, index) => (
-    //                 <div
-    //                     key={index}
-    //                     className="relative w-20 h-20 border border-gray-300 rounded-lg overflow-hidden cursor-pointer"
-    //                     onClick={() => setPopupFile(file)}
-    //                 >
-    //                     {file.endsWith('.jpg') || file.endsWith('.png') || file.endsWith('.gif') ? (
-    //                         <img src={file} alt="Media" className="object-cover w-full h-full" />
-    //                     ) : (
-    //                         <span className="text-sm flex items-center justify-center h-full">File</span>
-    //                     )}
-    //                 </div>
-    //             ))}
-    //         </div>
-    //     );
-    // };
-    const renderMedia = (files) => {
+     const renderMedia = (files) => {
         if (!files || files.length === 0) return null;
 
         return (
@@ -198,7 +177,7 @@ const Chat = ({ user }) => {
                         onClick={() => setPopupFile(file)}
                     >
                         {file.endsWith('.jpg') || file.endsWith('.png') || file.endsWith('.gif') ? (
-                            <img src={file} alt="Media" className="object-cover w-full h-full rounded-lg" />
+                            <img src={file} alt="Media" className="object-cover w-full h-full" />
                         ) : (
                             <span className="text-sm flex items-center justify-center h-full">File</span>
                         )}
@@ -207,6 +186,27 @@ const Chat = ({ user }) => {
             </div>
         );
     };
+    // const renderMedia = (files) => {
+    //     if (!files || files.length === 0) return null;
+
+    //     return (
+    //         <div className="grid grid-cols-4 gap-2 mt-2">
+    //             {files.map((file, index) => (
+    //                 <div
+    //                     key={index}
+    //                     className="relative w-20 h-20 border border-gray-300 rounded-lg overflow-hidden cursor-pointer"
+    //                     onClick={() => setPopupFile(file)}
+    //                 >
+    //                     {file.endsWith('.jpg') || file.endsWith('.png') || file.endsWith('.gif') ? (
+    //                         <img src={file} alt="Media" className="object-cover w-full h-full rounded-lg" />
+    //                     ) : (
+    //                         <span className="text-sm flex items-center justify-center h-full">File</span>
+    //                     )}
+    //                 </div>
+    //             ))}
+    //         </div>
+    //     );
+    // };
 
 //     const renderMedia = (files) => {
 //     if (!files || files.length === 0) return null;
