@@ -144,11 +144,7 @@ const Chat = ({ user }) => {
                                     msg.sender === user.id ? 'flex-row-reverse' : ''
                                 }`}
                             >
-                                <img
-                                    className="w-8 h-8 rounded-full"
-                                    src={msg.profileImage || 'default-profile.png'}
-                                    alt={`${msg.sender} profile`}
-                                />
+                              
                                 <div
                                     className={`flex flex-col w-full max-w-[326px] p-4 ${
                                         msg.sender === user.id
