@@ -249,6 +249,7 @@ const Chat = ({ user }) => {
         };
     
         return (
+            <div>
             <div className="grid grid-cols-4 gap-2 mt-2">
                {files.map((file, index) => {
                     const fileExtension = file.split('.').pop().split('?')[0].toLowerCase();
@@ -274,6 +275,32 @@ const Chat = ({ user }) => {
                     );
                 })}
             </div>
+
+            {/* Popup untuk melihat file */}
+            {popupFile && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="relative bg-white p-4 rounded-lg max-w-lg w-full">
+                        <button
+                            onClick={closePopup}
+                            className="absolute top-2 right-2 text-gray-600 hover:text-black font-bold"
+                        >
+                            X
+                        </button>
+                        {popupFile.endsWith('.jpg') || popupFile.endsWith('.png') || popupFile.endsWith('.gif') ? (
+                            <img src={popupFile} alt="Popup Media" className="w-full h-auto rounded-lg" />
+                        ) : popupFile.endsWith('.mp4') || popupFile.endsWith('.webm') || popupFile.endsWith('.ogg') ? (
+                            <video src={popupFile} className="w-full h-auto rounded-lg" controls />
+                        ) : (
+                            <iframe
+                                src={popupFile}
+                                className="w-full h-96 border-none rounded-lg"
+                                title="Document"
+                            />
+                        )}
+                    </div>
+                </div>
+            )}
+             </div>
         );
     };
 
@@ -311,30 +338,30 @@ const Chat = ({ user }) => {
                     //         </div>
                     //     </div>
                     // )}
-                     {/* Popup untuk melihat file */}
-                    {popupFile && (
-                        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                            <div className="relative bg-white p-4 rounded-lg max-w-lg w-full">
-                                <button
-                                    onClick={closePopup}
-                                    className="absolute top-2 right-2 text-gray-600 hover:text-black font-bold"
-                                >
-                                    X
-                                </button>
-                                {popupFile.endsWith('.jpg') || popupFile.endsWith('.png') || popupFile.endsWith('.gif') ? (
-                                    <img src={popupFile} alt="Popup Media" className="w-full h-auto rounded-lg" />
-                                ) : popupFile.endsWith('.mp4') || popupFile.endsWith('.webm') || popupFile.endsWith('.ogg') ? (
-                                    <video src={popupFile} className="w-full h-auto rounded-lg" controls />
-                                ) : (
-                                    <iframe
-                                        src={popupFile}
-                                        className="w-full h-96 border-none rounded-lg"
-                                        title="Document"
-                                    />
-                                )}
-                            </div>
-                        </div>
-                    )}
+                    //  {/* Popup untuk melihat file */}
+                    // {popupFile && (
+                    //     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    //         <div className="relative bg-white p-4 rounded-lg max-w-lg w-full">
+                    //             <button
+                    //                 onClick={closePopup}
+                    //                 className="absolute top-2 right-2 text-gray-600 hover:text-black font-bold"
+                    //             >
+                    //                 X
+                    //             </button>
+                    //             {popupFile.endsWith('.jpg') || popupFile.endsWith('.png') || popupFile.endsWith('.gif') ? (
+                    //                 <img src={popupFile} alt="Popup Media" className="w-full h-auto rounded-lg" />
+                    //             ) : popupFile.endsWith('.mp4') || popupFile.endsWith('.webm') || popupFile.endsWith('.ogg') ? (
+                    //                 <video src={popupFile} className="w-full h-auto rounded-lg" controls />
+                    //             ) : (
+                    //                 <iframe
+                    //                     src={popupFile}
+                    //                     className="w-full h-96 border-none rounded-lg"
+                    //                     title="Document"
+                    //                 />
+                    //             )}
+                    //         </div>
+                    //     </div>
+                    // )}
                 </div>    
 
 
