@@ -1,115 +1,104 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
+import { database } from '../config/firebase'; 
+import { ref as databaseRef, onValue, push } from 'firebase/database';
 
-const Chat = ({ otherUser, lastSeen, user, messages }) => {
+const Chat = ({ user }) => {
+    const otherUser = user.id === 'user1' ? { id: 'user2', name: 'User 2' } : { id: 'user1', name: 'User 1' };
+    const [messages, setMessages] = useState([]);
     const [messageText, setMessageText] = useState('');
-    const [uploading, setUploading] = useState(false);
-    const [chatBubbleColor, setChatBubbleColor] = useState('bg-blue-100'); // default color
-    const [chatTextColor, setChatTextColor] = useState('text-blue-900'); // default text color
-    const [isMenuOpen, setIsMenuOpen] = useState(false);
-    
-    // Load settings from localStorage on mount
+    const [chatBubbleColor, setChatBubbleColor] = useState('#e0e0e0'); // Default bubble color
+    const [chatTextColor, setChatTextColor] = useState('#000000'); // Default text color
+
+    // Load color settings from localStorage on mount
     useEffect(() => {
-        const savedBubbleColor = localStorage.getItem('bubbleColor') || 'bg-blue-100';
-        const savedTextColor = localStorage.getItem('textColor') || 'text-blue-900';
-        setChatBubbleColor(savedBubbleColor);
-        setChatTextColor(savedTextColor);
+        const savedBubbleColor = localStorage.getItem('chatBubbleColor');
+        const savedTextColor = localStorage.getItem('chatTextColor');
+        if (savedBubbleColor) setChatBubbleColor(savedBubbleColor);
+        if (savedTextColor) setChatTextColor(savedTextColor);
     }, []);
 
-    const saveSettings = ({ bubbleColor, textColor }) => {
-        setChatBubbleColor(bubbleColor);
-        setChatTextColor(textColor);
-        localStorage.setItem('bubbleColor', bubbleColor);
-        localStorage.setItem('textColor', textColor);
+    // Listen for new messages
+    useEffect(() => {
+        const messagesRef = databaseRef(database, `messages/${user.id}/${otherUser.id}`);
+        onValue(messagesRef, (snapshot) => {
+            const messagesData = snapshot.val() || {};
+            setMessages(Object.values(messagesData));
+        });
+    }, [user.id, otherUser.id]);
+
+    // Send message function
+    const sendMessage = async () => {
+        if (messageText.trim() === '') return;
+
+        const newMessage = {
+            text: messageText,
+            sender: user.id,
+            timestamp: Date.now(),
+        };
+
+        const messagesRef = databaseRef(database, `messages/${user.id}/${otherUser.id}`);
+        await push(messagesRef, newMessage);
+        setMessageText(''); 
     };
 
-    const sendMessage = () => {
-        if (messageText.trim() === '') return; // prevent sending empty messages
-        setUploading(true);
-        // Logic to send the message
-        // After sending the message, clear the input and set uploading to false
-        setMessageText('');
-        setUploading(false);
-    };
-
-    const renderMedia = (files) => {
-        // Logic to render media files
+    // Save color settings to localStorage
+    const updateColorSettings = (colorType, colorValue) => {
+        if (colorType === 'bubble') {
+            setChatBubbleColor(colorValue);
+            localStorage.setItem('chatBubbleColor', colorValue);
+        } else if (colorType === 'text') {
+            setChatTextColor(colorValue);
+            localStorage.setItem('chatTextColor', colorValue);
+        }
     };
 
     return (
-        <div className="flex flex-col h-full">
-            <div className="flex-none p-4 bg-white border-b border-gray-300">
-                <div>
-                    <h2 className="text-xl text-center">{otherUser.name}</h2>
-                    <p className="text-sm text-center">{lastSeen ? 'Last seen: ' + lastSeen : 'Offline'}</p>
+        <div className="chat-container">
+            <header className="chat-header">
+                <h2>{otherUser.name}</h2>
+                <div className="color-settings">
+                    <label>
+                        Bubble Color:
+                        <input
+                            type="color"
+                            value={chatBubbleColor}
+                            onChange={(e) => updateColorSettings('bubble', e.target.value)}
+                        />
+                    </label>
+                    <label>
+                        Text Color:
+                        <input
+                            type="color"
+                            value={chatTextColor}
+                            onChange={(e) => updateColorSettings('text', e.target.value)}
+                        />
+                    </label>
                 </div>
+            </header>
 
-                {/* Color Picker */}
-                <div className="form-group">
-                    <label htmlFor="bubbleColor">Choose Bubble Color:</label>
-                    <input 
-                        type="color" 
-                        id="bubbleColor" 
-                        value={chatBubbleColor} 
-                        onChange={(e) => saveSettings({ bubbleColor: e.target.value, textColor: chatTextColor })}
-                    />
-                </div>
-
-                {/* Three Dots Menu */}
-                <div className="relative">
-                    <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-gray-500 hover:text-gray-700">
-                        •••
-                    </button>
-                    {isMenuOpen && (
-                        <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-300 rounded shadow-lg z-10">
-                            <button onClick={() => alert('Select Pesan')} className="block px-4 py-2 text-sm hover:bg-gray-100 w-full text-left">Select Pesan</button>
-                            <button onClick={() => saveSettings({ bubbleColor: 'bg-blue-100', textColor: 'text-blue-900' })} className="block px-4 py-2 text-sm hover:bg-gray-100 w-full text-left">Ubah Warna (Blue)</button>
-                            <button onClick={() => saveSettings({ bubbleColor: 'bg-green-100', textColor: 'text-green-900' })} className="block px-4 py-2 text-sm hover:bg-gray-100 w-full text-left">Ubah Gelembung Chat (Green)</button>
-                        </div>
-                    )}
-                </div>
+            <div className="chat-messages">
+                {messages.map((msg, index) => (
+                    <div
+                        key={index}
+                        className={`message ${msg.sender === user.id ? 'sent' : 'received'}`}
+                        style={{
+                            backgroundColor: msg.sender === user.id ? chatBubbleColor : '#ffffff',
+                            color: msg.sender === user.id ? chatTextColor : '#000000',
+                        }}
+                    >
+                        {msg.text}
+                    </div>
+                ))}
             </div>
 
-            <div className="flex-1 p-4 overflow-y-auto">
-                <div className="flex flex-col space-y-4">
-                    {messages.map((msg, index) => (
-                        <div key={index} className={`flex ${msg.sender === user.id ? 'justify-end' : 'justify-start'} mb-2`}>
-                            {/* Option 1: Dengan gambar profil */}
-                            {msg.sender !== user.id && (
-                                <div className="flex items-start gap-2.5">
-                                    <img className="w-8 h-8 rounded-full" src="/path/to/profile-pic.jpg" alt={`${otherUser.name} profile`} />
-                                    <div className={`flex flex-col w-full max-w-[320px] leading-1.5 p-4 ${chatBubbleColor} rounded-xl`}>
-                                        <div className="flex items-center space-x-2">
-                                            <span className="text-sm font-semibold text-gray-900">{msg.senderName}</span>
-                                            <span className="text-sm font-normal text-gray-500">{msg.time}</span>
-                                        </div>
-                                        <p className={`text-sm font-normal py-2 ${chatTextColor}`}>{msg.text}</p>
-                                        <span className="text-sm font-normal text-gray-500">Delivered</span>
-                                    </div>
-                                </div>
-                            )}
-                            {/* Option 2: Tanpa gambar profil */}
-                            {msg.sender === user.id && (
-                                <div className={`flex flex-col w-full max-w-[320px] leading-1.5 p-4 ${chatBubbleColor} rounded-xl`}>
-                                    <p className={`text-sm font-normal py-2 ${chatTextColor}`}>{msg.text}</p>
-                                    <span className="text-sm font-normal text-gray-500">Sent</span>
-                                </div>
-                            )}
-                        </div>
-                    ))}
-                </div>
-            </div>
-
-            <div className="flex-none p-4 bg-white border-t border-gray-300">
-                <textarea
+            <div className="chat-input">
+                <input
+                    type="text"
                     value={messageText}
                     onChange={(e) => setMessageText(e.target.value)}
                     placeholder="Type your message..."
-                    className="w-full border border-gray-300 p-2 rounded-lg"
                 />
-                <input type="file" multiple onChange={handleFileChange} className="mt-2" />
-                <button onClick={sendMessage} className="mt-2 bg-blue-500 text-white p-2 rounded-lg" disabled={uploading}>
-                    {uploading ? 'Sending...' : 'Send'}
-                </button>
+                <button onClick={sendMessage}>Send</button>
             </div>
         </div>
     );
