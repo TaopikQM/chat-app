@@ -216,18 +216,7 @@ const Chat = ({ user }) => {
                         </div>
                         <div className="text-xs text-gray-500 flex justify-end items-center">
                             
-                            {msg.timestamp && msg.timestamp.toString().length === 13
-                                ? new Date(msg.timestamp).toLocaleString()  // Display date and time
-                                : 'Invalid Date'}
-                            {msg.sender === user.id && (
-                                <span className="ml-2">
-                                    {msg.read ? (
-                                        <span className="text-blue-500">✔✔</span>
-                                    ) : (
-                                        <span>✔</span>
-                                    )}
-                                </span>
-                            )}
+                           
                         </div>
                     </div>
                 ))}
