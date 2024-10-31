@@ -1,3 +1,9 @@
+"use client"; // Enable client-side rendering
+import React, { useState, useEffect } from 'react';
+import { database, storage } from '../config/firebase';
+import { ref as databaseRef, onValue, push, update } from 'firebase/database';
+import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
+import 'tailwindcss/tailwind.css';
 const Chat = ({ user }) => {
     const otherUser = user.id === 'user1' ? { id: 'user2', name: 'User 2' } : { id: 'user1', name: 'User 1' };
     const [messages, setMessages] = useState([]);
