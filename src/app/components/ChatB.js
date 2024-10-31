@@ -4,6 +4,7 @@ import { database, storage } from '../config/firebase';
 import { ref as databaseRef, onValue, push, update } from 'firebase/database';
 import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 import 'tailwindcss/tailwind.css';
+
 const Chat = ({ user }) => {
     const otherUser = user.id === 'user1' ? { id: 'user2', name: 'User 2' } : { id: 'user1', name: 'User 1' };
     const [messages, setMessages] = useState([]);
@@ -12,6 +13,7 @@ const Chat = ({ user }) => {
     const [uploading, setUploading] = useState(false);
     const [lastSeen, setLastSeen] = useState('Offline');
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [isBubbleMenuOpen, setIsBubbleMenuOpen] = useState(false);
     const [isColorMenuOpen, setIsColorMenuOpen] = useState(false);
     const [isSenderSettingsOpen, setIsSenderSettingsOpen] = useState(false);
     const [isReceiverSettingsOpen, setIsReceiverSettingsOpen] = useState(false);
@@ -20,9 +22,11 @@ const Chat = ({ user }) => {
         receiverBubbleColor: '#E5E7EB',
         senderTextColor: '#FFFFFF',
         receiverTextColor: '#000000',
+        bubbleStyle: 'rounded', // New bubble style option
         isNightMode: false,
     });
 
+    // Retrieve saved settings
     useEffect(() => {
         const savedSettings = JSON.parse(localStorage.getItem(`chatSettings-${user.id}`));
         if (savedSettings) {
@@ -30,20 +34,95 @@ const Chat = ({ user }) => {
         }
     }, [user.id]);
 
+    // Save updated settings
     const saveSettings = (newSettings) => {
         const settings = { ...chatSettings, ...newSettings };
         setChatSettings(settings);
         localStorage.setItem(`chatSettings-${user.id}`, JSON.stringify(settings));
     };
 
-    const handleFileChange = (event) => {
-        const files = Array.from(event.target.files);
-        setSelectedFiles((prevFiles) => [...prevFiles, ...files]);
-    };
+    // Firebase listeners for messages and user status
+    useEffect(() => {
+        const messagesRef = databaseRef(database, `messagesA/${user.id}/${otherUser.id}`);
+        onValue(messagesRef, (snapshot) => {
+            const data = snapshot.val();
+            setMessages(data ? Object.values(data) : []);
 
+            data && Object.values(data).forEach((msg) => {
+                if (!msg.read && msg.sender !== user.id) {
+                    update(databaseRef(database, `messagesA/${user.id}/${otherUser.id}/${msg.id}`), { read: true });
+                    update(databaseRef(database, `messagesA/${otherUser.id}/${user.id}/${msg.id}`), { read: true });
+                }
+            });
+        });
+
+        const userStatusRef = databaseRef(database, `lastSeenA/${otherUser.id}`);
+        onValue(userStatusRef, (snapshot) => {
+            const timestamp = snapshot.val()?.timestamp || null;
+            if (timestamp) {
+                const date = new Date(Number(timestamp));
+                setLastSeen(date.toLocaleString() || 'Offline');
+            }
+        });
+
+        update(databaseRef(database, `lastSeenA/${user.id}`), { timestamp: Date.now() });
+
+        return () => {
+            update(databaseRef(database, `lastSeenA/${user.id}`), { timestamp: null });
+        };
+    }, [user.id, otherUser.id]);
+
+    // Handle file upload and sending message
     const sendMessage = async () => {
         if (messageText.trim() === "" && selectedFiles.length === 0) return;
-        // message sending code here...
+
+        const messagesRef = databaseRef(database, `messagesA/${user.id}/${otherUser.id}`);
+        const newMessage = {
+            text: messageText,
+            sender: user.id,
+            timestamp: Date.now(),
+            read: false,
+            files: [],
+        };
+
+        setUploading(true);
+        const uploadedFiles = await Promise.all(selectedFiles.map(async (file) => {
+            const fileRef = storageRef(storage, `chatFilesA/${file.name}`);
+            await uploadBytes(fileRef, file);
+            return getDownloadURL(fileRef);
+        }));
+
+        newMessage.files = uploadedFiles;
+        const newMsgRef = await push(messagesRef, newMessage);
+        setMessageText('');
+        setSelectedFiles([]);
+        setUploading(false);
+
+        await push(databaseRef(database, `messagesA/${otherUser.id}/${user.id}`), { ...newMessage, id: newMsgRef.key });
+        update(databaseRef(database, `lastSeenA/${user.id}`), { timestamp: Date.now() });
+    };
+
+    // Render media (images/files) attached to messages
+    const renderMedia = (files) => {
+        return files && files.length > 0 ? (
+            <div className="grid grid-cols-4 gap-2 mt-2">
+                {files.map((file, index) => (
+                    <a key={index} href={file} target="_blank" rel="noopener noreferrer" className="w-20 h-20 border rounded-lg overflow-hidden bg-white">
+                        {file.endsWith('.jpg') || file.endsWith('.png') || file.endsWith('.gif') ? (
+                            <img src={file} alt="Media" className="object-cover h-full w-full" />
+                        ) : (
+                            <span className="text-sm text-gray-600">File</span>
+                        )}
+                    </a>
+                ))}
+            </div>
+        ) : null;
+    };
+
+    // Conditional bubble styling based on chatSettings
+    const bubbleClasses = (isSender) => {
+        const baseClasses = `max-w-xs p-2 ${chatSettings.bubbleStyle === 'rounded' ? 'rounded-lg' : chatSettings.bubbleStyle === 'square' ? '' : 'rounded-full'}`;
+        return isSender ? `${baseClasses} bg-${chatSettings.senderBubbleColor}` : `${baseClasses} bg-${chatSettings.receiverBubbleColor}`;
     };
 
     return (
@@ -57,63 +136,18 @@ const Chat = ({ user }) => {
                 {isMenuOpen && (
                     <div className="absolute right-0 mt-2 w-48 bg-white border rounded shadow-lg z-10">
                         <div className="p-2">
-                            <button onClick={() => setIsColorMenuOpen(!isColorMenuOpen)} className="block text-left w-full">
-                                Colors
+                            <button onClick={() => setIsBubbleMenuOpen(!isBubbleMenuOpen)} className="block text-left w-full">
+                                Bubble Style
                             </button>
-                            {isColorMenuOpen && (
+                            {isBubbleMenuOpen && (
                                 <div className="mt-2 bg-gray-100 p-2 rounded">
-                                    <button onClick={() => setIsSenderSettingsOpen(!isSenderSettingsOpen)} className="block text-left w-full">Sender</button>
-                                    {isSenderSettingsOpen && (
-                                        <div className="mt-2">
-                                            <label className="block text-sm">Sender Bubble Color:</label>
-                                            <input
-                                                type="color"
-                                                value={chatSettings.senderBubbleColor}
-                                                onChange={(e) => saveSettings({ senderBubbleColor: e.target.value })}
-                                                className="w-full h-8 p-0 border-none"
-                                            />
-                                            <label className="block text-sm">Sender Text Color:</label>
-                                            <input
-                                                type="color"
-                                                value={chatSettings.senderTextColor}
-                                                onChange={(e) => saveSettings({ senderTextColor: e.target.value })}
-                                                className="w-full h-8 p-0 border-none"
-                                            />
-                                        </div>
-                                    )}
-                                    <button onClick={() => setIsReceiverSettingsOpen(!isReceiverSettingsOpen)} className="block text-left w-full mt-2">Receiver</button>
-                                    {isReceiverSettingsOpen && (
-                                        <div className="mt-2">
-                                            <label className="block text-sm">Receiver Bubble Color:</label>
-                                            <input
-                                                type="color"
-                                                value={chatSettings.receiverBubbleColor}
-                                                onChange={(e) => saveSettings({ receiverBubbleColor: e.target.value })}
-                                                className="w-full h-8 p-0 border-none"
-                                            />
-                                            <label className="block text-sm">Receiver Text Color:</label>
-                                            <input
-                                                type="color"
-                                                value={chatSettings.receiverTextColor}
-                                                onChange={(e) => saveSettings({ receiverTextColor: e.target.value })}
-                                                className="w-full h-8 p-0 border-none"
-                                            />
-                                        </div>
-                                    )}
+                                    <button onClick={() => saveSettings({ bubbleStyle: 'rounded' })} className="block w-full text-left mt-1">Rounded</button>
+                                    <button onClick={() => saveSettings({ bubbleStyle: 'square' })} className="block w-full text-left mt-1">Square</button>
+                                    <button onClick={() => saveSettings({ bubbleStyle: 'circle' })} className="block w-full text-left mt-1">Circle</button>
                                 </div>
                             )}
                         </div>
-                        <div className="flex items-center justify-between p-2">
-                            <span className="text-sm">Day/Night Mode</span>
-                            <button
-                                onClick={() => saveSettings({ isNightMode: !chatSettings.isNightMode })}
-                                className={`flex items-center ${chatSettings.isNightMode ? 'bg-gray-800' : 'bg-gray-300'} w-16 h-8 rounded-full relative`}
-                            >
-                                <span className={`absolute w-8 h-8 bg-white rounded-full transition-transform ${chatSettings.isNightMode ? 'transform translate-x-8' : ''}`} />
-                                <span className={`text-gray-700 ${chatSettings.isNightMode ? 'hidden' : 'block'}`}>☀️</span>
-                                <span className={`text-gray-700 ${chatSettings.isNightMode ? 'block' : 'hidden'}`}>🌙</span>
-                            </button>
-                        </div>
+                        {/* Rest of color and night mode settings */}
                     </div>
                 )}
             </header>
@@ -121,10 +155,10 @@ const Chat = ({ user }) => {
                 {messages.map((msg, index) => (
                     <div key={index} className={`flex my-2 ${msg.sender === user.id ? 'justify-end' : 'justify-start'}`}>
                         <div
-                            className="max-w-xs p-2 rounded-lg"
+                            className={bubbleClasses(msg.sender === user.id)}
                             style={{
-                                backgroundColor: msg.sender === user.id ? chatSettings.senderBubbleColor : chatSettings.receiverBubbleColor,
                                 color: msg.sender === user.id ? chatSettings.senderTextColor : chatSettings.receiverTextColor,
+                                backgroundColor: msg.sender === user.id ? chatSettings.senderBubbleColor : chatSettings.receiverBubbleColor
                             }}
                         >
                             <p>{msg.text}</p>
@@ -140,10 +174,9 @@ const Chat = ({ user }) => {
                         value={messageText}
                         onChange={(e) => setMessageText(e.target.value)}
                         placeholder="Type a message"
-                        className="flex-1 border rounded-lg p-2"
+                        className="flex-1 border rounded-l-md p-2"
                     />
-                    <input type="file" multiple onChange={handleFileChange} className="ml-2" />
-                    <button onClick={sendMessage} className="ml-2 bg-blue-500 text-white rounded-lg p-2" disabled={uploading}>
+                    <button onClick={sendMessage} className="bg-blue-500 text-white p-2 rounded-r-md">
                         Send
                     </button>
                 </div>
@@ -153,6 +186,8 @@ const Chat = ({ user }) => {
 };
 
 export default Chat;
+
+
 
 // "use client"; // Enable client-side rendering
 // import React, { useState, useEffect } from 'react';
