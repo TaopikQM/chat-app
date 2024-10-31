@@ -14,15 +14,14 @@ const Chat = ({ user }) => {
     const [lastSeen, setLastSeen] = useState('Offline');
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isColorMenuOpen, setIsColorMenuOpen] = useState(false);
-    const [isSenderSettingsOpen, setIsSenderSettingsOpen] = useState(false);
-    const [isReceiverSettingsOpen, setIsReceiverSettingsOpen] = useState(false);
+    const [isBubbleStyleMenuOpen, setIsBubbleStyleMenuOpen] = useState(false);
     const [chatSettings, setChatSettings] = useState({
-        bubbleStyle: 'default', // Added bubble style
         senderBubbleColor: '#3B82F6',
         receiverBubbleColor: '#E5E7EB',
         senderTextColor: '#FFFFFF',
         receiverTextColor: '#000000',
         isNightMode: false,
+        bubbleStyle: 'default', // New state for bubble style
     });
 
     useEffect(() => {
@@ -43,7 +42,6 @@ const Chat = ({ user }) => {
         onValue(messagesRef, (snapshot) => {
             const data = snapshot.val();
             setMessages(data ? Object.values(data) : []);
-
             data && Object.values(data).forEach((msg) => {
                 if (!msg.read && msg.sender !== user.id) {
                     update(databaseRef(database, `messagesA/${user.id}/${otherUser.id}/${msg.id}`), { read: true });
@@ -122,17 +120,6 @@ const Chat = ({ user }) => {
         ) : null;
     };
 
-    const getBubbleStyle = (sender) => {
-        if (chatSettings.bubbleStyle === 'whatsapp') {
-            return sender === user.id ? 'bg-green-500' : 'bg-gray-300'; // WhatsApp style
-        } else if (chatSettings.bubbleStyle === 'telegram') {
-            return sender === user.id ? 'bg-blue-500' : 'bg-gray-200'; // Telegram style
-        } else if (chatSettings.bubbleStyle === 'dm') {
-            return sender === user.id ? 'bg-pink-500' : 'bg-gray-400'; // Direct Message style
-        }
-        return sender === user.id ? chatSettings.senderBubbleColor : chatSettings.receiverBubbleColor; // Default style
-    };
-
     return (
         <div className={`flex flex-col h-screen ${chatSettings.isNightMode ? 'bg-gray-900' : 'bg-gray-100'}`}>
             <header className="flex-none p-4 bg-white border-b border-gray-300 text-center relative">
@@ -187,57 +174,77 @@ const Chat = ({ user }) => {
                                             />
                                         </div>
                                     )}
+                                </div>
+                            )}
+                        </div>
+                        <div className="flex items-center justify-between p-2">
+                            <span className="text-sm">Day/Night Mode</span>
+                            <button
+                                onClick={() => saveSettings({ isNightMode: !chatSettings.isNightMode })}
+                                className={`flex items-center ${chatSettings.isNightMode ? 'bg-gray-800' : 'bg-gray-300'} w-16 h-8 rounded-full relative`}
+                            >
+                                <span className={`absolute w-8 h-8 bg-white rounded-full transition-transform ${chatSettings.isNightMode ? 'transform translate-x-8' : ''}`} />
+                                <span className={`text-gray-700 ${chatSettings.isNightMode ? 'hidden' : 'block'}`}>☀️</span>
+                                <span className={`text-gray-700 ${chatSettings.isNightMode ? 'block' : 'hidden'}`}>🌙</span>
+                            </button>
+                        </div>
+                        <div className="p-2">
+                            <button onClick={() => setIsBubbleStyleMenuOpen(!isBubbleStyleMenuOpen)} className="block text-left w-full">
+                                Bubble Styles
+                            </button>
+                            {isBubbleStyleMenuOpen && (
+                                <div className="mt-2 bg-gray-100 p-2 rounded">
                                     <button
-                                        onClick={() => saveSettings({ isNightMode: !chatSettings.isNightMode })}
-                                        className="block text-left w-full mt-2"
+                                        onClick={() => saveSettings({ bubbleStyle: 'default' })}
+                                        className={`block text-left w-full ${chatSettings.bubbleStyle === 'default' ? 'font-bold' : ''}`}
                                     >
-                                        Toggle Night Mode
+                                        Default
                                     </button>
-                                    <label className="block text-sm mt-2">Bubble Style:</label>
-                                    <select
-                                        value={chatSettings.bubbleStyle}
-                                        onChange={(e) => saveSettings({ bubbleStyle: e.target.value })}
-                                        className="w-full p-1 border rounded"
+                                    <button
+                                        onClick={() => saveSettings({ bubbleStyle: 'rounded' })}
+                                        className={`block text-left w-full ${chatSettings.bubbleStyle === 'rounded' ? 'font-bold' : ''}`}
                                     >
-                                        <option value="default">Default</option>
-                                        <option value="whatsapp">WhatsApp</option>
-                                        <option value="telegram">Telegram</option>
-                                        <option value="dm">Direct Message</option>
-                                    </select>
+                                        Rounded
+                                    </button>
+                                    <button
+                                        onClick={() => saveSettings({ bubbleStyle: 'squared' })}
+                                        className={`block text-left w-full ${chatSettings.bubbleStyle === 'squared' ? 'font-bold' : ''}`}
+                                    >
+                                        Squared
+                                    </button>
                                 </div>
                             )}
                         </div>
                     </div>
                 )}
             </header>
-            <main className="flex-1 overflow-auto p-4">
+
+            <main className="flex-grow overflow-auto p-4">
                 <div className="flex flex-col space-y-4">
                     {messages.map((msg, index) => (
                         <div key={index} className={`flex ${msg.sender === user.id ? 'justify-end' : 'justify-start'}`}>
-                            <div className={`max-w-xs p-2 rounded-lg text-white ${getBubbleStyle(msg.sender)}`}>
-                                <span style={{ color: msg.sender === user.id ? chatSettings.senderTextColor : chatSettings.receiverTextColor }}>
-                                    {msg.text}
-                                </span>
+                            <div
+                                className={`p-2 rounded-lg ${msg.sender === user.id ? `bg-${chatSettings.senderBubbleColor} text-${chatSettings.senderTextColor}` : `bg-${chatSettings.receiverBubbleColor} text-${chatSettings.receiverTextColor}`} ${chatSettings.bubbleStyle === 'rounded' ? 'rounded-full' : chatSettings.bubbleStyle === 'squared' ? 'rounded-none' : ''}`}
+                            >
+                                {msg.text && <p>{msg.text}</p>}
                                 {renderMedia(msg.files)}
                             </div>
                         </div>
                     ))}
                 </div>
             </main>
-            <footer className="flex-none p-4 bg-white border-t border-gray-300">
-                <textarea
-                    className="w-full p-2 border rounded"
-                    placeholder="Type a message..."
+
+            <footer className="flex-none p-4 bg-white border-t border-gray-300 flex items-center">
+                <input
+                    type="text"
                     value={messageText}
                     onChange={(e) => setMessageText(e.target.value)}
+                    className="flex-grow border rounded px-2 py-1"
+                    placeholder="Type a message..."
                 />
-                <input type="file" multiple onChange={handleFileChange} />
-                <button
-                    onClick={sendMessage}
-                    disabled={uploading}
-                    className="w-full p-2 mt-2 bg-blue-500 text-white rounded"
-                >
-                    Send
+                <input type="file" multiple onChange={handleFileChange} className="ml-2" />
+                <button onClick={sendMessage} className={`ml-2 px-4 py-2 text-white rounded ${uploading ? 'bg-gray-400' : 'bg-blue-600'}`} disabled={uploading}>
+                    {uploading ? 'Sending...' : 'Send'}
                 </button>
             </footer>
         </div>
@@ -245,6 +252,7 @@ const Chat = ({ user }) => {
 };
 
 export default Chat;
+
 
 // "use client";
 // import React, { useState, useEffect } from 'react';
