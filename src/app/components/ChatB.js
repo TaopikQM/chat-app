@@ -13,12 +13,13 @@ const Chat = ({ user }) => {
     const [uploading, setUploading] = useState(false);
     const [lastSeen, setLastSeen] = useState('Offline');
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [isBubbleMenuOpen, setIsBubbleMenuOpen] = useState(false);
     const [chatSettings, setChatSettings] = useState({
+        bubbleStyle: 'wa',  // Default bubble style
         senderBubbleColor: '#3B82F6',
         receiverBubbleColor: '#E5E7EB',
         senderTextColor: '#FFFFFF',
         receiverTextColor: '#000000',
-        bubbleStyle: 'wa', // Bubble style initial state as WhatsApp style
         isNightMode: false,
     });
 
@@ -34,6 +35,39 @@ const Chat = ({ user }) => {
         setChatSettings(settings);
         localStorage.setItem(`chatSettings-${user.id}`, JSON.stringify(settings));
     };
+
+    const handleBubbleStyleChange = (style) => {
+        saveSettings({ bubbleStyle: style });
+    };
+
+    useEffect(() => {
+        const messagesRef = databaseRef(database, `messagesA/${user.id}/${otherUser.id}`);
+        onValue(messagesRef, (snapshot) => {
+            const data = snapshot.val();
+            setMessages(data ? Object.values(data) : []);
+            data && Object.values(data).forEach((msg) => {
+                if (!msg.read && msg.sender !== user.id) {
+                    update(databaseRef(database, `messagesA/${user.id}/${otherUser.id}/${msg.id}`), { read: true });
+                    update(databaseRef(database, `messagesA/${otherUser.id}/${user.id}/${msg.id}`), { read: true });
+                }
+            });
+        });
+
+        const userStatusRef = databaseRef(database, `lastSeenA/${otherUser.id}`);
+        onValue(userStatusRef, (snapshot) => {
+            const timestamp = snapshot.val()?.timestamp || null;
+            if (timestamp) {
+                const date = new Date(Number(timestamp));
+                setLastSeen(date.toLocaleString() || 'Offline');
+            }
+        });
+
+        update(databaseRef(database, `lastSeenA/${user.id}`), { timestamp: Date.now() });
+
+        return () => {
+            update(databaseRef(database, `lastSeenA/${user.id}`), { timestamp: null });
+        };
+    }, [user.id, otherUser.id]);
 
     const sendMessage = async () => {
         if (messageText.trim() === "" && selectedFiles.length === 0) return;
@@ -64,88 +98,46 @@ const Chat = ({ user }) => {
         update(databaseRef(database, `lastSeenA/${user.id}`), { timestamp: Date.now() });
     };
 
-    const bubbleClasses = (isSender) => {
-        const baseClasses = `max-w-xs p-2 ${
-            chatSettings.bubbleStyle === 'wa' ? 'rounded-xl' :
-            chatSettings.bubbleStyle === 'tele' ? 'rounded-3xl shadow-md' :
-            chatSettings.bubbleStyle === 'dm' ? 'rounded-lg border' :
-            'rounded-lg'
-        }`;
-
-        return isSender ? `${baseClasses} bg-${chatSettings.senderBubbleColor}` : `${baseClasses} bg-${chatSettings.receiverBubbleColor}`;
-    };
-
     return (
         <div className={`flex flex-col h-screen ${chatSettings.isNightMode ? 'bg-gray-900' : 'bg-gray-100'}`}>
             <header className="flex-none p-4 bg-white border-b border-gray-300 text-center relative">
                 <h2 className="text-xl">{otherUser.name}</h2>
                 <p className="text-sm">{lastSeen ? 'Last seen: ' + lastSeen : 'Offline'}</p>
-                <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-gray-500 hover:text-gray-700">
-                    •••
-                </button>
+                <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-gray-500 hover:text-gray-700">•••</button>
                 {isMenuOpen && (
                     <div className="absolute right-0 mt-2 w-48 bg-white border rounded shadow-lg z-10">
+                        <button onClick={() => setIsBubbleMenuOpen(!isBubbleMenuOpen)} className="block w-full p-2 text-left">Bubble Style</button>
+                        {isBubbleMenuOpen && (
+                            <div className="flex flex-col p-2">
+                                {['ip', 'tele', 'wa', 'dm'].map(style => (
+                                    <button key={style} onClick={() => handleBubbleStyleChange(style)} className="p-1 hover:bg-gray-200">{style.toUpperCase()}</button>
+                                ))}
+                            </div>
+                        )}
                         <div className="p-2">
-                            {/* Bubble Style */}
-                            <button onClick={() => setChatSettings(prev => ({ ...prev, bubbleStyle: prev.bubbleStyle === 'wa' ? 'tele' : 'wa' }))} className="block text-left w-full">
-                                Bubble Style
-                            </button>
-                            <button onClick={() => setChatSettings(prev => ({ ...prev, bubbleStyle: prev.bubbleStyle === 'tele' ? 'dm' : 'tele' }))} className="block text-left w-full mt-1">
-                                Tele Style
-                            </button>
-                            <button onClick={() => setChatSettings(prev => ({ ...prev, bubbleStyle: prev.bubbleStyle === 'dm' ? 'wa' : 'dm' }))} className="block text-left w-full mt-1">
-                                DM Style
-                            </button>
-                            {/* Warna dan Mode Malam */}
-                            <button onClick={() => saveSettings({ isNightMode: !chatSettings.isNightMode })} className="block text-left w-full mt-1">
-                                {chatSettings.isNightMode ? 'Mode Siang' : 'Mode Malam'}
+                            <span className="text-sm">Day/Night Mode</span>
+                            <button onClick={() => saveSettings({ isNightMode: !chatSettings.isNightMode })} className={`w-16 h-8 ${chatSettings.isNightMode ? 'bg-gray-800' : 'bg-gray-300'} rounded-full`}>
+                                <span className={`absolute w-8 h-8 bg-white rounded-full transition-transform ${chatSettings.isNightMode ? 'transform translate-x-8' : ''}`} />
                             </button>
                         </div>
                     </div>
                 )}
             </header>
-
             <main className="flex-1 overflow-y-auto p-4">
                 {messages.map((msg, index) => (
                     <div key={index} className={`flex my-2 ${msg.sender === user.id ? 'justify-end' : 'justify-start'}`}>
-                        <div
-                            className={bubbleClasses(msg.sender === user.id)}
-                            style={{
-                                color: msg.sender === user.id ? chatSettings.senderTextColor : chatSettings.receiverTextColor,
-                                backgroundColor: msg.sender === user.id ? chatSettings.senderBubbleColor : chatSettings.receiverBubbleColor
-                            }}
-                        >
-                            <p>{msg.text}</p>
-                            {msg.files && msg.files.length > 0 && (
-                                <div className="grid grid-cols-4 gap-2 mt-2">
-                                    {msg.files.map((file, index) => (
-                                        <a key={index} href={file} target="_blank" rel="noopener noreferrer" className="w-20 h-20 border rounded-lg overflow-hidden bg-white">
-                                            {file.endsWith('.jpg') || file.endsWith('.png') || file.endsWith('.gif') ? (
-                                                <img src={file} alt="Media" className="object-cover h-full w-full" />
-                                            ) : (
-                                                <span className="text-sm text-gray-600">File</span>
-                                            )}
-                                        </a>
-                                    ))}
-                                </div>
-                            )}
+                        <div className={`max-w-xs p-2 rounded-lg ${msg.sender === user.id ? chatSettings.senderBubbleColor : chatSettings.receiverBubbleColor}`}>
+                            <p style={{ color: msg.sender === user.id ? chatSettings.senderTextColor : chatSettings.receiverTextColor }}>
+                                {msg.text}
+                            </p>
                         </div>
                     </div>
                 ))}
             </main>
-
             <footer className="flex-none p-4 bg-white border-t border-gray-300">
                 <div className="flex items-center">
-                    <input
-                        type="text"
-                        value={messageText}
-                        onChange={(e) => setMessageText(e.target.value)}
-                        placeholder="Type a message"
-                        className="flex-1 border rounded-l-md p-2"
-                    />
-                    <button onClick={sendMessage} className="bg-blue-500 text-white p-2 rounded-r-md">
-                        Send
-                    </button>
+                    <input type="text" value={messageText} onChange={(e) => setMessageText(e.target.value)} placeholder="Type a message" className="flex-1 border rounded-lg p-2" />
+                    <button onClick={sendMessage} className="ml-2 bg-blue-500 text-white rounded-lg p-2">Send</button>
                 </div>
             </footer>
         </div>
@@ -153,6 +145,7 @@ const Chat = ({ user }) => {
 };
 
 export default Chat;
+
 
 // "use client"; // Enable client-side rendering
 // import React, { useState, useEffect } from 'react';
