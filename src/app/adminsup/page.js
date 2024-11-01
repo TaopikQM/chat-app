@@ -5,7 +5,7 @@ import { UserProvider } from '../context/UserContext';
 const User4Page = () => {
     return (
         <UserProvider>
-            <ChatB user={{ id: 'user1', name: 'User gab' }} />
+            <ChatB user={{ id: 'user1', name: 'User 1' }} />
         </UserProvider>
     );
 };
