@@ -173,20 +173,30 @@ const Chat = ({ user }) => {
                 )}
             </header>
             <main className="flex-1 overflow-y-auto p-4">
-                {messages.map((msg) => (
-                    (msg.text || (msg.files && msg.files.length > 0)) && (
-                        <div key={msg.id || msg.timestamp} className={`mb-2 ${msg.sender === user.id ? 'text-right' : 'text-left'}`}>
-                            <div className={`inline-block p-2 rounded-lg`} style={{ backgroundColor: msg.sender === user.id ? chatSettings.senderBubbleColor : chatSettings.receiverBubbleColor }}>
-                                {msg.text && <div style={{ color: msg.sender === user.id ? chatSettings.senderTextColor : chatSettings.receiverTextColor }}>{msg.text}</div>}
-                                {msg.files && renderMedia(msg.files)}
-                            </div>
-                            <div className={`text-xs ${chatSettings.isNightMode ? 'text-gray-400' : 'text-gray-500'} mt-1`}>
-                                {new Date(msg.timestamp).toLocaleString()}
-                            </div>
-                        </div>
-                    )
-                ))}
+              {messages.map((msg) => (
+                (msg.text || (msg.files && msg.files.length > 0)) && (
+                  <div
+                    key={msg.id || msg.timestamp}
+                    className={`flex flex-col w-full max-w-[320px] mb-2 ${msg.sender === user.id ? 'self-end' : 'self-start'}`}
+                  >
+                    <div
+                      className={`leading-1.5 p-4 rounded-e-xl rounded-es-xl border ${msg.sender === user.id ? 'border-gray-200 bg-gray-100' : 'border-gray-300 bg-gray-200'} ${chatSettings.isNightMode ? 'dark:bg-gray-700' : ''}`}
+                      style={{
+                        backgroundColor: msg.sender === user.id ? chatSettings.senderBubbleColor : chatSettings.receiverBubbleColor,
+                        color: msg.sender === user.id ? chatSettings.senderTextColor : chatSettings.receiverTextColor
+                      }}
+                    >
+                      {msg.text && <div>{msg.text}</div>}
+                      {msg.files && renderMedia(msg.files)}
+                    </div>
+                    <div className={`text-xs ${chatSettings.isNightMode ? 'text-gray-400' : 'text-gray-500'} mt-1`}>
+                      {new Date(msg.timestamp).toLocaleString()}
+                    </div>
+                  </div>
+                )
+              ))}
             </main>
+
             <footer className="flex items-center p-4 border-t">
                 <input
                     type="text"
