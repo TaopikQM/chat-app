@@ -173,31 +173,48 @@ const Chat = ({ user }) => {
                 )}
             </header>
             <main className="flex-1 overflow-y-auto p-4">
-  {messages.map((msg) => (
-    (msg.text || (msg.files && msg.files.length > 0)) && (
-      <div
-        key={msg.id || msg.timestamp}
-        className={`mb-2 ${msg.sender === user.id ? 'text-right' : 'text-left'}`}
-      >
+  {messages.map((msg, index) => {
+    const isSender = msg.sender === user.id;
+    const isFirst = index === 0 || messages[index - 1]?.sender !== msg.sender;
+    const isLast = index === messages.length - 1 || messages[index + 1]?.sender !== msg.sender;
+
+    // Tentukan kelas rounding berdasarkan apakah pesan pertama, tengah, atau terakhir dalam grup
+    let bubbleRounding;
+    if (isFirst && isLast) {
+      bubbleRounding = 'rounded-2xl'; // Single message
+    } else if (isFirst) {
+      bubbleRounding = isSender ? 'rounded-tl-2xl rounded-br-2xl' : 'rounded-tr-2xl rounded-bl-2xl'; // First message in a sequence
+    } else if (isLast) {
+      bubbleRounding = isSender ? 'rounded-bl-2xl rounded-tr-2xl' : 'rounded-br-2xl rounded-tl-2xl'; // Last message in a sequence
+    } else {
+      bubbleRounding = 'rounded-l-lg rounded-r-lg'; // Middle message in a sequence
+    }
+
+    return (
+      (msg.text || (msg.files && msg.files.length > 0)) && (
         <div
-          className={`inline-block p-2 rounded-lg max-w-[70%] leading-1.5 ${msg.sender === user.id ? 'rounded-tl-2xl rounded-br-xl' : 'rounded-tr-2xl rounded-bl-xl'} ${chatSettings.isNightMode ? 'dark:bg-gray-700' : ''}`}
-          style={{
-            backgroundColor: msg.sender === user.id ? chatSettings.senderBubbleColor : chatSettings.receiverBubbleColor,
-            color: msg.sender === user.id ? chatSettings.senderTextColor : chatSettings.receiverTextColor,
-            borderColor: msg.sender === user.id ? 'border-gray-200' : 'border-gray-300',
-            borderWidth: '1px',
-          }}
+          key={msg.id || msg.timestamp}
+          className={`mb-2 ${isSender ? 'text-right' : 'text-left'}`}
         >
-          {msg.text && <div>{msg.text}</div>}
-          {msg.files && renderMedia(msg.files)}
+          <div
+            className={`inline-block p-2 max-w-[70%] leading-1.5 border ${bubbleRounding} ${isSender ? 'bg-gray-100 border-gray-200' : 'bg-gray-200 border-gray-300'} ${chatSettings.isNightMode ? 'dark:bg-gray-700' : ''}`}
+            style={{
+              backgroundColor: isSender ? chatSettings.senderBubbleColor : chatSettings.receiverBubbleColor,
+              color: isSender ? chatSettings.senderTextColor : chatSettings.receiverTextColor
+            }}
+          >
+            {msg.text && <div>{msg.text}</div>}
+            {msg.files && renderMedia(msg.files)}
+          </div>
+          <div className={`text-xs ${chatSettings.isNightMode ? 'text-gray-400' : 'text-gray-500'} mt-1`}>
+            {new Date(msg.timestamp).toLocaleString()}
+          </div>
         </div>
-        <div className={`text-xs ${chatSettings.isNightMode ? 'text-gray-400' : 'text-gray-500'} mt-1`}>
-          {new Date(msg.timestamp).toLocaleString()}
-        </div>
-      </div>
-    )
-  ))}
+      )
+    );
+  })}
 </main>
+
 
 
 
