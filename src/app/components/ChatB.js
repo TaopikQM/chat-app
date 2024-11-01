@@ -42,46 +42,106 @@ const Chat = ({ user }) => {
         localStorage.setItem(`chatSettings-${user.id}`, JSON.stringify(settings));
     };
 
+//     useEffect(() => {
+//     const messagesRef = databaseRef(database, `messagesC/${user.id}/${otherUser.id}`);
+
+//     onValue(messagesRef, (snapshot) => {
+//         const data = snapshot.val();
+//         let loadedMessages = [];
+
+//         if (data) {
+//             Object.keys(data).forEach((year) => {
+//                 Object.keys(data[year]).forEach((month) => {
+//                     Object.keys(data[year][month]).forEach((day) => {
+//                         const dailyMessages = data[year][month][day];
+//                         loadedMessages = loadedMessages.concat(Object.values(dailyMessages));
+//                     });
+//                 });
+//             });
+
+//             // Sort messages by timestamp
+//             loadedMessages.sort((a, b) => a.timestamp - b.timestamp);
+//         }
+
+//         setMessages(loadedMessages);
+
+//         // Mark unread messages as read
+//         loadedMessages.forEach((msg) => {
+//             if (!msg.read && msg.sender !== user.id) {
+//                 const { timestamp } = msg;
+//                 const dateObj = new Date(timestamp);
+//                 const year = dateObj.getFullYear();
+//                 const month = (`0${dateObj.getMonth() + 1}`).slice(-2);
+//                 const day = (`0${dateObj.getDate()}`).slice(-2);
+
+//                 const messagePath = `messagesC/${user.id}/${otherUser.id}/${year}/${month}/${day}/${msg.id}`;
+//                 const recipientPath = `messagesC/${otherUser.id}/${user.id}/${year}/${month}/${day}/${msg.id}`;
+
+//                 update(databaseRef(database, messagePath), { read: true });
+//                 update(databaseRef(database, recipientPath), { read: true });
+//             }
+//         });
+//     });
+
+//     const userStatusRef = databaseRef(database, `lastSeenC/${otherUser.id}`);
+//     onValue(userStatusRef, (snapshot) => {
+//         const status = snapshot.val();
+//         const date = status?.timestamp ? new Date(status.timestamp) : null;
+//         const currentTime = Date.now();
+//         const fiveMinutes = 5 * 60 * 1000;
+
+//         if (date && currentTime - status.timestamp < fiveMinutes) {
+//             setLastSeen("Online");
+//         } else {
+//             setLastSeen(date && !isNaN(date.getTime()) ? date.toLocaleTimeString() : 'Offline');
+//         }
+//     });
+
+//     const lastSeenRef = databaseRef(database, `lastSeenC/${user.id}`);
+//     update(lastSeenRef, { timestamp: Date.now() });
+
+//     return () => {
+//         update(lastSeenRef, { timestamp: Date.now() });
+//     };
+// }, [user.id, otherUser.id]);
     useEffect(() => {
     const messagesRef = databaseRef(database, `messagesC/${user.id}/${otherUser.id}`);
 
-    onValue(messagesRef, (snapshot) => {
-        const data = snapshot.val();
-        let loadedMessages = [];
+    // This function will retrieve messages from all nested date paths
+    const retrieveMessages = async () => {
+        const loadedMessages = [];
 
-        if (data) {
-            Object.keys(data).forEach((year) => {
-                Object.keys(data[year]).forEach((month) => {
-                    Object.keys(data[year][month]).forEach((day) => {
-                        const dailyMessages = data[year][month][day];
-                        loadedMessages = loadedMessages.concat(Object.values(dailyMessages));
+        onValue(messagesRef, (snapshot) => {
+            const yearsData = snapshot.val();
+            if (yearsData) {
+                Object.keys(yearsData).forEach((year) => {
+                    Object.keys(yearsData[year]).forEach((month) => {
+                        Object.keys(yearsData[year][month]).forEach((day) => {
+                            const dayMessages = Object.values(yearsData[year][month][day]);
+                            loadedMessages.push(...dayMessages);
+                        });
                     });
                 });
-            });
+                
+                // Sort messages by timestamp
+                loadedMessages.sort((a, b) => a.timestamp - b.timestamp);
+                setMessages(loadedMessages);
+                
+                // Mark unread messages as read
+                loadedMessages.forEach((msg) => {
+                    if (!msg.read && msg.sender !== user.id) {
+                        const msgRef = databaseRef(database, `messagesC/${user.id}/${otherUser.id}/${new Date(msg.timestamp).getFullYear()}/${(`0${new Date(msg.timestamp).getMonth() + 1}`).slice(-2)}/${(`0${new Date(msg.timestamp).getDate()}`).slice(-2)}/${msg.id}`);
+                        update(msgRef, { read: true });
 
-            // Sort messages by timestamp
-            loadedMessages.sort((a, b) => a.timestamp - b.timestamp);
-        }
-
-        setMessages(loadedMessages);
-
-        // Mark unread messages as read
-        loadedMessages.forEach((msg) => {
-            if (!msg.read && msg.sender !== user.id) {
-                const { timestamp } = msg;
-                const dateObj = new Date(timestamp);
-                const year = dateObj.getFullYear();
-                const month = (`0${dateObj.getMonth() + 1}`).slice(-2);
-                const day = (`0${dateObj.getDate()}`).slice(-2);
-
-                const messagePath = `messagesC/${user.id}/${otherUser.id}/${year}/${month}/${day}/${msg.id}`;
-                const recipientPath = `messagesC/${otherUser.id}/${user.id}/${year}/${month}/${day}/${msg.id}`;
-
-                update(databaseRef(database, messagePath), { read: true });
-                update(databaseRef(database, recipientPath), { read: true });
+                        const recipientMsgRef = databaseRef(database, `messagesC/${otherUser.id}/${user.id}/${new Date(msg.timestamp).getFullYear()}/${(`0${new Date(msg.timestamp).getMonth() + 1}`).slice(-2)}/${(`0${new Date(msg.timestamp).getDate()}`).slice(-2)}/${msg.id}`);
+                        update(recipientMsgRef, { read: true });
+                    }
+                });
             }
         });
-    });
+    };
+
+    retrieveMessages();
 
     const userStatusRef = databaseRef(database, `lastSeenC/${otherUser.id}`);
     onValue(userStatusRef, (snapshot) => {
@@ -104,6 +164,7 @@ const Chat = ({ user }) => {
         update(lastSeenRef, { timestamp: Date.now() });
     };
 }, [user.id, otherUser.id]);
+
 
     // useEffect(() => {
     //     const messagesRef = databaseRef(database, `messagesC/${user.id}/${otherUser.id}`);
