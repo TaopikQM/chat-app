@@ -172,31 +172,23 @@ const Chat = ({ user }) => {
                     </div>
                 )}
             </header>
-           <main className="flex-1 overflow-y-auto p-4">
+          <main className="flex-1 overflow-y-auto p-4">
   {messages.map((msg) => (
     (msg.text || (msg.files && msg.files.length > 0)) && (
-      <div key={msg.id || msg.timestamp} className={`chat ${msg.sender === user.id ? 'chat-end' : 'chat-start'}`}>
-        <div className="chat-image avatar">
-          <div className="w-10 rounded-full">
-            <img
-              alt="User Avatar"
-              src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp" // Ganti dengan URL avatar pengguna
-            />
+      <div key={msg.id || msg.timestamp} className={`mb-2 flex ${msg.sender === user.id ? 'justify-end' : 'justify-start'}`}>
+        <div className={`flex flex-col w-full max-w-[320px] leading-1.5 p-4 border border-gray-200 ${msg.sender === user.id ? 'bg-gray-100 rounded-br-xl rounded-tr-xl' : 'bg-gray-700 rounded-bl-xl rounded-tl-xl'}`}>
+          <div className="text-sm" style={{ color: msg.sender === user.id ? chatSettings.senderTextColor : chatSettings.receiverTextColor }}>
+            {msg.text}
+          </div>
+          {msg.files && renderMedia(msg.files)}
+          <div className={`text-xs mt-1 ${chatSettings.isNightMode ? 'text-gray-400' : 'text-gray-500'}`}>
+            {new Date(msg.timestamp).toLocaleString()}
           </div>
         </div>
-        <div className="chat-header">
-          {msg.sender === user.id ? 'You' : 'Sender Name'} {/* Ganti dengan nama pengirim */}
-          <time className="text-xs opacity-50">{new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</time>
-        </div>
-        <div className="chat-bubble" style={{ backgroundColor: msg.sender === user.id ? chatSettings.senderBubbleColor : chatSettings.receiverBubbleColor, color: msg.sender === user.id ? chatSettings.senderTextColor : chatSettings.receiverTextColor }}>
-          {msg.text}
-        </div>
-        <div className="chat-footer opacity-50">Delivered</div> {/* Sesuaikan jika diperlukan */}
       </div>
     )
   ))}
 </main>
-
 
             <footer className="flex items-center p-4 border-t">
                 <input
