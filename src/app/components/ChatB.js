@@ -122,11 +122,20 @@ const Chat = ({ user }) => {
     return (
         <div className={`flex flex-col h-screen ${chatSettings.isNightMode ? 'bg-gray-900' : 'bg-gray-100'}`}>
             <header className="flex-none p-4 bg-white border-b border-gray-300 text-center">
-                <h2 className="text-xl">{otherUser.name}</h2>
-                <p className="text-sm">{lastSeen ? 'Last seen: ' + lastSeen : 'Offline'}</p>
-                <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-gray-500 hover:text-gray-700">
-                    •••
-                </button>
+                 <div className="flex justify-between items-start">
+                    <div className="flex flex-col">
+                        <h2 className="text-xl">{otherUser.name}</h2>
+                        <p className="text-sm">{lastSeen ? 'Last seen: ' + lastSeen : 'Offline'}</p>
+                    </div>
+                    <button
+                        onClick={() => setIsMenuOpen(!isMenuOpen)}
+                        className="text-gray-500 hover:text-gray-700 flex flex-col items-center"
+                    >
+                        <div>•</div>
+                        <div>•</div>
+                        <div>•</div>
+                    </button>
+                </div>
                 {isMenuOpen && (
                     <div className="absolute right-0 mt-2 w-48 bg-white border rounded shadow-lg z-10">
                         <div className="p-2">
