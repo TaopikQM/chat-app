@@ -172,22 +172,26 @@ const Chat = ({ user }) => {
                     </div>
                 )}
             </header>
-            <main className="flex-1 overflow-y-auto p-4">
+           <main className="flex-1 overflow-y-auto p-4">
   {messages.map((msg, index) => {
     const isSender = msg.sender === user.id;
     const isFirst = index === 0 || messages[index - 1]?.sender !== msg.sender;
     const isLast = index === messages.length - 1 || messages[index + 1]?.sender !== msg.sender;
 
-    // Tentukan kelas rounding berdasarkan apakah pesan pertama, tengah, atau terakhir dalam grup
+    // Tentukan rounding berdasarkan posisi pesan dalam urutan
     let bubbleRounding;
     if (isFirst && isLast) {
-      bubbleRounding = 'rounded-2xl'; // Single message
+      // Pesan tunggal
+      bubbleRounding = isSender ? 'rounded-tr-2xl rounded-bl-2xl' : 'rounded-tl-2xl rounded-br-2xl';
     } else if (isFirst) {
-      bubbleRounding = isSender ? 'rounded-tl-2xl rounded-br-2xl' : 'rounded-tr-2xl rounded-bl-2xl'; // First message in a sequence
+      // Pesan pertama dalam urutan
+      bubbleRounding = isSender ? 'rounded-tr-2xl rounded-br-2xl' : 'rounded-tl-2xl rounded-bl-2xl';
     } else if (isLast) {
-      bubbleRounding = isSender ? 'rounded-bl-2xl rounded-tr-2xl' : 'rounded-br-2xl rounded-tl-2xl'; // Last message in a sequence
+      // Pesan terakhir dalam urutan
+      bubbleRounding = isSender ? 'rounded-tl-2xl rounded-bl-2xl' : 'rounded-tr-2xl rounded-br-2xl';
     } else {
-      bubbleRounding = 'rounded-l-lg rounded-r-lg'; // Middle message in a sequence
+      // Pesan tengah dalam urutan
+      bubbleRounding = 'rounded-2xl';
     }
 
     return (
@@ -214,9 +218,6 @@ const Chat = ({ user }) => {
     );
   })}
 </main>
-
-
-
 
             <footer className="flex items-center p-4 border-t">
                 <input
