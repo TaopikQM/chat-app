@@ -8,12 +8,26 @@ import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage
 const Chat = ({ user }) => {
     const otherUser = user.id === 'user1' ? { id: 'user2', name: 'User 2' } : { id: 'user1', name: 'User 1' };
 
+    // const [messages, setMessages] = useState([]);
+    // const [messageText, setMessageText] = useState('');
+    // const [selectedFiles, setSelectedFiles] = useState([]);
+    // const [uploading, setUploading] = useState(false);
+    // const [lastSeen, setLastSeen] = useState('Offline');
+    
+    // const [isMenuOpen, setIsMenuOpen] = useState(false);
+    // const [chatSettings, setChatSettings] = useState({
+    //     senderBubbleColor: '#3B82F6', // Default bubble color
+    //     receiverBubbleColor: '#E5E7EB', // Default bubble color
+    //     senderTextColor: '#FFFFFF', // Default sender text color
+    //     receiverTextColor: '#000000', // Default receiver text color
+    //     isNightMode: false,
+    // });
+
     const [messages, setMessages] = useState([]);
     const [messageText, setMessageText] = useState('');
     const [selectedFiles, setSelectedFiles] = useState([]);
     const [uploading, setUploading] = useState(false);
     const [lastSeen, setLastSeen] = useState('Offline');
-    
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [chatSettings, setChatSettings] = useState({
         senderBubbleColor: '#3B82F6', // Default bubble color
