@@ -173,53 +173,30 @@ const Chat = ({ user }) => {
                 )}
             </header>
            <main className="flex-1 overflow-y-auto p-4">
-  {messages.map((msg, index) => {
-    const isSender = msg.sender === user.id;
-    const isFirst = index === 0 || messages[index - 1]?.sender !== msg.sender;
-    const isLast = index === messages.length - 1 || messages[index + 1]?.sender !== msg.sender;
-    const isMiddle = !isFirst && !isLast;
-
-    // Determine bubble rounding based on the position in the sequence
-    let bubbleRounding;
-
-    if (isFirst && isLast) {
-      // Single message
-      bubbleRounding = isSender ? 'rounded-tl-2xl rounded-bl-2xl' : 'rounded-tr-2xl rounded-bl-2xl';
-    } else if (isFirst) {
-      // First message in a two-message sequence
-      bubbleRounding = isSender ? 'rounded-tl-2xl rounded-bl-2xl rounded-br-2xl' : 'rounded-tr-2xl rounded-bl-2xl rounded-br-2xl';
-    } else if (isLast) {
-      // Last message in a two-message sequence
-      bubbleRounding = isSender ? 'rounded-tl-2xl rounded-tr-2xl' : 'rounded-tl-2xl rounded-br-2xl';
-    } else if (isMiddle) {
-      // Middle message in a sequence of three or more
-      bubbleRounding = 'rounded-2xl';
-    }
-
-    return (
-      (msg.text || (msg.files && msg.files.length > 0)) && (
-        <div
-          key={msg.id || msg.timestamp}
-          className={`mb-2 ${isSender ? 'text-right' : 'text-left'}`}
-        >
-          <div
-            className={`inline-block p-2 max-w-[70%] leading-1.5 border ${bubbleRounding} ${isSender ? 'bg-gray-100 border-gray-200' : 'bg-gray-200 border-gray-300'} ${chatSettings.isNightMode ? 'dark:bg-gray-700' : ''}`}
-            style={{
-              backgroundColor: isSender ? chatSettings.senderBubbleColor : chatSettings.receiverBubbleColor,
-              color: isSender ? chatSettings.senderTextColor : chatSettings.receiverTextColor,
-            }}
-          >
-            {msg.text && <div>{msg.text}</div>}
-            {msg.files && renderMedia(msg.files)}
-          </div>
-          <div className={`text-xs ${chatSettings.isNightMode ? 'text-gray-400' : 'text-gray-500'} mt-1`}>
-            {new Date(msg.timestamp).toLocaleString()}
+  {messages.map((msg) => (
+    (msg.text || (msg.files && msg.files.length > 0)) && (
+      <div key={msg.id || msg.timestamp} className={`chat ${msg.sender === user.id ? 'chat-end' : 'chat-start'}`}>
+        <div className="chat-image avatar">
+          <div className="w-10 rounded-full">
+            <img
+              alt="User Avatar"
+              src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp" // Ganti dengan URL avatar pengguna
+            />
           </div>
         </div>
-      )
-    );
-  })}
+        <div className="chat-header">
+          {msg.sender === user.id ? 'You' : 'Sender Name'} {/* Ganti dengan nama pengirim */}
+          <time className="text-xs opacity-50">{new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</time>
+        </div>
+        <div className="chat-bubble" style={{ backgroundColor: msg.sender === user.id ? chatSettings.senderBubbleColor : chatSettings.receiverBubbleColor, color: msg.sender === user.id ? chatSettings.senderTextColor : chatSettings.receiverTextColor }}>
+          {msg.text}
+        </div>
+        <div className="chat-footer opacity-50">Delivered</div> {/* Sesuaikan jika diperlukan */}
+      </div>
+    )
+  ))}
 </main>
+
 
             <footer className="flex items-center p-4 border-t">
                 <input
