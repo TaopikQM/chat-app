@@ -1,230 +1,849 @@
+
+
+// export default Chat;
 "use client"; // Enable client-side rendering
 import React, { useState, useEffect } from 'react';
-import { database, storage } from '../config/firebase';
+import { database, storage } from '../config/firebase'; // Pastikan Firebase Storage sudah dikonfigurasi
 import { ref as databaseRef, onValue, push, update } from 'firebase/database';
 import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 import 'tailwindcss/tailwind.css';
 
 const Chat = ({ user }) => {
     const otherUser = user.id === 'user1' ? { id: 'user2', name: 'User 2' } : { id: 'user1', name: 'User 1' };
+
     const [messages, setMessages] = useState([]);
     const [messageText, setMessageText] = useState('');
     const [selectedFiles, setSelectedFiles] = useState([]);
     const [uploading, setUploading] = useState(false);
-    const [lastSeen, setLastSeen] = useState('Offline');
+    const [otherUserStatus, setOtherUserStatus] = useState(''); // Online status or last seen
+    const [lastSeen, setLastSeen] = useState(''); // Last seen timestamp
+    const [popupFile, setPopupFile] = useState(null);
+    
     const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const [isColorMenuOpen, setIsColorMenuOpen] = useState(false);
-    const [chatSettings, setChatSettings] = useState({
-        senderBubbleColor: '#3B82F6',
-        receiverBubbleColor: '#E5E7EB',
-        senderTextColor: '#FFFFFF',
-        receiverTextColor: '#000000',
-        isNightMode: false,
-    });
+    const [chatBubbleColor, setChatBubbleColor] = useState('bg-gray-300');
+    const [chatTextColor, setChatTextColor] = useState('text-black');
 
+    // Load settings from localStorage (or fetch from server if available)
     useEffect(() => {
         const savedSettings = JSON.parse(localStorage.getItem(`chatSettings-${user.id}`));
-        if (savedSettings) setChatSettings(savedSettings);
+        if (savedSettings) {
+            setChatBubbleColor(savedSettings.bubbleColor);
+            setChatTextColor(savedSettings.textColor);
+        }
     }, [user.id]);
 
+    // Save settings to localStorage when updated
     const saveSettings = (newSettings) => {
-        const updatedSettings = { ...chatSettings, ...newSettings };
-        setChatSettings(updatedSettings);
-        localStorage.setItem(`chatSettings-${user.id}`, JSON.stringify(updatedSettings));
+        const settings = {
+            bubbleColor: newSettings.bubbleColor || chatBubbleColor,
+            textColor: newSettings.textColor || chatTextColor,
+        };
+        setChatBubbleColor(settings.bubbleColor);
+        setChatTextColor(settings.textColor);
+        localStorage.setItem(`chatSettings-${user.id}`, JSON.stringify(settings));
     };
-
+    
+    
     useEffect(() => {
         const messagesRef = databaseRef(database, `messagesA/${user.id}/${otherUser.id}`);
         onValue(messagesRef, (snapshot) => {
             const data = snapshot.val();
-            setMessages(data ? Object.values(data) : []);
-            if (data) {
-                Object.values(data).forEach((msg) => {
-                    if (!msg.read && msg.sender !== user.id) {
-                        update(databaseRef(database, `messagesA/${user.id}/${otherUser.id}/${msg.id}`), { read: true });
-                        update(databaseRef(database, `messagesA/${otherUser.id}/${user.id}/${msg.id}`), { read: true });
-                    }
-                });
-            }
+            const loadedMessages = data ? Object.values(data) : [];
+            setMessages(loadedMessages);
+    
+            // Mark all messages as read when the user views the chat
+            loadedMessages.forEach((msg) => {
+                if (!msg.read && msg.sender !== user.id) {
+                    update(databaseRef(database, `messagesA/${user.id}/${otherUser.id}/${msg.id}`), { read: true });
+                    update(databaseRef(database, `messagesA/${otherUser.id}/${user.id}/${msg.id}`), { read: true });
+                }
+            });
         });
-
         const userStatusRef = databaseRef(database, `lastSeenA/${otherUser.id}`);
+        
         onValue(userStatusRef, (snapshot) => {
-            const timestamp = snapshot.val()?.timestamp || null;
-            if (timestamp) {
-                const date = new Date(Number(timestamp));
-                setLastSeen(date.toLocaleString() || 'Offline');
+            const status = snapshot.val();
+            const timestamp = status && status.timestamp ? Number(status.timestamp) : null;
+    
+            if (timestamp && timestamp.toString().length === 13) {  // Check if in milliseconds
+                const date = new Date(timestamp);
+                setLastSeen(
+                    !isNaN(date.getTime())
+                        ? `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`
+                        : 'Offline'
+                );
+            } else {
+                console.error("Timestamp is invalid or missing:", timestamp);
+                setLastSeen('Offline');
             }
         });
-
-        update(databaseRef(database, `lastSeenA/${user.id}`), { timestamp: Date.now() });
+    
+        // Update last seen when user is active
+        const lastSeenRef = databaseRef(database, `lastSeenA/${user.id}`);
+        update(lastSeenRef, { timestamp: Date.now() });
+    
         return () => {
-            update(databaseRef(database, `lastSeenA/${user.id}`), { timestamp: null });
+            // Cleanup: Remove last seen status when component unmounts
+            update(lastSeenRef, { timestamp: null });
         };
     }, [user.id, otherUser.id]);
 
+    const [dropdownOpen, setDropdownOpen] = useState(null);
+
+    const toggleDropdown = (index) => {
+        setDropdownOpen(dropdownOpen === index ? null : index);
+    };
+    
+    const isDropdownOpen = (index) => dropdownOpen === index;
+
+
+    // Handle file selection
     const handleFileChange = (event) => {
-        setSelectedFiles([...selectedFiles, ...Array.from(event.target.files)]);
+        const files = Array.from(event.target.files);
+        setSelectedFiles((prevFiles) => [...prevFiles, ...files]);
     };
 
+    // Remove a selected file
     const removeFile = (index) => {
-        setSelectedFiles(selectedFiles.filter((_, i) => i !== index));
+        setSelectedFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
     };
 
+    // Function to send a new message with media support
     const sendMessage = async () => {
-        if (!messageText.trim() && !selectedFiles.length) return;
+        if (messageText.trim() === "" && selectedFiles.length === 0) return; // Prevent sending empty messages
 
         const messagesRef = databaseRef(database, `messagesA/${user.id}/${otherUser.id}`);
-        const newMessage = { text: messageText, sender: user.id, timestamp: Date.now(), read: false, files: [] };
+        const newMessage = {
+            text: messageText,
+            sender: user.id,
+            timestamp: Date.now(),
+            read: false,
+            files: [],
+        };
 
         setUploading(true);
+
+        // Upload selected files (images and videos) to Firebase Storage
         const uploadedFiles = await Promise.all(selectedFiles.map(async (file) => {
             const fileRef = storageRef(storage, `chatFilesA/${file.name}`);
             await uploadBytes(fileRef, file);
             return getDownloadURL(fileRef);
         }));
 
+        // Update newMessage with uploaded file URLs
         newMessage.files = uploadedFiles;
+
+        // Push message to Firebase Database
         const newMsgRef = await push(messagesRef, newMessage);
-        setMessageText('');
-        setSelectedFiles([]);
+        setMessageText(''); // Clear input after sending
+        setSelectedFiles([]); // Clear selected files
+
+        // Update the recipient's message status
+        const recipientRef = databaseRef(database, `messagesA/${otherUser.id}/${user.id}`);
+        await push(recipientRef, { ...newMessage, id: newMsgRef.key });
+
         setUploading(false);
 
-        await push(databaseRef(database, `messagesA/${otherUser.id}/${user.id}`), { ...newMessage, id: newMsgRef.key });
-        update(databaseRef(database, `lastSeenA/${user.id}`), { timestamp: Date.now() });
+        // Update last seen when a message is sent
+        const lastSeenRef = databaseRef(database, `lastSeenA/${user.id}`);
+        update(lastSeenRef, { timestamp: Date.now() });
     };
 
-    const renderMedia = (files) => files?.length > 0 && (
+    // const renderMedia = (files) => {
+    //     if (!files || files.length === 0) return null;
+
+    //     return (
+    //         <div className="grid grid-cols-4 gap-2 mt-2">
+    //             {files.map((file, index) => (
+    //                 <a
+    //                     key={index}
+    //                     href={file}
+    //                     target="_blank"
+    //                     rel="noopener noreferrer"
+    //                     // className="w-20 h-20 flex items-center justify-center border border-gray-300 rounded-lg m-1"
+    //                     className="relative w-20 h-20 border border-gray-300 rounded-lg overflow-hidden cursor-pointer"
+                        
+    //                 >
+    //                     {file.endsWith('.jpg') || file.endsWith('.png') || file.endsWith('.gif') ? (
+    //                         <img src={file} alt="Media" className="object-cover h-full w-full rounded-lg" />
+    //                     ) : (
+    //                         // <span className="text-sm">File</span>
+    //                         <span className="text-sm flex items-center justify-center h-full">File</span>
+    //                     )}
+    //                 </a>
+    //             ))}
+    //         </div>
+    //     );
+    // };
+    const renderMedia = (files) => {
+    if (!files || files.length === 0) return null;
+
+    return (
         <div className="grid grid-cols-4 gap-2 mt-2">
             {files.map((file, index) => (
-                <a key={index} href={file} target="_blank" rel="noopener noreferrer" className="w-20 h-20 border rounded-lg overflow-hidden bg-white">
+                <a
+                    key={index}
+                    href={file}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="relative w-20 h-20 border border-gray-300 rounded-lg overflow-hidden cursor-pointer flex items-center justify-center bg-white"
+                >
                     {file.endsWith('.jpg') || file.endsWith('.png') || file.endsWith('.gif') ? (
-                        <img src={file} alt="Media" className="object-cover h-full w-full" />
+                        <img src={file} alt="Media" className="object-cover h-full w-full rounded-lg" />
                     ) : (
-                        <span className="text-sm text-gray-600">File</span>
+                        <span className="text-sm flex items-center justify-center h-full text-gray-600">File</span>
                     )}
                 </a>
             ))}
         </div>
     );
+};
+    //  const renderMedia = (files) => {
+    //     if (!files || files.length === 0) return null;
+
+    //     return (
+    //         <div className="grid grid-cols-4 gap-2 mt-2">
+    //             {files.map((file, index) => (
+    //                 <div
+    //                     key={index}
+    //                     className="relative w-20 h-20 border border-gray-300 rounded-lg overflow-hidden cursor-pointer"
+    //                     onClick={() => setPopupFile(file)}
+    //                 >
+    //                     {file.endsWith('.jpg') || file.endsWith('.png') || file.endsWith('.gif') ? (
+    //                         <img src={file} alt="Media" className="object-cover w-full h-full" />
+    //                     ) : (
+    //                         <span className="text-sm flex items-center justify-center h-full">File</span>
+    //                     )}
+    //                 </div>
+    //             ))}
+    //         </div>
+    //     );
+    // };
+    //  const renderMedia = (files) => {
+    //     if (!files || files.length === 0) return null;
+
+    //     return (
+    //         <div className="grid grid-cols-4 gap-2 mt-2">
+    //             {files.map((file, index) => (
+    //                 <div
+    //                     key={index}
+    //                     className="relative w-20 h-20 border border-gray-300 rounded-lg overflow-hidden cursor-pointer"
+    //                     onClick={() => setPopupFile(file)}
+    //                 >
+    //                     {file.endsWith('.jpg') || file.endsWith('.png') || file.endsWith('.gif') ? (
+    //                         <img src={file} alt="Media" className="object-cover w-full h-full" />
+    //                     ) : (
+    //                         <span className="text-sm flex items-center justify-center h-full">File</span>
+    //                     )}
+    //                 </div>
+    //             ))}
+    //         </div>
+    //     );
+    // };
+    // const renderMedia = (files) => {
+    //     if (!files || files.length === 0) return null;
+
+    //     return (
+    //         <div className="grid grid-cols-4 gap-2 mt-2">
+    //             {files.map((file, index) => (
+    //                 <div
+    //                     key={index}
+    //                     className="relative w-20 h-20 border border-gray-300 rounded-lg overflow-hidden cursor-pointer"
+    //                     onClick={() => setPopupFile(file)}
+    //                 >
+    //                     {file.endsWith('.jpg') || file.endsWith('.png') || file.endsWith('.gif') ? (
+    //                         <img src={file} alt="Media" className="object-cover w-full h-full rounded-lg" />
+    //                     ) : (
+    //                         <span className="text-sm flex items-center justify-center h-full">File</span>
+    //                     )}
+    //                 </div>
+    //             ))}
+    //         </div>
+    //     );
+    // };
+
+    // Function to render media with border and popup trigger
+    // const renderMedia = (files) => {
+    //     if (!files || files.length === 0) return null;
+
+    //     return (
+    //         <div className="grid grid-cols-4 gap-2 mt-2">
+    //             {files.map((file, index) => (
+    //                 <div
+    //                     key={index}
+    //                     className="relative w-20 h-20 border border-gray-300 rounded-lg overflow-hidden cursor-pointer"
+    //                     onClick={() => setPopupFile(file)}
+    //                 >
+    //                     {file.endsWith('.jpg') || file.endsWith('.png') || file.endsWith('.gif') ? (
+    //                         <img src={file} alt="Media" className="object-cover w-full h-full rounded-lg" />
+    //                     ) : (
+    //                         <span className="text-sm flex items-center justify-center h-full">File</span>
+    //                     )}
+    //                 </div>
+    //             ))}
+    //         </div>
+    //     );
+    // };
+//     const renderMedia = (files) => {
+//     if (!files || files.length === 0) return null;
+
+//     return (
+//         <div className="grid grid-cols-4 gap-2 mt-2">
+//             {files.map((file, index) => {
+//                 const fileExtension = file.split('.').pop().toLowerCase();
+
+//                 return (
+//                     <div
+//                         key={index}
+//                         className="relative w-20 h-20 border border-gray-300 rounded-lg overflow-hidden cursor-pointer flex items-center justify-center bg-white"
+//                         onClick={() => setPopupFile(file)}
+//                     >
+//                         {fileExtension === 'jpg' || fileExtension === 'png' || fileExtension === 'gif' ? (
+//                             <img src={file} alt="Media" className="object-cover w-full h-full rounded-lg" />
+//                         ) : fileExtension === 'mp4' || fileExtension === 'webm' || fileExtension === 'ogg' ? (
+//                             <video src={file} className="object-cover w-full h-full rounded-lg" controls />
+//                         ) : fileExtension === 'pdf' ? (
+//                             <span className="text-sm text-red-500 font-semibold">PDF</span>
+//                         ) : fileExtension === 'doc' || fileExtension === 'docx' ? (
+//                             <span className="text-sm text-blue-500 font-semibold">DOC</span>
+//                         ) : (
+//                             <span className="text-sm text-gray-500 font-semibold">File</span>
+//                         )}
+//                     </div>
+//                 );
+//             })}
+//         </div>
+//     );
+// };
+
+//     const renderMedia = (files) => {
+//     if (!files || files.length === 0) return null;
+
+//     return (
+//         <div className="grid grid-cols-4 gap-2 mt-2">
+//             {files.map((file, index) => {
+//                 const fileExtension = file.split('.').pop().toLowerCase();
+
+//                 return (
+//                     <div
+//                         key={index}
+//                         className="relative w-20 h-20 border border-gray-300 rounded-lg overflow-hidden cursor-pointer flex items-center justify-center bg-white"
+//                         onClick={() => setPopupFile(file)} // Set popup file on click
+//                     >
+//                         {fileExtension === 'jpg' || fileExtension === 'png' || fileExtension === 'gif' ? (
+//                             <img src={file} alt="Media" className="object-cover w-full h-full rounded-lg" />
+//                         ) else if (fileExtension === 'mp4' || fileExtension === 'webm' || fileExtension === 'ogg') ? (
+//                             <video src={file} className="object-cover w-full h-full rounded-lg" controls />
+//                         ) else if (fileExtension === 'pdf') ? (
+//                             <span className="text-sm text-red-500 font-semibold">PDF</span>
+//                         ) else if (fileExtension === 'doc' || fileExtension === 'docx') ? (
+//                             <span className="text-sm text-blue-500 font-semibold">DOC</span>
+//                         ) else {
+//                             <span className="text-sm text-gray-500 font-semibold">File</span>
+//                         }
+//                     </div>
+//                 );
+//             })}
+//         </div>
+//     );
+// };
+
+//     const renderMedia = (files) => {
+//     if (!files || files.length === 0) return null;
+
+//     return (
+//         <div className="grid grid-cols-4 gap-2 mt-2">
+//             {files.map((file, index) => {
+//                 const fileExtension = file.split('.').pop().toLowerCase();
+
+//                 return (
+//                     <div
+//                         key={index}
+//                         className="relative w-20 h-20 border border-gray-300 rounded-lg overflow-hidden cursor-pointer flex items-center justify-center bg-white"
+//                         onClick={() => setPopupFile(file)}
+//                     >
+//                         {fileExtension === 'jpg' || fileExtension === 'png' || fileExtension === 'gif' ? (
+//                             <img src={file} alt="Media" className="object-cover w-full h-full rounded-lg" />
+//                         ) : fileExtension === 'mp4' || fileExtension === 'webm' || fileExtension === 'ogg' ? (
+//                             <video src={file} className="object-cover w-full h-full rounded-lg" controls />
+//                         ) : fileExtension === 'pdf' ? (
+//                             <span className="text-sm text-red-500 font-semibold">PDF</span>
+//                         ) : fileExtension === 'doc' || fileExtension === 'docx' ? (
+//                             <span className="text-sm text-blue-500 font-semibold">DOC</span>
+//                         ) : (
+//                             <span className="text-sm text-gray-500 font-semibold">File</span>
+//                         )}
+//                     </div>
+//                 );
+//             })}
+//         </div>
+//     );
+// };
+
+//     const renderMedia = (files) => {
+//     if (!files || files.length === 0) return null;
+
+//     return (
+//         <div className="grid grid-cols-4 gap-2 mt-2">
+//             {files.map((file, index) => {
+//                 const fileExtension = file.split('.').pop().toLowerCase();
+
+//                 return (
+//                     <div
+//                         key={index}
+//                         className="relative w-20 h-20 border border-gray-300 rounded-lg overflow-hidden cursor-pointer flex items-center justify-center bg-white"
+//                         onClick={() => setPopupFile(file)}
+//                     >
+//                         {fileExtension === 'jpg' || fileExtension === 'jpeg' || fileExtension === 'png' || fileExtension === 'gif' ? (
+//                             <img src={file} alt="Media" className="object-cover w-full h-full rounded-lg" />
+//                         ) : fileExtension === 'mp4' || fileExtension === 'webm' || fileExtension === 'ogg' ? (
+//                             <video src={file} className="object-cover w-full h-full rounded-lg" controls />
+//                         ) : fileExtension === 'pdf' ? (
+//                             <span className="text-sm text-red-500 font-semibold">PDF</span>
+//                         ) : fileExtension === 'doc' || fileExtension === 'docx' ? (
+//                             <span className="text-sm text-blue-500 font-semibold">DOC</span>
+//                         ) : (
+//                             <span className="text-sm text-gray-500 font-semibold">File</span>
+//                         )}
+//                     </div>
+//                 );
+//             })}
+//         </div>
+//     );
+// };
+//     const renderMedia = (files) => {
+//     if (!files || files.length === 0) return null;
+
+//     return (
+//         <div className="grid grid-cols-4 gap-2 mt-2">
+//             {files.map((file, index) => {
+//                 const fileExtension = file.split('.').pop().toLowerCase();
+
+//                 const handleFileClick = (e) => {
+//                     if (fileExtension === 'jpg' || fileExtension === 'jpeg' || fileExtension === 'png' || fileExtension === 'gif' || 
+//                         fileExtension === 'mp4' || fileExtension === 'webm' || fileExtension === 'ogg') {
+//                         e.stopPropagation(); // Prevents the click from bubbling up
+//                         setPopupFile(file);
+//                     } else {
+//                         window.open(file, '_blank'); // Opens non-image/video files in a new tab
+//                     }
+//                 };
+
+//                 return (
+//                     <div
+//                         key={index}
+//                         className="relative w-20 h-20 border border-gray-300 rounded-lg overflow-hidden cursor-pointer flex items-center justify-center bg-white"
+//                         onClick={handleFileClick}
+//                     >
+//                         {fileExtension === 'jpg' || fileExtension === 'jpeg' || fileExtension === 'png' || fileExtension === 'gif' ? (
+//                             <img src={file} alt="Media" className="object-cover w-full h-full rounded-lg" />
+//                         ) : fileExtension === 'mp4' || fileExtension === 'webm' || fileExtension === 'ogg' ? (
+//                             <video src={file} className="object-cover w-full h-full rounded-lg" controls />
+//                         ) : (
+//                             <span className="text-sm text-gray-500 font-semibold">File</span>
+//                         )}
+//                     </div>
+//                 );
+//             })}
+//         </div>
+//     );
+// };
+//     const renderMedia = (files) => {
+//     if (!files || files.length === 0) return null;
+
+//     return (
+//         <div className="grid grid-cols-4 gap-2 mt-2">
+//             {files.map((file, index) => {
+//                 const fileExtension = file.split('.').pop().toLowerCase();
+
+//                 const handleFileClick = (e) => {
+//                     // Check if the file is an image or video
+//                     if (
+//                         fileExtension === 'jpg' ||
+//                         fileExtension === 'jpeg' ||
+//                         fileExtension === 'png' ||
+//                         fileExtension === 'gif' ||
+//                         fileExtension === 'mp4' ||
+//                         fileExtension === 'webm' ||
+//                         fileExtension === 'ogg'
+//                     ) {
+//                         e.stopPropagation(); // Prevents the click from bubbling up
+//                         setPopupFile(file); // Set file to show in popup
+//                     } else {
+//                         // Open other files in a new tab
+//                         window.open(file, '_blank');
+//                     }
+//                 };
+
+//                 return (
+//                     <div
+//                         key={index}
+//                         className="relative w-20 h-20 border border-gray-300 rounded-lg overflow-hidden cursor-pointer flex items-center justify-center bg-white"
+//                         onClick={handleFileClick}
+//                     >
+//                         {fileExtension === 'jpg' || fileExtension === 'jpeg' || fileExtension === 'png' || fileExtension === 'gif' ? (
+//                             <img src={file} alt="Media" className="object-cover w-full h-full rounded-lg" />
+//                         ) : fileExtension === 'mp4' || fileExtension === 'webm' || fileExtension === 'ogg' ? (
+//                             <video src={file} className="object-cover w-full h-full rounded-lg" controls />
+//                         ) : (
+//                             <span className="text-sm text-gray-500 font-semibold">File</span>
+//                         )}
+//                     </div>
+//                 );
+//             })}
+//         </div>
+//     );
+// };
+
+//     const renderMedia = (files) => {
+//     if (!files || files.length === 0) return null;
+
+//     return (
+//         <div className="grid grid-cols-4 gap-2 mt-2">
+//             {files.map((file, index) => {
+//                 const fileExtension = file.split('.').pop().toLowerCase();
+
+//                 const handleFileClick = (e) => {
+//                     // Check if the file is an image or video
+//                     if (
+//                         fileExtension === 'jpg' ||
+//                         fileExtension === 'jpeg' ||
+//                         fileExtension === 'png' ||
+//                         fileExtension === 'gif' ||
+//                         fileExtension === 'mp4' ||
+//                         fileExtension === 'webm' ||
+//                         fileExtension === 'ogg'
+//                     ) {
+//                         e.preventDefault(); // Prevent the default link action
+//                         e.stopPropagation(); // Prevent the click from bubbling up
+//                         setPopupFile(file); // Set file to show in popup
+//                     } else {
+//                         // Open other files in a new tab
+//                         window.open(file, '_blank');
+//                     }
+//                 };
+
+//                 return (
+//                     <div
+//                         key={index}
+//                         className="relative w-20 h-20 border border-gray-300 rounded-lg overflow-hidden cursor-pointer flex items-center justify-center bg-white"
+//                         onClick={handleFileClick}
+//                     >
+//                         {fileExtension === 'jpg' || fileExtension === 'jpeg' || fileExtension === 'png' || fileExtension === 'gif' ? (
+//                             <img src={file} alt="Media" className="object-cover w-full h-full rounded-lg" />
+//                         ) : fileExtension === 'mp4' || fileExtension === 'webm' || fileExtension === 'ogg' ? (
+//                             <video src={file} className="object-cover w-full h-full rounded-lg" controls />
+//                         ) : (
+//                             <span className="text-sm text-gray-500 font-semibold">File</span>
+//                         )}
+//                     </div>
+//                 );
+//             })}
+//         </div>
+//     );
+// };
+
+//     const renderMedia = (files) => {
+//     if (!files || files.length === 0) return null;
+
+//     return (
+//         <div className="grid grid-cols-4 gap-2 mt-2">
+//             {files.map((file, index) => {
+//                 const fileExtension = file.split('.').pop().toLowerCase();
+
+//                 const handleFileClick = (e) => {
+//                     if (fileExtension === 'jpg' || fileExtension === 'png' || fileExtension === 'gif') {
+//                         e.preventDefault(); // Mencegah aksi default untuk gambar
+//                         setPopupFile(file); // Set gambar ke popup
+//                     } else {
+//                         window.open(file, '_blank'); // Buka file lain di tab baru
+//                     }
+//                 };
+
+//                 return (
+//                     <div
+//                         key={index}
+//                         className="relative w-20 h-20 border border-gray-300 rounded-lg overflow-hidden cursor-pointer flex items-center justify-center bg-white"
+//                         onClick={handleFileClick}
+//                     >
+//                         {fileExtension === 'jpg' || fileExtension === 'png' || fileExtension === 'gif' ? (
+//                             <img src={file} alt="Media" className="object-cover w-full h-full rounded-lg" />
+//                         ) : fileExtension === 'mp4' || fileExtension === 'webm' || fileExtension === 'ogg' ? (
+//                             <video src={file} className="object-cover w-full h-full rounded-lg" controls />
+//                         ) : fileExtension === 'pdf' ? (
+//                             <span className="text-sm text-red-500 font-semibold">PDF</span>
+//                         ) : fileExtension === 'doc' || fileExtension === 'docx' ? (
+//                             <span className="text-sm text-blue-500 font-semibold">DOC</span>
+//                         ) : (
+//                             <span className="text-sm text-gray-500 font-semibold">File</span>
+//                         )}
+//                     </div>
+//                 );
+//             })}
+//         </div>
+//     );
+// };
+
+//     const renderMedia = (files) => {
+//     if (!files || files.length === 0) return null;
+
+//     return (
+//         <div className="grid grid-cols-4 gap-2 mt-2">
+//             {files.map((file, index) => {
+//                 const fileExtension = file.split('.').pop().toLowerCase();
+
+//                 const handleFileClick = (e) => {
+//                     // Mencegah aksi default untuk gambar
+//                     if (fileExtension === 'jpg' || fileExtension === 'png' || fileExtension === 'gif') {
+//                         e.preventDefault(); // Mencegah default action (tab baru)
+//                         setPopupFile(file); // Set gambar ke popup
+//                     } else {
+//                         // Jika bukan gambar, buka file di tab baru
+//                         window.open(file, '_blank');
+//                     }
+//                 };
+
+//                 return (
+//                     <div
+//                         key={index}
+//                         className="relative w-20 h-20 border border-gray-300 rounded-lg overflow-hidden cursor-pointer flex items-center justify-center bg-white"
+//                         onClick={handleFileClick} // Gunakan handleFileClick
+//                     >
+//                         {fileExtension === 'jpg' || fileExtension === 'png' || fileExtension === 'gif' ? (
+//                             <img src={file} alt="Media" className="object-cover w-full h-full rounded-lg" />
+//                         ) : fileExtension === 'mp4' || fileExtension === 'webm' || fileExtension === 'ogg' ? (
+//                             <video src={file} className="object-cover w-full h-full rounded-lg" controls />
+//                         ) : fileExtension === 'pdf' ? (
+//                             <span className="text-sm text-red-500 font-semibold">PDF</span>
+//                         ) : fileExtension === 'doc' || fileExtension === 'docx' ? (
+//                             <span className="text-sm text-blue-500 font-semibold">DOC</span>
+//                         ) : (
+//                             <span className="text-sm text-gray-500 font-semibold">File</span>
+//                         )}
+//                     </div>
+//                 );
+//             })}
+//         </div>
+//     );
+// };
+
+
+
+    
+
+
+
+
+
 
     return (
-        <div className={`flex flex-col h-screen ${chatSettings.isNightMode ? 'bg-gray-900' : 'bg-gray-100'}`}>
-            <header className="flex-none p-4 bg-white border-b border-gray-300 text-center relative">
-                <h2 className="text-xl">{otherUser.name}</h2>
-                <p className="text-sm">{lastSeen ? 'Last seen: ' + lastSeen : 'Offline'}</p>
-                <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-gray-500 hover:text-gray-700">•••</button>
-                {isMenuOpen && (
-                    <div className="absolute right-0 mt-2 w-48 bg-white border rounded shadow-lg z-10">
-                        {/* Settings Menu */}
-                    </div>
-                )}
-            </header>
-            <main className="flex-1 overflow-y-auto p-4">
-                {messages.map((msg, index) => (
-                    <div key={index} className={`flex my-2 ${msg.sender === user.id ? 'justify-end' : 'justify-start'}`}>
-                        <div
-                            className="max-w-xs p-2 rounded-lg"
-                            style={{
-                                backgroundColor: msg.sender === user.id ? chatSettings.senderBubbleColor : chatSettings.receiverBubbleColor,
-                                color: msg.sender === user.id ? chatSettings.senderTextColor : chatSettings.receiverTextColor
-                            }}
-                        >
-                            <p>{msg.text}</p>
-                            {renderMedia(msg.files)}
-                        </div>
-                    </div>
-                ))}
-            </main>
-            <footer className="flex-none p-4 bg-white border-t border-gray-300">
-                <div className="flex items-center">
-                    <input
-                        type="text"
-                        value={messageText}
-                        onChange={(e) => setMessageText(e.target.value)}
-                        placeholder="Type a message"
-                        className="flex-1 border rounded-lg p-2"
-                    />
-                    <input type="file" multiple onChange={handleFileChange} className="ml-2" />
-                    <button onClick={sendMessage} className="ml-2 bg-blue-500 text-white rounded-lg p-2" disabled={uploading}>
-                        Send
-                    </button>
+        <div className="flex flex-col h-screen bg-gray-100">
+            <div className="flex-none p-4 bg-white border-b border-gray-300">
+                <div>
+                    <h2 className="text-xl text-center">{otherUser.name}</h2>
+                    <p className="text-sm text-center">{lastSeen ? 'Last seen: ' + lastSeen : 'Offline'}</p>
                 </div>
-            </footer>
+    
+                {/* Three Dots Menu */}
+                <div className="relative">
+                    <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-gray-500 hover:text-gray-700">
+                        •••
+                    </button>
+                    {isMenuOpen && (
+                        <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-300 rounded shadow-lg z-10">
+                            <button
+                                onClick={() => alert('Select Pesan')} // Replace with actual action
+                                className="block px-4 py-2 text-sm hover:bg-gray-100 w-full text-left"
+                            >
+                                Select Pesan
+                            </button>
+                            <button
+                                onClick={() => saveSettings({ bubbleColor: 'bg-blue-100', textColor: 'text-blue-900' })}
+                                className="block px-4 py-2 text-sm hover:bg-gray-100 w-full text-left"
+                            >
+                                Ubah Warna (Blue)
+                            </button>
+                            <button
+                                onClick={() => saveSettings({ bubbleColor: 'bg-green-100', textColor: 'text-green-900' })}
+                                className="block px-4 py-2 text-sm hover:bg-gray-100 w-full text-left"
+                            >
+                                Ubah Gelembung Chat (Green)
+                            </button>
+                            <button
+                                onClick={() => alert('Open Pengaturan Tampilan')}
+                                className="block px-4 py-2 text-sm hover:bg-gray-100 w-full text-left"
+                            >
+                                Pengaturan Tampilan
+                            </button>
+                        </div>
+                    )}
+                </div>
+                
+            </div>
+            <div className="flex-1 overflow-y-auto p-4">
+                {/* Display messages */}
+                {messages.map((msg, index) => (
+                    // Render only if there is text or media files
+                    (msg.text || (msg.files && msg.files.length > 0)) && (
+                        <div key={msg.id || msg.timestamp} className={`mb-2 ${msg.sender === user.id ? 'text-right' : 'text-left'}`}>
+                            <div className={`inline-block p-2 rounded-lg ${msg.sender === user.id ? 'bg-blue-500 text-white' : 'bg-gray-300'}`}>
+                                {/* Display text if available */}
+                                {msg.text && <div>{msg.text}</div>}
+                                
+                                {/* Display media if available */}
+                                {msg.files && renderMedia(msg.files)}
+                            </div>
+                            <div className="text-xs text-gray-500 flex justify-end items-center mt-1">
+                                {msg.timestamp && new Date(msg.timestamp).toLocaleDateString() + ' ' + new Date(msg.timestamp).toLocaleTimeString()}
+                                {msg.sender === user.id && (
+                                    <span className="ml-2">
+                                        {msg.read ? (
+                                            <span className="text-blue-500">✔✔</span>
+                                        ) : (
+                                            <span>✔</span>
+                                        )}
+                                    </span>
+                                )}
+                            </div>
+                        </div>
+                    )
+                ))}
+            </div>
+                
+            <div className="flex items-center p-4 border-t border-gray-300">
+                <input
+                    type="file"
+                    multiple
+                    accept="image/*,video/*"
+                    className="hidden"
+                    id="fileInput"
+                    onChange={handleFileChange}
+                />
+                <label htmlFor="fileInput" className="cursor-pointer">
+                    <span className="material-icons">file</span>
+                </label>
+                <div className="flex flex-wrap">
+                    {selectedFiles.map((file, index) => (
+                        <div key={index} className="relative mr-2 flex items-center">
+                            <span
+                                className="absolute top-0 right-0 cursor-pointer text-red-500"
+                                onClick={() => removeFile(index)}
+                            >
+                                &times;
+                            </span>
+                            {/* Display a thumbnail or video preview based on file type */}
+                            {file.type.startsWith("video") ? (
+                                <video
+                                    src={URL.createObjectURL(file)}
+                                    className="w-20 h-20 object-cover rounded-lg m-1"
+                                    controls
+                                />
+                            ) : (
+                                <img
+                                    src={URL.createObjectURL(file)}
+                                    alt="Selected file"
+                                    className="w-20 h-20 object-cover rounded-lg m-1"
+                                />
+                            )}
+                        </div>
+                    ))}
+                </div>
+
+                <input
+                    type="text"
+                    className="border rounded-lg p-2 flex-1 mx-2"
+                    placeholder="Type a message..."
+                    value={messageText}
+                    onChange={(e) => setMessageText(e.target.value)}
+                />
+                <button
+                    className="ml-2 p-2 bg-blue-500 text-white rounded-lg"
+                    onClick={sendMessage}
+                    disabled={uploading}
+                >
+                    {uploading ? "Sending..." : "Send"}
+                </button>
+            </div>
+        </div>
+    );
+};
+
+// Usage in the chat area
+const ChatMessage = ({ message, senderId }) => {
+    const [settings, setSettings] = useState({ bubbleColor: 'bg-gray-300', textColor: 'text-black' });
+
+    useEffect(() => {
+        const savedSettings = JSON.parse(localStorage.getItem(`chatSettings-${user.id}`));
+        if (savedSettings) {
+            setSettings(savedSettings);
+        }
+    }, [userId]);
+
+    return (
+        <div className={`p-2 rounded-lg ${senderId === user.id ? 'bg-blue-500 text-white' : settings.bubbleColor} ${settings.textColor}`}>
+            {message.text}
         </div>
     );
 };
 
 export default Chat;
 
+
+
 // "use client"; // Enable client-side rendering
 // import React, { useState, useEffect } from 'react';
-// import { database, storage } from '../config/firebase';
+// import { database, storage } from '../config/firebase'; // Ensure Firebase Storage is configured
 // import { ref as databaseRef, onValue, push, update } from 'firebase/database';
 // import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 // import 'tailwindcss/tailwind.css';
 
 // const Chat = ({ user }) => {
 //     const otherUser = user.id === 'user1' ? { id: 'user2', name: 'User 2' } : { id: 'user1', name: 'User 1' };
+
 //     const [messages, setMessages] = useState([]);
 //     const [messageText, setMessageText] = useState('');
 //     const [selectedFiles, setSelectedFiles] = useState([]);
 //     const [uploading, setUploading] = useState(false);
-//     const [lastSeen, setLastSeen] = useState('Offline');
-//     const [isMenuOpen, setIsMenuOpen] = useState(false);
-//     const [isColorMenuOpen, setIsColorMenuOpen] = useState(false);
-//     const [isSenderSettingsOpen, setIsSenderSettingsOpen] = useState(false);
-//     const [isReceiverSettingsOpen, setIsReceiverSettingsOpen] = useState(false);
-//     const [chatSettings, setChatSettings] = useState({
-//         senderBubbleColor: '#3B82F6',
-//         receiverBubbleColor: '#E5E7EB',
-//         senderTextColor: '#FFFFFF',
-//         receiverTextColor: '#000000',
-//         isNightMode: false,
-//     });
+//     const [lastSeen, setLastSeen] = useState(''); // Last seen timestamp
+//     const [dropdownOpen, setDropdownOpen] = useState(null);
 
 //     useEffect(() => {
-//         const savedSettings = JSON.parse(localStorage.getItem(chatSettings-${user.id}));
-//         if (savedSettings) {
-//             setChatSettings(savedSettings);
-//         }
-//     }, [user.id]);
-
-//     const saveSettings = (newSettings) => {
-//         const settings = { ...chatSettings, ...newSettings };
-//         setChatSettings(settings);
-//         localStorage.setItem(chatSettings-${user.id}, JSON.stringify(settings));
-//     };
-
-//     useEffect(() => {
-//         const messagesRef = databaseRef(database, messagesA/${user.id}/${otherUser.id});
+//         const messagesRef = databaseRef(database, `messagesA/${user.id}/${otherUser.id}`);
 //         onValue(messagesRef, (snapshot) => {
 //             const data = snapshot.val();
-//             setMessages(data ? Object.values(data) : []);
-
-//             data && Object.values(data).forEach((msg) => {
+//             const loadedMessages = data ? Object.values(data) : [];
+//             setMessages(loadedMessages);
+//             loadedMessages.forEach((msg) => {
 //                 if (!msg.read && msg.sender !== user.id) {
-//                     update(databaseRef(database, messagesA/${user.id}/${otherUser.id}/${msg.id}), { read: true });
-//                     update(databaseRef(database, messagesA/${otherUser.id}/${user.id}/${msg.id}), { read: true });
+//                     update(databaseRef(database, `messagesA/${user.id}/${otherUser.id}/${msg.id}`), { read: true });
+//                     update(databaseRef(database, `messagesA/${otherUser.id}/${user.id}/${msg.id}`), { read: true });
 //                 }
 //             });
 //         });
-
-//         const userStatusRef = databaseRef(database, lastSeenA/${otherUser.id});
+//         const userStatusRef = databaseRef(database, `lastSeenA/${otherUser.id}`);
 //         onValue(userStatusRef, (snapshot) => {
-//             const timestamp = snapshot.val()?.timestamp || null;
-//             if (timestamp) {
-//                 const date = new Date(Number(timestamp));
-//                 setLastSeen(date.toLocaleString() || 'Offline');
+//             const status = snapshot.val();
+//             const timestamp = status?.timestamp ? Number(status.timestamp) : null;
+//             if (timestamp && timestamp.toString().length === 13) {
+//                 const date = new Date(timestamp);
+//                 setLastSeen(
+//                     !isNaN(date.getTime()) ? `${date.toLocaleDateString()} ${date.toLocaleTimeString()}` : 'Offline'
+//                 );
+//             } else {
+//                 setLastSeen('Offline');
 //             }
 //         });
-
-//         update(databaseRef(database, lastSeenA/${user.id}), { timestamp: Date.now() });
+//         const lastSeenRef = databaseRef(database, `lastSeenA/${user.id}`);
+//         update(lastSeenRef, { timestamp: Date.now() });
 
 //         return () => {
-//             update(databaseRef(database, lastSeenA/${user.id}), { timestamp: null });
+//             update(lastSeenRef, { timestamp: null });
 //         };
 //     }, [user.id, otherUser.id]);
+
+//     const toggleDropdown = (index) => {
+//         setDropdownOpen(dropdownOpen === index ? null : index);
+//     };
 
 //     const handleFileChange = (event) => {
 //         const files = Array.from(event.target.files);
@@ -238,7 +857,7 @@ export default Chat;
 //     const sendMessage = async () => {
 //         if (messageText.trim() === "" && selectedFiles.length === 0) return;
 
-//         const messagesRef = databaseRef(database, messagesA/${user.id}/${otherUser.id});
+//         const messagesRef = databaseRef(database, `messagesA/${user.id}/${otherUser.id}`);
 //         const newMessage = {
 //             text: messageText,
 //             sender: user.id,
@@ -249,7 +868,7 @@ export default Chat;
 
 //         setUploading(true);
 //         const uploadedFiles = await Promise.all(selectedFiles.map(async (file) => {
-//             const fileRef = storageRef(storage, chatFilesA/${file.name});
+//             const fileRef = storageRef(storage, `chatFilesA/${file.name}`);
 //             await uploadBytes(fileRef, file);
 //             return getDownloadURL(fileRef);
 //         }));
@@ -258,1118 +877,115 @@ export default Chat;
 //         const newMsgRef = await push(messagesRef, newMessage);
 //         setMessageText('');
 //         setSelectedFiles([]);
+//         const recipientRef = databaseRef(database, `messagesA/${otherUser.id}/${user.id}`);
+//         await push(recipientRef, { ...newMessage, id: newMsgRef.key });
 //         setUploading(false);
-
-//         await push(databaseRef(database, messagesA/${otherUser.id}/${user.id}), { ...newMessage, id: newMsgRef.key });
-//         update(databaseRef(database, lastSeenA/${user.id}), { timestamp: Date.now() });
-//     };
-
-//     const renderMedia = (files) => {
-//         return files && files.length > 0 ? (
-//             <div className="grid grid-cols-4 gap-2 mt-2">
-//                 {files.map((file, index) => (
-//                     <a key={index} href={file} target="_blank" rel="noopener noreferrer" className="w-20 h-20 border rounded-lg overflow-hidden bg-white">
-//                         {file.endsWith('.jpg') || file.endsWith('.png') || file.endsWith('.gif') ? (
-//                             <img src={file} alt="Media" className="object-cover h-full w-full" />
-//                         ) : (
-//                             <span className="text-sm text-gray-600">File</span>
-//                         )}
-//                     </a>
-//                 ))}
-//             </div>
-//         ) : null;
+//         const lastSeenRef = databaseRef(database, `lastSeenA/${user.id}`);
+//         update(lastSeenRef, { timestamp: Date.now() });
 //     };
 
 //     return (
-//         <div className={flex flex-col h-screen ${chatSettings.isNightMode ? 'bg-gray-900' : 'bg-gray-100'}}>
-//             <header className="flex-none p-4 bg-white border-b border-gray-300 text-center relative">
-//                 <h2 className="text-xl">{otherUser.name}</h2>
-//                 <p className="text-sm">{lastSeen ? 'Last seen: ' + lastSeen : 'Offline'}</p>
-//                 <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-gray-500 hover:text-gray-700">
-//                     •••
-//                 </button>
-//                 {isMenuOpen && (
-//                     <div className="absolute right-0 mt-2 w-48 bg-white border rounded shadow-lg z-10">
-//                         <div className="p-2">
-//                             <button onClick={() => setIsColorMenuOpen(!isColorMenuOpen)} className="block text-left w-full">
-//                                 Colors
-//                             </button>
-//                             {isColorMenuOpen && (
-//                                 <div className="mt-2 bg-gray-100 p-2 rounded">
-//                                     <button onClick={() => setIsSenderSettingsOpen(!isSenderSettingsOpen)} className="block text-left w-full">Sender</button>
-//                                     {isSenderSettingsOpen && (
-//                                         <div className="mt-2">
-//                                             <label className="block text-sm">Sender Bubble Color:</label>
-//                                             <input
-//                                                 type="color"
-//                                                 value={chatSettings.senderBubbleColor}
-//                                                 onChange={(e) => saveSettings({ senderBubbleColor: e.target.value })}
-//                                                 className="w-full h-8 p-0 border-none"
-//                                             />
-//                                             <label className="block text-sm">Sender Text Color:</label>
-//                                             <input
-//                                                 type="color"
-//                                                 value={chatSettings.senderTextColor}
-//                                                 onChange={(e) => saveSettings({ senderTextColor: e.target.value })}
-//                                                 className="w-full h-8 p-0 border-none"
-//                                             />
-//                                         </div>
-//                                     )}
-//                                     <button onClick={() => setIsReceiverSettingsOpen(!isReceiverSettingsOpen)} className="block text-left w-full mt-2">Receiver</button>
-//                                     {isReceiverSettingsOpen && (
-//                                         <div className="mt-2">
-//                                             <label className="block text-sm">Receiver Bubble Color:</label>
-//                                             <input
-//                                                 type="color"
-//                                                 value={chatSettings.receiverBubbleColor}
-//                                                 onChange={(e) => saveSettings({ receiverBubbleColor: e.target.value })}
-//                                                 className="w-full h-8 p-0 border-none"
-//                                             />
-//                                             <label className="block text-sm">Receiver Text Color:</label>
-//                                             <input
-//                                                 type="color"
-//                                                 value={chatSettings.receiverTextColor}
-//                                                 onChange={(e) => saveSettings({ receiverTextColor: e.target.value })}
-//                                                 className="w-full h-8 p-0 border-none"
-//                                             />
-//                                         </div>
-//                                     )}
-//                                 </div>
+//         <div className="flex flex-col h-screen bg-gray-100">
+//             <div className="flex-none p-4 bg-white border-b border-gray-300">
+//                 <h2 className="text-xl text-center">{otherUser.name}</h2>
+//                 <p className="text-sm text-center">{lastSeen ? 'Last seen: ' + lastSeen : 'Offline'}</p>
+//             </div>
+//             <div className="flex-1 overflow-y-auto p-4">
+//               {messages.map((msg, index) => {
+//                 const showDateHeader =
+//                   index === 0 || new Date(msg.timestamp).toDateString() !== new Date(messages[index - 1].timestamp).toDateString();
+        
+//                 return (
+//                   <React.Fragment key={msg.id || msg.timestamp}>
+//                     {showDateHeader && (
+//                       <div className="text-center text-gray-500 my-4">
+//                         {new Date(msg.timestamp).toLocaleDateString()}
+//                       </div>
+//                     )}
+        
+//                     <div
+//                       className={`flex items-start gap-2.5 mb-4 ${
+//                         msg.sender === 'user1' ? 'flex-row-reverse' : ''
+//                       }`}
+//                     >
+                     
+//                       <div
+//                         className={`flex flex-col w-full max-w-[326px] p-4 ${
+//                           msg.sender === 'user1'
+//                             ? 'bg-blue-100 rounded-s-xl'
+//                             : 'bg-gray-100 rounded-e-xl'
+//                         } border border-gray-200`}
+//                       >
+//                         <div className="flex items-center justify-between mb-2">
+//                           <span className="text-sm font-semibold text-gray-900">
+//                             {msg.senderName}
+//                           </span>
+//                           <span className="text-sm font-normal text-gray-500">
+//                             {new Date(msg.timestamp).toLocaleTimeString()}
+//                           </span>
+//                         </div>
+//                         <p className="text-sm font-normal text-gray-900 mb-2">{msg.text}</p>
+//                         {msg.files && msg.files.length > 0 && (
+//                           <div className="grid grid-cols-2 gap-4 my-2.5">
+//                             {msg.files.slice(0, 3).map((file, i) => (
+//                               <div key={i} className="group relative">
+//                                 <img src={file} className="rounded-lg" alt={`file-${i}`} />
+//                               </div>
+//                             ))}
+//                             {msg.files.length > 3 && (
+//                               <div className="group relative">
+//                                 <button className="absolute w-full h-full bg-gray-900/90 text-white rounded-lg flex items-center justify-center">
+//                                   +{msg.files.length - 3}
+//                                 </button>
+//                                 <img src={msg.files[0]} className="rounded-lg" alt="Additional files" />
+//                               </div>
 //                             )}
+//                           </div>
+//                         )}
+//                         <div className="flex justify-between items-center">
+//                           <span className="text-sm font-normal text-gray-500">
+//                             {msg.read ? '✔✔' : '✔'}
+//                           </span>
 //                         </div>
-//                         <div className="flex items-center justify-between p-2">
-//                             <span className="text-sm">Day/Night Mode</span>
-//                             <button
-//                                 onClick={() => saveSettings({ isNightMode: !chatSettings.isNightMode })}
-//                                 className={flex items-center ${chatSettings.isNightMode ? 'bg-gray-800' : 'bg-gray-300'} w-16 h-8 rounded-full relative}
-//                             >
-//                                 <span className={absolute w-8 h-8 bg-white rounded-full transition-transform ${chatSettings.isNightMode ? 'transform translate-x-8' : ''}} />
-//                                 <span className={text-gray-700 ${chatSettings.isNightMode ? 'hidden' : 'block'}}>☀️</span>
-//                                 <span className={text-gray-700 ${chatSettings.isNightMode ? 'block' : 'hidden'}}>🌙</span>
-//                             </button>
-//                         </div>
-//                     </div>
-//                 )}
-//             </header>
-//             <main className="flex-1 overflow-y-auto p-4">
-//                 {messages.map((msg, index) => (
-//                     <div key={index} className={flex my-2 ${msg.sender === user.id ? 'justify-end' : 'justify-start'}}>
-//                         <div
-//                             className={max-w-xs p-2 rounded-lg ${msg.sender === user.id ? chatSettings.senderBubbleColor : chatSettings.receiverBubbleColor}}
+//                       </div>
+//                       <button
+//                         id={`dropdownMenuIconButton-${index}`}
+//                         className="inline-flex self-center items-center p-2 text-sm font-medium text-gray-900 bg-white rounded-lg hover:bg-gray-100"
+//                         type="button"
+//                       >
+//                         <svg
+//                           className="w-4 h-4 text-gray-500"
+//                           xmlns="http://www.w3.org/2000/svg"
+//                           fill="currentColor"
+//                           viewBox="0 0 4 15"
 //                         >
-//                             <p style={{ color: msg.sender === user.id ? chatSettings.senderTextColor : chatSettings.receiverTextColor }}>
-//                                 {msg.text}
-//                             </p>
-//                             {renderMedia(msg.files)}
-//                         </div>
+//                           <path d="M3.5 1.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm0 6.041a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm0 5.959a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Z" />
+//                         </svg>
+//                       </button>
 //                     </div>
-//                 ))}
-//             </main>
-//             <footer className="flex-none p-4 bg-white border-t border-gray-300">
-//                 <div className="flex items-center">
-//                     <input
-//                         type="text"
-//                         value={messageText}
-//                         onChange={(e) => setMessageText(e.target.value)}
-//                         placeholder="Type a message"
-//                         className="flex-1 border rounded-lg p-2"
-//                     />
-//                     <input type="file" multiple onChange={handleFileChange} className="ml-2" />
-//                     <button onClick={sendMessage} className="ml-2 bg-blue-500 text-white rounded-lg p-2" disabled={uploading}>
-//                         Send
-//                     </button>
-//                 </div>
-//             </footer>
+//                   </React.Fragment>
+//                 );
+//               })}
+//             </div>
+//             <div className="flex items-center p-4 border-t border-gray-300">
+//                 <input
+//                     type="file"
+//                     multiple
+//                     accept="image/*,video/*"
+//                     className="hidden"
+//                     id="fileInput"
+//                     onChange={handleFileChange}
+//                 />
+//                 <label htmlFor="fileInput" className="cursor-pointer">
+//                     {/* Add your button or icon here for file input */}
+//                 </label>
+//                 {/* Add message input and send button here */}
+//             </div>
 //         </div>
 //     );
 // };
 
 // export default Chat;
-// // "use client"; // Enable client-side rendering
-// // import React, { useState, useEffect } from 'react';
-// // import { database, storage } from '../config/firebase'; // Pastikan Firebase Storage sudah dikonfigurasi
-// // import { ref as databaseRef, onValue, push, update } from 'firebase/database';
-// // import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
-// // import 'tailwindcss/tailwind.css';
-
-// // const Chat = ({ user }) => {
-// //     const otherUser = user.id === 'user1' ? { id: 'user2', name: 'User 2' } : { id: 'user1', name: 'User 1' };
-
-// //     const [messages, setMessages] = useState([]);
-// //     const [messageText, setMessageText] = useState('');
-// //     const [selectedFiles, setSelectedFiles] = useState([]);
-// //     const [uploading, setUploading] = useState(false);
-// //     const [otherUserStatus, setOtherUserStatus] = useState(''); // Online status or last seen
-// //     const [lastSeen, setLastSeen] = useState(''); // Last seen timestamp
-// //     const [popupFile, setPopupFile] = useState(null);
-    
-// //     const [isMenuOpen, setIsMenuOpen] = useState(false);
-// //     const [chatBubbleColor, setChatBubbleColor] = useState('bg-gray-300');
-// //     const [chatTextColor, setChatTextColor] = useState('text-black');
-
-// //     // Load settings from localStorage (or fetch from server if available)
-// //     useEffect(() => {
-// //         const savedSettings = JSON.parse(localStorage.getItem(`chatSettings-${user.id}`));
-// //         if (savedSettings) {
-// //             setChatBubbleColor(savedSettings.bubbleColor);
-// //             setChatTextColor(savedSettings.textColor);
-// //         }
-// //     }, [user.id]);
-
-// //     // Save settings to localStorage when updated
-// //     const saveSettings = (newSettings) => {
-// //         const settings = {
-// //             bubbleColor: newSettings.bubbleColor || chatBubbleColor,
-// //             textColor: newSettings.textColor || chatTextColor,
-// //         };
-// //         setChatBubbleColor(settings.bubbleColor);
-// //         setChatTextColor(settings.textColor);
-// //         localStorage.setItem(`chatSettings-${user.id}`, JSON.stringify(settings));
-// //     };
-    
-    
-// //     useEffect(() => {
-// //         const messagesRef = databaseRef(database, `messagesA/${user.id}/${otherUser.id}`);
-// //         onValue(messagesRef, (snapshot) => {
-// //             const data = snapshot.val();
-// //             const loadedMessages = data ? Object.values(data) : [];
-// //             setMessages(loadedMessages);
-    
-// //             // Mark all messages as read when the user views the chat
-// //             loadedMessages.forEach((msg) => {
-// //                 if (!msg.read && msg.sender !== user.id) {
-// //                     update(databaseRef(database, `messagesA/${user.id}/${otherUser.id}/${msg.id}`), { read: true });
-// //                     update(databaseRef(database, `messagesA/${otherUser.id}/${user.id}/${msg.id}`), { read: true });
-// //                 }
-// //             });
-// //         });
-// //         const userStatusRef = databaseRef(database, `lastSeenA/${otherUser.id}`);
-        
-// //         onValue(userStatusRef, (snapshot) => {
-// //             const status = snapshot.val();
-// //             const timestamp = status && status.timestamp ? Number(status.timestamp) : null;
-    
-// //             if (timestamp && timestamp.toString().length === 13) {  // Check if in milliseconds
-// //                 const date = new Date(timestamp);
-// //                 setLastSeen(
-// //                     !isNaN(date.getTime())
-// //                         ? `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`
-// //                         : 'Offline'
-// //                 );
-// //             } else {
-// //                 console.error("Timestamp is invalid or missing:", timestamp);
-// //                 setLastSeen('Offline');
-// //             }
-// //         });
-    
-// //         // Update last seen when user is active
-// //         const lastSeenRef = databaseRef(database, `lastSeenA/${user.id}`);
-// //         update(lastSeenRef, { timestamp: Date.now() });
-    
-// //         return () => {
-// //             // Cleanup: Remove last seen status when component unmounts
-// //             update(lastSeenRef, { timestamp: null });
-// //         };
-// //     }, [user.id, otherUser.id]);
-
-// //     const [dropdownOpen, setDropdownOpen] = useState(null);
-
-// //     const toggleDropdown = (index) => {
-// //         setDropdownOpen(dropdownOpen === index ? null : index);
-// //     };
-    
-// //     const isDropdownOpen = (index) => dropdownOpen === index;
-
-
-// //     // Handle file selection
-// //     const handleFileChange = (event) => {
-// //         const files = Array.from(event.target.files);
-// //         setSelectedFiles((prevFiles) => [...prevFiles, ...files]);
-// //     };
-
-// //     // Remove a selected file
-// //     const removeFile = (index) => {
-// //         setSelectedFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
-// //     };
-
-// //     // Function to send a new message with media support
-// //     const sendMessage = async () => {
-// //         if (messageText.trim() === "" && selectedFiles.length === 0) return; // Prevent sending empty messages
-
-// //         const messagesRef = databaseRef(database, `messagesA/${user.id}/${otherUser.id}`);
-// //         const newMessage = {
-// //             text: messageText,
-// //             sender: user.id,
-// //             timestamp: Date.now(),
-// //             read: false,
-// //             files: [],
-// //         };
-
-// //         setUploading(true);
-
-// //         // Upload selected files (images and videos) to Firebase Storage
-// //         const uploadedFiles = await Promise.all(selectedFiles.map(async (file) => {
-// //             const fileRef = storageRef(storage, `chatFilesA/${file.name}`);
-// //             await uploadBytes(fileRef, file);
-// //             return getDownloadURL(fileRef);
-// //         }));
-
-// //         // Update newMessage with uploaded file URLs
-// //         newMessage.files = uploadedFiles;
-
-// //         // Push message to Firebase Database
-// //         const newMsgRef = await push(messagesRef, newMessage);
-// //         setMessageText(''); // Clear input after sending
-// //         setSelectedFiles([]); // Clear selected files
-
-// //         // Update the recipient's message status
-// //         const recipientRef = databaseRef(database, `messagesA/${otherUser.id}/${user.id}`);
-// //         await push(recipientRef, { ...newMessage, id: newMsgRef.key });
-
-// //         setUploading(false);
-
-// //         // Update last seen when a message is sent
-// //         const lastSeenRef = databaseRef(database, `lastSeenA/${user.id}`);
-// //         update(lastSeenRef, { timestamp: Date.now() });
-// //     };
-
-// //     // const renderMedia = (files) => {
-// //     //     if (!files || files.length === 0) return null;
-
-// //     //     return (
-// //     //         <div className="grid grid-cols-4 gap-2 mt-2">
-// //     //             {files.map((file, index) => (
-// //     //                 <a
-// //     //                     key={index}
-// //     //                     href={file}
-// //     //                     target="_blank"
-// //     //                     rel="noopener noreferrer"
-// //     //                     // className="w-20 h-20 flex items-center justify-center border border-gray-300 rounded-lg m-1"
-// //     //                     className="relative w-20 h-20 border border-gray-300 rounded-lg overflow-hidden cursor-pointer"
-                        
-// //     //                 >
-// //     //                     {file.endsWith('.jpg') || file.endsWith('.png') || file.endsWith('.gif') ? (
-// //     //                         <img src={file} alt="Media" className="object-cover h-full w-full rounded-lg" />
-// //     //                     ) : (
-// //     //                         // <span className="text-sm">File</span>
-// //     //                         <span className="text-sm flex items-center justify-center h-full">File</span>
-// //     //                     )}
-// //     //                 </a>
-// //     //             ))}
-// //     //         </div>
-// //     //     );
-// //     // };
-// //     const renderMedia = (files) => {
-// //     if (!files || files.length === 0) return null;
-
-// //     return (
-// //         <div className="grid grid-cols-4 gap-2 mt-2">
-// //             {files.map((file, index) => (
-// //                 <a
-// //                     key={index}
-// //                     href={file}
-// //                     target="_blank"
-// //                     rel="noopener noreferrer"
-// //                     className="relative w-20 h-20 border border-gray-300 rounded-lg overflow-hidden cursor-pointer flex items-center justify-center bg-white"
-// //                 >
-// //                     {file.endsWith('.jpg') || file.endsWith('.png') || file.endsWith('.gif') ? (
-// //                         <img src={file} alt="Media" className="object-cover h-full w-full rounded-lg" />
-// //                     ) : (
-// //                         <span className="text-sm flex items-center justify-center h-full text-gray-600">File</span>
-// //                     )}
-// //                 </a>
-// //             ))}
-// //         </div>
-// //     );
-// // };
-// //     //  const renderMedia = (files) => {
-// //     //     if (!files || files.length === 0) return null;
-
-// //     //     return (
-// //     //         <div className="grid grid-cols-4 gap-2 mt-2">
-// //     //             {files.map((file, index) => (
-// //     //                 <div
-// //     //                     key={index}
-// //     //                     className="relative w-20 h-20 border border-gray-300 rounded-lg overflow-hidden cursor-pointer"
-// //     //                     onClick={() => setPopupFile(file)}
-// //     //                 >
-// //     //                     {file.endsWith('.jpg') || file.endsWith('.png') || file.endsWith('.gif') ? (
-// //     //                         <img src={file} alt="Media" className="object-cover w-full h-full" />
-// //     //                     ) : (
-// //     //                         <span className="text-sm flex items-center justify-center h-full">File</span>
-// //     //                     )}
-// //     //                 </div>
-// //     //             ))}
-// //     //         </div>
-// //     //     );
-// //     // };
-// //     //  const renderMedia = (files) => {
-// //     //     if (!files || files.length === 0) return null;
-
-// //     //     return (
-// //     //         <div className="grid grid-cols-4 gap-2 mt-2">
-// //     //             {files.map((file, index) => (
-// //     //                 <div
-// //     //                     key={index}
-// //     //                     className="relative w-20 h-20 border border-gray-300 rounded-lg overflow-hidden cursor-pointer"
-// //     //                     onClick={() => setPopupFile(file)}
-// //     //                 >
-// //     //                     {file.endsWith('.jpg') || file.endsWith('.png') || file.endsWith('.gif') ? (
-// //     //                         <img src={file} alt="Media" className="object-cover w-full h-full" />
-// //     //                     ) : (
-// //     //                         <span className="text-sm flex items-center justify-center h-full">File</span>
-// //     //                     )}
-// //     //                 </div>
-// //     //             ))}
-// //     //         </div>
-// //     //     );
-// //     // };
-// //     // const renderMedia = (files) => {
-// //     //     if (!files || files.length === 0) return null;
-
-// //     //     return (
-// //     //         <div className="grid grid-cols-4 gap-2 mt-2">
-// //     //             {files.map((file, index) => (
-// //     //                 <div
-// //     //                     key={index}
-// //     //                     className="relative w-20 h-20 border border-gray-300 rounded-lg overflow-hidden cursor-pointer"
-// //     //                     onClick={() => setPopupFile(file)}
-// //     //                 >
-// //     //                     {file.endsWith('.jpg') || file.endsWith('.png') || file.endsWith('.gif') ? (
-// //     //                         <img src={file} alt="Media" className="object-cover w-full h-full rounded-lg" />
-// //     //                     ) : (
-// //     //                         <span className="text-sm flex items-center justify-center h-full">File</span>
-// //     //                     )}
-// //     //                 </div>
-// //     //             ))}
-// //     //         </div>
-// //     //     );
-// //     // };
-
-// //     // Function to render media with border and popup trigger
-// //     // const renderMedia = (files) => {
-// //     //     if (!files || files.length === 0) return null;
-
-// //     //     return (
-// //     //         <div className="grid grid-cols-4 gap-2 mt-2">
-// //     //             {files.map((file, index) => (
-// //     //                 <div
-// //     //                     key={index}
-// //     //                     className="relative w-20 h-20 border border-gray-300 rounded-lg overflow-hidden cursor-pointer"
-// //     //                     onClick={() => setPopupFile(file)}
-// //     //                 >
-// //     //                     {file.endsWith('.jpg') || file.endsWith('.png') || file.endsWith('.gif') ? (
-// //     //                         <img src={file} alt="Media" className="object-cover w-full h-full rounded-lg" />
-// //     //                     ) : (
-// //     //                         <span className="text-sm flex items-center justify-center h-full">File</span>
-// //     //                     )}
-// //     //                 </div>
-// //     //             ))}
-// //     //         </div>
-// //     //     );
-// //     // };
-// // //     const renderMedia = (files) => {
-// // //     if (!files || files.length === 0) return null;
-
-// // //     return (
-// // //         <div className="grid grid-cols-4 gap-2 mt-2">
-// // //             {files.map((file, index) => {
-// // //                 const fileExtension = file.split('.').pop().toLowerCase();
-
-// // //                 return (
-// // //                     <div
-// // //                         key={index}
-// // //                         className="relative w-20 h-20 border border-gray-300 rounded-lg overflow-hidden cursor-pointer flex items-center justify-center bg-white"
-// // //                         onClick={() => setPopupFile(file)}
-// // //                     >
-// // //                         {fileExtension === 'jpg' || fileExtension === 'png' || fileExtension === 'gif' ? (
-// // //                             <img src={file} alt="Media" className="object-cover w-full h-full rounded-lg" />
-// // //                         ) : fileExtension === 'mp4' || fileExtension === 'webm' || fileExtension === 'ogg' ? (
-// // //                             <video src={file} className="object-cover w-full h-full rounded-lg" controls />
-// // //                         ) : fileExtension === 'pdf' ? (
-// // //                             <span className="text-sm text-red-500 font-semibold">PDF</span>
-// // //                         ) : fileExtension === 'doc' || fileExtension === 'docx' ? (
-// // //                             <span className="text-sm text-blue-500 font-semibold">DOC</span>
-// // //                         ) : (
-// // //                             <span className="text-sm text-gray-500 font-semibold">File</span>
-// // //                         )}
-// // //                     </div>
-// // //                 );
-// // //             })}
-// // //         </div>
-// // //     );
-// // // };
-
-// // //     const renderMedia = (files) => {
-// // //     if (!files || files.length === 0) return null;
-
-// // //     return (
-// // //         <div className="grid grid-cols-4 gap-2 mt-2">
-// // //             {files.map((file, index) => {
-// // //                 const fileExtension = file.split('.').pop().toLowerCase();
-
-// // //                 return (
-// // //                     <div
-// // //                         key={index}
-// // //                         className="relative w-20 h-20 border border-gray-300 rounded-lg overflow-hidden cursor-pointer flex items-center justify-center bg-white"
-// // //                         onClick={() => setPopupFile(file)} // Set popup file on click
-// // //                     >
-// // //                         {fileExtension === 'jpg' || fileExtension === 'png' || fileExtension === 'gif' ? (
-// // //                             <img src={file} alt="Media" className="object-cover w-full h-full rounded-lg" />
-// // //                         ) else if (fileExtension === 'mp4' || fileExtension === 'webm' || fileExtension === 'ogg') ? (
-// // //                             <video src={file} className="object-cover w-full h-full rounded-lg" controls />
-// // //                         ) else if (fileExtension === 'pdf') ? (
-// // //                             <span className="text-sm text-red-500 font-semibold">PDF</span>
-// // //                         ) else if (fileExtension === 'doc' || fileExtension === 'docx') ? (
-// // //                             <span className="text-sm text-blue-500 font-semibold">DOC</span>
-// // //                         ) else {
-// // //                             <span className="text-sm text-gray-500 font-semibold">File</span>
-// // //                         }
-// // //                     </div>
-// // //                 );
-// // //             })}
-// // //         </div>
-// // //     );
-// // // };
-
-// // //     const renderMedia = (files) => {
-// // //     if (!files || files.length === 0) return null;
-
-// // //     return (
-// // //         <div className="grid grid-cols-4 gap-2 mt-2">
-// // //             {files.map((file, index) => {
-// // //                 const fileExtension = file.split('.').pop().toLowerCase();
-
-// // //                 return (
-// // //                     <div
-// // //                         key={index}
-// // //                         className="relative w-20 h-20 border border-gray-300 rounded-lg overflow-hidden cursor-pointer flex items-center justify-center bg-white"
-// // //                         onClick={() => setPopupFile(file)}
-// // //                     >
-// // //                         {fileExtension === 'jpg' || fileExtension === 'png' || fileExtension === 'gif' ? (
-// // //                             <img src={file} alt="Media" className="object-cover w-full h-full rounded-lg" />
-// // //                         ) : fileExtension === 'mp4' || fileExtension === 'webm' || fileExtension === 'ogg' ? (
-// // //                             <video src={file} className="object-cover w-full h-full rounded-lg" controls />
-// // //                         ) : fileExtension === 'pdf' ? (
-// // //                             <span className="text-sm text-red-500 font-semibold">PDF</span>
-// // //                         ) : fileExtension === 'doc' || fileExtension === 'docx' ? (
-// // //                             <span className="text-sm text-blue-500 font-semibold">DOC</span>
-// // //                         ) : (
-// // //                             <span className="text-sm text-gray-500 font-semibold">File</span>
-// // //                         )}
-// // //                     </div>
-// // //                 );
-// // //             })}
-// // //         </div>
-// // //     );
-// // // };
-
-// // //     const renderMedia = (files) => {
-// // //     if (!files || files.length === 0) return null;
-
-// // //     return (
-// // //         <div className="grid grid-cols-4 gap-2 mt-2">
-// // //             {files.map((file, index) => {
-// // //                 const fileExtension = file.split('.').pop().toLowerCase();
-
-// // //                 return (
-// // //                     <div
-// // //                         key={index}
-// // //                         className="relative w-20 h-20 border border-gray-300 rounded-lg overflow-hidden cursor-pointer flex items-center justify-center bg-white"
-// // //                         onClick={() => setPopupFile(file)}
-// // //                     >
-// // //                         {fileExtension === 'jpg' || fileExtension === 'jpeg' || fileExtension === 'png' || fileExtension === 'gif' ? (
-// // //                             <img src={file} alt="Media" className="object-cover w-full h-full rounded-lg" />
-// // //                         ) : fileExtension === 'mp4' || fileExtension === 'webm' || fileExtension === 'ogg' ? (
-// // //                             <video src={file} className="object-cover w-full h-full rounded-lg" controls />
-// // //                         ) : fileExtension === 'pdf' ? (
-// // //                             <span className="text-sm text-red-500 font-semibold">PDF</span>
-// // //                         ) : fileExtension === 'doc' || fileExtension === 'docx' ? (
-// // //                             <span className="text-sm text-blue-500 font-semibold">DOC</span>
-// // //                         ) : (
-// // //                             <span className="text-sm text-gray-500 font-semibold">File</span>
-// // //                         )}
-// // //                     </div>
-// // //                 );
-// // //             })}
-// // //         </div>
-// // //     );
-// // // };
-// // //     const renderMedia = (files) => {
-// // //     if (!files || files.length === 0) return null;
-
-// // //     return (
-// // //         <div className="grid grid-cols-4 gap-2 mt-2">
-// // //             {files.map((file, index) => {
-// // //                 const fileExtension = file.split('.').pop().toLowerCase();
-
-// // //                 const handleFileClick = (e) => {
-// // //                     if (fileExtension === 'jpg' || fileExtension === 'jpeg' || fileExtension === 'png' || fileExtension === 'gif' || 
-// // //                         fileExtension === 'mp4' || fileExtension === 'webm' || fileExtension === 'ogg') {
-// // //                         e.stopPropagation(); // Prevents the click from bubbling up
-// // //                         setPopupFile(file);
-// // //                     } else {
-// // //                         window.open(file, '_blank'); // Opens non-image/video files in a new tab
-// // //                     }
-// // //                 };
-
-// // //                 return (
-// // //                     <div
-// // //                         key={index}
-// // //                         className="relative w-20 h-20 border border-gray-300 rounded-lg overflow-hidden cursor-pointer flex items-center justify-center bg-white"
-// // //                         onClick={handleFileClick}
-// // //                     >
-// // //                         {fileExtension === 'jpg' || fileExtension === 'jpeg' || fileExtension === 'png' || fileExtension === 'gif' ? (
-// // //                             <img src={file} alt="Media" className="object-cover w-full h-full rounded-lg" />
-// // //                         ) : fileExtension === 'mp4' || fileExtension === 'webm' || fileExtension === 'ogg' ? (
-// // //                             <video src={file} className="object-cover w-full h-full rounded-lg" controls />
-// // //                         ) : (
-// // //                             <span className="text-sm text-gray-500 font-semibold">File</span>
-// // //                         )}
-// // //                     </div>
-// // //                 );
-// // //             })}
-// // //         </div>
-// // //     );
-// // // };
-// // //     const renderMedia = (files) => {
-// // //     if (!files || files.length === 0) return null;
-
-// // //     return (
-// // //         <div className="grid grid-cols-4 gap-2 mt-2">
-// // //             {files.map((file, index) => {
-// // //                 const fileExtension = file.split('.').pop().toLowerCase();
-
-// // //                 const handleFileClick = (e) => {
-// // //                     // Check if the file is an image or video
-// // //                     if (
-// // //                         fileExtension === 'jpg' ||
-// // //                         fileExtension === 'jpeg' ||
-// // //                         fileExtension === 'png' ||
-// // //                         fileExtension === 'gif' ||
-// // //                         fileExtension === 'mp4' ||
-// // //                         fileExtension === 'webm' ||
-// // //                         fileExtension === 'ogg'
-// // //                     ) {
-// // //                         e.stopPropagation(); // Prevents the click from bubbling up
-// // //                         setPopupFile(file); // Set file to show in popup
-// // //                     } else {
-// // //                         // Open other files in a new tab
-// // //                         window.open(file, '_blank');
-// // //                     }
-// // //                 };
-
-// // //                 return (
-// // //                     <div
-// // //                         key={index}
-// // //                         className="relative w-20 h-20 border border-gray-300 rounded-lg overflow-hidden cursor-pointer flex items-center justify-center bg-white"
-// // //                         onClick={handleFileClick}
-// // //                     >
-// // //                         {fileExtension === 'jpg' || fileExtension === 'jpeg' || fileExtension === 'png' || fileExtension === 'gif' ? (
-// // //                             <img src={file} alt="Media" className="object-cover w-full h-full rounded-lg" />
-// // //                         ) : fileExtension === 'mp4' || fileExtension === 'webm' || fileExtension === 'ogg' ? (
-// // //                             <video src={file} className="object-cover w-full h-full rounded-lg" controls />
-// // //                         ) : (
-// // //                             <span className="text-sm text-gray-500 font-semibold">File</span>
-// // //                         )}
-// // //                     </div>
-// // //                 );
-// // //             })}
-// // //         </div>
-// // //     );
-// // // };
-
-// // //     const renderMedia = (files) => {
-// // //     if (!files || files.length === 0) return null;
-
-// // //     return (
-// // //         <div className="grid grid-cols-4 gap-2 mt-2">
-// // //             {files.map((file, index) => {
-// // //                 const fileExtension = file.split('.').pop().toLowerCase();
-
-// // //                 const handleFileClick = (e) => {
-// // //                     // Check if the file is an image or video
-// // //                     if (
-// // //                         fileExtension === 'jpg' ||
-// // //                         fileExtension === 'jpeg' ||
-// // //                         fileExtension === 'png' ||
-// // //                         fileExtension === 'gif' ||
-// // //                         fileExtension === 'mp4' ||
-// // //                         fileExtension === 'webm' ||
-// // //                         fileExtension === 'ogg'
-// // //                     ) {
-// // //                         e.preventDefault(); // Prevent the default link action
-// // //                         e.stopPropagation(); // Prevent the click from bubbling up
-// // //                         setPopupFile(file); // Set file to show in popup
-// // //                     } else {
-// // //                         // Open other files in a new tab
-// // //                         window.open(file, '_blank');
-// // //                     }
-// // //                 };
-
-// // //                 return (
-// // //                     <div
-// // //                         key={index}
-// // //                         className="relative w-20 h-20 border border-gray-300 rounded-lg overflow-hidden cursor-pointer flex items-center justify-center bg-white"
-// // //                         onClick={handleFileClick}
-// // //                     >
-// // //                         {fileExtension === 'jpg' || fileExtension === 'jpeg' || fileExtension === 'png' || fileExtension === 'gif' ? (
-// // //                             <img src={file} alt="Media" className="object-cover w-full h-full rounded-lg" />
-// // //                         ) : fileExtension === 'mp4' || fileExtension === 'webm' || fileExtension === 'ogg' ? (
-// // //                             <video src={file} className="object-cover w-full h-full rounded-lg" controls />
-// // //                         ) : (
-// // //                             <span className="text-sm text-gray-500 font-semibold">File</span>
-// // //                         )}
-// // //                     </div>
-// // //                 );
-// // //             })}
-// // //         </div>
-// // //     );
-// // // };
-
-// // //     const renderMedia = (files) => {
-// // //     if (!files || files.length === 0) return null;
-
-// // //     return (
-// // //         <div className="grid grid-cols-4 gap-2 mt-2">
-// // //             {files.map((file, index) => {
-// // //                 const fileExtension = file.split('.').pop().toLowerCase();
-
-// // //                 const handleFileClick = (e) => {
-// // //                     if (fileExtension === 'jpg' || fileExtension === 'png' || fileExtension === 'gif') {
-// // //                         e.preventDefault(); // Mencegah aksi default untuk gambar
-// // //                         setPopupFile(file); // Set gambar ke popup
-// // //                     } else {
-// // //                         window.open(file, '_blank'); // Buka file lain di tab baru
-// // //                     }
-// // //                 };
-
-// // //                 return (
-// // //                     <div
-// // //                         key={index}
-// // //                         className="relative w-20 h-20 border border-gray-300 rounded-lg overflow-hidden cursor-pointer flex items-center justify-center bg-white"
-// // //                         onClick={handleFileClick}
-// // //                     >
-// // //                         {fileExtension === 'jpg' || fileExtension === 'png' || fileExtension === 'gif' ? (
-// // //                             <img src={file} alt="Media" className="object-cover w-full h-full rounded-lg" />
-// // //                         ) : fileExtension === 'mp4' || fileExtension === 'webm' || fileExtension === 'ogg' ? (
-// // //                             <video src={file} className="object-cover w-full h-full rounded-lg" controls />
-// // //                         ) : fileExtension === 'pdf' ? (
-// // //                             <span className="text-sm text-red-500 font-semibold">PDF</span>
-// // //                         ) : fileExtension === 'doc' || fileExtension === 'docx' ? (
-// // //                             <span className="text-sm text-blue-500 font-semibold">DOC</span>
-// // //                         ) : (
-// // //                             <span className="text-sm text-gray-500 font-semibold">File</span>
-// // //                         )}
-// // //                     </div>
-// // //                 );
-// // //             })}
-// // //         </div>
-// // //     );
-// // // };
-
-// // //     const renderMedia = (files) => {
-// // //     if (!files || files.length === 0) return null;
-
-// // //     return (
-// // //         <div className="grid grid-cols-4 gap-2 mt-2">
-// // //             {files.map((file, index) => {
-// // //                 const fileExtension = file.split('.').pop().toLowerCase();
-
-// // //                 const handleFileClick = (e) => {
-// // //                     // Mencegah aksi default untuk gambar
-// // //                     if (fileExtension === 'jpg' || fileExtension === 'png' || fileExtension === 'gif') {
-// // //                         e.preventDefault(); // Mencegah default action (tab baru)
-// // //                         setPopupFile(file); // Set gambar ke popup
-// // //                     } else {
-// // //                         // Jika bukan gambar, buka file di tab baru
-// // //                         window.open(file, '_blank');
-// // //                     }
-// // //                 };
-
-// // //                 return (
-// // //                     <div
-// // //                         key={index}
-// // //                         className="relative w-20 h-20 border border-gray-300 rounded-lg overflow-hidden cursor-pointer flex items-center justify-center bg-white"
-// // //                         onClick={handleFileClick} // Gunakan handleFileClick
-// // //                     >
-// // //                         {fileExtension === 'jpg' || fileExtension === 'png' || fileExtension === 'gif' ? (
-// // //                             <img src={file} alt="Media" className="object-cover w-full h-full rounded-lg" />
-// // //                         ) : fileExtension === 'mp4' || fileExtension === 'webm' || fileExtension === 'ogg' ? (
-// // //                             <video src={file} className="object-cover w-full h-full rounded-lg" controls />
-// // //                         ) : fileExtension === 'pdf' ? (
-// // //                             <span className="text-sm text-red-500 font-semibold">PDF</span>
-// // //                         ) : fileExtension === 'doc' || fileExtension === 'docx' ? (
-// // //                             <span className="text-sm text-blue-500 font-semibold">DOC</span>
-// // //                         ) : (
-// // //                             <span className="text-sm text-gray-500 font-semibold">File</span>
-// // //                         )}
-// // //                     </div>
-// // //                 );
-// // //             })}
-// // //         </div>
-// // //     );
-// // // };
-
-
-
-    
-
-
-
-
-
-
-// //     return (
-// //         <div className="flex flex-col h-screen bg-gray-100">
-// //             <div className="flex-none p-4 bg-white border-b border-gray-300">
-// //                 <div>
-// //                     <h2 className="text-xl text-center">{otherUser.name}</h2>
-// //                     <p className="text-sm text-center">{lastSeen ? 'Last seen: ' + lastSeen : 'Offline'}</p>
-// //                 </div>
-    
-// //                 {/* Three Dots Menu */}
-// //                 <div className="relative">
-// //                     <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-gray-500 hover:text-gray-700">
-// //                         •••
-// //                     </button>
-// //                     {isMenuOpen && (
-// //                         <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-300 rounded shadow-lg z-10">
-// //                             <button
-// //                                 onClick={() => alert('Select Pesan')} // Replace with actual action
-// //                                 className="block px-4 py-2 text-sm hover:bg-gray-100 w-full text-left"
-// //                             >
-// //                                 Select Pesan
-// //                             </button>
-// //                             <button
-// //                                 onClick={() => saveSettings({ bubbleColor: 'bg-blue-100', textColor: 'text-blue-900' })}
-// //                                 className="block px-4 py-2 text-sm hover:bg-gray-100 w-full text-left"
-// //                             >
-// //                                 Ubah Warna (Blue)
-// //                             </button>
-// //                             <button
-// //                                 onClick={() => saveSettings({ bubbleColor: 'bg-green-100', textColor: 'text-green-900' })}
-// //                                 className="block px-4 py-2 text-sm hover:bg-gray-100 w-full text-left"
-// //                             >
-// //                                 Ubah Gelembung Chat (Green)
-// //                             </button>
-// //                             <button
-// //                                 onClick={() => alert('Open Pengaturan Tampilan')}
-// //                                 className="block px-4 py-2 text-sm hover:bg-gray-100 w-full text-left"
-// //                             >
-// //                                 Pengaturan Tampilan
-// //                             </button>
-// //                         </div>
-// //                     )}
-// //                 </div>
-                
-// //             </div>
-// //             <div className="flex-1 overflow-y-auto p-4">
-// //                 {/* Display messages */}
-// //                 {messages.map((msg, index) => (
-// //                     // Render only if there is text or media files
-// //                     (msg.text || (msg.files && msg.files.length > 0)) && (
-// //                         <div key={msg.id || msg.timestamp} className={`mb-2 ${msg.sender === user.id ? 'text-right' : 'text-left'}`}>
-// //                             <div className={`inline-block p-2 rounded-lg ${msg.sender === user.id ? 'bg-blue-500 text-white' : 'bg-gray-300'}`}>
-// //                                 {/* Display text if available */}
-// //                                 {msg.text && <div>{msg.text}</div>}
-                                
-// //                                 {/* Display media if available */}
-// //                                 {msg.files && renderMedia(msg.files)}
-// //                             </div>
-// //                             <div className="text-xs text-gray-500 flex justify-end items-center mt-1">
-// //                                 {msg.timestamp && new Date(msg.timestamp).toLocaleDateString() + ' ' + new Date(msg.timestamp).toLocaleTimeString()}
-// //                                 {msg.sender === user.id && (
-// //                                     <span className="ml-2">
-// //                                         {msg.read ? (
-// //                                             <span className="text-blue-500">✔✔</span>
-// //                                         ) : (
-// //                                             <span>✔</span>
-// //                                         )}
-// //                                     </span>
-// //                                 )}
-// //                             </div>
-// //                         </div>
-// //                     )
-// //                 ))}
-// //             </div>
-                
-// //             <div className="flex items-center p-4 border-t border-gray-300">
-// //                 <input
-// //                     type="file"
-// //                     multiple
-// //                     accept="image/*,video/*"
-// //                     className="hidden"
-// //                     id="fileInput"
-// //                     onChange={handleFileChange}
-// //                 />
-// //                 <label htmlFor="fileInput" className="cursor-pointer">
-// //                     <span className="material-icons">file</span>
-// //                 </label>
-// //                 <div className="flex flex-wrap">
-// //                     {selectedFiles.map((file, index) => (
-// //                         <div key={index} className="relative mr-2 flex items-center">
-// //                             <span
-// //                                 className="absolute top-0 right-0 cursor-pointer text-red-500"
-// //                                 onClick={() => removeFile(index)}
-// //                             >
-// //                                 &times;
-// //                             </span>
-// //                             {/* Display a thumbnail or video preview based on file type */}
-// //                             {file.type.startsWith("video") ? (
-// //                                 <video
-// //                                     src={URL.createObjectURL(file)}
-// //                                     className="w-20 h-20 object-cover rounded-lg m-1"
-// //                                     controls
-// //                                 />
-// //                             ) : (
-// //                                 <img
-// //                                     src={URL.createObjectURL(file)}
-// //                                     alt="Selected file"
-// //                                     className="w-20 h-20 object-cover rounded-lg m-1"
-// //                                 />
-// //                             )}
-// //                         </div>
-// //                     ))}
-// //                 </div>
-
-// //                 <input
-// //                     type="text"
-// //                     className="border rounded-lg p-2 flex-1 mx-2"
-// //                     placeholder="Type a message..."
-// //                     value={messageText}
-// //                     onChange={(e) => setMessageText(e.target.value)}
-// //                 />
-// //                 <button
-// //                     className="ml-2 p-2 bg-blue-500 text-white rounded-lg"
-// //                     onClick={sendMessage}
-// //                     disabled={uploading}
-// //                 >
-// //                     {uploading ? "Sending..." : "Send"}
-// //                 </button>
-// //             </div>
-// //         </div>
-// //     );
-// // };
-
-// // // Usage in the chat area
-// // const ChatMessage = ({ message, senderId }) => {
-// //     const [settings, setSettings] = useState({ bubbleColor: 'bg-gray-300', textColor: 'text-black' });
-
-// //     useEffect(() => {
-// //         const savedSettings = JSON.parse(localStorage.getItem(`chatSettings-${user.id}`));
-// //         if (savedSettings) {
-// //             setSettings(savedSettings);
-// //         }
-// //     }, [userId]);
-
-// //     return (
-// //         <div className={`p-2 rounded-lg ${senderId === user.id ? 'bg-blue-500 text-white' : settings.bubbleColor} ${settings.textColor}`}>
-// //             {message.text}
-// //         </div>
-// //     );
-// // };
-
-// // export default Chat;
-
-
-
-// // // "use client"; // Enable client-side rendering
-// // // import React, { useState, useEffect } from 'react';
-// // // import { database, storage } from '../config/firebase'; // Ensure Firebase Storage is configured
-// // // import { ref as databaseRef, onValue, push, update } from 'firebase/database';
-// // // import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
-// // // import 'tailwindcss/tailwind.css';
-
-// // // const Chat = ({ user }) => {
-// // //     const otherUser = user.id === 'user1' ? { id: 'user2', name: 'User 2' } : { id: 'user1', name: 'User 1' };
-
-// // //     const [messages, setMessages] = useState([]);
-// // //     const [messageText, setMessageText] = useState('');
-// // //     const [selectedFiles, setSelectedFiles] = useState([]);
-// // //     const [uploading, setUploading] = useState(false);
-// // //     const [lastSeen, setLastSeen] = useState(''); // Last seen timestamp
-// // //     const [dropdownOpen, setDropdownOpen] = useState(null);
-
-// // //     useEffect(() => {
-// // //         const messagesRef = databaseRef(database, `messagesA/${user.id}/${otherUser.id}`);
-// // //         onValue(messagesRef, (snapshot) => {
-// // //             const data = snapshot.val();
-// // //             const loadedMessages = data ? Object.values(data) : [];
-// // //             setMessages(loadedMessages);
-// // //             loadedMessages.forEach((msg) => {
-// // //                 if (!msg.read && msg.sender !== user.id) {
-// // //                     update(databaseRef(database, `messagesA/${user.id}/${otherUser.id}/${msg.id}`), { read: true });
-// // //                     update(databaseRef(database, `messagesA/${otherUser.id}/${user.id}/${msg.id}`), { read: true });
-// // //                 }
-// // //             });
-// // //         });
-// // //         const userStatusRef = databaseRef(database, `lastSeenA/${otherUser.id}`);
-// // //         onValue(userStatusRef, (snapshot) => {
-// // //             const status = snapshot.val();
-// // //             const timestamp = status?.timestamp ? Number(status.timestamp) : null;
-// // //             if (timestamp && timestamp.toString().length === 13) {
-// // //                 const date = new Date(timestamp);
-// // //                 setLastSeen(
-// // //                     !isNaN(date.getTime()) ? `${date.toLocaleDateString()} ${date.toLocaleTimeString()}` : 'Offline'
-// // //                 );
-// // //             } else {
-// // //                 setLastSeen('Offline');
-// // //             }
-// // //         });
-// // //         const lastSeenRef = databaseRef(database, `lastSeenA/${user.id}`);
-// // //         update(lastSeenRef, { timestamp: Date.now() });
-
-// // //         return () => {
-// // //             update(lastSeenRef, { timestamp: null });
-// // //         };
-// // //     }, [user.id, otherUser.id]);
-
-// // //     const toggleDropdown = (index) => {
-// // //         setDropdownOpen(dropdownOpen === index ? null : index);
-// // //     };
-
-// // //     const handleFileChange = (event) => {
-// // //         const files = Array.from(event.target.files);
-// // //         setSelectedFiles((prevFiles) => [...prevFiles, ...files]);
-// // //     };
-
-// // //     const removeFile = (index) => {
-// // //         setSelectedFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
-// // //     };
-
-// // //     const sendMessage = async () => {
-// // //         if (messageText.trim() === "" && selectedFiles.length === 0) return;
-
-// // //         const messagesRef = databaseRef(database, `messagesA/${user.id}/${otherUser.id}`);
-// // //         const newMessage = {
-// // //             text: messageText,
-// // //             sender: user.id,
-// // //             timestamp: Date.now(),
-// // //             read: false,
-// // //             files: [],
-// // //         };
-
-// // //         setUploading(true);
-// // //         const uploadedFiles = await Promise.all(selectedFiles.map(async (file) => {
-// // //             const fileRef = storageRef(storage, `chatFilesA/${file.name}`);
-// // //             await uploadBytes(fileRef, file);
-// // //             return getDownloadURL(fileRef);
-// // //         }));
-
-// // //         newMessage.files = uploadedFiles;
-// // //         const newMsgRef = await push(messagesRef, newMessage);
-// // //         setMessageText('');
-// // //         setSelectedFiles([]);
-// // //         const recipientRef = databaseRef(database, `messagesA/${otherUser.id}/${user.id}`);
-// // //         await push(recipientRef, { ...newMessage, id: newMsgRef.key });
-// // //         setUploading(false);
-// // //         const lastSeenRef = databaseRef(database, `lastSeenA/${user.id}`);
-// // //         update(lastSeenRef, { timestamp: Date.now() });
-// // //     };
-
-// // //     return (
-// // //         <div className="flex flex-col h-screen bg-gray-100">
-// // //             <div className="flex-none p-4 bg-white border-b border-gray-300">
-// // //                 <h2 className="text-xl text-center">{otherUser.name}</h2>
-// // //                 <p className="text-sm text-center">{lastSeen ? 'Last seen: ' + lastSeen : 'Offline'}</p>
-// // //             </div>
-// // //             <div className="flex-1 overflow-y-auto p-4">
-// // //               {messages.map((msg, index) => {
-// // //                 const showDateHeader =
-// // //                   index === 0 || new Date(msg.timestamp).toDateString() !== new Date(messages[index - 1].timestamp).toDateString();
-        
-// // //                 return (
-// // //                   <React.Fragment key={msg.id || msg.timestamp}>
-// // //                     {showDateHeader && (
-// // //                       <div className="text-center text-gray-500 my-4">
-// // //                         {new Date(msg.timestamp).toLocaleDateString()}
-// // //                       </div>
-// // //                     )}
-        
-// // //                     <div
-// // //                       className={`flex items-start gap-2.5 mb-4 ${
-// // //                         msg.sender === 'user1' ? 'flex-row-reverse' : ''
-// // //                       }`}
-// // //                     >
-                     
-// // //                       <div
-// // //                         className={`flex flex-col w-full max-w-[326px] p-4 ${
-// // //                           msg.sender === 'user1'
-// // //                             ? 'bg-blue-100 rounded-s-xl'
-// // //                             : 'bg-gray-100 rounded-e-xl'
-// // //                         } border border-gray-200`}
-// // //                       >
-// // //                         <div className="flex items-center justify-between mb-2">
-// // //                           <span className="text-sm font-semibold text-gray-900">
-// // //                             {msg.senderName}
-// // //                           </span>
-// // //                           <span className="text-sm font-normal text-gray-500">
-// // //                             {new Date(msg.timestamp).toLocaleTimeString()}
-// // //                           </span>
-// // //                         </div>
-// // //                         <p className="text-sm font-normal text-gray-900 mb-2">{msg.text}</p>
-// // //                         {msg.files && msg.files.length > 0 && (
-// // //                           <div className="grid grid-cols-2 gap-4 my-2.5">
-// // //                             {msg.files.slice(0, 3).map((file, i) => (
-// // //                               <div key={i} className="group relative">
-// // //                                 <img src={file} className="rounded-lg" alt={`file-${i}`} />
-// // //                               </div>
-// // //                             ))}
-// // //                             {msg.files.length > 3 && (
-// // //                               <div className="group relative">
-// // //                                 <button className="absolute w-full h-full bg-gray-900/90 text-white rounded-lg flex items-center justify-center">
-// // //                                   +{msg.files.length - 3}
-// // //                                 </button>
-// // //                                 <img src={msg.files[0]} className="rounded-lg" alt="Additional files" />
-// // //                               </div>
-// // //                             )}
-// // //                           </div>
-// // //                         )}
-// // //                         <div className="flex justify-between items-center">
-// // //                           <span className="text-sm font-normal text-gray-500">
-// // //                             {msg.read ? '✔✔' : '✔'}
-// // //                           </span>
-// // //                         </div>
-// // //                       </div>
-// // //                       <button
-// // //                         id={`dropdownMenuIconButton-${index}`}
-// // //                         className="inline-flex self-center items-center p-2 text-sm font-medium text-gray-900 bg-white rounded-lg hover:bg-gray-100"
-// // //                         type="button"
-// // //                       >
-// // //                         <svg
-// // //                           className="w-4 h-4 text-gray-500"
-// // //                           xmlns="http://www.w3.org/2000/svg"
-// // //                           fill="currentColor"
-// // //                           viewBox="0 0 4 15"
-// // //                         >
-// // //                           <path d="M3.5 1.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm0 6.041a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm0 5.959a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Z" />
-// // //                         </svg>
-// // //                       </button>
-// // //                     </div>
-// // //                   </React.Fragment>
-// // //                 );
-// // //               })}
-// // //             </div>
-// // //             <div className="flex items-center p-4 border-t border-gray-300">
-// // //                 <input
-// // //                     type="file"
-// // //                     multiple
-// // //                     accept="image/*,video/*"
-// // //                     className="hidden"
-// // //                     id="fileInput"
-// // //                     onChange={handleFileChange}
-// // //                 />
-// // //                 <label htmlFor="fileInput" className="cursor-pointer">
-// // //                     {/* Add your button or icon here for file input */}
-// // //                 </label>
-// // //                 {/* Add message input and send button here */}
-// // //             </div>
-// // //         </div>
-// // //     );
-// // // };
-
-// // // export default Chat;
 
 
 
