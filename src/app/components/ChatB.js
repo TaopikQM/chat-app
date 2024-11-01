@@ -179,19 +179,25 @@ const Chat = ({ user }) => {
     const isLast = index === messages.length - 1 || messages[index + 1]?.sender !== msg.sender;
     const isMiddle = !isFirst && !isLast;
 
-    // Determine bubble rounding based on position in the sequence
+    // Determine bubble rounding based on message position
     let bubbleRounding;
     if (isFirst && isLast) {
       // Single message
-      bubbleRounding = isSender ? 'rounded-tl-2xl rounded-bl-2xl rounded-br-2xl' : 'rounded-tr-2xl rounded-bl-2xl rounded-br-2xl';
+      bubbleRounding = isSender
+        ? 'rounded-tl-2xl rounded-bl-2xl rounded-tr-2xl'
+        : 'rounded-tr-2xl rounded-bl-2xl rounded-br-2xl';
     } else if (isFirst) {
       // First in a sequence of two or more
-      bubbleRounding = isSender ? 'rounded-tl-2xl rounded-bl-2xl rounded-br-2xl' : 'rounded-tr-2xl rounded-bl-2xl rounded-br-2xl';
+      bubbleRounding = isSender
+        ? 'rounded-tl-2xl rounded-bl-2xl rounded-br-2xl'
+        : 'rounded-tr-2xl rounded-bl-2xl rounded-br-2xl';
     } else if (isLast) {
-      // Last in a sequence of two
-      bubbleRounding = isSender ? 'rounded-tl-2xl rounded-tr-2xl rounded-bl-2xl' : 'rounded-tl-2xl rounded-tr-2xl rounded-br-2xl';
+      // Last in a sequence
+      bubbleRounding = isSender
+        ? 'rounded-bl-2xl rounded-tr-2xl rounded-br-2xl'
+        : 'rounded-tl-2xl rounded-br-2xl rounded-bl-2xl';
     } else if (isMiddle) {
-      // Middle message in a sequence of three or more
+      // Middle message in a sequence
       bubbleRounding = 'rounded-2xl';
     }
 
