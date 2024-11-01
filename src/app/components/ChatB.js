@@ -43,46 +43,109 @@ const Chat = ({ user }) => {
     };
 
     useEffect(() => {
-        const messagesRef = databaseRef(database, `messagesC/${user.id}/${otherUser.id}`);
-        
-        onValue(messagesRef, (snapshot) => {
-            const data = snapshot.val();
-            const loadedMessages = data ? Object.values(data) : [];
-            setMessages(loadedMessages);
+    const messagesRef = databaseRef(database, `messagesC/${user.id}/${otherUser.id}`);
 
-            // Mark unread messages as read
-            loadedMessages.forEach((msg) => {
-                if (!msg.read && msg.sender !== user.id) {
-                    update(databaseRef(database, `messagesC/${user.id}/${otherUser.id}/${msg.id}`), { read: true });
-                    update(databaseRef(database, `messagesC/${otherUser.id}/${user.id}/${msg.id}`), { read: true });
-                }
+    onValue(messagesRef, (snapshot) => {
+        const data = snapshot.val();
+        let loadedMessages = [];
+
+        if (data) {
+            Object.keys(data).forEach((year) => {
+                Object.keys(data[year]).forEach((month) => {
+                    Object.keys(data[year][month]).forEach((day) => {
+                        const dailyMessages = data[year][month][day];
+                        loadedMessages = loadedMessages.concat(Object.values(dailyMessages));
+                    });
+                });
             });
-        });
 
-        // Fetch other user's last seen status and set "Online" status if recent
-        const userStatusRef = databaseRef(database, `lastSeenC/${otherUser.id}`);
-        onValue(userStatusRef, (snapshot) => {
-            const status = snapshot.val();
-            const date = status?.timestamp ? new Date(status.timestamp) : null;
-            const currentTime = Date.now();
-            const fiveMinutes = 5 * 60 * 1000;
+            // Sort messages by timestamp
+            loadedMessages.sort((a, b) => a.timestamp - b.timestamp);
+        }
 
-            if (date && currentTime - status.timestamp < fiveMinutes) {
-                setLastSeen("Online");
-            } else {
-                setLastSeen(date && !isNaN(date.getTime()) ? date.toLocaleTimeString() : 'Offline');
+        setMessages(loadedMessages);
+
+        // Mark unread messages as read
+        loadedMessages.forEach((msg) => {
+            if (!msg.read && msg.sender !== user.id) {
+                const { timestamp } = msg;
+                const dateObj = new Date(timestamp);
+                const year = dateObj.getFullYear();
+                const month = (`0${dateObj.getMonth() + 1}`).slice(-2);
+                const day = (`0${dateObj.getDate()}`).slice(-2);
+
+                const messagePath = `messagesC/${user.id}/${otherUser.id}/${year}/${month}/${day}/${msg.id}`;
+                const recipientPath = `messagesC/${otherUser.id}/${user.id}/${year}/${month}/${day}/${msg.id}`;
+
+                update(databaseRef(database, messagePath), { read: true });
+                update(databaseRef(database, recipientPath), { read: true });
             }
         });
+    });
 
-        // Update own last seen timestamp
-        const lastSeenRef = databaseRef(database, `lastSeenC/${user.id}`);
+    const userStatusRef = databaseRef(database, `lastSeenC/${otherUser.id}`);
+    onValue(userStatusRef, (snapshot) => {
+        const status = snapshot.val();
+        const date = status?.timestamp ? new Date(status.timestamp) : null;
+        const currentTime = Date.now();
+        const fiveMinutes = 5 * 60 * 1000;
+
+        if (date && currentTime - status.timestamp < fiveMinutes) {
+            setLastSeen("Online");
+        } else {
+            setLastSeen(date && !isNaN(date.getTime()) ? date.toLocaleTimeString() : 'Offline');
+        }
+    });
+
+    const lastSeenRef = databaseRef(database, `lastSeenC/${user.id}`);
+    update(lastSeenRef, { timestamp: Date.now() });
+
+    return () => {
         update(lastSeenRef, { timestamp: Date.now() });
+    };
+}, [user.id, otherUser.id]);
 
-        return () => {
-            // Set last seen to a timestamp when unmounting
-            update(lastSeenRef, { timestamp: Date.now() });
-        };
-    }, [user.id, otherUser.id]);
+    // useEffect(() => {
+    //     const messagesRef = databaseRef(database, `messagesC/${user.id}/${otherUser.id}`);
+        
+    //     onValue(messagesRef, (snapshot) => {
+    //         const data = snapshot.val();
+    //         const loadedMessages = data ? Object.values(data) : [];
+    //         setMessages(loadedMessages);
+
+    //         // Mark unread messages as read
+    //         loadedMessages.forEach((msg) => {
+    //             if (!msg.read && msg.sender !== user.id) {
+    //                 update(databaseRef(database, `messagesC/${user.id}/${otherUser.id}/${msg.id}`), { read: true });
+    //                 update(databaseRef(database, `messagesC/${otherUser.id}/${user.id}/${msg.id}`), { read: true });
+    //             }
+    //         });
+    //     });
+
+    //     // Fetch other user's last seen status and set "Online" status if recent
+    //     const userStatusRef = databaseRef(database, `lastSeenC/${otherUser.id}`);
+    //     onValue(userStatusRef, (snapshot) => {
+    //         const status = snapshot.val();
+    //         const date = status?.timestamp ? new Date(status.timestamp) : null;
+    //         const currentTime = Date.now();
+    //         const fiveMinutes = 5 * 60 * 1000;
+
+    //         if (date && currentTime - status.timestamp < fiveMinutes) {
+    //             setLastSeen("Online");
+    //         } else {
+    //             setLastSeen(date && !isNaN(date.getTime()) ? date.toLocaleTimeString() : 'Offline');
+    //         }
+    //     });
+
+    //     // Update own last seen timestamp
+    //     const lastSeenRef = databaseRef(database, `lastSeenC/${user.id}`);
+    //     update(lastSeenRef, { timestamp: Date.now() });
+
+    //     return () => {
+    //         // Set last seen to a timestamp when unmounting
+    //         update(lastSeenRef, { timestamp: Date.now() });
+    //     };
+    // }, [user.id, otherUser.id]);
 
     const handleFileChange = (event) => {
         setSelectedFiles(Array.from(event.target.files));
