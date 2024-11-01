@@ -179,25 +179,20 @@ const Chat = ({ user }) => {
     const isLast = index === messages.length - 1 || messages[index + 1]?.sender !== msg.sender;
     const isMiddle = !isFirst && !isLast;
 
-    // Determine bubble rounding based on message position
+    // Determine bubble rounding based on the position in the sequence
     let bubbleRounding;
+
     if (isFirst && isLast) {
       // Single message
-      bubbleRounding = isSender
-        ? 'rounded-tl-2xl rounded-bl-2xl rounded-tr-2xl'
-        : 'rounded-tr-2xl rounded-bl-2xl rounded-br-2xl';
+      bubbleRounding = isSender ? 'rounded-tl-2xl rounded-bl-2xl' : 'rounded-tr-2xl rounded-bl-2xl';
     } else if (isFirst) {
-      // First in a sequence of two or more
-      bubbleRounding = isSender
-        ? 'rounded-tl-2xl rounded-bl-2xl rounded-br-2xl'
-        : 'rounded-tr-2xl rounded-bl-2xl rounded-br-2xl';
+      // First message in a two-message sequence
+      bubbleRounding = isSender ? 'rounded-tl-2xl rounded-bl-2xl rounded-br-2xl' : 'rounded-tr-2xl rounded-bl-2xl rounded-br-2xl';
     } else if (isLast) {
-      // Last in a sequence
-      bubbleRounding = isSender
-        ? 'rounded-bl-2xl rounded-tr-2xl rounded-br-2xl'
-        : 'rounded-tl-2xl rounded-br-2xl rounded-bl-2xl';
+      // Last message in a two-message sequence
+      bubbleRounding = isSender ? 'rounded-tl-2xl rounded-tr-2xl' : 'rounded-tl-2xl rounded-br-2xl';
     } else if (isMiddle) {
-      // Middle message in a sequence
+      // Middle message in a sequence of three or more
       bubbleRounding = 'rounded-2xl';
     }
 
@@ -211,7 +206,7 @@ const Chat = ({ user }) => {
             className={`inline-block p-2 max-w-[70%] leading-1.5 border ${bubbleRounding} ${isSender ? 'bg-gray-100 border-gray-200' : 'bg-gray-200 border-gray-300'} ${chatSettings.isNightMode ? 'dark:bg-gray-700' : ''}`}
             style={{
               backgroundColor: isSender ? chatSettings.senderBubbleColor : chatSettings.receiverBubbleColor,
-              color: isSender ? chatSettings.senderTextColor : chatSettings.receiverTextColor
+              color: isSender ? chatSettings.senderTextColor : chatSettings.receiverTextColor,
             }}
           >
             {msg.text && <div>{msg.text}</div>}
@@ -225,7 +220,6 @@ const Chat = ({ user }) => {
     );
   })}
 </main>
-
 
             <footer className="flex items-center p-4 border-t">
                 <input
