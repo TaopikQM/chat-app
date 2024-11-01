@@ -177,10 +177,10 @@ const Chat = ({ user }) => {
                 (msg.text || (msg.files && msg.files.length > 0)) && (
                   <div
                     key={msg.id || msg.timestamp}
-                    className={`flex flex-col w-full max-w-[320px] mb-2 ${msg.sender === user.id ? 'self-end' : 'self-start'}`}
+                    className={`flex mb-2 ${msg.sender === user.id ? 'justify-end' : 'justify-start'}`}
                   >
                     <div
-                      className={`leading-1.5 p-4 rounded-e-xl rounded-es-xl border ${msg.sender === user.id ? 'border-gray-200 bg-gray-100' : 'border-gray-300 bg-gray-200'} ${chatSettings.isNightMode ? 'dark:bg-gray-700' : ''}`}
+                      className={`inline-block max-w-[320px] p-2 rounded-lg leading-1.5 ${msg.sender === user.id ? 'rounded-br-lg bg-gray-100 border-gray-200' : 'rounded-bl-lg bg-gray-200 border-gray-300'} ${chatSettings.isNightMode ? 'dark:bg-gray-700' : ''}`}
                       style={{
                         backgroundColor: msg.sender === user.id ? chatSettings.senderBubbleColor : chatSettings.receiverBubbleColor,
                         color: msg.sender === user.id ? chatSettings.senderTextColor : chatSettings.receiverTextColor
@@ -196,6 +196,7 @@ const Chat = ({ user }) => {
                 )
               ))}
             </main>
+
 
             <footer className="flex items-center p-4 border-t">
                 <input
