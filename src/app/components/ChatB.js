@@ -237,16 +237,18 @@ const Chat = ({ user }) => {
     };
 
     return (
-        <div className="flex flex-col h-screen bg-gray-100">
-            <div className="flex-none p-4 bg-white border-b border-gray-300">
+        <div className={`flex flex-col h-screen ${chatSettings.isNightMode ? 'bg-gray-900 text-white' : 'bg-gray-100 text-black'}`}>
+            <div className={`flex-none p-4 ${chatSettings.isNightMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-300'}`}>
                 <h2 className="text-xl text-center">{otherUser.name}</h2>
                 <p className="text-sm text-center">{lastSeen ? 'Last seen: ' + lastSeen : 'Offline'}</p>
-            </div>
-            <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-gray-500 hover:text-gray-700">
-                ...
+
+                <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-gray-500 hover:text-gray-700">
+                    ...
                 </button>
+            </div>
+            
                 {isMenuOpen && (
-                    <div className="absolute right-0 mt-2 w-48 bg-white border rounded shadow-lg z-10">
+                    <div className={`absolute right-0 mt-2 w-48 ${chatSettings.isNightMode ? 'bg-gray-800 border-gray-700' : 'bg-white border'} rounded shadow-lg z-10`}>
                         <div className="p-2">
                             <button onClick={() => setIsColorMenuOpen(!isColorMenuOpen)} className="block text-left w-full">
                                 Colors
@@ -325,7 +327,7 @@ const Chat = ({ user }) => {
                                 )}
                                 {msg.files && renderMedia(msg.files)}
                             </div>
-                            <div className="text-xs text-gray-500 flex justify-end items-center mt-1">
+                            <div className={`text-xs ${chatSettings.isNightMode ? 'text-gray-400' : 'text-gray-500'} flex justify-end items-center mt-1`}>
                                    {(() => {
                                         const date = new Date(msg.timestamp);
                                         const formattedDate = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()} - ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}:${date.getSeconds().toString().padStart(2, '0')} WIB`;
@@ -346,7 +348,7 @@ const Chat = ({ user }) => {
                 ))}
 
             </div>
-            <div className="flex items-center p-4 border-t border-gray-300">
+            <div className={`flex items-center p-4 ${chatSettings.isNightMode ? 'bg-gray-800 border-gray-700' : 'border-t border-gray-300'}`}>
                   <input
                     type="file"
                     multiple
@@ -392,7 +394,7 @@ const Chat = ({ user }) => {
                              setIsTyping(true);
                         }}
                     onBlur={() => setIsTyping(false)}
-                    className="flex-1 mx-2 border rounded-lg p-2"
+                    className={`flex-1 mx-2 border rounded-lg p-2 ${chatSettings.isNightMode ? 'bg-gray-700 text-white' : 'bg-white text-black'}`}
                     placeholder="Type your message..."
                 />
                 <button
