@@ -242,7 +242,7 @@ const Chat = ({ user }) => {
                 <h2 className="text-xl text-center">{otherUser.name}</h2>
                 <p className="text-sm text-center">{lastSeen ? 'Last seen: ' + lastSeen : 'Offline'}</p>
 
-                <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-center text-gray-500 hover:text-gray-700">
+                <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-sm text-center text-gray-500 hover:text-gray-700">
                     ...
                 </button>
             </div>
