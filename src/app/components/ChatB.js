@@ -74,7 +74,14 @@ const Chat = ({ user }) => {
                 // If the user is typing, show "Typing..."
                 setLastSeen("Typing...");
             } else {
-                setLastSeen(date && !isNaN(date.getTime()) ? date.toLocaleTimeString() : 'Offline');
+                if (date && !isNaN(date.getTime())) {
+                    // Format the date to "day.month, year"
+                    const options = { day: '2-digit', month: '2-digit', year: 'numeric' };
+                    const formattedDate = date.toLocaleDateString('id-ID', options); // Adjust locale as necessary
+                    setLastSeen(`Last seen: ${formattedDate}`);
+                } else {
+                    setLastSeen('Offline');
+                }
             }
         });
 
@@ -125,8 +132,7 @@ const Chat = ({ user }) => {
 
     // Function to send a new message with media support
     const sendMessage = async () => {
-        setUploading(true);
-        if (messageText.trim() === "" && selectedFiles.length === 0) return; // Prevent sending empty messages
+       if (messageText.trim() === "" && selectedFiles.length === 0) return; // Prevent sending empty messages
 
         const messagesRef = databaseRef(database, `messagesD/${new Date().getFullYear()}/${new Date().getMonth() + 1}/${new Date().getDate()}/${user.id}/${otherUser.id}`);
         const newMessage = {
@@ -158,20 +164,19 @@ const Chat = ({ user }) => {
         // Update the recipient's message status
         const recipientRef = databaseRef(database, `messagesD/${new Date().getFullYear()}/${new Date().getMonth() + 1}/${new Date().getDate()}/${otherUser.id}/${user.id}`);
         await push(recipientRef, { ...newMessage, id: newMsgRef.key });
-
-        setUploading(false);
-
-        // Update last seen when a message is sent
-        const lastSeenRef = databaseRef(database, `lastSeen/${user.id}`);
-        update(lastSeenRef, { timestamp: Date.now() });
-
-         setTimeout(() => {
+        setTimeout(() => {
             // After sending message
             setMessageText('');
             setSelectedFiles([]);
             setUploading(false);
             // Optionally, update the user status timestamp here if needed
         }, 2000);
+        
+        // Update last seen when a message is sent
+        const lastSeenRef = databaseRef(database, `lastSeen/${user.id}`);
+        update(lastSeenRef, { timestamp: Date.now() });
+
+         
     };
 
     const renderMedia = (files) => {
