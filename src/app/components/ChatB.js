@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 import { database, storage } from '../config/firebase'; // Ensure Firebase Storage is configured
 import { ref as databaseRef, onValue, push, update } from 'firebase/database';
 import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
-import 'tailwindcss/tailwind.css';
 
 const Chat = ({ user }) => {
     const otherUser = user.id === 'user1' ? { id: 'user2', name: 'User 2' } : { id: 'user1', name: 'User 1' };
@@ -17,6 +16,10 @@ const Chat = ({ user }) => {
     const [location, setLocation] = useState(null); // For storing GPS location
 
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [isColorMenuOpen, setIsColorMenuOpen] = useState(false);
+    const [isSenderSettingsOpen, setIsSenderSettingsOpen] = useState(false);
+    const [isReceiverSettingsOpen, setIsReceiverSettingsOpen] = useState(false);
+    
     const [chatSettings, setChatSettings] = useState({
         senderBubbleColor: '#3B82F6', // Default bubble color
         receiverBubbleColor: '#E5E7EB', // Default bubble color
