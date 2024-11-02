@@ -16,6 +16,7 @@ const Chat = ({ user }) => {
     const [location, setLocation] = useState(null); // For storing GPS location
     
     const [isTyping, setIsTyping] = useState(false);
+    const [showScrollButton, setShowScrollButton] = useState(false);
    
 
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -113,6 +114,8 @@ const Chat = ({ user }) => {
             // Set last seen to a timestamp when unmounting
             update(lastSeenRef, { timestamp: Date.now() });
         };
+        scrollToBottom();
+        
     }, [user.id, otherUser.id]);
 
       const handleInputChange = (e) => {
@@ -210,6 +213,18 @@ const Chat = ({ user }) => {
         update(lastSeenRef, { timestamp: Date.now() });
 
          
+    };
+
+    // Function to scroll to the bottom
+    const scrollToBottom = () => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    };
+
+    // Toggle visibility of "Scroll to Bottom" button
+    const handleScroll = (e) => {
+        const { scrollTop, scrollHeight, clientHeight } = e.target;
+        const isBottom = scrollHeight - scrollTop === clientHeight;
+        setShowScrollButton(!isBottom);
     };
 
     const renderMedia = (files) => {
@@ -310,7 +325,7 @@ const Chat = ({ user }) => {
 
                     </div>
                 )}
-            <div className="flex-1 overflow-y-auto p-4">
+            <div className="relative flex-1 overflow-y-auto p-4"  onScroll={handleScroll}>
                 {/* Display messages */}
                 {/* Display messages */}
                 {messages.map((msg) => (
@@ -347,8 +362,21 @@ const Chat = ({ user }) => {
                     )
                 ))}
 
+                {/* Bottom marker for auto-scroll */}
+                <div ref={messagesEndRef} />
+    
+                {/* Scroll to Bottom Button */}
+                {showScrollButton && (
+                    <button
+                        onClick={scrollToBottom}
+                        className="fixed bottom-20 right-4 bg-blue-500 text-white p-2 rounded-full shadow-lg"
+                    >
+                        ↓
+                    </button>
+                )}
+
             </div>
-            <div className={`flex items-center p-4 ${chatSettings.isNightMode ? 'bg-gray-800 border-gray-700' : 'border-t border-gray-300'}`}>
+            <div className={`flex items-center p-4 ${chatSettings.isNightMode ? 'bg-gray-800 border-gray-700' : 'border-t border-gray-300'} sticky bottom-0`}>
                   <input
                     type="file"
                     multiple
