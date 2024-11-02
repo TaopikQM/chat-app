@@ -62,11 +62,14 @@ const Chat = ({ user }) => {
         const userStatusRef = databaseRef(database, `lastSeen/${otherUser.id}`);
         onValue(userStatusRef, (snapshot) => {
             const status = snapshot.val();
-            if (status && status.timestamp) {
-                const date = new Date(status.timestamp);
-                setLastSeen(!isNaN(date.getTime()) ? date.toLocaleTimeString() : 'Offline');
+            const date = status?.timestamp ? new Date(status.timestamp) : null;
+            const currentTime = Date.now();
+            const fiveMinutes = 5 * 60 * 1000;
+
+            if (date && currentTime - status.timestamp < fiveMinutes) {
+                setLastSeen("Online");
             } else {
-                setLastSeen('Offline');
+                setLastSeen(date && !isNaN(date.getTime()) ? date.toLocaleTimeString() : 'Offline');
             }
         });
 
@@ -75,8 +78,8 @@ const Chat = ({ user }) => {
         update(lastSeenRef, { timestamp: Date.now() });
 
         return () => {
-            // Cleanup: Remove last seen status when component unmounts
-            update(lastSeenRef, { timestamp: null });
+            // Set last seen to a timestamp when unmounting
+            update(lastSeenRef, { timestamp: Date.now() });
         };
     }, [user.id, otherUser.id]);
 
