@@ -43,27 +43,27 @@ const Chat = ({ user }) => {
 
     useEffect(() => {
       
-     const timestamp = Date.now();
-    const dateObj = new Date(timestamp);
-    const year = dateObj.getFullYear();
-    const month = `0${dateObj.getMonth() + 1}`.slice(-2);
-    const day = `0${dateObj.getDate()}`.slice(-2);
-
-    const messagesRef = databaseRef(database, `messagesC/${user.id}/${otherUser.id}/${year}/${month}/${day}/`);
-
-    onValue(messagesRef, (snapshot) => {
-        const data = snapshot.val();
-        const loadedMessages = data ? Object.values(data) : [];
-        setMessages(loadedMessages);
-
-        // Mark unread messages as read
-        loadedMessages.forEach((msg) => {
-            if (!msg.read && msg.sender !== user.id) {
-                update(databaseRef(database, `messagesC/${user.id}/${otherUser.id}/${year}/${month}/${day}/${msg.id}`), { read: true });
-                update(databaseRef(database, `messagesC/${otherUser.id}/${user.id}/${year}/${month}/${day}/${msg.id}`), { read: true });
-            }
-        });
-    });
+      const timestamp = Date.now();
+      const dateObj = new Date(timestamp);
+      const year = dateObj.getFullYear();
+      const month = (dateObj.getMonth() + 1).toString().padStart(2, '0');
+      const day = dateObj.getDate().toString().padStart(2, '0');
+  
+      const messagesRef = databaseRef(database, `messagesC/${user.id}/${otherUser.id}/${year}/${month}/${day}/`);
+  
+      onValue(messagesRef, (snapshot) => {
+          const data = snapshot.val();
+          const loadedMessages = data ? Object.values(data) : [];
+          setMessages(loadedMessages);
+  
+          // Mark unread messages as read
+          loadedMessages.forEach((msg) => {
+              if (!msg.read && msg.sender !== user.id) {
+                  update(databaseRef(database, `messagesC/${user.id}/${otherUser.id}/${year}/${month}/${day}/${msg.id}`), { read: true });
+                  update(databaseRef(database, `messagesC/${otherUser.id}/${user.id}/${year}/${month}/${day}/${msg.id}`), { read: true });
+              }
+          });
+      });
 
         // Fetch other user's last seen status and set "Online" status if recent
         const userStatusRef = databaseRef(database, lastSeenC/${otherUser.id});
