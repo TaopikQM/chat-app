@@ -284,16 +284,7 @@ const Chat = ({ user }) => {
 
             </div>
             <div className="flex items-center p-4 border-t border-gray-300">
-                // <input
-                //     type="file"
-                //     multiple
-                //     accept="image/*,video/*"
-                //     className="hidden"
-                //     id="fileInput"
-                //     onChange={handleFileChange}
-                // />
-                // <label htmlFor="fileInput" className="cursor-pointer text-blue-500">File</label>
-                        //📎 Attach
+              
                 <div className="flex flex-wrap">
                     {selectedFiles.map((file, index) => (
                         <div key={index} className="relative mr-2 flex items-center">
