@@ -1,6 +1,6 @@
 "use client"; // Enable client-side rendering
 import React, { useState, useEffect } from 'react';
-import { database, storage } from './firebase'; // Pastikan Anda mengimpor objek Firebase yang diperlukan
+import { database, storage } from '../config/firebase'; // Pastikan Anda mengimpor objek Firebase yang diperlukan
 import { ref as databaseRef, push, set, onValue } from 'firebase/database';
 import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 
