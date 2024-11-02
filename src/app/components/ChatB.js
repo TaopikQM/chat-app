@@ -34,15 +34,15 @@ const Chat = ({ user }) => {
             setChatSettings(savedSettings);
         }
     }, [user.id]);
-
+ 
     const saveSettings = (newSettings) => {
         const settings = { ...chatSettings, ...newSettings };
         setChatSettings(settings);
-        localStorage.setItem(chatSettings-${user.id}, JSON.stringify(settings));
+        localStorage.setItem(`chatSettings-${user.id`}, JSON.stringify(settings));
     };
 
     useEffect(() => {
-        const messagesRef = databaseRef(database, messagesC/${user.id}/${otherUser.id});
+        const messagesRef = databaseRef(database, `messagesC/${user.id}/${otherUser.id}`);
         
         onValue(messagesRef, (snapshot) => {
             const data = snapshot.val();
