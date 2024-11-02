@@ -113,6 +113,30 @@ const Chat = ({ user }) => {
         setUploading(false);
     };
 
+    const renderMedia = (files) => {
+        if (!files || files.length === 0) return null;
+
+        return (
+            <div className="flex flex-wrap mt-1">
+                {files.map((file, index) => (
+                    <a
+                        key={index}
+                        href={file}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-20 h-20 flex items-center justify-center border border-gray-300 rounded-lg m-1"
+                    >
+                        {file.endsWith('.jpg') || file.endsWith('.png') || file.endsWith('.gif') ? (
+                            <img src={file} alt="Media" className="object-cover h-full w-full rounded-lg" />
+                        ) : (
+                            <span className="text-sm">File</span>
+                        )}
+                    </a>
+                ))}
+            </div>
+        );
+    };
+
     return (
         <div className={`flex flex-col h-screen ${chatSettings.isNightMode ? 'bg-gray-900 text-white' : 'bg-gray-100 text-black'}`} onScroll={handleScroll}>
             <div className={`text-center flex-none p-4 ${chatSettings.isNightMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-300'}`}>
