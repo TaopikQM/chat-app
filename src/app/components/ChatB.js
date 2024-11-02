@@ -17,7 +17,7 @@ const Chat = ({ user }) => {
     
     const [isTyping, setIsTyping] = useState(false);
     const [showScrollButton, setShowScrollButton] = useState(false);
-   
+   const messagesEndRef = useRef(null);
 
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isColorMenuOpen, setIsColorMenuOpen] = useState(false);
