@@ -74,11 +74,9 @@ const Chat = ({ user }) => {
                 // If the user is typing, show "Typing..."
                 setLastSeen("Typing...");
             } else {
-                if (date && !isNaN(date.getTime())) {
-                    // Format the date to "day.month, year"
-                    const options = { day: '2-digit', month: '2-digit', year: 'numeric' };
-                    const formattedDate = date.toLocaleDateString('id-ID', options); // Adjust locale as necessary
-                    setLastSeen(`Last seen: ${formattedDate}`);
+                 if (date && !isNaN(date.getTime())) {
+                    const formattedDate = `${date.getDate().toString().padStart(2, '0')}.${(date.getMonth() + 1).toString().padStart(2, '0')}, ${date.getFullYear()} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+                    setLastSeen(formattedDate);
                 } else {
                     setLastSeen('Offline');
                 }
@@ -292,7 +290,11 @@ const Chat = ({ user }) => {
                                 {msg.files && renderMedia(msg.files)}
                             </div>
                             <div className="text-xs text-gray-500 flex justify-end items-center mt-1">
-                                {new Date(msg.timestamp).toLocaleTimeString()}
+                                  {(() => {
+                                        const date = new Date(msg.timestamp);
+                                        const formattedDate = `${date.getDate().toString().padStart(2, '0')}.${(date.getMonth() + 1).toString().padStart(2, '0')}, ${date.getFullYear()} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+                                        return formattedDate;
+                                    })()}
                                 {msg.sender === user.id && (
                                     <span className="ml-2">
                                         {msg.read ? (
