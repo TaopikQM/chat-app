@@ -46,8 +46,8 @@ const Chat = ({ user }) => {
      const timestamp = Date.now();
     const dateObj = new Date(timestamp);
     const year = dateObj.getFullYear();
-    const month = (`0${dateObj.getMonth() + 1}`).slice(-2);
-    const day = (`0${dateObj.getDate()}`).slice(-2);
+    const month = `0${dateObj.getMonth() + 1}`.slice(-2);
+    const day = `0${dateObj.getDate()}`.slice(-2);
 
     const messagesRef = databaseRef(database, `messagesC/${user.id}/${otherUser.id}/${year}/${month}/${day}/`);
 
