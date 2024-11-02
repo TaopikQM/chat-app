@@ -185,7 +185,7 @@ const Chat = ({ user }) => {
                 <p className="text-sm text-center">{lastSeen ? 'Last seen: ' + lastSeen : 'Offline'}</p>
             </div>
             <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-gray-500 hover:text-gray-700">
-                v
+                ...
                 </button>
                 {isMenuOpen && (
                     <div className="absolute right-0 mt-2 w-48 bg-white border rounded shadow-lg z-10">
@@ -284,7 +284,17 @@ const Chat = ({ user }) => {
 
             </div>
             <div className="flex items-center p-4 border-t border-gray-300">
-              
+                  <input
+                    type="file"
+                    multiple
+                    accept="image/*,video/*"
+                    className="hidden"
+                    id="fileInput"
+                    onChange={handleFileChange}
+                />
+                <label htmlFor="fileInput" className="cursor-pointer">
+                    <span className="material-icons">file</span>
+                </label>
                 <div className="flex flex-wrap">
                     {selectedFiles.map((file, index) => (
                         <div key={index} className="relative mr-2 flex items-center">
