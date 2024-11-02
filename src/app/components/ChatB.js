@@ -238,7 +238,7 @@ const Chat = ({ user }) => {
 
     return (
         <div className={`flex flex-col h-screen ${chatSettings.isNightMode ? 'bg-gray-900 text-white' : 'bg-gray-100 text-black'}`}>
-            <div className={`flex-none p-4 ${chatSettings.isNightMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-300'}`}>
+            <div className={`text-center flex-none p-4 ${chatSettings.isNightMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-300'}`}>
                 <h2 className="text-xl text-center">{otherUser.name}</h2>
                 <p className="text-sm text-center">{lastSeen ? 'Last seen: ' + lastSeen : 'Offline'}</p>
 
