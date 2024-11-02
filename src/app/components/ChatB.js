@@ -16,6 +16,28 @@ const Chat = ({ user }) => {
     const [lastSeen, setLastSeen] = useState(''); // Last seen timestamp
     const [location, setLocation] = useState(null); // For storing GPS location
 
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [chatSettings, setChatSettings] = useState({
+        senderBubbleColor: '#3B82F6', // Default bubble color
+        receiverBubbleColor: '#E5E7EB', // Default bubble color
+        senderTextColor: '#FFFFFF', // Default sender text color
+        receiverTextColor: '#000000', // Default receiver text color
+        isNightMode: false,
+    });
+
+    useEffect(() => {
+        const savedSettings = JSON.parse(localStorage.getItem(`chatSettings-${user.id}`));
+        if (savedSettings) {
+            setChatSettings(savedSettings);
+        }
+    }, [user.id]);
+
+    const saveSettings = (newSettings) => {
+        const settings = { ...chatSettings, ...newSettings };
+        setChatSettings(settings);
+        localStorage.setItem(`chatSettings-${user.id}`, JSON.stringify(settings));
+    };
+
     // Fetch messages and user status from Firebase on component mount
     useEffect(() => {
         const messagesRef = databaseRef(database, `messagesD/${new Date().getFullYear()}/${new Date().getMonth() + 1}/${new Date().getDate()}/${user.id}/${otherUser.id}`);
@@ -162,42 +184,142 @@ const Chat = ({ user }) => {
                 <h2 className="text-xl text-center">{otherUser.name}</h2>
                 <p className="text-sm text-center">{lastSeen ? 'Last seen: ' + lastSeen : 'Offline'}</p>
             </div>
-            <div className="flex-1 overflow-y-auto p-4">
-                {/* Display messages */}
-                {messages.map((msg, index) => (
-                    <div key={index} className={`mb-2 ${msg.sender === user.id ? 'text-right' : 'text-left'}`}>
-                        <div className={`inline-block p-2 rounded-lg ${msg.sender === user.id ? 'bg-blue-500 text-white' : 'bg-gray-300'}`}>
-                            {msg.text}
-                            {renderMedia(msg.files)}
-                            {msg.location && (
-                                <div className="text-xs text-gray-500">Location: {msg.location.lat}, {msg.location.lon}</div>
+            <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-gray-500 hover:text-gray-700">
+                v
+                </button>
+                {isMenuOpen && (
+                    <div className="absolute right-0 mt-2 w-48 bg-white border rounded shadow-lg z-10">
+                        <div className="p-2">
+                            <button onClick={() => setIsColorMenuOpen(!isColorMenuOpen)} className="block text-left w-full">
+                                Colors
+                            </button>
+                            {isColorMenuOpen && (
+                                <div className="mt-2 bg-gray-100 p-2 rounded">
+                                    <button onClick={() => setIsSenderSettingsOpen(!isSenderSettingsOpen)} className="block text-left w-full">Sender</button>
+                                    {isSenderSettingsOpen && (
+                                        <div className="mt-2">
+                                            <label className="block text-sm">Sender Bubble Color:</label>
+                                            <input
+                                                type="color"
+                                                value={chatSettings.senderBubbleColor}
+                                                onChange={(e) => saveSettings({ senderBubbleColor: e.target.value })}
+                                                className="w-full h-8 p-0 border-none"
+                                            />
+                                            <label className="block text-sm">Sender Text Color:</label>
+                                            <input
+                                                type="color"
+                                                value={chatSettings.senderTextColor}
+                                                onChange={(e) => saveSettings({ senderTextColor: e.target.value })}
+                                                className="w-full h-8 p-0 border-none"
+                                            />
+                                        </div>
+                                    )}
+                                    <button onClick={() => setIsReceiverSettingsOpen(!isReceiverSettingsOpen)} className="block text-left w-full mt-2">Receiver</button>
+                                    {isReceiverSettingsOpen && (
+                                        <div className="mt-2">
+                                            <label className="block text-sm">Receiver Bubble Color:</label>
+                                            <input
+                                                type="color"
+                                                value={chatSettings.receiverBubbleColor}
+                                                onChange={(e) => saveSettings({ receiverBubbleColor: e.target.value })}
+                                                className="w-full h-8 p-0 border-none"
+                                            />
+                                            <label className="block text-sm">Receiver Text Color:</label>
+                                            <input
+                                                type="color"
+                                                value={chatSettings.receiverTextColor}
+                                                onChange={(e) => saveSettings({ receiverTextColor: e.target.value })}
+                                                className="w-full h-8 p-0 border-none"
+                                            />
+                                        </div>
+                                    )}
+                                </div>
                             )}
                         </div>
-                        <div className="text-xs text-gray-500 flex justify-end items-center">
-                            {new Date(msg.timestamp).toLocaleTimeString()}
-                            {msg.sender === user.id && (
-                                <span className="ml-2">
-                                    {msg.read ? (
-                                        <span className="text-blue-500">✔✔</span>
-                                    ) : (
-                                        <span>✔</span>
-                                    )}
-                                </span>
-                            )}
+                        <div className="flex items-center justify-between p-2">
+                            <span className="text-sm">Day/Night Mode</span>
+                            <button
+                                onClick={() => saveSettings({ isNightMode: !chatSettings.isNightMode })}
+                                className={`flex items-center ${chatSettings.isNightMode ? 'bg-gray-800' : 'bg-gray-300'} w-16 h-8 rounded-full relative`}
+                            >
+                                <span className={`absolute w-8 h-8 bg-white rounded-full transition-transform ${chatSettings.isNightMode ? 'transform translate-x-8' : ''}`} />
+                                <span className={`text-gray-700 ${chatSettings.isNightMode ? 'hidden' : 'block'}`}>☀️</span>
+                                <span className={`text-gray-700 ${chatSettings.isNightMode ? 'block' : 'hidden'}`}>🌙</span>
+                            </button>
                         </div>
                     </div>
+                )}
+            <div className="flex-1 overflow-y-auto p-4">
+                {/* Display messages */}
+                {/* Display messages */}
+                {messages.map((msg) => (
+                    (msg.text || (msg.files && msg.files.length > 0)) && (
+                        <div key={msg.timestamp} className={`mb-2 ${msg.sender === user.id ? 'text-right' : 'text-left'}`}>
+                            <div
+                                className={`inline-block p-2 rounded-lg`}
+                                style={{ backgroundColor: msg.sender === user.id ? chatSettings.senderBubbleColor : chatSettings.receiverBubbleColor }}
+                            >
+                                {msg.text && (
+                                    <div style={{ color: msg.sender === user.id ? chatSettings.senderTextColor : chatSettings.receiverTextColor }}>
+                                        {msg.text}
+                                    </div>
+                                )}
+                                {msg.files && renderMedia(msg.files)}
+                            </div>
+                            <div className="text-xs text-gray-500 flex justify-end items-center mt-1">
+                                {new Date(msg.timestamp).toLocaleTimeString()}
+                                {msg.sender === user.id && (
+                                    <span className="ml-2">
+                                        {msg.read ? (
+                                            <span className="text-blue-500">✔✔</span>
+                                        ) : (
+                                            <span>✔</span>
+                                        )}
+                                    </span>
+                                )}
+                            </div>
+                        </div>
+                    )
                 ))}
+
             </div>
             <div className="flex items-center p-4 border-t border-gray-300">
-                <input
-                    type="file"
-                    multiple
-                    accept="image/*,video/*"
-                    className="hidden"
-                    id="fileInput"
-                    onChange={handleFileChange}
-                />
-                <label htmlFor="fileInput" className="cursor-pointer text-blue-500">📎 Attach</label>
+                // <input
+                //     type="file"
+                //     multiple
+                //     accept="image/*,video/*"
+                //     className="hidden"
+                //     id="fileInput"
+                //     onChange={handleFileChange}
+                // />
+                // <label htmlFor="fileInput" className="cursor-pointer text-blue-500">File</label>
+                        //📎 Attach
+                <div className="flex flex-wrap">
+                    {selectedFiles.map((file, index) => (
+                        <div key={index} className="relative mr-2 flex items-center">
+                            <span
+                                className="absolute top-0 right-0 cursor-pointer text-red-500"
+                                onClick={() => removeFile(index)}
+                            >
+                                &times;
+                            </span>
+                            {/* Display a thumbnail or video preview based on file type */}
+                            {file.type.startsWith("video") ? (
+                                <video
+                                    src={URL.createObjectURL(file)}
+                                    className="w-20 h-20 object-cover rounded-lg m-1"
+                                    controls
+                                />
+                            ) : (
+                                <img
+                                    src={URL.createObjectURL(file)}
+                                    alt="Selected file"
+                                    className="w-20 h-20 object-cover rounded-lg m-1"
+                                />
+                            )}
+                        </div>
+                    ))}
+                </div>
                 <input
                     type="text"
                     value={messageText}
@@ -205,8 +327,12 @@ const Chat = ({ user }) => {
                     className="flex-1 mx-2 border rounded-lg p-2"
                     placeholder="Type your message..."
                 />
-                <button onClick={sendMessage} className="bg-blue-500 text-white p-2 rounded-lg" disabled={uploading}>
-                    {uploading ? 'Sending...' : 'Send'}
+                <button
+                    className="ml-2 p-2 bg-blue-500 text-white rounded-lg"
+                    onClick={sendMessage}
+                    disabled={uploading}
+                >
+                    {uploading ? "Sending..." : "Send"}
                 </button>
             </div>
         </div>
