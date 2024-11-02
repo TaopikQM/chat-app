@@ -49,8 +49,8 @@ const Chat = ({ user }) => {
       const month = (dateObj.getMonth() + 1).toString().padStart(2, '0');
       const day = dateObj.getDate().toString().padStart(2, '0');
   
-      const messagesRef = databaseRef(database, `messagesC/${user.id}/${otherUser.id}/${year}/${month}/${day}/`);
-  
+       const messagesRef = databaseRef(database, `messagesC/${user.id}/${otherUser.id}/${year}/${month}/${day}/`);
+
       onValue(messagesRef, (snapshot) => {
           const data = snapshot.val();
           const loadedMessages = data ? Object.values(data) : [];
