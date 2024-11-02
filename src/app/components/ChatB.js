@@ -242,7 +242,7 @@ const Chat = ({ user }) => {
                 <h2 className="text-xl text-center">{otherUser.name}</h2>
                 <p className="text-sm text-center">{lastSeen ? 'Last seen: ' + lastSeen : 'Offline'}</p>
 
-                <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-gray-500 hover:text-gray-700">
+                <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-center text-gray-500 hover:text-gray-700">
                     ...
                 </button>
             </div>
@@ -303,8 +303,8 @@ const Chat = ({ user }) => {
                                 className={`flex items-center ${chatSettings.isNightMode ? 'bg-gray-800' : 'bg-gray-300'} w-16 h-8 rounded-full relative`}
                             >
                                 <span className={`absolute w-8 h-8 bg-white rounded-full transition-transform ${chatSettings.isNightMode ? 'transform translate-x-8' : 'translate-x-0'}`} />
-                                <span className={`absolute left-1 text-gray-700 ${chatSettings.isNightMode ? 'hidden' : 'block'}`}>🌙</span>
-                                <span className={`absolute right-1 text-gray-700 ${chatSettings.isNightMode ? 'block' : 'hidden'}`}>☀️</span>
+                                <span className={`absolute left-1 text-gray-700 ${chatSettings.isNightMode ? 'hidden' : 'block'}`}>☀️</span>
+                                <span className={`absolute right-1 text-gray-700 ${chatSettings.isNightMode ? 'block' : 'hidden'}`}>🌙</span>
                             </button>
                         </div>
 
