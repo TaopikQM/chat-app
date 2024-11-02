@@ -255,17 +255,17 @@ const Chat = ({ user }) => {
                             </button>
                             {isColorMenuOpen && (
                                 <div className="mt-2 bg-gray-100 p-2 rounded">
-                                    <button onClick={() => setIsSenderSettingsOpen(!isSenderSettingsOpen)} className="block text-left w-full">Sender</button>
+                                    <button onClick={() => setIsSenderSettingsOpen(!isSenderSettingsOpen)} className="block text-left w-full">Dikirim</button>
                                     {isSenderSettingsOpen && (
                                         <div className="mt-2">
-                                            <label className="block text-sm">Sender Bubble Color:</label>
+                                            <label className="block text-sm">Bubble Color:</label>
                                             <input
                                                 type="color"
                                                 value={chatSettings.senderBubbleColor}
                                                 onChange={(e) => saveSettings({ senderBubbleColor: e.target.value })}
                                                 className="w-full h-8 p-0 border-none"
                                             />
-                                            <label className="block text-sm">Sender Text Color:</label>
+                                            <label className="block text-sm">Text Color:</label>
                                             <input
                                                 type="color"
                                                 value={chatSettings.senderTextColor}
@@ -274,17 +274,17 @@ const Chat = ({ user }) => {
                                             />
                                         </div>
                                     )}
-                                    <button onClick={() => setIsReceiverSettingsOpen(!isReceiverSettingsOpen)} className="block text-left w-full mt-2">Receiver</button>
+                                    <button onClick={() => setIsReceiverSettingsOpen(!isReceiverSettingsOpen)} className="block text-left w-full mt-2">Diterima</button>
                                     {isReceiverSettingsOpen && (
                                         <div className="mt-2">
-                                            <label className="block text-sm">Receiver Bubble Color:</label>
+                                            <label className="block text-sm">Bubble Color:</label>
                                             <input
                                                 type="color"
                                                 value={chatSettings.receiverBubbleColor}
                                                 onChange={(e) => saveSettings({ receiverBubbleColor: e.target.value })}
                                                 className="w-full h-8 p-0 border-none"
                                             />
-                                            <label className="block text-sm">Receiver Text Color:</label>
+                                            <label className="block text-sm">Text Color:</label>
                                             <input
                                                 type="color"
                                                 value={chatSettings.receiverTextColor}
