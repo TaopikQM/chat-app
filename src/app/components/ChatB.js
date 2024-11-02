@@ -223,8 +223,9 @@ const Chat = ({ user }) => {
     // Toggle visibility of "Scroll to Bottom" button
     const handleScroll = (e) => {
         const { scrollTop, scrollHeight, clientHeight } = e.target;
-        const isBottom = scrollHeight - scrollTop === clientHeight;
-        setShowScrollButton(!isBottom);
+        // Check if the user is close enough to the bottom
+        const isAtBottom = scrollHeight - scrollTop - clientHeight < 50; // Adjust the offset as needed
+        setShowScrollButton(!isAtBottom);
     };
 
     const renderMedia = (files) => {
