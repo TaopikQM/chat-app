@@ -16,8 +16,7 @@ const Chat = ({ user }) => {
     const [location, setLocation] = useState(null); // For storing GPS location
     
     const [isTyping, setIsTyping] = useState(false);
-     const [messageText, setMessageText] = useState(''); // Store message text
-
+   
 
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isColorMenuOpen, setIsColorMenuOpen] = useState(false);
