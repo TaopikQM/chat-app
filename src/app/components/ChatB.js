@@ -344,9 +344,10 @@ const Chat = ({ user }) => {
                 <input
                     type="text"
                     value={messageText}
-                    onChange={(e) => 
+                    onChange={(e) =>{ 
                         setMessageText(e.target.value);
-                             setIsTyping(true);}
+                             setIsTyping(true);
+                        }}
                     onBlur={() => setIsTyping(false)}
                     className="flex-1 mx-2 border rounded-lg p-2"
                     placeholder="Type your message..."
