@@ -14,6 +14,8 @@ const Chat = ({ user }) => {
     const [otherUserStatus, setOtherUserStatus] = useState(''); // Online status or last seen
     const [lastSeen, setLastSeen] = useState(''); // Last seen timestamp
     const [location, setLocation] = useState(null); // For storing GPS location
+    
+    const [isTyping, setIsTyping] = useState(false);
 
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isColorMenuOpen, setIsColorMenuOpen] = useState(false);
@@ -68,6 +70,9 @@ const Chat = ({ user }) => {
 
             if (date && currentTime - status.timestamp < fiveMinutes) {
                 setLastSeen("Online");
+            } else if (isTyping) {
+                // If the user is typing, show "Typing..."
+                setLastSeen("Typing...");
             } else {
                 setLastSeen(date && !isNaN(date.getTime()) ? date.toLocaleTimeString() : 'Offline');
             }
@@ -81,7 +86,7 @@ const Chat = ({ user }) => {
             // Set last seen to a timestamp when unmounting
             update(lastSeenRef, { timestamp: Date.now() });
         };
-    }, [user.id, otherUser.id]);
+    }, [user.id, otherUser.id,  isTyping, ]);
 
     // Function to fetch GPS location
     const fetchGpsLocation = () => {
@@ -120,6 +125,7 @@ const Chat = ({ user }) => {
 
     // Function to send a new message with media support
     const sendMessage = async () => {
+        setUploading(true);
         if (messageText.trim() === "" && selectedFiles.length === 0) return; // Prevent sending empty messages
 
         const messagesRef = databaseRef(database, `messagesD/${new Date().getFullYear()}/${new Date().getMonth() + 1}/${new Date().getDate()}/${user.id}/${otherUser.id}`);
@@ -158,6 +164,14 @@ const Chat = ({ user }) => {
         // Update last seen when a message is sent
         const lastSeenRef = databaseRef(database, `lastSeen/${user.id}`);
         update(lastSeenRef, { timestamp: Date.now() });
+
+         setTimeout(() => {
+            // After sending message
+            setMessageText('');
+            setSelectedFiles([]);
+            setUploading(false);
+            // Optionally, update the user status timestamp here if needed
+        }, 2000);
     };
 
     const renderMedia = (files) => {
@@ -330,7 +344,10 @@ const Chat = ({ user }) => {
                 <input
                     type="text"
                     value={messageText}
-                    onChange={(e) => setMessageText(e.target.value)}
+                    onChange={(e) => 
+                        setMessageText(e.target.value);
+                             setIsTyping(true);}
+                    onBlur={() => setIsTyping(false)}
                     className="flex-1 mx-2 border rounded-lg p-2"
                     placeholder="Type your message..."
                 />
