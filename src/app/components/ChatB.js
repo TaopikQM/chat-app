@@ -42,7 +42,7 @@ const Chat = ({ user }) => {
     };
 
     useEffect(() => {
-        const messagesRef = databaseRef(database, `messagesC/${user.id}/${otherUser.id}`);
+        const messagesRef = databaseRef(database, `messagesC/${user.id}/${otherUser.id}/${year}/${month}/${day}/`);
         
         onValue(messagesRef, (snapshot) => {
             const data = snapshot.val();
