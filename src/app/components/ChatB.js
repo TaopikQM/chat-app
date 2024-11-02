@@ -300,11 +300,12 @@ const Chat = ({ user }) => {
                                 onClick={() => saveSettings({ isNightMode: !chatSettings.isNightMode })}
                                 className={`flex items-center ${chatSettings.isNightMode ? 'bg-gray-800' : 'bg-gray-300'} w-16 h-8 rounded-full relative`}
                             >
-                                <span className={`absolute w-8 h-8 bg-white rounded-full transition-transform ${chatSettings.isNightMode ? 'transform translate-x-8' : ''}`} />
-                                <span className={`text-gray-700 ${chatSettings.isNightMode ? 'hidden' : 'block'}`}>☀️</span>
-                                <span className={`text-gray-700 ${chatSettings.isNightMode ? 'block' : 'hidden'}`}>🌙</span>
+                                <span className={`absolute w-8 h-8 bg-white rounded-full transition-transform ${chatSettings.isNightMode ? 'transform translate-x-8' : 'translate-x-0'}`} />
+                                <span className={`absolute left-1 text-gray-700 ${chatSettings.isNightMode ? 'hidden' : 'block'}`}>🌙</span>
+                                <span className={`absolute right-1 text-gray-700 ${chatSettings.isNightMode ? 'block' : 'hidden'}`}>☀️</span>
                             </button>
                         </div>
+
                     </div>
                 )}
             <div className="flex-1 overflow-y-auto p-4">
