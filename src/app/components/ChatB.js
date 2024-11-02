@@ -16,6 +16,8 @@ const Chat = ({ user }) => {
     const [location, setLocation] = useState(null); // For storing GPS location
     
     const [isTyping, setIsTyping] = useState(false);
+     const [messageText, setMessageText] = useState(''); // Store message text
+
 
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isColorMenuOpen, setIsColorMenuOpen] = useState(false);
@@ -30,6 +32,9 @@ const Chat = ({ user }) => {
         isNightMode: false,
     });
 
+   
+
+    
     useEffect(() => {
         const savedSettings = JSON.parse(localStorage.getItem(`chatSettings-${user.id}`));
         if (savedSettings) {
@@ -62,7 +67,10 @@ const Chat = ({ user }) => {
 
         // Fetch other user's last seen status
         const userStatusRef = databaseRef(database, `lastSeen/${otherUser.id}`);
-        onValue(userStatusRef, (snapshot) => {
+         const typingRef = databaseRef(database, `typingStatus/${user.id}/${otherUser.id}`);
+
+        // Listen for last seen updates
+        const unsubscribeLastSeen = onValue(userStatusRef, (snapshot) => {
             const status = snapshot.val();
             const date = status?.timestamp ? new Date(status.timestamp) : null;
             const currentTime = Date.now();
@@ -71,11 +79,10 @@ const Chat = ({ user }) => {
             if (date && currentTime - status.timestamp < fiveMinutes) {
                 setLastSeen("Online");
             } else if (isTyping) {
-                // If the user is typing, show "Typing..."
                 setLastSeen("Typing...");
             } else {
-                 if (date && !isNaN(date.getTime())) {
-                    const formattedDate = `${date.getDate().toString().padStart(2, '0')}.${(date.getMonth() + 1).toString().padStart(2, '0')}, ${date.getFullYear()} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+                if (date && !isNaN(date.getTime())) {
+                    const formattedDate = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()} - ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}:${date.getSeconds().toString().padStart(2, '0')} WIB`;
                     setLastSeen(formattedDate);
                 } else {
                     setLastSeen('Offline');
@@ -83,6 +90,22 @@ const Chat = ({ user }) => {
             }
         });
 
+        // Listen for typing status updates
+        const unsubscribeTyping = onValue(typingRef, (snapshot) => {
+            const typingStatus = snapshot.val();
+            if (typingStatus?.isTyping) {
+                setIsTyping(true);
+                setLastSeen("Typing...");
+            } else {
+                setIsTyping(false);
+            }
+        });
+
+        return () => {
+            unsubscribeLastSeen();
+            unsubscribeTyping();
+        };
+        
         // Update last seen when user is active
         const lastSeenRef = databaseRef(database, `lastSeen/${user.id}`);
         update(lastSeenRef, { timestamp: Date.now() });
@@ -91,8 +114,17 @@ const Chat = ({ user }) => {
             // Set last seen to a timestamp when unmounting
             update(lastSeenRef, { timestamp: Date.now() });
         };
-    }, [user.id, otherUser.id,  isTyping, ]);
+    }, [user.id, otherUser.id]);
 
+      const handleInputChange = (e) => {
+        setMessageText(e.target.value);
+        setIsTyping(true);
+        
+        // Update typing status in Firebase
+        const typingRef = databaseRef(database, `typingStatus/${user.id}/${otherUser.id}`);
+        set(typingRef, { isTyping: true });
+    };
+    
     // Function to fetch GPS location
     const fetchGpsLocation = () => {
         if (navigator.geolocation) {
@@ -133,10 +165,14 @@ const Chat = ({ user }) => {
        if (messageText.trim() === "" && selectedFiles.length === 0) return; // Prevent sending empty messages
 
         const messagesRef = databaseRef(database, `messagesD/${new Date().getFullYear()}/${new Date().getMonth() + 1}/${new Date().getDate()}/${user.id}/${otherUser.id}`);
+        // Get current time in Jakarta timezone (UTC+7)
+        const jakartaTime = new Date(Date.now() + (7 * 60 * 60 * 1000)); // UTC time + 7 hours
+        const formattedTimestamp = jakartaTime.toISOString(); // Store in ISO format if needed for further processing
+
         const newMessage = {
             text: messageText,
             sender: user.id,
-            timestamp: Date.now(),
+            timestamp: formattedTimestamp,
             read: false,
             files: [],
             location: user.id === 'user1' ? location : null // Set location only for user1
@@ -290,9 +326,9 @@ const Chat = ({ user }) => {
                                 {msg.files && renderMedia(msg.files)}
                             </div>
                             <div className="text-xs text-gray-500 flex justify-end items-center mt-1">
-                                  {(() => {
+                                   {(() => {
                                         const date = new Date(msg.timestamp);
-                                        const formattedDate = `${date.getDate().toString().padStart(2, '0')}.${(date.getMonth() + 1).toString().padStart(2, '0')}, ${date.getFullYear()} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+                                        const formattedDate = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()} - ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}:${date.getSeconds().toString().padStart(2, '0')} WIB`;
                                         return formattedDate;
                                     })()}
                                 {msg.sender === user.id && (
