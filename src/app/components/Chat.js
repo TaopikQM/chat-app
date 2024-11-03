@@ -17,7 +17,7 @@ const Chat = ({ user }) => {
 
     // Fetch messages and user status from Firebase on component mount
     useEffect(() => {
-        const messagesRef = databaseRef(database, `messages/${user.id}/${otherUser.id}`);
+        const messagesRef = databaseRef(database, `messagesU/${user.id}/${otherUser.id}`);
         onValue(messagesRef, (snapshot) => {
             const data = snapshot.val();
             const loadedMessages = data ? Object.values(data) : [];
@@ -26,7 +26,7 @@ const Chat = ({ user }) => {
             // Mark all messages as read when the user views the chat
             loadedMessages.forEach((msg) => {
                 if (!msg.read && msg.sender !== user.id) {
-                    update(databaseRef(database, `messages/${user.id}/${otherUser.id}/${msg.id}`), { read: true });
+                    update(databaseRef(database, `messagesU/${user.id}/${otherUser.id}/${msg.id}`), { read: true });
                     update(databaseRef(database, `messages/${otherUser.id}/${user.id}/${msg.id}`), { read: true });
                 }
             });
@@ -75,7 +75,7 @@ const Chat = ({ user }) => {
     const sendMessage = async () => {
         if (messageText.trim() === "" && selectedFiles.length === 0) return; // Prevent sending empty messages
 
-        const messagesRef = databaseRef(database, `messages/${user.id}/${otherUser.id}`);
+        const messagesRef = databaseRef(database, `messagesU/${user.id}/${otherUser.id}`);
         const newMessage = {
             text: messageText,
             sender: user.id,
