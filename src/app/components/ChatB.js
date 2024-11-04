@@ -70,7 +70,7 @@ const Chat = ({ user }) => {
         });
 
         // Fetch other user's last seen status
-        const userStatusRef = databaseRef(database, `lastSeen/${otherUser.id}`);
+        const userStatusRef = databaseRef(database, `lastSeenD/${otherUser.id}`);
         const typingRef = databaseRef(database, `typingStatus/${user.id}/${otherUser.id}`);
 
         // Listen for last seen updates
@@ -111,7 +111,7 @@ const Chat = ({ user }) => {
         };
         
         // Update last seen when user is active
-        const lastSeenRef = databaseRef(database, `lastSeen/${user.id}`);
+        const lastSeenRef = databaseRef(database, `lastSeenD/${user.id}`);
         update(lastSeenRef, { timestamp: Date.now() });
 
         return () => {
@@ -213,7 +213,7 @@ const Chat = ({ user }) => {
         }, 2000);
         
         // Update last seen when a message is sent
-        const lastSeenRef = databaseRef(database, `lastSeen/${user.id}`);
+        const lastSeenRef = databaseRef(database, `lastSeenD/${user.id}`);
         update(lastSeenRef, { timestamp: Date.now() });
 
          
