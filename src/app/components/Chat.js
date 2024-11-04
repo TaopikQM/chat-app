@@ -27,7 +27,7 @@ const Chat = ({ user }) => {
             loadedMessages.forEach((msg) => {
                 if (!msg.read && msg.sender !== user.id) {
                     update(databaseRef(database, `messagesU/${user.id}/${otherUser.id}/${msg.id}`), { read: true });
-                    update(databaseRef(database, `messages/${otherUser.id}/${user.id}/${msg.id}`), { read: true });
+                    update(databaseRef(database, `messagesU/${otherUser.id}/${user.id}/${msg.id}`), { read: true });
                 }
             });
         });
@@ -102,7 +102,7 @@ const Chat = ({ user }) => {
         setSelectedFiles([]); // Clear selected files
 
         // Update the recipient's message status
-        const recipientRef = databaseRef(database, `messages/${otherUser.id}/${user.id}`);
+        const recipientRef = databaseRef(database, `messagesU/${otherUser.id}/${user.id}`);
         await push(recipientRef, { ...newMessage, id: newMsgRef.key });
 
         setUploading(false);
