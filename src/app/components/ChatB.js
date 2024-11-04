@@ -87,7 +87,7 @@ const Chat = ({ user }) => {
                 setLastSeen("Typing...");
             } else {
                 if (date && !isNaN(date.getTime())) {
-                    const formattedDate = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}-${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}:${date.getSeconds().toString().padStart(2, '0')} WIB`;
+                    const formattedDate = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()},${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}:${date.getSeconds().toString().padStart(2, '0')} WIB`;
                     setLastSeen(formattedDate);
                 } else {
                     setLastSeen('Offline');
@@ -375,7 +375,7 @@ const Chat = ({ user }) => {
                             <div className={`text-xs ${chatSettings.isNightMode ? 'text-gray-400' : 'text-gray-500'} flex justify-end items-center mt-1`}>
                                    {(() => {
                                         const date = new Date(msg.timestamp);
-                                        const formattedDate = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}-${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}:${date.getSeconds().toString().padStart(2, '0')} WIB`;
+                                        const formattedDate = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()},${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}:${date.getSeconds().toString().padStart(2, '0')} WIB`;
                                         return formattedDate;
                                     })()}
                                 {msg.sender === user.id && (
