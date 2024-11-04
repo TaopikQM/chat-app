@@ -4,7 +4,7 @@ import { UserProvider } from '../context/UserContext';
 const adminZ1 = () => {
     return (
         <UserProvider>
-            <Chat user={{ id: 'user1', name: 'User 1' }} />
+            <ChatZ user={{ id: 'user1', name: 'User 1' }} />
         </UserProvider>
     );
 };
