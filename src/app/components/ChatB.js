@@ -19,7 +19,9 @@ const Chat = ({ user }) => {
     
     const [isTyping, setIsTyping] = useState(false);
     const [showScrollButton, setShowScrollButton] = useState(false);
-   const messagesEndRef = useRef(null);
+    const messagesEndRef = useRef(null);
+    const ITEMS_PER_PAGE = 20;
+    const messagesContainerRef = useRef(null);
 
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isColorMenuOpen, setIsColorMenuOpen] = useState(false);
@@ -32,9 +34,7 @@ const Chat = ({ user }) => {
         senderTextColor: '#FFFFFF', // Default sender text color
         receiverTextColor: '#000000', // Default receiver text color
         isNightMode: false,
-    });
-
-   
+    });   
 
     
     useEffect(() => {
@@ -57,6 +57,8 @@ const Chat = ({ user }) => {
             const data = snapshot.val();
             const loadedMessages = data ? Object.values(data) : [];
             setMessages(loadedMessages);
+            setDisplayedMessages(loadedMessages.slice(-ITEMS_PER_PAGE)); // Display the last 20 messages
+        
             
             // Mark all messages as read when the user views the chat
             loadedMessages.forEach((msg) => {
@@ -69,7 +71,7 @@ const Chat = ({ user }) => {
 
         // Fetch other user's last seen status
         const userStatusRef = databaseRef(database, `lastSeen/${otherUser.id}`);
-         const typingRef = databaseRef(database, `typingStatus/${user.id}/${otherUser.id}`);
+        const typingRef = databaseRef(database, `typingStatus/${user.id}/${otherUser.id}`);
 
         // Listen for last seen updates
         const unsubscribeLastSeen = onValue(userStatusRef, (snapshot) => {
@@ -223,10 +225,34 @@ const Chat = ({ user }) => {
     };
 
     // Toggle visibility of "Scroll to Bottom" button
-    const handleScroll = (e) => {
-        const { scrollTop, scrollHeight, clientHeight } = e.target;
-        // Check if the user is close enough to the bottom
-        const isAtBottom = scrollHeight - scrollTop - clientHeight < 50; // Adjust the offset as needed
+    // const handleScroll = (e) => {
+    //     const { scrollTop, scrollHeight, clientHeight } = e.target;
+    //     // Check if the user is close enough to the bottom
+    //     const isAtBottom = scrollHeight - scrollTop - clientHeight < 50; // Adjust the offset as needed
+    //     setShowScrollButton(!isAtBottom);
+    // };
+    const handleScroll = () => {
+        if (!messagesContainerRef.current) return;
+
+        const { scrollTop, scrollHeight, clientHeight } = messagesContainerRef.current;
+        
+        if (scrollTop === 0) {
+            // Load older messages when scrolled to top
+            const displayedStartIndex = messages.indexOf(displayedMessages[0]);
+            if (displayedStartIndex > 0) {
+                const newStart = Math.max(0, displayedStartIndex - ITEMS_PER_PAGE);
+                setDisplayedMessages(messages.slice(newStart, displayedStartIndex));
+            }
+        } else if (scrollHeight - scrollTop === clientHeight) {
+            // Load newer messages when scrolled to bottom
+            const displayedEndIndex = messages.indexOf(displayedMessages[displayedMessages.length - 1]);
+            if (displayedEndIndex < messages.length - 1) {
+                const newEnd = Math.min(messages.length, displayedEndIndex + ITEMS_PER_PAGE);
+                setDisplayedMessages(messages.slice(displayedEndIndex + 1, newEnd));
+            }
+        }
+
+        const isAtBottom = scrollHeight - scrollTop - clientHeight < 50;
         setShowScrollButton(!isAtBottom);
     };
 
@@ -328,10 +354,10 @@ const Chat = ({ user }) => {
 
                     </div>
                 )}
-            <div className="relative flex-1 overflow-y-auto p-4"  onScroll={handleScroll}>
+            <div ref={messagesContainerRef} className="relative flex-1 overflow-y-auto p-4"  onScroll={handleScroll}>
                 {/* Display messages */}
                 {/* Display messages */}
-                {messages.map((msg) => (
+                {displayedMessages.map((msg) => (
                     (msg.text || (msg.files && msg.files.length > 0)) && (
                         <div key={msg.timestamp} className={`mb-2 ${msg.sender === user.id ? 'text-right' : 'text-left'}`}>
                             <div
