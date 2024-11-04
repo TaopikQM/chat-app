@@ -21,7 +21,8 @@ const Chat = ({ user }) => {
     const [showScrollButton, setShowScrollButton] = useState(false);
     const messagesEndRef = useRef(null);
     const ITEMS_PER_PAGE = 20;
-    const messagesContainerRef = useRef(null);
+    const messagesContainerRef = useRef(null);const [displayedMessages, setDisplayedMessages] = useState([]); // Only the 20 visible messages
+    
 
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isColorMenuOpen, setIsColorMenuOpen] = useState(false);
