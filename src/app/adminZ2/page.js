@@ -1,4 +1,4 @@
-import adminZ2 from '../components/adminZ2';
+import ChatZ from '../components/ChatZ';
 import { UserProvider } from '../context/UserContext';
 
 const adminZ2Page = () => {
