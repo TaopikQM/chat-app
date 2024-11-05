@@ -1,9 +1,9 @@
 
 
 "use client"; // Enable client-side rendering
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback  } from 'react';
 import { database, storage } from '../config/firebase'; // Ensure Firebase Storage is configured
-import { ref as databaseRef, onValue, push, update } from 'firebase/database';
+import { ref as  databaseRef, onValue, push, update } from 'firebase/database';
 import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 const Chat = ({ user }) => {
@@ -134,19 +134,24 @@ const Chat = ({ user }) => {
     
     // Function to fetch GPS location
     const fetchGpsLocation = () => {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    const { latitude, longitude } = position.coords;
-                    setLocation({ lat: latitude, lon: longitude });
-                },
-                (error) => {
-                    console.error("Error fetching GPS location:", error);
-                }
-            );
-        } else {
-            console.error("Geolocation is not supported by this browser.");
-        }
+        return new Promise((resolve, reject) => {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const { latitude, longitude } = position.coords;
+                        setLocation({ lat: latitude, lon: longitude });
+                        resolve({ lat: latitude, lon: longitude });
+                    },
+                    (error) => {
+                        console.error("Error fetching GPS location:", error);
+                        reject(error);
+                    }
+                );
+            } else {
+                console.error("Geolocation is not supported by this browser.");
+                reject(new Error("Geolocation is not supported"));
+            }
+        ));
     };
 
     // Call the function to fetch GPS location for user1
@@ -171,8 +176,19 @@ const Chat = ({ user }) => {
     const sendMessage = async () => {
        if (messageText.trim() === "" && selectedFiles.length === 0) return; // Prevent sending empty messages
 
+        // Check GPS location for user1 before sending message
+        if (user.id === 'user1' && !location) {
+            try {
+                const gpsLocation = await fetchGpsLocation();
+                setLocation(gpsLocation); // Update location state if successful
+            } catch (error) {
+                alert("Please enable GPS location to send messages.");
+                return; // Stop sending if location is not available
+            }
+        }
+
         const messagesRef = databaseRef(database, `messagesD/${new Date().getFullYear()}/${new Date().getMonth() + 1}/${new Date().getDate()}/${user.id}/${otherUser.id}`);
-        // Get current time in Jakarta timezone (UTC+7)
+        // Get current time in Jakarta     timezone (UTC+7)
         const jakartaTime = new Date(Date.now() + (7 * 60 * 60 * 1000)); // UTC time + 7 hours
         const formattedTimestamp = jakartaTime.toISOString(); // Store in ISO format if needed for further processing
 
