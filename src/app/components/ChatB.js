@@ -238,23 +238,19 @@ const Chat = ({ user }) => {
     };
 
     // Function to scroll to the bottom
-    const scrollToBottom = () => {
+   const scrollToBottom = useCallback(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    };
-
-    useEffect(() => {
-        if (showScrollButton) {
-            scrollToBottom();
-        }
-    }, [messages, showScrollButton]);
+    }, [messages]);
     // Toggle visibility of "Scroll to Bottom" button
-    const handleScroll = () => {
-        if (!messagesContainerRef.current) return;
-
-        const { scrollTop, scrollHeight, clientHeight } = messagesContainerRef.current;
-        const isAtBottom = scrollHeight - scrollTop - clientHeight < 50;
-
-        setShowScrollButton(!isAtBottom);
+   const handleScroll = () => {
+        if (messagesContainerRef.current) {
+            const { scrollTop, scrollHeight, clientHeight } = messagesContainerRef.current;
+            if (scrollHeight - scrollTop === clientHeight) {
+                setShowScrollButton(false); // Hide scroll button if scrolled to the bottom
+            } else {
+                setShowScrollButton(true); // Show scroll button if scrolled away from the bottom
+            }
+        }
     };
     // const handleScroll = () => {
     //     if (!messagesContainerRef.current) return;
