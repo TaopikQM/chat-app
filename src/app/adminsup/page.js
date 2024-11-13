@@ -1,11 +1,11 @@
 
-import ChatB from '../components/ChatB';
+import ChatZ from '../components/ChatZ';
 import { UserProvider } from '../context/UserContext';
 
 const User4Page = () => {
     return (
         <UserProvider>
-            <ChatB user={{ id: 'user1', name: 'User 1' }} />
+            <ChatZ user={{ id: 'user1', name: 'User 1' }} />
         </UserProvider>
     );
 };
