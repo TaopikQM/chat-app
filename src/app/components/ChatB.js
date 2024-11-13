@@ -242,30 +242,35 @@ const Chat = ({ user }) => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages]);
     // Toggle visibility of "Scroll to Bottom" button
- const handleScroll = () => {
-    if (messagesContainerRef.current) {
-        const { scrollTop, scrollHeight, clientHeight } = messagesContainerRef.current;
-
-        // Check if the user is at the bottom or has scrolled up
-        if (scrollHeight - scrollTop === clientHeight) {
-            setShowScrollButton(false); // Hide button if scrolled to the bottom
-        } else {
-            setShowScrollButton(true); // Show button if scrolled away from the bottom
+    // Toggle visibility of "Scroll to Bottom" button
+    const handleScroll = () => {
+        if (messagesContainerRef.current) {
+            const { scrollTop, scrollHeight, clientHeight } = messagesContainerRef.current;
+    
+            // Check if the user is at or near the bottom of the chat
+            if (scrollHeight - scrollTop <= clientHeight + 1) { // Allowing small margin for floating-point inaccuracies
+                setShowScrollButton(false);
+            } else {
+                setShowScrollButton(true);
+            }
         }
-    }
-};
+    };
     
     // Effect to check if the user is at the bottom when new messages arrive
     useEffect(() => {
-    const { scrollHeight, scrollTop, clientHeight } = messagesContainerRef.current || {};
+        if (messagesContainerRef.current) {
+            const { scrollTop, scrollHeight, clientHeight } = messagesContainerRef.current;
+            
+            // If we're already at the bottom or near it, scroll and hide the button
+            if (scrollHeight - scrollTop <= clientHeight + 1) {
+                scrollToBottom();
+                setShowScrollButton(false);
+            } else {
+                setShowScrollButton(true);
+            }
+        }
+    }, [messages]);
 
-    // If we're at the bottom when messages are loaded, hide the button
-    if (scrollHeight - scrollTop === clientHeight) {
-        setShowScrollButton(false);
-    } else {
-        setShowScrollButton(true);
-    }
-}, [messages]);
 
     const renderMedia = (files) => {
         if (!files || files.length === 0) return null;
