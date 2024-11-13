@@ -243,28 +243,30 @@ const Chat = ({ user }) => {
     }, [messages]);
     // Toggle visibility of "Scroll to Bottom" button
   // Toggle visibility of "Scroll to Bottom" button
-const handleScroll = () => {
-    if (messagesContainerRef.current) {
-        const { scrollTop, scrollHeight, clientHeight } = messagesContainerRef.current;
-
-        // Check if scrolled to the bottom
+    const handleScroll = () => {
+        if (messagesContainerRef.current) {
+            const { scrollTop, scrollHeight, clientHeight } = messagesContainerRef.current;
+    
+            // Check if scrolled to the bottom
+            if (scrollHeight - scrollTop === clientHeight) {
+                setShowScrollButton(false); // Hide scroll button when scrolled to the bottom
+            } else {
+                setShowScrollButton(true); // Show scroll button if scrolled away from the bottom
+            }
+        }
+    };
+    
+    // Effect to check if the user is at the bottom when new messages arrive
+    useEffect(() => {
+        const { scrollHeight, scrollTop, clientHeight } = messagesContainerRef.current || {};
+    
+        // If we're already at the bottom, hide the button
         if (scrollHeight - scrollTop === clientHeight) {
-            setShowScrollButton(false); // Hide scroll button when scrolled to the bottom
+            setShowScrollButton(false);
         } else {
-            setShowScrollButton(true); // Show scroll button if scrolled away from the bottom
+            setShowScrollButton(true);
         }
-    }
-};
-
-// Effect to check if the user is at the bottom when new messages arrive
-useEffect(() => {
-    if (messagesContainerRef.current) {
-        const { scrollHeight, scrollTop, clientHeight } = messagesContainerRef.current;
-        if (scrollHeight - scrollTop === clientHeight) {
-            setShowScrollButton(false); // Hide the button if already at the bottom
-        }
-    }
-}, [messages]);
+    }, [messages]);
 
     const renderMedia = (files) => {
         if (!files || files.length === 0) return null;
