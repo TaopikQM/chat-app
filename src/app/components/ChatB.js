@@ -217,6 +217,7 @@ const Chat = ({ user }) => {
         const newMsgRef = await push(messagesRef, newMessage);
         setMessageText(''); // Clear input after sending
         setSelectedFiles([]); // Clear selected files
+        
 
         // Update the recipient's message status
         const recipientRef = databaseRef(database, `messagesD/${new Date().getFullYear()}/${new Date().getMonth() + 1}/${new Date().getDate()}/${otherUser.id}/${user.id}`);
@@ -247,10 +248,12 @@ const Chat = ({ user }) => {
         }
     }, [messages, showScrollButton]);
     // Toggle visibility of "Scroll to Bottom" button
-    const handleScroll = (e) => {
-        const { scrollTop, scrollHeight, clientHeight } = e.target;
-        // Check if the user is close enough to the bottom
-        const isAtBottom = scrollHeight - scrollTop - clientHeight < 50; // Adjust the offset as needed
+    const handleScroll = () => {
+        if (!messagesContainerRef.current) return;
+
+        const { scrollTop, scrollHeight, clientHeight } = messagesContainerRef.current;
+        const isAtBottom = scrollHeight - scrollTop - clientHeight < 50;
+
         setShowScrollButton(!isAtBottom);
     };
     // const handleScroll = () => {
