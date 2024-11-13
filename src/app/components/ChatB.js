@@ -245,13 +245,22 @@ const Chat = ({ user }) => {
    const handleScroll = () => {
         if (messagesContainerRef.current) {
             const { scrollTop, scrollHeight, clientHeight } = messagesContainerRef.current;
-            if (scrollHeight - scrollTop === clientHeight) {
-                setShowScrollButton(false); // Hide scroll button if scrolled to the bottom
-            } else {
-                setShowScrollButton(true); // Show scroll button if scrolled away from the bottom
+    
+            // If scrolled to the top, show the button
+            if (scrollTop === 0) {
+                setShowScrollButton(true); // Show button at the top
+            }
+            // If scrolled to the bottom, hide the button
+            else if (scrollHeight - scrollTop === clientHeight) {
+                setShowScrollButton(false); // Hide button at the bottom
+            } 
+            // If scrolled away from the bottom, show the button
+            else {
+                setShowScrollButton(true);
             }
         }
     };
+
     // const handleScroll = () => {
     //     if (!messagesContainerRef.current) return;
 
