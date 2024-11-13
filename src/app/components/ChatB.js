@@ -242,24 +242,28 @@ const Chat = ({ user }) => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages]);
     // Toggle visibility of "Scroll to Bottom" button
-   const handleScroll = () => {
+  // Toggle visibility of "Scroll to Bottom" button
+    const handleScroll = () => {
         if (messagesContainerRef.current) {
             const { scrollTop, scrollHeight, clientHeight } = messagesContainerRef.current;
-    
-            // If scrolled to the top, show the button
-            if (scrollTop === 0) {
-                setShowScrollButton(true); // Show button at the top
-            }
-            // If scrolled to the bottom, hide the button
-            else if (scrollHeight - scrollTop === clientHeight) {
-                setShowScrollButton(false); // Hide button at the bottom
-            } 
-            // If scrolled away from the bottom, show the button
-            else {
-                setShowScrollButton(true);
+            
+            // Check if scrolled to the bottom
+            if (scrollHeight - scrollTop === clientHeight) {
+                setShowScrollButton(false); // Hide scroll button when scrolled to the bottom
+            } else {
+                setShowScrollButton(true); // Show scroll button if scrolled away from the bottom
             }
         }
     };
+
+    // Effect to check if the user is at the bottom when new messages arrive
+    useEffect(() => {
+        // Check if we are already at the bottom when new messages are added
+        const { scrollHeight, scrollTop, clientHeight } = messagesContainerRef.current || {};
+        if (scrollHeight - scrollTop === clientHeight) {
+            setShowScrollButton(false); // Hide the button if already at the bottom
+        }
+    }, [messages]);
 
     // const handleScroll = () => {
     //     if (!messagesContainerRef.current) return;
