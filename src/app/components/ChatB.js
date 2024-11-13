@@ -74,42 +74,33 @@ const Chat = ({ user }) => {
         const userStatusRef = databaseRef(database, `lastSeenD/${otherUser.id}`);
         const typingRef = databaseRef(database, `typingStatus/${user.id}/${otherUser.id}`);
 
-        // Listen for last seen updates
-        const unsubscribeLastSeen = onValue(userStatusRef, (snapshot) => {
-            const status = snapshot.val();
-            const date = status?.timestamp ? new Date(status.timestamp) : null;
-            const currentTime = Date.now();
-            const fiveMinutes = 5 * 60 * 1000;
-
-            if (date && currentTime - status.timestamp < fiveMinutes) {
-                setLastSeen("Online");
-            } else if (isTyping) {
-                setLastSeen("Typing...");
-            } else {
-                if (date && !isNaN(date.getTime())) {
-                    const formattedDate = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()},${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}:${date.getSeconds().toString().padStart(2, '0')} WIB`;
-                    setLastSeen(formattedDate);
-                } else {
-                    setLastSeen('Offline');
+        const fetchMessages = () => {
+        onValue(messagesRef, (snapshot) => {
+            const data = snapshot.val();
+            const loadedMessages = data ? Object.values(data) : [];
+            setMessages(loadedMessages);
+            scrollToBottom();
+            
+            // Mark all messages as read when the user views the chat
+            loadedMessages.forEach((msg) => {
+                if (!msg.read && msg.sender !== user.id) {
+                    update(databaseRef(database, `messagesD/${new Date().getFullYear()}/${new Date().getMonth() + 1}/${new Date().getDate()}/${user.id}/${otherUser.id}/${msg.id}`), { read: true });
+                    update(databaseRef(database, `messagesD/${new Date().getFullYear()}/${new Date().getMonth() + 1}/${new Date().getDate()}/${otherUser.id}/${user.id}/${msg.id}`), { read: true });
                 }
-            }
+            });
         });
+    };
 
-        // Listen for typing status updates
-        const unsubscribeTyping = onValue(typingRef, (snapshot) => {
-            const typingStatus = snapshot.val();
-            if (typingStatus?.isTyping) {
-                setIsTyping(true);
-                setLastSeen("Typing...");
-            } else {
-                setIsTyping(false);
-            }
-        });
+    // Fetch messages on component mount
+    fetchMessages();
 
-        return () => {
-            unsubscribeLastSeen();
-            unsubscribeTyping();
-        };
+    // Set an interval to re-fetch messages every 20 seconds
+    const intervalId = setInterval(fetchMessages, 20000);
+
+    // Cleanup function
+    return () => {
+        clearInterval(intervalId); // Clear interval when component unmounts
+    };
         
         // Update last seen when user is active
         const lastSeenRef = databaseRef(database, `lastSeenD/${user.id}`);
