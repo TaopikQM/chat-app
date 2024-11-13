@@ -151,7 +151,7 @@ const Chat = ({ user }) => {
                 console.error("Geolocation is not supported by this browser.");
                 reject(new Error("Geolocation is not supported"));
             }
-        ));
+        )};
     };
 
     // Call the function to fetch GPS location for user1
