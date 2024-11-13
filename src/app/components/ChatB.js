@@ -37,7 +37,7 @@ const Chat = ({ user }) => {
 
     
     useEffect(() => {
-        const savedSettings = JSON.parse(localStorage.getItem(chatSettings-${user.id}));
+        const savedSettings = JSON.parse(localStorage.getItem(`chatSettings-${user.id}`));
         if (savedSettings) {
             setChatSettings(savedSettings);
         }
