@@ -1,10 +1,501 @@
 
 
+"use client"; // Enable client-side rendering
+import React, { useState, useRef, useEffect, useCallback  } from 'react';
+import { database, storage } from '../config/firebase'; // Ensure Firebase Storage is configured
+import { ref as  databaseRef, onValue, push, update } from 'firebase/database';
+import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
+
+const Chat = ({ user }) => {
+    const otherUser = user.id === 'user1' ? { id: 'user2', name: 'User 2' } : { id: 'user1', name: 'User 1' };
+    
+    const [messages, setMessages] = useState([]);
+    const [messageText, setMessageText] = useState('');
+    const [selectedFiles, setSelectedFiles] = useState([]);
+    const [uploading, setUploading] = useState(false);
+    const [otherUserStatus, setOtherUserStatus] = useState(''); // Online status or last seen
+    const [lastSeen, setLastSeen] = useState(''); // Last seen timestamp
+    const [location, setLocation] = useState(null); // For storing GPS location
+    
+    const [isTyping, setIsTyping] = useState(false);
+    const [showScrollButton, setShowScrollButton] = useState(false);
+    const messagesEndRef = useRef(null);
+    const messagesContainerRef = useRef(null);
+    
+
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [isColorMenuOpen, setIsColorMenuOpen] = useState(false);
+    const [isSenderSettingsOpen, setIsSenderSettingsOpen] = useState(false);
+    const [isReceiverSettingsOpen, setIsReceiverSettingsOpen] = useState(false);
+    
+    const [chatSettings, setChatSettings] = useState({
+        senderBubbleColor: '#3B82F6', // Default bubble color
+        receiverBubbleColor: '#E5E7EB', // Default bubble color
+        senderTextColor: '#FFFFFF', // Default sender text color
+        receiverTextColor: '#000000', // Default receiver text color
+        isNightMode: false,
+    });   
+
+    
+    useEffect(() => {
+        const savedSettings = JSON.parse(localStorage.getItem(`chatSettings-${user.id}`));
+        if (savedSettings) {
+            setChatSettings(savedSettings);
+        }
+    }, [user.id]);
+
+    const saveSettings = (newSettings) => {
+        const settings = { ...chatSettings, ...newSettings };
+        setChatSettings(settings);
+        localStorage.setItem(`chatSettings-${user.id}`, JSON.stringify(settings));
+    };
+
+    // Fetch messages and user status from Firebase on component mount
+    useEffect(() => {
+        const messagesRef = databaseRef(database, `messagesD/${new Date().getFullYear()}/${new Date().getMonth() + 1}/${new Date().getDate()}/${user.id}/${otherUser.id}`);
+        onValue(messagesRef, (snapshot) => {
+            const data = snapshot.val();
+            const loadedMessages = data ? Object.values(data) : [];
+            setMessages(loadedMessages);
+            scrollToBottom(); // Automatically scroll to bottom when new messages are loaded
+
+           
+            
+            // Mark all messages as read when the user views the chat
+            loadedMessages.forEach((msg) => {
+                if (!msg.read && msg.sender !== user.id) {
+                    update(databaseRef(database, `messagesD/${new Date().getFullYear()}/${new Date().getMonth() + 1}/${new Date().getDate()}/${user.id}/${otherUser.id}/${msg.id}`), { read: true });
+                    update(databaseRef(database, `messagesD/${new Date().getFullYear()}/${new Date().getMonth() + 1}/${new Date().getDate()}/${otherUser.id}/${user.id}/${msg.id}`), { read: true });
+                }
+            });
+        });
+
+        // Fetch other user's last seen status
+        const userStatusRef = databaseRef(database, `lastSeenD/${otherUser.id}`);
+        const typingRef = databaseRef(database, `typingStatus/${user.id}/${otherUser.id}`);
+
+        // Listen for last seen updates
+        const unsubscribeLastSeen = onValue(userStatusRef, (snapshot) => {
+            const status = snapshot.val();
+            const date = status?.timestamp ? new Date(status.timestamp) : null;
+            const currentTime = Date.now();
+            const fiveMinutes = 5 * 60 * 1000;
+
+            if (date && currentTime - status.timestamp < fiveMinutes) {
+                setLastSeen("Online");
+            } else if (isTyping) {
+                setLastSeen("Typing...");
+            } else {
+                if (date && !isNaN(date.getTime())) {
+                    const formattedDate = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()},${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}:${date.getSeconds().toString().padStart(2, '0')} WIB`;
+                    setLastSeen(formattedDate);
+                } else {
+                    setLastSeen('Offline');
+                }
+            }
+        });
+
+        // Listen for typing status updates
+        const unsubscribeTyping = onValue(typingRef, (snapshot) => {
+            const typingStatus = snapshot.val();
+            if (typingStatus?.isTyping) {
+                setIsTyping(true);
+                setLastSeen("Typing...");
+            } else {
+                setIsTyping(false);
+            }
+        });
+
+        return () => {
+            unsubscribeLastSeen();
+            unsubscribeTyping();
+        };
+        
+        // Update last seen when user is active
+        const lastSeenRef = databaseRef(database, `lastSeenD/${user.id}`);
+        update(lastSeenRef, { timestamp: Date.now() });
+
+        return () => {
+            // Set last seen to a timestamp when unmounting
+            update(lastSeenRef, { timestamp: Date.now() });
+        };
+        scrollToBottom();
+        
+    }, [user.id, otherUser.id]);
+
+      const handleInputChange = (e) => {
+        setMessageText(e.target.value);
+        setIsTyping(true);
+        
+        // Update typing status in Firebase
+        const typingRef = databaseRef(database, `typingStatus/${user.id}/${otherUser.id}`);
+        set(typingRef, { isTyping: true });
+    };
+    
+    // Function to fetch GPS location
+    const fetchGpsLocation = () => {
+        return new Promise((resolve, reject) => {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const { latitude, longitude } = position.coords;
+                        setLocation({ lat: latitude, lon: longitude });
+                        resolve({ lat: latitude, lon: longitude });
+                    },
+                    (error) => {
+                        console.error("Error fetching GPS location:", error);
+                        reject(error);
+                    }
+                );
+            } else {
+                console.error("Geolocation is not supported by this browser.");
+                reject(new Error("Geolocation is not supported"));
+            }
+        });
+    };
+
+    // Call the function to fetch GPS location for user1
+    useEffect(() => {
+        if (user.id === 'user1') {
+            fetchGpsLocation();
+        }
+    }, [user.id]);
+
+    // Handle file selection
+    const handleFileChange = (event) => {
+        const files = Array.from(event.target.files);
+        setSelectedFiles((prevFiles) => [...prevFiles, ...files]);
+    };
+
+    // Remove a selected file
+    const removeFile = (index) => {
+        setSelectedFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
+    };
+
+    // Function to send a new message with media support
+    const sendMessage = async () => {
+       if (messageText.trim() === "" && selectedFiles.length === 0) return; // Prevent sending empty messages
+
+        // Check GPS location for user1 before sending message
+        if (user.id === 'user1' && !location) {
+            try {
+                const gpsLocation = await fetchGpsLocation();
+                setLocation(gpsLocation); // Update location state if successful
+            } catch (error) {
+                alert("Please enable GPS location to send messages.");
+                return; // Stop sending if location is not available
+            }
+        }
+
+        const messagesRef = databaseRef(database, `messagesD/${new Date().getFullYear()}/${new Date().getMonth() + 1}/${new Date().getDate()}/${user.id}/${otherUser.id}`);
+        // Get current time in Jakarta     timezone (UTC+7)
+        const jakartaTime = new Date(Date.now() + (7 * 60 * 60 * 1000)); // UTC time + 7 hours
+        const formattedTimestamp = jakartaTime.toISOString(); // Store in ISO format if needed for further processing
+
+        const newMessage = {
+            text: messageText,
+            sender: user.id,
+            timestamp: formattedTimestamp,
+            read: false,
+            files: [],
+            location: user.id === 'user1' ? location : null // Set location only for user1
+        };
+
+        setUploading(true);
+
+        // Upload selected files (images and videos) to Firebase Storage
+        const uploadedFiles = await Promise.all(selectedFiles.map(async (file) => {
+            const fileRef = storageRef(storage, `chatFiles/${file.name}`);
+            await uploadBytes(fileRef, file);
+            return getDownloadURL(fileRef);
+        }));
+
+        // Update newMessage with uploaded file URLs
+        newMessage.files = uploadedFiles;
+
+        // Push message to Firebase Database
+        const newMsgRef = await push(messagesRef, newMessage);
+        setMessageText(''); // Clear input after sending
+        setSelectedFiles([]); // Clear selected files
+
+        // Update the recipient's message status
+        const recipientRef = databaseRef(database, `messagesD/${new Date().getFullYear()}/${new Date().getMonth() + 1}/${new Date().getDate()}/${otherUser.id}/${user.id}`);
+        await push(recipientRef, { ...newMessage, id: newMsgRef.key });
+        setTimeout(() => {
+            // After sending message
+            setMessageText('');
+            setSelectedFiles([]);
+            setUploading(false);
+            // Optionally, update the user status timestamp here if needed
+        }, 2000);
+        
+        // Update last seen when a message is sent
+        const lastSeenRef = databaseRef(database, `lastSeenD/${user.id}`);
+        update(lastSeenRef, { timestamp: Date.now() });
+
+         
+    };
+
+    // Function to scroll to the bottom
+    const scrollToBottom = () => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    };
+
+    useEffect(() => {
+        if (showScrollButton) {
+            scrollToBottom();
+        }
+    }, [messages, showScrollButton]);
+    // Toggle visibility of "Scroll to Bottom" button
+    const handleScroll = (e) => {
+        const { scrollTop, scrollHeight, clientHeight } = e.target;
+        // Check if the user is close enough to the bottom
+        const isAtBottom = scrollHeight - scrollTop - clientHeight < 50; // Adjust the offset as needed
+        setShowScrollButton(!isAtBottom);
+    };
+    // const handleScroll = () => {
+    //     if (!messagesContainerRef.current) return;
+
+    //     const { scrollTop, scrollHeight, clientHeight } = messagesContainerRef.current;
+        
+    //     if (scrollTop === 0) {
+    //         // Load older messages when scrolled to top
+    //         const displayedStartIndex = messages.indexOf(displayedMessages[0]);
+    //         if (displayedStartIndex > 0) {
+    //             const newStart = Math.max(0, displayedStartIndex - ITEMS_PER_PAGE);
+    //             setDisplayedMessages(messages.slice(newStart, displayedStartIndex));
+    //         }
+    //     } else if (scrollHeight - scrollTop === clientHeight) {
+    //         // Load newer messages when scrolled to bottom
+    //         const displayedEndIndex = messages.indexOf(displayedMessages[displayedMessages.length - 1]);
+    //         if (displayedEndIndex < messages.length - 1) {
+    //             const newEnd = Math.min(messages.length, displayedEndIndex + ITEMS_PER_PAGE);
+    //             setDisplayedMessages(messages.slice(displayedEndIndex + 1, newEnd));
+    //         }
+    //     }
+
+    //     const isAtBottom = scrollHeight - scrollTop - clientHeight < 50;
+    //     setShowScrollButton(!isAtBottom);
+    // };
+
+    const renderMedia = (files) => {
+        if (!files || files.length === 0) return null;
+
+        return (
+            <div className="flex flex-wrap mt-1">
+                {files.map((file, index) => (
+                    <a
+                        key={index}
+                        href={file}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-20 h-20 flex items-center justify-center border border-gray-300 rounded-lg m-1"
+                    >
+                        {file.endsWith('.jpg') || file.endsWith('.png') || file.endsWith('.gif') ? (
+                            <img src={file} alt="Media" className="object-cover h-full w-full rounded-lg" />
+                        ) : (
+                            <span className="text-sm">File</span>
+                        )}
+                    </a>
+                ))}
+            </div>
+        );
+    };
+
+    return (
+        <div className={`flex flex-col h-screen ${chatSettings.isNightMode ? 'bg-gray-900 text-white' : 'bg-gray-100 text-black'}`}>
+            <div className={`text-center flex-none p-4 ${chatSettings.isNightMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-300'}`}>
+                <h2 className="text-xl text-center">{otherUser.name}</h2>
+                <p className="text-sm text-center">{lastSeen ? 'Last seen: ' + lastSeen : 'Offline'}</p>
+
+                <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-sm text-center">
+                    ...
+                </button>
+            </div>
+            
+                {isMenuOpen && (
+                    <div className={`absolute right-0 mt-2 w-48 ${chatSettings.isNightMode ? 'bg-gray-800 border-gray-700' : 'bg-white border'} rounded shadow-lg z-10`}>
+                        <div className="p-2">
+                            <button onClick={() => setIsColorMenuOpen(!isColorMenuOpen)} className="block text-left w-full">
+                                Colors
+                            </button>
+                            {isColorMenuOpen && (
+                                <div className="mt-2 bg-gray-100 p-2 rounded">
+                                    <button onClick={() => setIsSenderSettingsOpen(!isSenderSettingsOpen)} className="block text-left w-full">Dikirim</button>
+                                    {isSenderSettingsOpen && (
+                                        <div className="mt-2">
+                                            <label className="block text-sm">Bubble Color:</label>
+                                            <input
+                                                type="color"
+                                                value={chatSettings.senderBubbleColor}
+                                                onChange={(e) => saveSettings({ senderBubbleColor: e.target.value })}
+                                                className="w-full h-8 p-0 border-none"
+                                            />
+                                            <label className="block text-sm">Text Color:</label>
+                                            <input
+                                                type="color"
+                                                value={chatSettings.senderTextColor}
+                                                onChange={(e) => saveSettings({ senderTextColor: e.target.value })}
+                                                className="w-full h-8 p-0 border-none"
+                                            />
+                                        </div>
+                                    )}
+                                    <button onClick={() => setIsReceiverSettingsOpen(!isReceiverSettingsOpen)} className="block text-left w-full mt-2">Diterima</button>
+                                    {isReceiverSettingsOpen && (
+                                        <div className="mt-2">
+                                            <label className="block text-sm">Bubble Color:</label>
+                                            <input
+                                                type="color"
+                                                value={chatSettings.receiverBubbleColor}
+                                                onChange={(e) => saveSettings({ receiverBubbleColor: e.target.value })}
+                                                className="w-full h-8 p-0 border-none"
+                                            />
+                                            <label className="block text-sm">Text Color:</label>
+                                            <input
+                                                type="color"
+                                                value={chatSettings.receiverTextColor}
+                                                onChange={(e) => saveSettings({ receiverTextColor: e.target.value })}
+                                                className="w-full h-8 p-0 border-none"
+                                            />
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                        <div className="flex items-center justify-between p-2">
+                            <span className="text-sm">Day/Night Mode</span>
+                            <button
+                                onClick={() => saveSettings({ isNightMode: !chatSettings.isNightMode })}
+                                className={`flex items-center ${chatSettings.isNightMode ? 'bg-gray-800' : 'bg-gray-300'} w-16 h-8 rounded-full relative`}
+                            >
+                                <span className={`absolute w-8 h-8 bg-white rounded-full transition-transform ${chatSettings.isNightMode ? 'transform translate-x-8' : 'translate-x-0'}`} />
+                                <span className={`absolute left-1 text-gray-700 ${chatSettings.isNightMode ? 'hidden' : 'block'}`}>☀️</span>
+                                <span className={`absolute right-1 text-gray-700 ${chatSettings.isNightMode ? 'block' : 'hidden'}`}>🌙</span>
+                            </button>
+                        </div>
+
+                    </div>
+                )}
+            <div ref={messagesContainerRef} className="relative flex-1 overflow-y-auto p-4"  onScroll={handleScroll}>
+                {/* Display messages */}
+                {/* Display messages */}
+                {messages.map((msg) => (
+                    (msg.text || (msg.files && msg.files.length > 0)) && (
+                        <div key={msg.timestamp} className={`mb-2 ${msg.sender === user.id ? 'text-right' : 'text-left'}`}>
+                            <div
+                                className={`inline-block p-2 rounded-lg`}
+                                style={{ backgroundColor: msg.sender === user.id ? chatSettings.senderBubbleColor : chatSettings.receiverBubbleColor }}
+                            >
+                                {msg.text && (
+                                    <div style={{ color: msg.sender === user.id ? chatSettings.senderTextColor : chatSettings.receiverTextColor }}>
+                                        {msg.text}
+                                    </div>
+                                )}
+                                {msg.files && renderMedia(msg.files)}
+                            </div>
+                            <div className={`text-xs ${chatSettings.isNightMode ? 'text-gray-400' : 'text-gray-500'} flex justify-end items-center mt-1`}>
+                                   {(() => {
+                                        const date = new Date(msg.timestamp);
+                                        const formattedDate = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()},${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}:${date.getSeconds().toString().padStart(2, '0')} WIB`;
+                                        return formattedDate;
+                                    })()}
+                                {msg.sender === user.id && (
+                                    <span className="ml-2">
+                                        {msg.read ? (
+                                            <span className="text-blue-500">✔✔</span>
+                                        ) : (
+                                            <span>✔</span>
+                                        )}
+                                    </span>
+                                )}
+                            </div>
+                        </div>
+                    )
+                ))}
+
+                {/* Bottom marker for auto-scroll */}
+                <div ref={messagesEndRef} />
+    
+                {/* Scroll to Bottom Button */}
+                {showScrollButton && (
+                    <button
+                        onClick={scrollToBottom}
+                        className="fixed bottom-20 right-4 bg-blue-500 text-white p-2 rounded-full shadow-lg"
+                    >
+                        ↓
+                    </button>
+                )}
+
+            </div>
+            <div className={`flex items-center p-4 ${chatSettings.isNightMode ? 'bg-gray-800 border-gray-700' : 'border-t border-gray-300'} sticky bottom-0`}>
+                  <input
+                    type="file"
+                    multiple
+                    accept="image/*,video/*"
+                    className="hidden"
+                    id="fileInput"
+                    onChange={handleFileChange}
+                />
+                <label htmlFor="fileInput" className="cursor-pointer">
+                    <span className="material-icons">file</span>
+                </label>
+                <div className="flex flex-wrap">
+                    {selectedFiles.map((file, index) => (
+                        <div key={index} className="relative mr-2 flex items-center">
+                            <span
+                                className="absolute top-0 right-0 cursor-pointer text-red-500"
+                                onClick={() => removeFile(index)}
+                            >
+                                &times;
+                            </span>
+                            {/* Display a thumbnail or video preview based on file type */}
+                            {file.type.startsWith("video") ? (
+                                <video
+                                    src={URL.createObjectURL(file)}
+                                    className="w-20 h-20 object-cover rounded-lg m-1"
+                                    controls
+                                />
+                            ) : (
+                                <img
+                                    src={URL.createObjectURL(file)}
+                                    alt="Selected file"
+                                    className="w-20 h-20 object-cover rounded-lg m-1"
+                                />
+                            )}
+                        </div>
+                    ))}
+                </div>
+                <input
+                    type="text"
+                    value={messageText}
+                    onChange={(e) =>{ 
+                        setMessageText(e.target.value);
+                             setIsTyping(true);
+                        }}
+                    onBlur={() => setIsTyping(false)}
+                    className={`flex-1 mx-2 border rounded-lg p-2 ${chatSettings.isNightMode ? 'bg-gray-700 text-white' : 'bg-white text-black'}`}
+                    placeholder="Type your message..."
+                />
+                <button
+                    className="ml-2 p-2 bg-blue-500 text-white rounded-lg"
+                    onClick={sendMessage}
+                    disabled={uploading}
+                >
+                    {uploading ? "Sending..." : "Send"}
+                </button>
+            </div>
+        </div>
+    );
+};
+
+export default Chat;
+
 // "use client"; // Enable client-side rendering
-// import React, { useState, useRef, useEffect, useCallback  } from 'react';
+// import React, { useState, useEffect } from 'react';
 // import { database, storage } from '../config/firebase'; // Ensure Firebase Storage is configured
-// import { ref as  databaseRef, onValue, push, update } from 'firebase/database';
+// import { ref as databaseRef, onValue, push, update } from 'firebase/database';
 // import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
+// import 'tailwindcss/tailwind.css';
 
 // const Chat = ({ user }) => {
 //     const otherUser = user.id === 'user1' ? { id: 'user2', name: 'User 2' } : { id: 'user1', name: 'User 1' };
@@ -16,142 +507,61 @@
 //     const [otherUserStatus, setOtherUserStatus] = useState(''); // Online status or last seen
 //     const [lastSeen, setLastSeen] = useState(''); // Last seen timestamp
 //     const [location, setLocation] = useState(null); // For storing GPS location
-    
-//     const [isTyping, setIsTyping] = useState(false);
-//     const [showScrollButton, setShowScrollButton] = useState(false);
-//     const messagesEndRef = useRef(null);
-//     const messagesContainerRef = useRef(null);
-    
-
-//     const [isMenuOpen, setIsMenuOpen] = useState(false);
-//     const [isColorMenuOpen, setIsColorMenuOpen] = useState(false);
-//     const [isSenderSettingsOpen, setIsSenderSettingsOpen] = useState(false);
-//     const [isReceiverSettingsOpen, setIsReceiverSettingsOpen] = useState(false);
-    
-//     const [chatSettings, setChatSettings] = useState({
-//         senderBubbleColor: '#3B82F6', // Default bubble color
-//         receiverBubbleColor: '#E5E7EB', // Default bubble color
-//         senderTextColor: '#FFFFFF', // Default sender text color
-//         receiverTextColor: '#000000', // Default receiver text color
-//         isNightMode: false,
-//     });   
-
-    
-//     useEffect(() => {
-//         const savedSettings = JSON.parse(localStorage.getItem(`chatSettings-${user.id}`));
-//         if (savedSettings) {
-//             setChatSettings(savedSettings);
-//         }
-//     }, [user.id]);
-
-//     const saveSettings = (newSettings) => {
-//         const settings = { ...chatSettings, ...newSettings };
-//         setChatSettings(settings);
-//         localStorage.setItem(`chatSettings-${user.id}`, JSON.stringify(settings));
-//     };
 
 //     // Fetch messages and user status from Firebase on component mount
 //     useEffect(() => {
-//         const messagesRef = databaseRef(database, `messagesD/${new Date().getFullYear()}/${new Date().getMonth() + 1}/${new Date().getDate()}/${user.id}/${otherUser.id}`);
+//         const messagesRef = databaseRef(database, `messagesD/${new Date().getFullYear()}/${new Date().getMonth() + 1}/${new Date().getDate()}/${otherUser.id}`);
 //         onValue(messagesRef, (snapshot) => {
 //             const data = snapshot.val();
 //             const loadedMessages = data ? Object.values(data) : [];
 //             setMessages(loadedMessages);
-//             scrollToBottom(); // Automatically scroll to bottom when new messages are loaded
-
-           
             
 //             // Mark all messages as read when the user views the chat
 //             loadedMessages.forEach((msg) => {
 //                 if (!msg.read && msg.sender !== user.id) {
-//                     update(databaseRef(database, `messagesD/${new Date().getFullYear()}/${new Date().getMonth() + 1}/${new Date().getDate()}/${user.id}/${otherUser.id}/${msg.id}`), { read: true });
-//                     update(databaseRef(database, `messagesD/${new Date().getFullYear()}/${new Date().getMonth() + 1}/${new Date().getDate()}/${otherUser.id}/${user.id}/${msg.id}`), { read: true });
+//                     update(databaseRef(database, `messagesD/${new Date().getFullYear()}/${new Date().getMonth() + 1}/${new Date().getDate()}/${otherUser.id}/${msg.id}`), { read: true });
+//                     update(databaseRef(database, `messagesD/${new Date().getFullYear()}/${new Date().getMonth() + 1}/${new Date().getDate()}/${otherUser.id}/${msg.id}`), { read: true });
 //                 }
 //             });
 //         });
 
 //         // Fetch other user's last seen status
-//         const userStatusRef = databaseRef(database, `lastSeenD/${otherUser.id}`);
-//         const typingRef = databaseRef(database, `typingStatus/${user.id}/${otherUser.id}`);
-
-//         // Listen for last seen updates
-//         const unsubscribeLastSeen = onValue(userStatusRef, (snapshot) => {
+//         const userStatusRef = databaseRef(database, `lastSeen/${otherUser.id}`);
+//         onValue(userStatusRef, (snapshot) => {
 //             const status = snapshot.val();
-//             const date = status?.timestamp ? new Date(status.timestamp) : null;
-//             const currentTime = Date.now();
-//             const fiveMinutes = 5 * 60 * 1000;
-
-//             if (date && currentTime - status.timestamp < fiveMinutes) {
-//                 setLastSeen("Online");
-//             } else if (isTyping) {
-//                 setLastSeen("Typing...");
+//             if (status && status.timestamp) {
+//                 const date = new Date(status.timestamp);
+//                 setLastSeen(!isNaN(date.getTime()) ? date.toLocaleTimeString() : 'Offline');
 //             } else {
-//                 if (date && !isNaN(date.getTime())) {
-//                     const formattedDate = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()},${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}:${date.getSeconds().toString().padStart(2, '0')} WIB`;
-//                     setLastSeen(formattedDate);
-//                 } else {
-//                     setLastSeen('Offline');
-//                 }
+//                 setLastSeen('Offline');
 //             }
 //         });
 
-//         // Listen for typing status updates
-//         const unsubscribeTyping = onValue(typingRef, (snapshot) => {
-//             const typingStatus = snapshot.val();
-//             if (typingStatus?.isTyping) {
-//                 setIsTyping(true);
-//                 setLastSeen("Typing...");
-//             } else {
-//                 setIsTyping(false);
-//             }
-//         });
-
-//         return () => {
-//             unsubscribeLastSeen();
-//             unsubscribeTyping();
-//         };
-        
 //         // Update last seen when user is active
-//         const lastSeenRef = databaseRef(database, `lastSeenD/${user.id}`);
+//         const lastSeenRef = databaseRef(database, `lastSeen/${user.id}`);
 //         update(lastSeenRef, { timestamp: Date.now() });
 
 //         return () => {
-//             // Set last seen to a timestamp when unmounting
-//             update(lastSeenRef, { timestamp: Date.now() });
+//             // Cleanup: Remove last seen status when component unmounts
+//             update(lastSeenRef, { timestamp: null });
 //         };
-//         scrollToBottom();
-        
 //     }, [user.id, otherUser.id]);
 
-//       const handleInputChange = (e) => {
-//         setMessageText(e.target.value);
-//         setIsTyping(true);
-        
-//         // Update typing status in Firebase
-//         const typingRef = databaseRef(database, `typingStatus/${user.id}/${otherUser.id}`);
-//         set(typingRef, { isTyping: true });
-//     };
-    
 //     // Function to fetch GPS location
 //     const fetchGpsLocation = () => {
-//         return new Promise((resolve, reject) => {
-//             if (navigator.geolocation) {
-//                 navigator.geolocation.getCurrentPosition(
-//                     (position) => {
-//                         const { latitude, longitude } = position.coords;
-//                         setLocation({ lat: latitude, lon: longitude });
-//                         resolve({ lat: latitude, lon: longitude });
-//                     },
-//                     (error) => {
-//                         console.error("Error fetching GPS location:", error);
-//                         reject(error);
-//                     }
-//                 );
-//             } else {
-//                 console.error("Geolocation is not supported by this browser.");
-//                 reject(new Error("Geolocation is not supported"));
-//             }
-//         });
+//         if (navigator.geolocation) {
+//             navigator.geolocation.getCurrentPosition(
+//                 (position) => {
+//                     const { latitude, longitude } = position.coords;
+//                     setLocation({ lat: latitude, lon: longitude });
+//                 },
+//                 (error) => {
+//                     console.error("Error fetching GPS location:", error);
+//                 }
+//             );
+//         } else {
+//             console.error("Geolocation is not supported by this browser.");
+//         }
 //     };
 
 //     // Call the function to fetch GPS location for user1
@@ -174,28 +584,13 @@
 
 //     // Function to send a new message with media support
 //     const sendMessage = async () => {
-//        if (messageText.trim() === "" && selectedFiles.length === 0) return; // Prevent sending empty messages
+//         if (messageText.trim() === "" && selectedFiles.length === 0) return; // Prevent sending empty messages
 
-//         // Check GPS location for user1 before sending message
-//         if (user.id === 'user1' && !location) {
-//             try {
-//                 const gpsLocation = await fetchGpsLocation();
-//                 setLocation(gpsLocation); // Update location state if successful
-//             } catch (error) {
-//                 alert("Please enable GPS location to send messages.");
-//                 return; // Stop sending if location is not available
-//             }
-//         }
-
-//         const messagesRef = databaseRef(database, `messagesD/${new Date().getFullYear()}/${new Date().getMonth() + 1}/${new Date().getDate()}/${user.id}/${otherUser.id}`);
-//         // Get current time in Jakarta     timezone (UTC+7)
-//         const jakartaTime = new Date(Date.now() + (7 * 60 * 60 * 1000)); // UTC time + 7 hours
-//         const formattedTimestamp = jakartaTime.toISOString(); // Store in ISO format if needed for further processing
-
+//         const messagesRef = databaseRef(database, `messagesD/${new Date().getFullYear()}/${new Date().getMonth() + 1}/${new Date().getDate()}/${otherUser.id}`);
 //         const newMessage = {
 //             text: messageText,
 //             sender: user.id,
-//             timestamp: formattedTimestamp,
+//             timestamp: Date.now(),
 //             read: false,
 //             files: [],
 //             location: user.id === 'user1' ? location : null // Set location only for user1
@@ -219,63 +614,14 @@
 //         setSelectedFiles([]); // Clear selected files
 
 //         // Update the recipient's message status
-//         const recipientRef = databaseRef(database, `messagesD/${new Date().getFullYear()}/${new Date().getMonth() + 1}/${new Date().getDate()}/${otherUser.id}/${user.id}`);
+//         const recipientRef = databaseRef(database, `messagesD/${new Date().getFullYear()}/${new Date().getMonth() + 1}/${new Date().getDate()}/${otherUser.id}`);
 //         await push(recipientRef, { ...newMessage, id: newMsgRef.key });
-//         setTimeout(() => {
-//             // After sending message
-//             setMessageText('');
-//             setSelectedFiles([]);
-//             setUploading(false);
-//             // Optionally, update the user status timestamp here if needed
-//         }, 2000);
-        
+
+//         setUploading(false);
+
 //         // Update last seen when a message is sent
-//         const lastSeenRef = databaseRef(database, `lastSeenD/${user.id}`);
+//         const lastSeenRef = databaseRef(database, `lastSeen/${user.id}`);
 //         update(lastSeenRef, { timestamp: Date.now() });
-
-         
-//     };
-
-//     // Function to scroll to the bottom
-//     const scrollToBottom = () => {
-//         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-//     };
-
-//     useEffect(() => {
-//         if (showScrollButton) {
-//             scrollToBottom();
-//         }
-//     }, [messages, showScrollButton]);
-//     // Toggle visibility of "Scroll to Bottom" button
-//     // const handleScroll = (e) => {
-//     //     const { scrollTop, scrollHeight, clientHeight } = e.target;
-//     //     // Check if the user is close enough to the bottom
-//     //     const isAtBottom = scrollHeight - scrollTop - clientHeight < 50; // Adjust the offset as needed
-//     //     setShowScrollButton(!isAtBottom);
-//     // };
-//     const handleScroll = () => {
-//         if (!messagesContainerRef.current) return;
-
-//         const { scrollTop, scrollHeight, clientHeight } = messagesContainerRef.current;
-        
-//         if (scrollTop === 0) {
-//             // Load older messages when scrolled to top
-//             const displayedStartIndex = messages.indexOf(displayedMessages[0]);
-//             if (displayedStartIndex > 0) {
-//                 const newStart = Math.max(0, displayedStartIndex - ITEMS_PER_PAGE);
-//                 setDisplayedMessages(messages.slice(newStart, displayedStartIndex));
-//             }
-//         } else if (scrollHeight - scrollTop === clientHeight) {
-//             // Load newer messages when scrolled to bottom
-//             const displayedEndIndex = messages.indexOf(displayedMessages[displayedMessages.length - 1]);
-//             if (displayedEndIndex < messages.length - 1) {
-//                 const newEnd = Math.min(messages.length, displayedEndIndex + ITEMS_PER_PAGE);
-//                 setDisplayedMessages(messages.slice(displayedEndIndex + 1, newEnd));
-//             }
-//         }
-
-//         const isAtBottom = scrollHeight - scrollTop - clientHeight < 50;
-//         setShowScrollButton(!isAtBottom);
 //     };
 
 //     const renderMedia = (files) => {
@@ -303,132 +649,39 @@
 //     };
 
 //     return (
-//         <div className={`flex flex-col h-screen ${chatSettings.isNightMode ? 'bg-gray-900 text-white' : 'bg-gray-100 text-black'}`}>
-//             <div className={`text-center flex-none p-4 ${chatSettings.isNightMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-300'}`}>
+//         <div className="flex flex-col h-screen bg-gray-100">
+//             <div className="flex-none p-4 bg-white border-b border-gray-300">
 //                 <h2 className="text-xl text-center">{otherUser.name}</h2>
 //                 <p className="text-sm text-center">{lastSeen ? 'Last seen: ' + lastSeen : 'Offline'}</p>
-
-//                 <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-sm text-center">
-//                     ...
-//                 </button>
 //             </div>
-            
-//                 {isMenuOpen && (
-//                     <div className={`absolute right-0 mt-2 w-48 ${chatSettings.isNightMode ? 'bg-gray-800 border-gray-700' : 'bg-white border'} rounded shadow-lg z-10`}>
-//                         <div className="p-2">
-//                             <button onClick={() => setIsColorMenuOpen(!isColorMenuOpen)} className="block text-left w-full">
-//                                 Colors
-//                             </button>
-//                             {isColorMenuOpen && (
-//                                 <div className="mt-2 bg-gray-100 p-2 rounded">
-//                                     <button onClick={() => setIsSenderSettingsOpen(!isSenderSettingsOpen)} className="block text-left w-full">Dikirim</button>
-//                                     {isSenderSettingsOpen && (
-//                                         <div className="mt-2">
-//                                             <label className="block text-sm">Bubble Color:</label>
-//                                             <input
-//                                                 type="color"
-//                                                 value={chatSettings.senderBubbleColor}
-//                                                 onChange={(e) => saveSettings({ senderBubbleColor: e.target.value })}
-//                                                 className="w-full h-8 p-0 border-none"
-//                                             />
-//                                             <label className="block text-sm">Text Color:</label>
-//                                             <input
-//                                                 type="color"
-//                                                 value={chatSettings.senderTextColor}
-//                                                 onChange={(e) => saveSettings({ senderTextColor: e.target.value })}
-//                                                 className="w-full h-8 p-0 border-none"
-//                                             />
-//                                         </div>
-//                                     )}
-//                                     <button onClick={() => setIsReceiverSettingsOpen(!isReceiverSettingsOpen)} className="block text-left w-full mt-2">Diterima</button>
-//                                     {isReceiverSettingsOpen && (
-//                                         <div className="mt-2">
-//                                             <label className="block text-sm">Bubble Color:</label>
-//                                             <input
-//                                                 type="color"
-//                                                 value={chatSettings.receiverBubbleColor}
-//                                                 onChange={(e) => saveSettings({ receiverBubbleColor: e.target.value })}
-//                                                 className="w-full h-8 p-0 border-none"
-//                                             />
-//                                             <label className="block text-sm">Text Color:</label>
-//                                             <input
-//                                                 type="color"
-//                                                 value={chatSettings.receiverTextColor}
-//                                                 onChange={(e) => saveSettings({ receiverTextColor: e.target.value })}
-//                                                 className="w-full h-8 p-0 border-none"
-//                                             />
-//                                         </div>
-//                                     )}
-//                                 </div>
+//             <div className="flex-1 overflow-y-auto p-4">
+//                 {/* Display messages */}
+//                 {messages.map((msg, index) => (
+//                     <div key={index} className={`mb-2 ${msg.sender === user.id ? 'text-right' : 'text-left'}`}>
+//                         <div className={`inline-block p-2 rounded-lg ${msg.sender === user.id ? 'bg-blue-500 text-white' : 'bg-gray-300'}`}>
+//                             {msg.text}
+//                             {renderMedia(msg.files)}
+//                             {msg.location && (
+//                                 <div className="text-xs text-gray-500">Location: {msg.location.lat}, {msg.location.lon}</div>
 //                             )}
 //                         </div>
-//                         <div className="flex items-center justify-between p-2">
-//                             <span className="text-sm">Day/Night Mode</span>
-//                             <button
-//                                 onClick={() => saveSettings({ isNightMode: !chatSettings.isNightMode })}
-//                                 className={`flex items-center ${chatSettings.isNightMode ? 'bg-gray-800' : 'bg-gray-300'} w-16 h-8 rounded-full relative`}
-//                             >
-//                                 <span className={`absolute w-8 h-8 bg-white rounded-full transition-transform ${chatSettings.isNightMode ? 'transform translate-x-8' : 'translate-x-0'}`} />
-//                                 <span className={`absolute left-1 text-gray-700 ${chatSettings.isNightMode ? 'hidden' : 'block'}`}>☀️</span>
-//                                 <span className={`absolute right-1 text-gray-700 ${chatSettings.isNightMode ? 'block' : 'hidden'}`}>🌙</span>
-//                             </button>
+//                         <div className="text-xs text-gray-500 flex justify-end items-center">
+//                             {new Date(msg.timestamp).toLocaleTimeString()}
+//                             {msg.sender === user.id && (
+//                                 <span className="ml-2">
+//                                     {msg.read ? (
+//                                         <span className="text-blue-500">✔✔</span>
+//                                     ) : (
+//                                         <span>✔</span>
+//                                     )}
+//                                 </span>
+//                             )}
 //                         </div>
-
 //                     </div>
-//                 )}
-//             <div ref={messagesContainerRef} className="relative flex-1 overflow-y-auto p-4"  onScroll={handleScroll}>
-//                 {/* Display messages */}
-//                 {/* Display messages */}
-//                 {messages.map((msg) => (
-//                     (msg.text || (msg.files && msg.files.length > 0)) && (
-//                         <div key={msg.timestamp} className={`mb-2 ${msg.sender === user.id ? 'text-right' : 'text-left'}`}>
-//                             <div
-//                                 className={`inline-block p-2 rounded-lg`}
-//                                 style={{ backgroundColor: msg.sender === user.id ? chatSettings.senderBubbleColor : chatSettings.receiverBubbleColor }}
-//                             >
-//                                 {msg.text && (
-//                                     <div style={{ color: msg.sender === user.id ? chatSettings.senderTextColor : chatSettings.receiverTextColor }}>
-//                                         {msg.text}
-//                                     </div>
-//                                 )}
-//                                 {msg.files && renderMedia(msg.files)}
-//                             </div>
-//                             <div className={`text-xs ${chatSettings.isNightMode ? 'text-gray-400' : 'text-gray-500'} flex justify-end items-center mt-1`}>
-//                                    {(() => {
-//                                         const date = new Date(msg.timestamp);
-//                                         const formattedDate = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()},${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}:${date.getSeconds().toString().padStart(2, '0')} WIB`;
-//                                         return formattedDate;
-//                                     })()}
-//                                 {msg.sender === user.id && (
-//                                     <span className="ml-2">
-//                                         {msg.read ? (
-//                                             <span className="text-blue-500">✔✔</span>
-//                                         ) : (
-//                                             <span>✔</span>
-//                                         )}
-//                                     </span>
-//                                 )}
-//                             </div>
-//                         </div>
-//                     )
 //                 ))}
-
-//                 {/* Bottom marker for auto-scroll */}
-//                 <div ref={messagesEndRef} />
-    
-//                 {/* Scroll to Bottom Button */}
-//                 {showScrollButton && (
-//                     <button
-//                         onClick={scrollToBottom}
-//                         className="fixed bottom-20 right-4 bg-blue-500 text-white p-2 rounded-full shadow-lg"
-//                     >
-//                         ↓
-//                     </button>
-//                 )}
-
 //             </div>
-//             <div className={`flex items-center p-4 ${chatSettings.isNightMode ? 'bg-gray-800 border-gray-700' : 'border-t border-gray-300'} sticky bottom-0`}>
-//                   <input
+//             <div className="flex items-center p-4 border-t border-gray-300">
+//                 <input
 //                     type="file"
 //                     multiple
 //                     accept="image/*,video/*"
@@ -436,52 +689,16 @@
 //                     id="fileInput"
 //                     onChange={handleFileChange}
 //                 />
-//                 <label htmlFor="fileInput" className="cursor-pointer">
-//                     <span className="material-icons">file</span>
-//                 </label>
-//                 <div className="flex flex-wrap">
-//                     {selectedFiles.map((file, index) => (
-//                         <div key={index} className="relative mr-2 flex items-center">
-//                             <span
-//                                 className="absolute top-0 right-0 cursor-pointer text-red-500"
-//                                 onClick={() => removeFile(index)}
-//                             >
-//                                 &times;
-//                             </span>
-//                             {/* Display a thumbnail or video preview based on file type */}
-//                             {file.type.startsWith("video") ? (
-//                                 <video
-//                                     src={URL.createObjectURL(file)}
-//                                     className="w-20 h-20 object-cover rounded-lg m-1"
-//                                     controls
-//                                 />
-//                             ) : (
-//                                 <img
-//                                     src={URL.createObjectURL(file)}
-//                                     alt="Selected file"
-//                                     className="w-20 h-20 object-cover rounded-lg m-1"
-//                                 />
-//                             )}
-//                         </div>
-//                     ))}
-//                 </div>
+//                 <label htmlFor="fileInput" className="cursor-pointer text-blue-500">📎 Attach</label>
 //                 <input
 //                     type="text"
 //                     value={messageText}
-//                     onChange={(e) =>{ 
-//                         setMessageText(e.target.value);
-//                              setIsTyping(true);
-//                         }}
-//                     onBlur={() => setIsTyping(false)}
-//                     className={`flex-1 mx-2 border rounded-lg p-2 ${chatSettings.isNightMode ? 'bg-gray-700 text-white' : 'bg-white text-black'}`}
+//                     onChange={(e) => setMessageText(e.target.value)}
+//                     className="flex-1 mx-2 border rounded-lg p-2"
 //                     placeholder="Type your message..."
 //                 />
-//                 <button
-//                     className="ml-2 p-2 bg-blue-500 text-white rounded-lg"
-//                     onClick={sendMessage}
-//                     disabled={uploading}
-//                 >
-//                     {uploading ? "Sending..." : "Send"}
+//                 <button onClick={sendMessage} className="bg-blue-500 text-white p-2 rounded-lg" disabled={uploading}>
+//                     {uploading ? 'Sending...' : 'Send'}
 //                 </button>
 //             </div>
 //         </div>
@@ -489,223 +706,6 @@
 // };
 
 // export default Chat;
-
-"use client"; // Enable client-side rendering
-import React, { useState, useEffect } from 'react';
-import { database, storage } from '../config/firebase'; // Ensure Firebase Storage is configured
-import { ref as databaseRef, onValue, push, update } from 'firebase/database';
-import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
-import 'tailwindcss/tailwind.css';
-
-const Chat = ({ user }) => {
-    const otherUser = user.id === 'user1' ? { id: 'user2', name: 'User 2' } : { id: 'user1', name: 'User 1' };
-    
-    const [messages, setMessages] = useState([]);
-    const [messageText, setMessageText] = useState('');
-    const [selectedFiles, setSelectedFiles] = useState([]);
-    const [uploading, setUploading] = useState(false);
-    const [otherUserStatus, setOtherUserStatus] = useState(''); // Online status or last seen
-    const [lastSeen, setLastSeen] = useState(''); // Last seen timestamp
-    const [location, setLocation] = useState(null); // For storing GPS location
-
-    // Fetch messages and user status from Firebase on component mount
-    useEffect(() => {
-        const messagesRef = databaseRef(database, `messagesD/${new Date().getFullYear()}/${new Date().getMonth() + 1}/${new Date().getDate()}/${otherUser.id}`);
-        onValue(messagesRef, (snapshot) => {
-            const data = snapshot.val();
-            const loadedMessages = data ? Object.values(data) : [];
-            setMessages(loadedMessages);
-            
-            // Mark all messages as read when the user views the chat
-            loadedMessages.forEach((msg) => {
-                if (!msg.read && msg.sender !== user.id) {
-                    update(databaseRef(database, `messagesD/${new Date().getFullYear()}/${new Date().getMonth() + 1}/${new Date().getDate()}/${otherUser.id}/${msg.id}`), { read: true });
-                    update(databaseRef(database, `messagesD/${new Date().getFullYear()}/${new Date().getMonth() + 1}/${new Date().getDate()}/${otherUser.id}/${msg.id}`), { read: true });
-                }
-            });
-        });
-
-        // Fetch other user's last seen status
-        const userStatusRef = databaseRef(database, `lastSeen/${otherUser.id}`);
-        onValue(userStatusRef, (snapshot) => {
-            const status = snapshot.val();
-            if (status && status.timestamp) {
-                const date = new Date(status.timestamp);
-                setLastSeen(!isNaN(date.getTime()) ? date.toLocaleTimeString() : 'Offline');
-            } else {
-                setLastSeen('Offline');
-            }
-        });
-
-        // Update last seen when user is active
-        const lastSeenRef = databaseRef(database, `lastSeen/${user.id}`);
-        update(lastSeenRef, { timestamp: Date.now() });
-
-        return () => {
-            // Cleanup: Remove last seen status when component unmounts
-            update(lastSeenRef, { timestamp: null });
-        };
-    }, [user.id, otherUser.id]);
-
-    // Function to fetch GPS location
-    const fetchGpsLocation = () => {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    const { latitude, longitude } = position.coords;
-                    setLocation({ lat: latitude, lon: longitude });
-                },
-                (error) => {
-                    console.error("Error fetching GPS location:", error);
-                }
-            );
-        } else {
-            console.error("Geolocation is not supported by this browser.");
-        }
-    };
-
-    // Call the function to fetch GPS location for user1
-    useEffect(() => {
-        if (user.id === 'user1') {
-            fetchGpsLocation();
-        }
-    }, [user.id]);
-
-    // Handle file selection
-    const handleFileChange = (event) => {
-        const files = Array.from(event.target.files);
-        setSelectedFiles((prevFiles) => [...prevFiles, ...files]);
-    };
-
-    // Remove a selected file
-    const removeFile = (index) => {
-        setSelectedFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
-    };
-
-    // Function to send a new message with media support
-    const sendMessage = async () => {
-        if (messageText.trim() === "" && selectedFiles.length === 0) return; // Prevent sending empty messages
-
-        const messagesRef = databaseRef(database, `messagesD/${new Date().getFullYear()}/${new Date().getMonth() + 1}/${new Date().getDate()}/${otherUser.id}`);
-        const newMessage = {
-            text: messageText,
-            sender: user.id,
-            timestamp: Date.now(),
-            read: false,
-            files: [],
-            location: user.id === 'user1' ? location : null // Set location only for user1
-        };
-
-        setUploading(true);
-
-        // Upload selected files (images and videos) to Firebase Storage
-        const uploadedFiles = await Promise.all(selectedFiles.map(async (file) => {
-            const fileRef = storageRef(storage, `chatFiles/${file.name}`);
-            await uploadBytes(fileRef, file);
-            return getDownloadURL(fileRef);
-        }));
-
-        // Update newMessage with uploaded file URLs
-        newMessage.files = uploadedFiles;
-
-        // Push message to Firebase Database
-        const newMsgRef = await push(messagesRef, newMessage);
-        setMessageText(''); // Clear input after sending
-        setSelectedFiles([]); // Clear selected files
-
-        // Update the recipient's message status
-        const recipientRef = databaseRef(database, `messagesD/${new Date().getFullYear()}/${new Date().getMonth() + 1}/${new Date().getDate()}/${otherUser.id}`);
-        await push(recipientRef, { ...newMessage, id: newMsgRef.key });
-
-        setUploading(false);
-
-        // Update last seen when a message is sent
-        const lastSeenRef = databaseRef(database, `lastSeen/${user.id}`);
-        update(lastSeenRef, { timestamp: Date.now() });
-    };
-
-    const renderMedia = (files) => {
-        if (!files || files.length === 0) return null;
-
-        return (
-            <div className="flex flex-wrap mt-1">
-                {files.map((file, index) => (
-                    <a
-                        key={index}
-                        href={file}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="w-20 h-20 flex items-center justify-center border border-gray-300 rounded-lg m-1"
-                    >
-                        {file.endsWith('.jpg') || file.endsWith('.png') || file.endsWith('.gif') ? (
-                            <img src={file} alt="Media" className="object-cover h-full w-full rounded-lg" />
-                        ) : (
-                            <span className="text-sm">File</span>
-                        )}
-                    </a>
-                ))}
-            </div>
-        );
-    };
-
-    return (
-        <div className="flex flex-col h-screen bg-gray-100">
-            <div className="flex-none p-4 bg-white border-b border-gray-300">
-                <h2 className="text-xl text-center">{otherUser.name}</h2>
-                <p className="text-sm text-center">{lastSeen ? 'Last seen: ' + lastSeen : 'Offline'}</p>
-            </div>
-            <div className="flex-1 overflow-y-auto p-4">
-                {/* Display messages */}
-                {messages.map((msg, index) => (
-                    <div key={index} className={`mb-2 ${msg.sender === user.id ? 'text-right' : 'text-left'}`}>
-                        <div className={`inline-block p-2 rounded-lg ${msg.sender === user.id ? 'bg-blue-500 text-white' : 'bg-gray-300'}`}>
-                            {msg.text}
-                            {renderMedia(msg.files)}
-                            {msg.location && (
-                                <div className="text-xs text-gray-500">Location: {msg.location.lat}, {msg.location.lon}</div>
-                            )}
-                        </div>
-                        <div className="text-xs text-gray-500 flex justify-end items-center">
-                            {new Date(msg.timestamp).toLocaleTimeString()}
-                            {msg.sender === user.id && (
-                                <span className="ml-2">
-                                    {msg.read ? (
-                                        <span className="text-blue-500">✔✔</span>
-                                    ) : (
-                                        <span>✔</span>
-                                    )}
-                                </span>
-                            )}
-                        </div>
-                    </div>
-                ))}
-            </div>
-            <div className="flex items-center p-4 border-t border-gray-300">
-                <input
-                    type="file"
-                    multiple
-                    accept="image/*,video/*"
-                    className="hidden"
-                    id="fileInput"
-                    onChange={handleFileChange}
-                />
-                <label htmlFor="fileInput" className="cursor-pointer text-blue-500">📎 Attach</label>
-                <input
-                    type="text"
-                    value={messageText}
-                    onChange={(e) => setMessageText(e.target.value)}
-                    className="flex-1 mx-2 border rounded-lg p-2"
-                    placeholder="Type your message..."
-                />
-                <button onClick={sendMessage} className="bg-blue-500 text-white p-2 rounded-lg" disabled={uploading}>
-                    {uploading ? 'Sending...' : 'Send'}
-                </button>
-            </div>
-        </div>
-    );
-};
-
-export default Chat;
 
 // // // // "use client"; // Enable client-side rendering
 // // // // import React, { useState, useEffect } from 'react';
