@@ -243,52 +243,28 @@ const Chat = ({ user }) => {
     }, [messages]);
     // Toggle visibility of "Scroll to Bottom" button
   // Toggle visibility of "Scroll to Bottom" button
-    const handleScroll = () => {
-        if (messagesContainerRef.current) {
-            const { scrollTop, scrollHeight, clientHeight } = messagesContainerRef.current;
-            
-            // Check if scrolled to the bottom
-            if (scrollHeight - scrollTop === clientHeight) {
-                setShowScrollButton(false); // Hide scroll button when scrolled to the bottom
-            } else {
-                setShowScrollButton(true); // Show scroll button if scrolled away from the bottom
-            }
-        }
-    };
+const handleScroll = () => {
+    if (messagesContainerRef.current) {
+        const { scrollTop, scrollHeight, clientHeight } = messagesContainerRef.current;
 
-    // Effect to check if the user is at the bottom when new messages arrive
-    useEffect(() => {
-        // Check if we are already at the bottom when new messages are added
-        const { scrollHeight, scrollTop, clientHeight } = messagesContainerRef.current || {};
+        // Check if scrolled to the bottom
+        if (scrollHeight - scrollTop === clientHeight) {
+            setShowScrollButton(false); // Hide scroll button when scrolled to the bottom
+        } else {
+            setShowScrollButton(true); // Show scroll button if scrolled away from the bottom
+        }
+    }
+};
+
+// Effect to check if the user is at the bottom when new messages arrive
+useEffect(() => {
+    if (messagesContainerRef.current) {
+        const { scrollHeight, scrollTop, clientHeight } = messagesContainerRef.current;
         if (scrollHeight - scrollTop === clientHeight) {
             setShowScrollButton(false); // Hide the button if already at the bottom
         }
-    }, [messages]);
-
-    // const handleScroll = () => {
-    //     if (!messagesContainerRef.current) return;
-
-    //     const { scrollTop, scrollHeight, clientHeight } = messagesContainerRef.current;
-        
-    //     if (scrollTop === 0) {
-    //         // Load older messages when scrolled to top
-    //         const displayedStartIndex = messages.indexOf(displayedMessages[0]);
-    //         if (displayedStartIndex > 0) {
-    //             const newStart = Math.max(0, displayedStartIndex - ITEMS_PER_PAGE);
-    //             setDisplayedMessages(messages.slice(newStart, displayedStartIndex));
-    //         }
-    //     } else if (scrollHeight - scrollTop === clientHeight) {
-    //         // Load newer messages when scrolled to bottom
-    //         const displayedEndIndex = messages.indexOf(displayedMessages[displayedMessages.length - 1]);
-    //         if (displayedEndIndex < messages.length - 1) {
-    //             const newEnd = Math.min(messages.length, displayedEndIndex + ITEMS_PER_PAGE);
-    //             setDisplayedMessages(messages.slice(displayedEndIndex + 1, newEnd));
-    //         }
-    //     }
-
-    //     const isAtBottom = scrollHeight - scrollTop - clientHeight < 50;
-    //     setShowScrollButton(!isAtBottom);
-    // };
+    }
+}, [messages]);
 
     const renderMedia = (files) => {
         if (!files || files.length === 0) return null;
