@@ -84,7 +84,7 @@ const Chat = ({ user }) => {
                     if (currentTime - status.timestamp < onlineThreshold) {
                         setLastSeen('Online');
                     } else {
-                        const formattedDate = `${lastSeenDate.getDate().toString().padStart(2, '0')}/${(lastSeenDate.getMonth() + 1).toString().padStart(2, '0')}/${lastSeenDate.getFullYear()}, ${lastSeenDate.getHours().toString().padStart(2, '0')}:${lastSeenDate.getMinutes().toString().padStart(2, '0'):${date.getSeconds().toString().padStart(2, '0')} WIB`;
+                        const formattedDate = `${lastSeenDate.getDate().toString().padStart(2, '0')}/${(lastSeenDate.getMonth() + 1).toString().padStart(2, '0')}/${lastSeenDate.getFullYear()}, ${lastSeenDate.getHours().toString().padStart(2, '0')}:${lastSeenDate.getMinutes().toString().padStart(2, '0')}:${date.getSeconds().toString().padStart(2, '0')} WIB`;
                         setLastSeen(formattedDate);
                     }
                 } else {
