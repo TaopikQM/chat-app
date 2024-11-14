@@ -388,7 +388,10 @@ const Chat = ({ user }) => {
                             <div className={`text-xs ${chatSettings.isNightMode ? 'text-gray-400' : 'text-gray-500'} flex justify-end items-center mt-1`}>
                                    {(() => {
                                         const date = new Date(msg.timestamp);
-                                        const formattedDate = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()},${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}:${date.getSeconds().toString().padStart(2, '0')} WIB`;
+                                         // Adjusting for Jakarta Time (UTC+7)
+                                        const jakartaTime = new Date(date.getTime() + 7 * 60 * 60 * 1000);  // Adding 7 hours to UTC time
+                                
+                                        const formattedDate = `${jakartaTime.getDate().toString().padStart(2, '0')}/${(jakartaTime.getMonth() + 1).toString().padStart(2, '0')}/${jakartaTime.getFullYear()},${jakartaTime.getHours().toString().padStart(2, '0')}:${jakartaTime.getMinutes().toString().padStart(2, '0')}:${jakartaTime.getSeconds().toString().padStart(2, '0')} WIB`;
                                         return formattedDate;
                                     })()}
                                 {msg.sender === user.id && (
