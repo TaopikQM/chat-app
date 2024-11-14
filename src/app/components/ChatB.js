@@ -109,7 +109,7 @@ const Chat = ({ user }) => {
         
         scrollToBottom();
         
-    }, [user.id, otherUser.id]);
+    }, [selectedDate,user.id, otherUser.id]);
      // Update user's own last seen on component mount and every 30 seconds
     useEffect(() => {
         const lastSeenRef = databaseRef(database, `lastSeenD/${user.id}`);
@@ -141,10 +141,14 @@ const Chat = ({ user }) => {
     };
 
     const filterMessagesByDate = (date) => {
+         const dateOnlyString = date.toISOString().split('T')[0]; // Format: "YYYY-MM-DD"
+    
         const filtered = messages.filter((msg) => {
-            const msgDate = new Date(msg.timestamp); // Pastikan hanya tanggalnya saja yang dibandingkan (tanpa waktu)
-            return msgDate.toISOString().split('T')[0] === date.toISOString().split('T')[0];
-  
+            const msgDate = new Date(msg.timestamp);
+    
+            // Pastikan perbandingan hanya tanggal (tanpa waktu) di zona yang sama
+            const msgDateOnlyString = msgDate.toISOString().split('T')[0];
+            return msgDateOnlyString === dateOnlyString;
         });
         setFilteredMessages(filtered);
     };
