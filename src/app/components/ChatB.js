@@ -60,7 +60,7 @@ const Chat = ({ user }) => {
             const data = snapshot.val();
             const loadedMessages = data ? Object.values(data) : [];
             setMessages(loadedMessages);
-             filterMessagesByDate(selectedDate);
+            filterMessagesByDate(selectedDate);
             scrollToBottom(); // Automatically scroll to bottom when new messages are loaded
 
            
@@ -92,7 +92,8 @@ const Chat = ({ user }) => {
                         setLastSeen(formattedDate);
                     }
                 } else {
-                    setLastSeen('Offline');
+                    const formattedDate = `${lastSeenDate.getDate().toString().padStart(2, '0')}/${(lastSeenDate.getMonth() + 1).toString().padStart(2, '0')}/${lastSeenDate.getFullYear()}, ${lastSeenDate.getHours().toString().padStart(2, '0')}:${lastSeenDate.getMinutes().toString().padStart(2, '0')}:${date.getSeconds().toString().padStart(2, '0')} WIB`;
+                    setLastSeen('Offline'-formattedDate);
                 }
             });
         };
@@ -330,7 +331,7 @@ const Chat = ({ user }) => {
                 {isMenuOpen && (
                     <div className={`absolute right-0 mt-2 w-48 ${chatSettings.isNightMode ? 'bg-gray-800 border-gray-700' : 'bg-white border'} rounded shadow-lg z-10`}>
                         <div className="p-2">
-                            <div className="dropdown">
+                            <div className="dropdown text-black">
                                 <label htmlFor="datePicker">Filter by Date:</label>
                                 <input 
                                     type="date" 
