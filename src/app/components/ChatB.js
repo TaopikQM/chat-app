@@ -84,7 +84,7 @@ const Chat = ({ user }) => {
                     if (currentTime - status.timestamp < onlineThreshold) {
                         setLastSeen('Online');
                     } else {
-                        const formattedDate = `${lastSeenDate.getDate().toString().padStart(2, '0')}/${(lastSeenDate.getMonth() + 1).toString().padStart(2, '0')}/${lastSeenDate.getFullYear()}, ${lastSeenDate.getHours().toString().padStart(2, '0')}:${lastSeenDate.getMinutes().toString().padStart(2, '0')} WIB`;
+                        const formattedDate = `${lastSeenDate.getDate().toString().padStart(2, '0')}/${(lastSeenDate.getMonth() + 1).toString().padStart(2, '0')}/${lastSeenDate.getFullYear()}, ${lastSeenDate.getHours().toString().padStart(2, '0')}:${lastSeenDate.getMinutes().toString().padStart(2, '0'):${date.getSeconds().toString().padStart(2, '0')} WIB`;
                         setLastSeen(formattedDate);
                     }
                 } else {
@@ -387,11 +387,18 @@ const Chat = ({ user }) => {
                             </div>
                             <div className={`text-xs ${chatSettings.isNightMode ? 'text-gray-400' : 'text-gray-500'} flex justify-end items-center mt-1`}>
                                    {(() => {
-                                        const date = new Date(msg.timestamp);
-                                         // Adjusting for Jakarta Time (UTC+7)
-                                        const jakartaTime = new Date(date.getTime() + 7 * 60 * 60 * 1000);  // Adding 7 hours to UTC time
+                                         // Mengambil timestamp dari database yang sudah dalam format ISO (misal: "2024-11-14T07:00:00.000Z")
+                                        const date = new Date(msg.timestamp);  // Mengonversi timestamp ISO ke objek Date
                                 
-                                        const formattedDate = `${jakartaTime.getDate().toString().padStart(2, '0')}/${(jakartaTime.getMonth() + 1).toString().padStart(2, '0')}/${jakartaTime.getFullYear()},${jakartaTime.getHours().toString().padStart(2, '0')}:${jakartaTime.getMinutes().toString().padStart(2, '0')}:${jakartaTime.getSeconds().toString().padStart(2, '0')} WIB`;
+                                        // Mengonversi waktu UTC ke waktu Jakarta (UTC+7)
+                                        const jakartaTime = new Date(date.getTime() + 7 * 60 * 60 * 1000);  // Menambahkan 7 jam ke waktu UTC
+                                        
+                                        // Memformat tanggal dan waktu dalam format yang diinginkan (dd/mm/yyyy, hh:mm:ss WIB)
+                                        const formattedDate = `${jakartaTime.getDate().toString().padStart(2, '0')}/${
+                                            (jakartaTime.getMonth() + 1).toString().padStart(2, '0')
+                                        }/${jakartaTime.getFullYear()},${jakartaTime.getHours().toString().padStart(2, '0')}:${
+                                            jakartaTime.getMinutes().toString().padStart(2, '0')
+                                        }:${jakartaTime.getSeconds().toString().padStart(2, '0')} WIB`;
                                         return formattedDate;
                                     })()}
                                 {msg.sender === user.id && (
