@@ -141,8 +141,9 @@ const Chat = ({ user }) => {
 
     const filterMessagesByDate = (date) => {
         const filtered = messages.filter((msg) => {
-            const msgDate = new Date(msg.timestamp);
-            return msgDate.toDateString() === date.toDateString();
+            const msgDate = new Date(msg.timestamp); // Pastikan hanya tanggalnya saja yang dibandingkan (tanpa waktu)
+            return msgDate.toISOString().split('T')[0] === date.toISOString().split('T')[0];
+  
         });
         setFilteredMessages(filtered);
     };
@@ -421,7 +422,7 @@ const Chat = ({ user }) => {
                                         const date = new Date(msg.timestamp);  // Mengonversi timestamp ISO ke objek Date
                                 
                                         // Mengonversi waktu UTC ke waktu Jakarta (UTC+7)
-                                        const jakartaTime = new Date(date.getTime() + 7 * 60 * 60 * 1000);  // Menambahkan 7 jam ke waktu UTC
+                                        const jakartaTime = new Date(date.getTime());  // Menambahkan 7 jam ke waktu UTC
                                         
                                         // Memformat tanggal dan waktu dalam format yang diinginkan (dd/mm/yyyy, hh:mm:ss WIB)
                                         const formattedDate = `${jakartaTime.getDate().toString().padStart(2, '0')}/${
