@@ -22,6 +22,9 @@ const Chat = ({ user }) => {
     const messagesEndRef = useRef(null);
     const messagesContainerRef = useRef(null);
     
+    const [selectedDate, setSelectedDate] = useState(new Date());
+    const [filteredMessages, setFilteredMessages] = useState([]);
+    
 
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isColorMenuOpen, setIsColorMenuOpen] = useState(false);
@@ -57,6 +60,7 @@ const Chat = ({ user }) => {
             const data = snapshot.val();
             const loadedMessages = data ? Object.values(data) : [];
             setMessages(loadedMessages);
+             filterMessagesByDate(selectedDate);
             scrollToBottom(); // Automatically scroll to bottom when new messages are loaded
 
            
@@ -129,6 +133,23 @@ const Chat = ({ user }) => {
         const typingRef = databaseRef(database, `typingStatus/${user.id}/${otherUser.id}`);
         set(typingRef, { isTyping: true });
     };
+    const handleDateChange = (e) => {
+        const newDate = new Date(e.target.value);
+        setSelectedDate(newDate);
+        filterMessagesByDate(newDate);
+    };
+
+    const filterMessagesByDate = (date) => {
+        const filtered = messages.filter((msg) => {
+            const msgDate = new Date(msg.timestamp);
+            return msgDate.toDateString() === date.toDateString();
+        });
+        setFilteredMessages(filtered);
+    };
+
+    const noMessagesMessage = filteredMessages.length === 0 && (
+        <p>No messages for the selected date.</p>
+    );
     
     // Function to fetch GPS location
     const fetchGpsLocation = () => {
@@ -308,6 +329,15 @@ const Chat = ({ user }) => {
                 {isMenuOpen && (
                     <div className={`absolute right-0 mt-2 w-48 ${chatSettings.isNightMode ? 'bg-gray-800 border-gray-700' : 'bg-white border'} rounded shadow-lg z-10`}>
                         <div className="p-2">
+                            <div className="dropdown">
+                                <label htmlFor="datePicker">Filter by Date:</label>
+                                <input 
+                                    type="date" 
+                                    id="datePicker" 
+                                    value={selectedDate.toISOString().split('T')[0]} 
+                                    onChange={handleDateChange} 
+                                />
+                            </div>
                             <button onClick={() => setIsColorMenuOpen(!isColorMenuOpen)} className="block text-left w-full">
                                 Colors
                             </button>
@@ -371,7 +401,7 @@ const Chat = ({ user }) => {
             <div ref={messagesContainerRef} className="relative flex-1 overflow-y-auto p-4"  onScroll={handleScroll}>
                 {/* Display messages */}
                 {/* Display messages */}
-                {messages.map((msg) => (
+                {filteredMessages.map((msg) => (
                     (msg.text || (msg.files && msg.files.length > 0)) && (
                         <div key={msg.timestamp} className={`mb-2 ${msg.sender === user.id ? 'text-right' : 'text-left'}`}>
                             <div
