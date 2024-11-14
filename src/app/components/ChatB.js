@@ -93,40 +93,33 @@ const Chat = ({ user }) => {
             });
         };
 
+         updateUserStatus();
+        const statusInterval = setInterval(updateUserStatus, 30000);
+
+        return () => {
+            unsubscribeMessages();
+            clearInterval(statusInterval);
+        };
+
         
         scrollToBottom();
         
     }, [user.id, otherUser.id]);
-     // Fetch other user's status
-        const userStatusRef = databaseRef(database, `lastSeenD/${otherUser.id}`);
-
-        const updateUserStatus = () => {
-            onValue(userStatusRef, (snapshot) => {
-                const status = snapshot.val();
-                if (status?.timestamp) {
-                    const lastSeenDate = new Date(status.timestamp);
-                    const currentTime = Date.now();
-                    const onlineThreshold = 5 * 60 * 1000; // 5 minutes
-
-                    if (currentTime - status.timestamp < onlineThreshold) {
-                        setLastSeen('Online');
-                    } else {
-                        const formattedDate = `${lastSeenDate.getDate().toString().padStart(2, '0')}/${(lastSeenDate.getMonth() + 1).toString().padStart(2, '0')}/${lastSeenDate.getFullYear()}, ${lastSeenDate.getHours().toString().padStart(2, '0')}:${lastSeenDate.getMinutes().toString().padStart(2, '0')} WIB`;
-                        setLastSeen(formattedDate);
-                    }
-                } else {
-                    setLastSeen('Offline');
-                }
-            });
+     // Update user's own last seen on component mount and every 30 seconds
+    useEffect(() => {
+        const lastSeenRef = databaseRef(database, `lastSeenD/${user.id}`);
+        
+        const updateLastSeen = () => {
+            update(lastSeenRef, { timestamp: Date.now() });
         };
 
-        // Initial call and interval setup for updating user status
-        updateUserStatus();
-        const statusInterval = setInterval(updateUserStatus, 30000); // Update every 30 seconds
+        updateLastSeen();
+        const intervalId = setInterval(updateLastSeen, 30000);
 
         return () => {
-            clearInterval(statusInterval);
+            clearInterval(intervalId);
         };
+    }, [user.id]);
 
       const handleInputChange = (e) => {
         setMessageText(e.target.value);
