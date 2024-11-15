@@ -1,5 +1,5 @@
 "use client";
-import Chat from '../components/Chat'; // Sesuaikan path jika berbeda
+import Chat0 from '../components/Chat0'; // Sesuaikan path jika berbeda
 import { UserProvider } from '../context/UserContext'; // Sesuaikan path jika berbeda
 import { useEffect, useState } from 'react';
 import { database } from '../config/firebase';
@@ -74,7 +74,7 @@ const UserPage = ({name}) => {
     return ( 
         <UserProvider>
            <h1>uji</h1>
-          <Chat user={{ id: name, name: userData.name }} /
+          <Chat0 user={{ id: name, name: userData.name }} /
         </UserProvider>
     );
 };
