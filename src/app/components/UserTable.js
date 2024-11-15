@@ -155,7 +155,7 @@ const UsersTable = () => {
     };
 
     const filteredUsers = users.filter(user => 
-        user.name.toLowerCase().includes(searchTerm.toLowerCase()).includes(searchTerm)
+        user.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
 
