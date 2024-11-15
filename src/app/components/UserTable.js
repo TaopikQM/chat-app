@@ -195,20 +195,12 @@ const UsersTable = () => {
                 <div className="flex justify-between items-center px-4 py-3">
                     <div className="text-xl font-bold mb-4">Daftar Pengguna</div>
                     <div className="relative">
-                        <button
-                            onClick={toggleForm}
-                            type="button"
-                            className={`text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 m-2 focus:outline-none ${
-                                showForm
-                                    ? "bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900"
-                                    : "bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
-                            }`}
-                        >
+                       <button onClick={toggleForm} type="button" className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 m-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Add</button>
                             {showForm ? "Kembali" : "Add"}
                         </button>
                         {showForm && (
                             <div className="fixed inset-0 flex items-center justify-center z-50 bg-gray-800 bg-opacity-50">
-                              <div className="bg-white p-6 rounded-lg w-96">
+                              <div className="bg-white p-6 text-center rounded-lg w-96">
                                 {/* "Kembali" Button inside modal */}
                                 <button
                                   onClick={toggleForm}
