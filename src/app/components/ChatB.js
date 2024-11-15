@@ -141,9 +141,11 @@ const Chat = ({ user }) => {
     };
     const handleDateChange = (e) => {
         const newDate = new Date(e.target.value);
+        console.log('Selected Date:', newDate);
         setSelectedDate(newDate);
         filterMessagesByDate(newDate);
     };
+
 
     const filterMessagesByDate = (date) => {
         const dateOnlyString = date.toISOString().split('T')[0]; // "YYYY-MM-DD"
@@ -407,12 +409,15 @@ const Chat = ({ user }) => {
 
                     </div>
                 )}
+
+                    console.log('Filtered Messages:', filteredMessages);
+
             <div ref={messagesContainerRef} className="relative flex-1 overflow-y-auto p-4"  onScroll={handleScroll}>
                 {/* Display messages */}
                 {/* Display messages */}
                 {filteredMessages.map((msg) => (
                     (msg.text || (msg.files && msg.files.length > 0)) && (
-                        <div key={msg.timestamp} className={`mb-2 ${msg.sender === user.id ? 'text-right' : 'text-left'}`}>
+                        <div key={msg.id || msg.timestamp} className={`mb-2 ${msg.sender === user.id ? 'text-right' : 'text-left'}`}>
                             <div
                                 className={`inline-block p-2 rounded-lg`}
                                 style={{ backgroundColor: msg.sender === user.id ? chatSettings.senderBubbleColor : chatSettings.receiverBubbleColor }}
