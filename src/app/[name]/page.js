@@ -74,6 +74,7 @@ const UserPage = ({name}) => {
     return ( 
         <UserProvider>
            <h1>uji</h1>
+          <Chat user={{ id: name, name: userData.name }} /
         </UserProvider>
     );
 };
