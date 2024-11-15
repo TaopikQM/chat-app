@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import Chat from '../components/Chat'; // Sesuaikan path jika berbeda
 import { UserProvider } from '../context/UserContext'; // Sesuaikan path jika berbeda
 import { useEffect, useState } from 'react';
-import { database } from '../../config/firebase';
+import { database } from '../config/firebase';
 import { ref as databaseRef, get, child } from 'firebase/database';
 
 const UserPage = () => {
