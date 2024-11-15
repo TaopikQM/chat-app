@@ -10,7 +10,7 @@ const getRandomColor = () => {
   return colors[Math.floor(Math.random() * colors.length)];
 };
 
-const UserPage = ({name}) => {
+const UserPage = () => {
     const [userData, setUserData] = useState(null);
     const [loading, setLoading] = useState(true);
 
