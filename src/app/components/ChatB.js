@@ -55,21 +55,29 @@ const Chat = ({ user }) => {
 
     // Fetch messages and user status from Firebase on component mount
     useEffect(() => {
-        const messagesRef = databaseRef(database, `messagesD/${new Date().getFullYear()}/${new Date().getMonth() + 1}/${new Date().getDate()}/${user.id}/${otherUser.id}`);
-        onValue(messagesRef, (snapshot) => {
+        if (!selectedDate) return;
+
+        const year = selectedDate.getFullYear();
+        const month = (selectedDate.getMonth() + 1).toString().padStart(2, '0'); // Bulan dalam format 2 digit
+        const day = selectedDate.getDate().toString().padStart(2, '0'); // Tanggal dalam format 2 digit
+    
+        const messagesRef = databaseRef(database, `messagesD/${year}/${month}/${day}/${user.id}/${otherUser.id}`);
+        
+        const unsubscribeMessages = onValue(messagesRef, (snapshot) => {
             const data = snapshot.val();
             const loadedMessages = data ? Object.values(data) : [];
             setMessages(loadedMessages);
+    
+            // Filter pesan setelah data dimuat
             filterMessagesByDate(selectedDate);
-            scrollToBottom(); // Automatically scroll to bottom when new messages are loaded
-
-           
-            
-            // Mark all messages as read when the user views the chat
+            scrollToBottom();
+        
+            // Tandai pesan sebagai dibaca
             loadedMessages.forEach((msg) => {
                 if (!msg.read && msg.sender !== user.id) {
-                    update(databaseRef(database, `messagesD/${new Date().getFullYear()}/${new Date().getMonth() + 1}/${new Date().getDate()}/${user.id}/${otherUser.id}/${msg.id}`), { read: true });
-                    update(databaseRef(database, `messagesD/${new Date().getFullYear()}/${new Date().getMonth() + 1}/${new Date().getDate()}/${otherUser.id}/${user.id}/${msg.id}`), { read: true });
+                    const messagePath = `messagesD/${year}/${month}/${day}/${user.id}/${otherUser.id}/${msg.id}`;
+                    update(databaseRef(database, messagePath), { read: true });
+                    update(databaseRef(database, `messagesD/${year}/${month}/${day}/${otherUser.id}/${user.id}/${msg.id}`), { read: true });
                 }
             });
         });
@@ -105,9 +113,6 @@ const Chat = ({ user }) => {
             unsubscribeMessages();
             clearInterval(statusInterval);
         };
-
-        
-        scrollToBottom();
         
     }, [selectedDate,user.id, otherUser.id]);
      // Update user's own last seen on component mount and every 30 seconds
@@ -141,12 +146,10 @@ const Chat = ({ user }) => {
     };
 
     const filterMessagesByDate = (date) => {
-        
+        const dateOnlyString = date.toISOString().split('T')[0]; // "YYYY-MM-DD"
         const filtered = messages.filter((msg) => {
             const msgDate = new Date(msg.timestamp);
-    
-            // Pastikan perbandingan hanya tanggal (tanpa waktu) di zona yang sama
-            const msgDateOnlyString = msgDate.toISOString().split('T')[0];
+            const msgDateOnlyString = msgDate.toISOString().split('T')[0]; // "YYYY-MM-DD"
             return msgDateOnlyString === dateOnlyString;
         });
         setFilteredMessages(filtered);
