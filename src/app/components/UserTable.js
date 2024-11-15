@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { database } from '../config/firebase';
 import { ref, child, get } from 'firebase/database';
+import AddUser from '../components/AddUser';
 
 const UsersTable = () => {
     const [users, setUsers] = useState([]);
@@ -14,6 +15,8 @@ const UsersTable = () => {
     const [itemsPerPage, setItemsPerPage] = useState(10);
     const [currentPage, setCurrentPage] = useState(0);
     const [sortOrderName, setSortOrderName] = useState('asc');
+    
+    const [showForm, setShowForm] = useState(false);
 
     useEffect(() => {
         const fetchUsers = async () => {
