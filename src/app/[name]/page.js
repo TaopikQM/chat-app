@@ -5,6 +5,11 @@ import { useEffect, useState } from 'react';
 import { database } from '../config/firebase';
 import { ref as databaseRef, get, child } from 'firebase/database';
 
+const getRandomColor = () => {
+  const colors = ['purple-600', 'pink-600', 'yellow-400', 'red-600', 'green-500', 'gray-600', 'blue-600']; // Define the colors
+  return colors[Math.floor(Math.random() * colors.length)];
+};
+
 const UserPage = ({name}) => {
     const [userData, setUserData] = useState(null);
     const [loading, setLoading] = useState(true);
