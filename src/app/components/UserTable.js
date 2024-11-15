@@ -58,8 +58,6 @@ const UsersTable = () => {
                     const totals = {
                         active: 0,
                         inactive: 0,
-                        registered: 0,
-                        notRegistered: 0,
                     };
 
                     usersArray.forEach(user => {
@@ -157,8 +155,7 @@ const UsersTable = () => {
     };
 
     const filteredUsers = users.filter(user => 
-        user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.nim.includes(searchTerm)
+        user.name.toLowerCase().includes(searchTerm.toLowerCase()).includes(searchTerm)
     );
 
 
