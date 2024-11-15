@@ -1,75 +1,41 @@
 "use client"
-import { database } from '../config/firebase';
-import { ref, get, update, remove, child } from 'firebase/database';
 import { useEffect, useState } from 'react';
+import { database } from '../config/firebase';
+import { ref, child, get } from 'firebase/database';
 
 const UsersTable = () => {
     const [users, setUsers] = useState([]);
-    const [editUser, setEditUser] = useState(null);
-    const [formData, setFormData] = useState({ name: '', nim: '', status: '' });
     const [editUserId, setEditUserId] = useState(null);
     const [editUserName, setEditUserName] = useState("");
-    const [isLoading, setIsLoading] = useState(false);
-    const [showForm, setShowForm] = useState(false);
+    const [editUserNim, setEditUserNim] = useState("");
     const [searchTerm, setSearchTerm] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
     const [totalItems, setTotalItems] = useState(0);
     const [itemsPerPage, setItemsPerPage] = useState(10);
     const [currentPage, setCurrentPage] = useState(0);
     const [sortOrderName, setSortOrderName] = useState('asc');
-    const [totalActive, setTotalActive] = useState(0);
-    const [totalInactive, setTotalInactive] = useState(0);
-    const [totalRegistered, setTotalRegistered] = useState(0);
-    const [totalNotRegistered, setTotalNotRegistered] = useState(0);
-
-    const toggleForm = () => {
-        setShowForm(!showForm);
-    };
-
-    const sortByName = () => { 
-        const sortByName = [...users].sort((a, b) => {
-            const comparison = a.name.localeCompare(b.name);
-            return sortOrderName === 'asc' ? comparison : -comparison;
-        });
-        setUsers(sortByName);
-        setSortOrderName(sortOrderName === 'asc' ? 'desc' : 'asc');
-    }
 
     useEffect(() => {
-        // Fetch Users from Firebase
         const fetchUsers = async () => {
+            setIsLoading(true);
             try {
-                const usersRef = ref(database, 'chat/users');
+                const usersRef = ref(database, 'users');
                 const snapshot = await get(usersRef);
                 if (snapshot.exists()) {
                     const data = snapshot.val();
-                    const usersArray = Object.keys(data).map(key => ({ id: key, ...data[key] }));
+                    const usersArray = Object.keys(data).map((key) => ({
+                        id: key,
+                        ...data[key],
+                    }));
                     setUsers(usersArray);
                     setTotalItems(usersArray.length);
-
-                    const totals = {
-                        active: 0,
-                        inactive: 0,
-                        registered: 0,
-                        notRegistered: 0,
-                    };
-
-                    usersArray.forEach(user => {
-                        if (user.status === 'active') {
-                            totals.active++;
-                        } else if (user.status === 'inactive') {
-                            totals.inactive++;
-                        }
-                    });
-
-                    setTotalActive(totals.active);
-                    setTotalInactive(totals.inactive);
-                    setTotalRegistered(totals.registered);
-                    setTotalNotRegistered(totals.notRegistered);
                 } else {
-                    console.log("No data available");
+                    console.log('No data available');
                 }
             } catch (error) {
                 console.error("Error fetching users:", error);
+            } finally {
+                setIsLoading(false);
             }
         };
 
@@ -78,7 +44,6 @@ const UsersTable = () => {
 
     const handleEditClick = (user) => {
         setEditUserId(user.id);
-        setEditUser(user);
         setEditUserName(user.name);
         setEditUserNim(user.nim);
     };
@@ -86,17 +51,20 @@ const UsersTable = () => {
     const handleUpdateUser = async () => {
         setIsLoading(true);
         try {
-            const userRef = ref(database, `chat/users/${editUserId}`);
-            await update(userRef, {
+            const userRef = ref(database, 'users/' + editUserId);
+            await set(userRef, {
                 name: editUserName,
+                nim: editUserNim,
             });
 
-            // Update the user in local state
-            setUsers((prevUsers) => prevUsers.map((user) =>
-                user.id === editUserId ? { ...user, name: editUserName} : user
-            ));
-
-            setEditUserId(null); // Exit edit mode
+            setUsers((prevUsers) =>
+                prevUsers.map((user) =>
+                    user.id === editUserId
+                        ? { ...user, name: editUserName, nim: editUserNim }
+                        : user
+                )
+            );
+            setEditUserId(null); // Keluar dari mode edit
         } catch (error) {
             console.error('Error updating user:', error);
         } finally {
@@ -109,43 +77,34 @@ const UsersTable = () => {
             return;
         }
 
-        try {
-            const userRef = ref(database, `chat/users/${user.id}`);
-            await remove(userRef);
-            setUsers(users.filter(u => u.id !== user.id));
-            alert("Data berhasil dihapus.");
-        } catch (error) {
-            console.error("Error deleting user:", error);
-            alert('Terjadi kesalahan saat menghapus data.');
-        }
+        const userRef = ref(database, 'users/' + user.id);
+        await set(userRef, null); // Menghapus data pengguna
+
+        setUsers(users.filter((u) => u.id !== user.id));
+        alert("Data berhasil dihapus.");
     };
 
     const handleChangeStatus = async (user) => {
         const newStatus = user.status === "active" ? "inactive" : "active";
-        try {
-            const userRef = ref(database, `chat/users/${user.id}`);
-            await update(userRef, { status: newStatus });
+        const userRef = ref(database, 'users/' + user.id);
+        await set(userRef, { ...user, status: newStatus });
 
-            // Update the user status in local state
-            setUsers(users.map(u => u.id === user.id ? { ...u, status: newStatus } : u));
-        } catch (error) {
-            console.error('Failed to update status:', error);
-            alert('Failed to update status');
-        }
+        setUsers(users.map((u) => (u.id === user.id ? { ...u, status: newStatus } : u)));
     };
 
     const handleSearch = (e) => {
         setSearchTerm(e.target.value);
     };
 
-    const filteredUsers = users.filter(user => 
-        user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.nim.includes(searchTerm)
+    const filteredUsers = users.filter(
+        (user) =>
+            user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            user.nim.includes(searchTerm)
     );
 
     const handleItemsPerPageChange = (e) => {
         setItemsPerPage(parseInt(e.target.value));
-        setCurrentPage(1);
+        setCurrentPage(1); // Reset to the first page on items per page change
     };
 
     const indexOfLastUser = currentPage * itemsPerPage;
@@ -153,6 +112,15 @@ const UsersTable = () => {
     const currentUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser);
 
     const totalPages = Math.ceil(totalItems / itemsPerPage);
+
+    const sortByName = () => {
+        const sortByName = [...users].sort((a, b) => {
+            const comparison = a.name.localeCompare(b.name);
+            return sortOrderName === 'asc' ? comparison : -comparison;
+        });
+        setUsers(sortByName);
+        setSortOrderName(sortOrderName === 'asc' ? 'desc' : 'asc');
+    };
 
     const getPagination = () => {
         let pages = [];
@@ -162,26 +130,48 @@ const UsersTable = () => {
             if (currentPage <= 3) {
                 pages = [1, 2, 3, 4, 5, '...'];
             } else if (currentPage >= totalPages - 2) {
-                pages = [1, '...', totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+                pages = [
+                    1,
+                    '...',
+                    totalPages - 4,
+                    totalPages - 3,
+                    totalPages - 2,
+                    totalPages - 1,
+                    totalPages,
+                ];
             } else {
-                pages = [1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages];
+                pages = [
+                    1,
+                    '...',
+                    currentPage - 1,
+                    currentPage,
+                    currentPage + 1,
+                    '...',
+                    totalPages,
+                ];
             }
         }
         return pages;
     };
 
-    return ( 
-         <div>
-            <div className="relative overflow-x-auto shadow-md sm:rounded-lg ">
+    return (
+        <div>
+            <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
                 <div className="flex justify-between items-center px-4 py-3">
                     <div className="text-xl font-bold mb-4">Daftar Pengguna</div>
-                    <div className="relative ">
-                        <button onClick={toggleForm} type="button" className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 m-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Add</button>
+                    <div className="relative">
+                        <button
+                            onClick={() => setShowForm((prev) => !prev)}
+                            type="button"
+                            className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 m-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
+                        >
+                            Add
+                        </button>
                         {showForm && <AddUser />}
                     </div>
-                  
                 </div>
-                <div className="flex justify-between  px-4 py-3">
+
+                <div className="flex justify-between px-4 py-3">
                     <div className="flex">
                         <select
                             id="itemsPerPage"
@@ -198,43 +188,46 @@ const UsersTable = () => {
                             Total User: {filteredUsers.length}
                         </div>
                     </div>
-                    
-                    <div className="relative ">
-                        <form className="max-w-md mx-auto ml-2"> 
-                            <label className="mb-2 text-sm font-medium text-gray-00 sr-only dark:text-white">Search</label>
-                            <div >
-                                <input 
-                                onChange={handleSearch} 
-                                value={searchTerm} type="search" id="default-search" className=" block w-full p-4 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-400 dark:border-gray-600 dark:placeholder-gray-800 dark:text-gray-800 dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Search" required />
-                            </div>
+
+                    <div className="relative">
+                        <form className="max-w-md mx-auto ml-2">
+                            <label className="mb-2 text-sm font-medium text-gray-00 sr-only dark:text-white">
+                                Search
+                            </label>
+                            <input
+                                onChange={handleSearch}
+                                value={searchTerm}
+                                type="search"
+                                id="default-search"
+                                className="block w-full p-4 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-400 dark:border-gray-600 dark:placeholder-gray-800 dark:text-gray-800 dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                placeholder="Search"
+                                required
+                            />
                         </form>
-                        
                     </div>
                 </div>
-               
-                <table className="min-w-full bg-white border  border-gray-300">
+
+                <table className="min-w-full bg-white border border-gray-300">
                     <thead className="border">
                         <tr>
-                            <th className="py-2 px-4 ">No</th>
-                            {/* <th className="py-2 px-4 ">Nama</th> */}
-                            <th  className="text-center md:p-4 p-0">
+                            <th className="py-2 px-4">No</th>
+                            <th className="text-center md:p-4 p-0">
                                 Nama
                                 <button onClick={sortByName} className="ml-2">
                                     {sortOrderName === 'asc' ? '↑' : '↓'}
                                 </button>
                             </th>
-                            <th className="py-2 px-4 ">Status</th>
-                            <th className="py-2 px-4 ">Aksi</th>
+                            <th className="py-2 px-4">NIM</th>
+                            <th className="py-2 px-4">Status</th>
+                            <th className="py-2 px-4">Register</th>
+                            <th className="py-2 px-4">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {filteredUsers .length > 0 ? (
-                            filteredUsers .map((user,index) => (
-                                <tr key={user.id} className=" border">
-                                    <td className="py-2 px-4 text-left">
-                                        {index+1}
-                                       
-                                    </td>
+                        {currentUsers.length > 0 ? (
+                            currentUsers.map((user, index) => (
+                                <tr key={user.id} className="border">
+                                    <td className="py-2 px-4 text-left">{index + 1}</td>
                                     <td className="py-2 px-4 text-left">
                                         {editUserId === user.id ? (
                                             <input
@@ -247,107 +240,88 @@ const UsersTable = () => {
                                             user.name
                                         )}
                                     </td>
-                                   
-                                    <td className="py-2 px-4 text-center">
-                                          <button onClick={() => handleChangeStatusWithConfirmation(user)}>
-                                            {user.status === 'active' ? 
-                                            <button className="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">Active</button> : 
-                                            <button className="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900">Inactive</button>}
-                                        </button>
-                                    </td>
-                                    
-                                   
-                                    <td className="py-2 px-4  text-center">
+                                    <td className="py-2 px-4 text-left">
                                         {editUserId === user.id ? (
-                                            <>
-                                                <button onClick={handleUpdateUser} className="bg-blue-500 text-white px-4 py-2 rounded-md mr-2">
-                                                    {isLoading ? 'Menyimpan...' : 'Simpan'}
-                                                </button>
-                                                <button
-                                                    onClick={() => setEditUserId(null)}
-                                                    className="bg-gray-500 text-white px-4 py-2 rounded-md "
-                                                >
-                                                    Batal
-                                                </button>
-                                            </>
+                                            <input
+                                                type="text"
+                                                value={editUserNim}
+                                                onChange={(e) => setEditUserNim(e.target.value)}
+                                                className="border border-gray-400 px-2 py-1 rounded-md"
+                                            />
+                                        ) : (
+                                            user.nim
+                                        )}
+                                    </td>
+                                    <td className="py-2 px-4 text-left">
+                                        <span
+                                            className={`px-2 py-1 rounded-full ${
+                                                user.status === "active" ? "bg-green-500" : "bg-red-500"
+                                            }`}
+                                        >
+                                            {user.status}
+                                        </span>
+                                    </td>
+                                    <td className="py-2 px-4">{user.register_date}</td>
+                                    <td className="py-2 px-4">
+                                        {editUserId === user.id ? (
+                                            <button
+                                                onClick={handleUpdateUser}
+                                                className="bg-blue-500 text-white px-3 py-1 rounded"
+                                            >
+                                                Update
+                                            </button>
                                         ) : (
                                             <>
                                                 <button
                                                     onClick={() => handleEditClick(user)}
-                                                    // className="bg-yellow-500 text-white px-4 py-2 rounded-md mr-2"
-                                                    type="button" className="focus:outline-none text-white bg-yellow-400 hover:bg-yellow-500 focus:ring-4 focus:ring-yellow-300 font-medium rounded-md text-sm px-4 py-2 mr-2 dark:focus:ring-yellow-900"
+                                                    className="bg-yellow-500 text-white px-3 py-1 rounded"
                                                 >
                                                     Edit
                                                 </button>
-                                            
                                                 <button
                                                     onClick={() => handleDeleteUser(user)}
-                                                    // className="bg-red-500 text-white px-4 py-2 rounded-md"
-                                                    type="button" className="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-md text-sm px-4 py-2  dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900"
+                                                    className="bg-red-500 text-white px-3 py-1 rounded ml-2"
                                                 >
-                                                    Hapus
+                                                    Delete
+                                                </button>
+                                                <button
+                                                    onClick={() => handleChangeStatus(user)}
+                                                    className={`bg-${
+                                                        user.status === "active" ? "red" : "green"
+                                                    }-500 text-white px-3 py-1 rounded ml-2`}
+                                                >
+                                                    {user.status === "active" ? "Deactivate" : "Activate"}
                                                 </button>
                                             </>
                                         )}
                                     </td>
                                 </tr>
                             ))
-                            ) : (
+                        ) : (
                             <tr>
-                                <td colSpan="5" className="py-2 px-4 text-center">Data tidak ditemukan</td>
+                                <td colSpan="6" className="py-2 px-4 text-center">No users found</td>
                             </tr>
-                            )
-                        }
-                       
+                        )}
                     </tbody>
                 </table>
 
-                {totalItems > itemsPerPage && (
-                    <nav className="m-4 flex items-center flex-column flex-wrap md:flex-row justify-between pt-4" aria-label="Table navigation">
-                        <span className="text-sm font-normal text-gray-500 dark:text-gray-400">
-                            Page {currentPage} of {totalPages}
-                        </span>
-                        
-                        <ul className="inline-flex items-center -space-x-px">
-                            <li>
-                                <button
-                                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                                    className="py-2 px-4 border border-gray-300 rounded-l-lg dark:border-gray-600 dark:bg-gray-400 dark:text-white"
-                                    disabled={currentPage === 1}
-                                >
-                                    Previous
-                                </button>
-                            </li>
-                            {getPagination().map((page, index) => (
-                                <li key={index}>
-                                    {page === '...' ? (
-                                        <span className="py-2 px-4">...</span>
-                                    ) : (
-                                        <button
-                                            onClick={() => setCurrentPage(page)}
-                                            className={py-2 px-4 border border-gray-300 ${currentPage === page ? 'border-gray-600 text-gray-600' : 'text-gray-500 dark:text-gray-400'}}
-                                        >
-                                            {page}
-                                        </button>
-                                    )}
-                                </li>
-                            ))}
-                            <li>
-                                <button
-                                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                                    className="py-2 px-4 border border-gray-300 rounded-r-lg dark:border-gray-600 dark:bg-gray-400 dark:text-white"
-                                    disabled={currentPage === totalPages}
-                                >
-                                    Next
-                                </button>
-                            </li>
-                        </ul>
-                    </nav>
-                )}
+                <div className="flex justify-between items-center px-4 py-3">
+                    <div className="flex">
+                        {getPagination().map((page, index) => (
+                            <button
+                                key={index}
+                                onClick={() => setCurrentPage(page === '...' ? currentPage : page)}
+                                className={`py-1 px-3 rounded ${currentPage === page ? "bg-blue-500 text-white" : "bg-white"}`}
+                                disabled={page === '...'}
+                            >
+                                {page}
+                            </button>
+                        ))}
+                    </div>
+                </div>
             </div>
         </div>
     );
 };
 
 export default UsersTable;
-
