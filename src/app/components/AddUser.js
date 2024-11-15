@@ -45,7 +45,7 @@ const AddUserComponent = () => {
     }, [message]);
 
     return (
-        <div className="max-w-md mx-auto mt-10 p-6 bg-white border border-gray-200 rounded-lg shadow-md">
+        <div className="max-w-md mx-auto p-6 bg-white border border-gray-200 rounded-lg shadow-md">
             <h2 className="text-2xl font-bold mb-4">Tambah User Baru</h2>
             <input
                 type="text"
