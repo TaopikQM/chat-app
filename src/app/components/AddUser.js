@@ -15,13 +15,14 @@ const AddUserComponent = () => {
         }
 
         setIsSubmitting(true);
-        const usersRef = databaseRef(database, 'users');
+        const usersRef = databaseRef(database, 'chat/users');
         const newUserRef = push(usersRef);
         const createdAt = new Date().toISOString();
 
         const newUser = {
             name: name,
             createdAt: createdAt,
+            status: 'Active', 
         };
 
         try {
