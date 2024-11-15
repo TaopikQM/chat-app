@@ -54,32 +54,19 @@ const Chat = ({ user }) => {
     };
 
     // Fetch messages and user status from Firebase on component mount
-    useEffect(() => {
-        if (!selectedDate) return;
-
-        const year = selectedDate.getFullYear();
-        const month = (selectedDate.getMonth() + 1).toString().padStart(2, '0'); // Bulan dalam format 2 digit
-        const day = selectedDate.getDate().toString().padStart(2, '0'); // Tanggal dalam format 2 digit
     
-        const messagesRef = databaseRef(database, `messagesD/${year}/${month}/${day}/${user.id}/${otherUser.id}`);
+    useEffect(() => {
+        const year = selectedDate.getFullYear();
+        const month = (selectedDate.getMonth() + 1).toString().padStart(2, '0');
+        const day = selectedDate.getDate().toString().padStart(2, '0');
         
+        const messagesRef = databaseRef(database, `messagesD/${year}/${month}/${day}`);
         const unsubscribeMessages = onValue(messagesRef, (snapshot) => {
             const data = snapshot.val();
             const loadedMessages = data ? Object.values(data) : [];
             setMessages(loadedMessages);
-    
-            // Filter pesan setelah data dimuat
             filterMessagesByDate(selectedDate);
             scrollToBottom();
-        
-            // Tandai pesan sebagai dibaca
-            loadedMessages.forEach((msg) => {
-                if (!msg.read && msg.sender !== user.id) {
-                    const messagePath = `messagesD/${year}/${month}/${day}/${user.id}/${otherUser.id}/${msg.id}`;
-                    update(databaseRef(database, messagePath), { read: true });
-                    update(databaseRef(database, `messagesD/${year}/${month}/${day}/${otherUser.id}/${user.id}/${msg.id}`), { read: true });
-                }
-            });
         });
 
          // Fetch other user's status
@@ -111,7 +98,7 @@ const Chat = ({ user }) => {
             clearInterval(statusInterval);
         };
         
-    }, [selectedDate,user.id, otherUser.id]);
+    }, [selectedDate]);
      // Update user's own last seen on component mount and every 30 seconds
     useEffect(() => {
         const lastSeenRef = databaseRef(database, `lastSeenD/${user.id}`);
@@ -145,10 +132,10 @@ const Chat = ({ user }) => {
 
 
     const filterMessagesByDate = (date) => {
-        const dateOnlyString = date.toISOString().split('T')[0]; // "YYYY-MM-DD"
+        const dateOnlyString = date.toISOString().split('T')[0];
         const filtered = messages.filter((msg) => {
             const msgDate = new Date(msg.timestamp);
-            const msgDateOnlyString = msgDate.toISOString().split('T')[0]; // "YYYY-MM-DD"
+            const msgDateOnlyString = msgDate.toISOString().split('T')[0];
             return msgDateOnlyString === dateOnlyString;
         });
         setFilteredMessages(filtered);
@@ -198,25 +185,16 @@ const Chat = ({ user }) => {
         setSelectedFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
     };
 
-    // Function to send a new message with media support
     const sendMessage = async () => {
-       if (messageText.trim() === "" && selectedFiles.length === 0) return; // Prevent sending empty messages
+        if (messageText.trim() === "" && selectedFiles.length === 0) return;
 
-        // Check GPS location for user1 before sending message
-        if (user.id === 'user1' && !location) {
-            try {
-                const gpsLocation = await fetchGpsLocation();
-                setLocation(gpsLocation); // Update location state if successful
-            } catch (error) {
-                alert("Please enable GPS location to send messages.");
-                return; // Stop sending if location is not available
-            }
-        }
+        const year = new Date().getFullYear();
+        const month = (new Date().getMonth() + 1).toString().padStart(2, '0');
+        const day = new Date().getDate().toString().padStart(2, '0');
+        const messagesRef = databaseRef(database, `messagesD/${year}/${month}/${day}`);
 
-        const messagesRef = databaseRef(database, `messagesD/${new Date().getFullYear()}/${new Date().getMonth() + 1}/${new Date().getDate()}/${user.id}/${otherUser.id}`);
-        // Get current time in Jakarta     timezone (UTC+7)
-        const jakartaTime = new Date(Date.now() + (7 * 60 * 60 * 1000)); // UTC time + 7 hours
-        const formattedTimestamp = jakartaTime.toISOString(); // Store in ISO format if needed for further processing
+        const jakartaTime = new Date(Date.now() + (7 * 60 * 60 * 1000));
+        const formattedTimestamp = jakartaTime.toISOString();
 
         const newMessage = {
             text: messageText,
@@ -224,27 +202,21 @@ const Chat = ({ user }) => {
             timestamp: formattedTimestamp,
             read: false,
             files: [],
-            location: user.id === 'user1' ? location : null // Set location only for user1
+            location: user.id === 'user1' ? location : null,
         };
 
         setUploading(true);
-
-        // Upload selected files (images and videos) to Firebase Storage
         const uploadedFiles = await Promise.all(selectedFiles.map(async (file) => {
             const fileRef = storageRef(storage, `chatFiles/${file.name}`);
             await uploadBytes(fileRef, file);
             return getDownloadURL(fileRef);
         }));
 
-        // Update newMessage with uploaded file URLs
         newMessage.files = uploadedFiles;
+        await push(messagesRef, newMessage);
 
-        // Push message to Firebase Database
-        const newMsgRef = await push(messagesRef, newMessage);
-        setMessageText(''); // Clear input after sending
-        setSelectedFiles([]); // Clear selected files
-        
-         
+        setMessageText('');
+        setSelectedFiles([]);
     };
 
     // Function to scroll to the bottom
