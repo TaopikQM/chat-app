@@ -22,7 +22,6 @@ const AddUserComponent = () => {
             name: name,
             createdAt: createdAt,
             status: 'Active',
-            id,  // Simpan name sebagai id dalam data
         };
 
         try {
