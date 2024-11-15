@@ -8,7 +8,6 @@ const UsersTable = () => {
     const [users, setUsers] = useState([]);
     const [editUserId, setEditUserId] = useState(null);
     const [editUserName, setEditUserName] = useState("");
-    const [editUserNim, setEditUserNim] = useState("");
     const [searchTerm, setSearchTerm] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [totalItems, setTotalItems] = useState(0);
@@ -22,7 +21,7 @@ const UsersTable = () => {
         const fetchUsers = async () => {
             setIsLoading(true);
             try {
-                const usersRef = ref(database, 'users');
+                const usersRef = ref(database, 'chat/users');
                 const snapshot = await get(usersRef);
                 if (snapshot.exists()) {
                     const data = snapshot.val();
@@ -48,22 +47,20 @@ const UsersTable = () => {
     const handleEditClick = (user) => {
         setEditUserId(user.id);
         setEditUserName(user.name);
-        setEditUserNim(user.nim);
     };
 
     const handleUpdateUser = async () => {
         setIsLoading(true);
         try {
-            const userRef = ref(database, 'users/' + editUserId);
+            const userRef = ref(database, 'chat/users/' + editUserId);
             await set(userRef, {
                 name: editUserName,
-                nim: editUserNim,
             });
 
             setUsers((prevUsers) =>
                 prevUsers.map((user) =>
                     user.id === editUserId
-                        ? { ...user, name: editUserName, nim: editUserNim }
+                        ? { ...user, name: editUserName }
                         : user
                 )
             );
@@ -80,7 +77,7 @@ const UsersTable = () => {
             return;
         }
 
-        const userRef = ref(database, 'users/' + user.id);
+        const userRef = ref(database, 'chat/users/' + user.id);
         await set(userRef, null); // Menghapus data pengguna
 
         setUsers(users.filter((u) => u.id !== user.id));
@@ -89,7 +86,7 @@ const UsersTable = () => {
 
     const handleChangeStatus = async (user) => {
         const newStatus = user.status === "active" ? "inactive" : "active";
-        const userRef = ref(database, 'users/' + user.id);
+        const userRef = ref(database, 'chat/users/' + user.id);
         await set(userRef, { ...user, status: newStatus });
 
         setUsers(users.map((u) => (u.id === user.id ? { ...u, status: newStatus } : u)));
@@ -220,7 +217,6 @@ const UsersTable = () => {
                                     {sortOrderName === 'asc' ? '↑' : '↓'}
                                 </button>
                             </th>
-                            <th className="py-2 px-4">NIM</th>
                             <th className="py-2 px-4">Status</th>
                             <th className="py-2 px-4">Register</th>
                             <th className="py-2 px-4">Aksi</th>
@@ -243,18 +239,7 @@ const UsersTable = () => {
                                             user.name
                                         )}
                                     </td>
-                                    <td className="py-2 px-4 text-left">
-                                        {editUserId === user.id ? (
-                                            <input
-                                                type="text"
-                                                value={editUserNim}
-                                                onChange={(e) => setEditUserNim(e.target.value)}
-                                                className="border border-gray-400 px-2 py-1 rounded-md"
-                                            />
-                                        ) : (
-                                            user.nim
-                                        )}
-                                    </td>
+                                    
                                     <td className="py-2 px-4 text-left">
                                         <span
                                             className={`px-2 py-1 rounded-full ${
