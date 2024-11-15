@@ -206,7 +206,23 @@ const UsersTable = () => {
                         >
                             {showForm ? "Kembali" : "Add"}
                         </button>
-                        {showForm && <AddUser />}
+                        {showForm && (
+                            <div className="fixed inset-0 flex items-center justify-center z-50 bg-gray-800 bg-opacity-50">
+                              <div className="bg-white p-6 rounded-lg w-96">
+                                {/* "Kembali" Button inside modal */}
+                                <button
+                                  onClick={toggleForm}
+                                  type="button"
+                                  className="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 mb-4 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900"
+                                >
+                                  Kembali
+                                </button>
+                    
+                                {/* Form component */}
+                                <AddUser />
+                              </div>
+                            </div>
+                          )}
                     </div>
 
                   
