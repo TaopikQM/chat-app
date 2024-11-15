@@ -71,13 +71,9 @@ const UserPage = ({name}) => {
         return <p>User not found.</p>;
     }
 
-    return (
+    return ( 
         <UserProvider>
-            {userData ? (
-              <Chat user={{ id: name, name: userData.name }} />
-            ) : (
-                <p>Loading user data...</p> // Menampilkan pesan loading atau spinner jika userData belum tersedia
-            )}
+           <h1>uji</h1>
         </UserProvider>
     );
 };
