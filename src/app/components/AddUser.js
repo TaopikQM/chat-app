@@ -1,4 +1,4 @@
-"use client";
+"use client"
 import React, { useState, useEffect } from 'react';
 import { database } from '../config/firebase';
 import { ref as databaseRef, set } from 'firebase/database';
@@ -15,19 +15,18 @@ const AddUserComponent = () => {
         }
 
         setIsSubmitting(true);
-
-        // Create a reference based on the 'name' field, which will be used as the ID
-        const userRef = databaseRef(database, `chat/users/${name}`);  // Using name as the key
+        const usersRef = databaseRef(database, `chat/users/${name}`);  // `name` menjadi kunci
         const createdAt = new Date().toISOString();
 
         const newUser = {
             name: name,
             createdAt: createdAt,
-            status: 'Active', 
+            status: 'Active',
+            id,  // Simpan name sebagai id dalam data
         };
 
         try {
-            await set(userRef, newUser);  // Store data under the name as the key
+            await set(usersRef, newUser);  // Set data dengan name sebagai kunci
             setMessage('User berhasil ditambahkan!');
             setName('');
         } catch (error) {
@@ -93,6 +92,7 @@ const AddUserComponent = () => {
 };
 
 export default AddUserComponent;
+
 
 // "use client"
 // import React, { useState, useEffect } from 'react';
