@@ -5,7 +5,7 @@ import { ref as databaseRef, onValue, push, update } from 'firebase/database';
 import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 import 'tailwindcss/tailwind.css';
 
-const Chat = ({ user }) => {
+const Chat0 = ({ user }) => {
     const [otherUser, setOtherUser] = useState(null);
   // Fetch other user data from Firebase
     useEffect(() => {
@@ -248,4 +248,4 @@ const Chat = ({ user }) => {
     );
 };
 
-export default Chat;
+export default Chat0;
