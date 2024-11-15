@@ -73,7 +73,11 @@ const UserPage = ({name}) => {
 
     return (
         <UserProvider>
-            <Chat user={{ id: name, name: userData.name }} />
+            {userData ? (
+              <Chat user={{ id: name, name: userData.name }} />
+            ) : (
+                <p>Loading user data...</p> // Menampilkan pesan loading atau spinner jika userData belum tersedia
+            )}
         </UserProvider>
     );
 };
