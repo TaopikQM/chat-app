@@ -99,10 +99,7 @@ const Chat = ({ user }) => {
                         const formattedDate = `${lastSeenDate.getDate().toString().padStart(2, '0')}/${(lastSeenDate.getMonth() + 1).toString().padStart(2, '0')}/${lastSeenDate.getFullYear()}, ${lastSeenDate.getHours().toString().padStart(2, '0')}:${lastSeenDate.getMinutes().toString().padStart(2, '0')}:${date.getSeconds().toString().padStart(2, '0')} WIB`;
                         setLastSeen(formattedDate);
                     }
-                } else {
-                    const formattedDate = `${lastSeenDate.getDate().toString().padStart(2, '0')}/${(lastSeenDate.getMonth() + 1).toString().padStart(2, '0')}/${lastSeenDate.getFullYear()}, ${lastSeenDate.getHours().toString().padStart(2, '0')}:${lastSeenDate.getMinutes().toString().padStart(2, '0')}:${date.getSeconds().toString().padStart(2, '0')} WIB`;
-                    setLastSeen('Offline'-formattedDate);
-                }
+                } 
             });
         };
 
@@ -247,22 +244,6 @@ const Chat = ({ user }) => {
         setMessageText(''); // Clear input after sending
         setSelectedFiles([]); // Clear selected files
         
-
-        // Update the recipient's message status
-        const recipientRef = databaseRef(database, `messagesD/${new Date().getFullYear()}/${new Date().getMonth() + 1}/${new Date().getDate()}/${otherUser.id}/${user.id}`);
-        await push(recipientRef, { ...newMessage, id: newMsgRef.key });
-        setTimeout(() => {
-            // After sending message
-            setMessageText('');
-            setSelectedFiles([]);
-            setUploading(false);
-            // Optionally, update the user status timestamp here if needed
-        }, 2000);
-        
-        // Update last seen when a message is sent
-        const lastSeenRef = databaseRef(database, `lastSeenD/${user.id}`);
-        update(lastSeenRef, { timestamp: Date.now() });
-
          
     };
 
@@ -409,9 +390,6 @@ const Chat = ({ user }) => {
 
                     </div>
                 )}
-
-                    console.log('Filtered Messages:', filteredMessages);
-
             <div ref={messagesContainerRef} className="relative flex-1 overflow-y-auto p-4"  onScroll={handleScroll}>
                 {/* Display messages */}
                 {/* Display messages */}
