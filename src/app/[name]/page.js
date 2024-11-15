@@ -1,14 +1,11 @@
 "use client";
-import { useRouter } from 'next/router';
 import Chat from '../components/Chat'; // Sesuaikan path jika berbeda
 import { UserProvider } from '../context/UserContext'; // Sesuaikan path jika berbeda
 import { useEffect, useState } from 'react';
 import { database } from '../config/firebase';
 import { ref as databaseRef, get, child } from 'firebase/database';
 
-const UserPage = () => {
-    const router = useRouter();
-    const { name } = router.query; // Ambil parameter 'name' dari URL
+const UserPage = ({name}) => {
     const [userData, setUserData] = useState(null);
     const [loading, setLoading] = useState(true);
 
