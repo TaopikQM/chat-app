@@ -21,43 +21,42 @@ const UserPage = () => {
     }, []);
 
     useEffect(() => {
-        // Ambil 'name' dari URL
-        const pathParts = window.location.pathname.split('/');
-        const nameFromUrl = pathParts[pathParts.length - 1];
-        setUserName(nameFromUrl);
-        console.log("Name from URL:", nameFromUrl); // Debugging: cek nilai yang diambil dari URL
+    // Extract the 'name' (user) from the URL
+    const pathParts = window.location.pathname.split('/');
+    const nameFromUrl = pathParts[pathParts.length - 1]; // Get last part of the URL
+    setUserName(nameFromUrl);
 
-        // Query data pengguna di Firebase
-        const db = getDatabase();
-        const usersRef = ref(db, 'chat/users');
+    // Fetch all user data from Firebase
+    const db = getDatabase();
+    const usersRef = ref(db, 'chat/users'); // Reference to the users in Firebase
 
-        // Buat query untuk mencari data user berdasarkan 'name'
-        const userQuery = query(usersRef, orderByChild('name'), equalTo(nameFromUrl));
+    // Fetch the data without a specific query
+    get(usersRef).then(snapshot => {
+        if (snapshot.exists()) {
+            const users = snapshot.val();
+            const matchedUserKey = Object.keys(users).find(key => users[key].name === nameFromUrl);
 
-        get(userQuery).then(snapshot => {
-            if (snapshot.exists()) {
-                console.log("User found in database:", snapshot.val()); // Debugging: cek data yang ditemukan
-
-                const users = snapshot.val();
-                const userKey = Object.keys(users)[0]; // Ambil kunci user pertama (karena 'name' dianggap unik)
-                const user = users[userKey];
-
-                if (user.status === 'Active') {
-                    setUserData(user);
+            if (matchedUserKey) {
+                const matchedUser = users[matchedUserKey];
+                if (matchedUser.status === 'Active') { // Check if status is Active
+                    setUserData(matchedUser);
                     setUserActive(true);
                 } else {
                     setUserActive(false);
                 }
             } else {
-                console.log("User not found in database."); // Debugging: jika user tidak ditemukan
-                setUserActive(false);
+                setUserActive(false);  // No matching user found
             }
-            setLoading(false);
-        }).catch(error => {
-            console.error("Error fetching user data:", error);
-            setLoading(false);
-        });
-    }, []);
+        } else {
+            setUserActive(false);  // No users found in database
+        }
+        setLoading(false); // Set loading to false after checking Firebase
+    }).catch(error => {
+        console.error("Error fetching user data:", error);
+        setLoading(false);
+    });
+}, []);
+
 
     if (loading) {
         return (
