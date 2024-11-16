@@ -2,59 +2,57 @@
 import Chat0 from '../components/Chat0'; // Sesuaikan path jika berbeda
 import { UserProvider } from '../context/UserContext'; // Sesuaikan path jika berbeda
 import { useEffect, useState } from 'react';
-import { database } from '../config/firebase';
-// import { ref as databaseRef, get, child } from 'firebase/database';
-import { getDatabase, ref, get, query, orderByChild, equalTo } from 'firebase/database'; // Firebase query functions
-
+import { getDatabase, ref, get, query, orderByChild, equalTo } from 'firebase/database';
 
 const getRandomColor = () => {
-  const colors = ['purple-600', 'pink-600', 'yellow-400', 'red-600', 'green-500', 'gray-600', 'blue-600']; // Define the colors
+  const colors = ['purple-600', 'pink-600', 'yellow-400', 'red-600', 'green-500', 'gray-600', 'blue-600'];
   return colors[Math.floor(Math.random() * colors.length)];
 };
 
 const UserPage = () => {
     const [userData, setUserData] = useState(null);
     const [loading, setLoading] = useState(true);
-
     const [spinnerColor, setSpinnerColor] = useState('');
     const [userName, setUserName] = useState('');
-    const [userActive, setUserActive] = useState(false); // Track if the user is active
-
+    const [userActive, setUserActive] = useState(false);
 
     useEffect(() => {
-        setSpinnerColor(getRandomColor()); // Set random color on component mount
+        setSpinnerColor(getRandomColor());
     }, []);
 
-     useEffect(() => {
-        // Extract the 'name' (user) from the URL
+    useEffect(() => {
+        // Ambil 'name' dari URL
         const pathParts = window.location.pathname.split('/');
-        const nameFromUrl = pathParts[pathParts.length - 1]; // Get last part of the URL
+        const nameFromUrl = pathParts[pathParts.length - 1];
         setUserName(nameFromUrl);
+        console.log("Name from URL:", nameFromUrl); // Debugging: cek nilai yang diambil dari URL
 
-        // Fetch user data from Firebase
+        // Query data pengguna di Firebase
         const db = getDatabase();
-        const usersRef = ref(db, 'chat/users'); // Reference to the users in Firebase
+        const usersRef = ref(db, 'chat/users');
 
-        // Create a query to find users by 'name'
+        // Buat query untuk mencari data user berdasarkan 'name'
         const userQuery = query(usersRef, orderByChild('name'), equalTo(nameFromUrl));
 
-        // Check if the user exists and is active
         get(userQuery).then(snapshot => {
             if (snapshot.exists()) {
-                // Snapshot will return a map with user IDs as keys, so we need to access them
-                const users = snapshot.val();
-                const userKey = Object.keys(users)[0]; // Assuming 'name' is unique, take the first match
+                console.log("User found in database:", snapshot.val()); // Debugging: cek data yang ditemukan
 
-                if (users[userKey].status === 'Active') { // Check if status is Active
-                    setUserData(users[userKey]);
+                const users = snapshot.val();
+                const userKey = Object.keys(users)[0]; // Ambil kunci user pertama (karena 'name' dianggap unik)
+                const user = users[userKey];
+
+                if (user.status === 'Active') {
+                    setUserData(user);
                     setUserActive(true);
                 } else {
                     setUserActive(false);
                 }
             } else {
-                setUserActive(false);  // No user found
+                console.log("User not found in database."); // Debugging: jika user tidak ditemukan
+                setUserActive(false);
             }
-            setLoading(false); // Set loading to false after checking Firebase
+            setLoading(false);
         }).catch(error => {
             console.error("Error fetching user data:", error);
             setLoading(false);
@@ -85,15 +83,14 @@ const UserPage = () => {
         );
     }
 
-
     if (!userData) {
         return <p>User not found.</p>;
     }
 
-    return ( 
+    return (
         <UserProvider>
-           <h1>uji</h1>
-          <Chat0 user={{ id: name, name: userData.name }} />
+            <h1>uji</h1>
+            <Chat0 user={{ id: userName, name: userData.name }} />
         </UserProvider>
     );
 };
