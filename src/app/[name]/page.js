@@ -7,36 +7,34 @@ import { getDatabase, ref, get } from 'firebase/database'; // Firebase database 
 const UserPage = () => {
     const [userData, setUserData] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [userActive, setUserActive] = useState(false); // Track if the user is active
+    const [userActive, setUserActive] = useState(false);
     const [userName, setUserName] = useState('');
 
     useEffect(() => {
-        // Extract the 'name' (user) from the URL
+        // Extract the 'id' from the URL
         const pathParts = window.location.pathname.split('/');
-        const nameFromUrl = pathParts[pathParts.length - 1];
-        setUserName(nameFromUrl);
-        console.log("Name from URL:", nameFromUrl);
+        const idFromUrl = pathParts[pathParts.length - 1];
+        setUserName(idFromUrl);
+        console.log("ID from URL:", idFromUrl);
 
         // Fetch user data from Firebase
         const db = getDatabase();
-        const usersRef = ref(db, 'chat/users'); // Reference to the users in Firebase
+        const userRef = ref(db, `chat/users/${idFromUrl}`); // Reference to specific user in Firebase
 
-        // Check if the user with the 'id' (nameFromUrl) exists
-        get(usersRef).then(snapshot => {
+        // Check if the user with the 'id' (idFromUrl) exists
+        get(userRef).then(snapshot => {
             if (snapshot.exists()) {
-                const users = snapshot.val();
-                const userKey = Object.keys(users).find(key => key === nameFromUrl); // Cari ID di keys
+                const user = snapshot.val();
 
-                if (userKey && users[userKey].status === 'Active') {
-                    // User found and is active
-                    setUserData(users[userKey]);
+                // Check if the user is active
+                if (user.status === 'Active') {
+                    setUserData(user);
                     setUserActive(true);
                 } else {
-                    // User not found or inactive
                     setUserActive(false);
                 }
             } else {
-                // No users in the database
+                // User not found
                 setUserActive(false);
             }
             setLoading(false); // Set loading to false after checking Firebase
