@@ -1,36 +1,12 @@
-"use client"; // Enable client-side rendering
+"use client";
 import React, { useState, useEffect } from 'react';
 import { database, storage } from '../config/firebase'; // Pastikan Firebase Storage sudah dikonfigurasi
 import { ref as databaseRef, onValue, push, update } from 'firebase/database';
 import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 import 'tailwindcss/tailwind.css';
 
-const Chat0 = ({ user }) => {
+const Chat = ({ user }) => {
     const [otherUser, setOtherUser] = useState(null);
-  // Fetch other user data from Firebase
-    useEffect(() => {
-        const fetchOtherUserData = async () => {
-            const usersRef = databaseRef(database, 'chat/users');
-            const usersSnapshot = await get(usersRef);
-
-            if (usersSnapshot.exists()) {
-                const usersData = usersSnapshot.val();
-                const otherUserId = Object.keys(usersData).find(
-                    (key) => usersData[key].name !== user.name
-                );
-
-                if (otherUserId) {
-                    setOtherUser({ id: otherUserId, name: usersData[otherUserId].name });
-                }
-            } else {
-                console.log('Users data not found');
-            }
-        };
-
-        if (user.id) {
-            fetchOtherUserData();
-        }
-    }, [user.id, user.name]);
     const [messages, setMessages] = useState([]);
     const [messageText, setMessageText] = useState('');
     const [selectedFiles, setSelectedFiles] = useState([]);
@@ -38,10 +14,58 @@ const Chat0 = ({ user }) => {
     const [otherUserStatus, setOtherUserStatus] = useState(''); // Online status or last seen
     const [lastSeen, setLastSeen] = useState(''); // Last seen timestamp
 
+    useEffect(() => {
+        const fetchUserData = async () => {
+            try {
+                // Extract the 'id' from the URL
+                const pathParts = window.location.pathname.split('/');
+                const idFromUrl = pathParts[pathParts.length - 1];
+                setUserName(idFromUrl);
+                console.log("ID from URL:", idFromUrl);
+
+                // Initialize Firebase Database reference
+                const db = getDatabase();
+                const userRef = ref(db, `chat/users/${idFromUrl}`); // Reference to specific user in Firebase
+
+                // Fetch user data from Firebase
+                const snapshot = await get(userRef);
+
+                if (snapshot.exists()) {
+                    const user = snapshot.val();
+                    console.log("User data:", user);
+
+                    // Check if the user is active
+                    if (user.status === 'Active') {
+                        setUserData(user);
+                        setUserActive(true);
+                    } else {
+                        setUserActive(false);
+                    }
+
+                    // Set the other user based on user.id and fetched data
+                    const otherUserId = user.id === 'user1' ? 'user2' : 'user1';
+                    const otherUserName = user.id === 'user1' ? 'User 2' : 'User 1';
+                    setOtherUser({ id: otherUserId, name: otherUserName });
+
+                } else {
+                    // User not found in Firebase
+                    setUserActive(false);
+                }
+            } catch (error) {
+                console.error("Error fetching user data:", error);
+                setUserActive(false); // Set to false if error occurs
+            } finally {
+                setLoading(false); // Set loading to false after fetching data
+            }
+        };
+
+        fetchUserData();
+    }, []); // Empty dependency array means this effect runs once when the component mounts
+
     // Fetch messages and user status from Firebase on component mount
     useEffect(() => {
-        if (!otherUser) return;
-      
+        if (!otherUser) return; // Ensure otherUser is set before proceeding
+
         const messagesRef = databaseRef(database, `messagesU/${user.id}/${otherUser.id}`);
         onValue(messagesRef, (snapshot) => {
             const data = snapshot.val();
@@ -57,12 +81,6 @@ const Chat0 = ({ user }) => {
             });
         });
 
-        // Fetch other user's last seen status
-        // const userStatusRef = databaseRef(database, `lastSeen/${otherUser.id}`);
-        // onValue(userStatusRef, (snapshot) => {
-        //     const status = snapshot.val();
-        //     setLastSeen(status ? new Date(status.timestamp).toLocaleTimeString() : 'Offline');
-        // });
         // Fetch other user's last seen status
         const userStatusRef = databaseRef(database, `lastSeen/${otherUser.id}`);
         onValue(userStatusRef, (snapshot) => {
@@ -83,7 +101,7 @@ const Chat0 = ({ user }) => {
             // Cleanup: Remove last seen status when component unmounts
             update(lastSeenRef, { timestamp: null });
         };
-    }, [user.id, otherUser.id]);
+    }, [user.id, otherUser]);
 
     // Handle file selection
     const handleFileChange = (event) => {
@@ -164,8 +182,14 @@ const Chat0 = ({ user }) => {
     return (
         <div className="flex flex-col h-screen bg-gray-100">
             <div className="flex-none p-4 bg-white border-b border-gray-300">
-                <h2 className="text-xl text-center">{otherUser.name}</h2>
-                <p className="text-sm text-center">{lastSeen ? 'Last seen: ' + lastSeen : 'Offline'}</p>
+                {otherUser ? (
+                    <>
+                        <h2 className="text-xl text-center">{otherUser.name}</h2>
+                        <p className="text-sm text-center">{lastSeen ? 'Last seen: ' + lastSeen : 'Offline'}</p>
+                    </>
+                ) : (
+                    <p>Loading...</p>
+                )}
             </div>
             <div className="flex-1 overflow-y-auto p-4">
                 {/* Display messages */}
@@ -194,58 +218,27 @@ const Chat0 = ({ user }) => {
                 <input
                     type="file"
                     multiple
-                    accept="image/*,video/*"
-                    className="hidden"
-                    id="fileInput"
+                    accept="image/*, video/*"
                     onChange={handleFileChange}
+                    className="border border-gray-300 rounded p-2"
                 />
-                <label htmlFor="fileInput" className="cursor-pointer">
-                    <span className="material-icons">file</span>
-                </label>
-                <div className="flex flex-wrap">
-                    {selectedFiles.map((file, index) => (
-                        <div key={index} className="relative mr-2 flex items-center">
-                            <span
-                                className="absolute top-0 right-0 cursor-pointer text-red-500"
-                                onClick={() => removeFile(index)}
-                            >
-                                &times;
-                            </span>
-                            {/* Display a thumbnail or video preview based on file type */}
-                            {file.type.startsWith("video") ? (
-                                <video
-                                    src={URL.createObjectURL(file)}
-                                    className="w-20 h-20 object-cover rounded-lg m-1"
-                                    controls
-                                />
-                            ) : (
-                                <img
-                                    src={URL.createObjectURL(file)}
-                                    alt="Selected file"
-                                    className="w-20 h-20 object-cover rounded-lg m-1"
-                                />
-                            )}
-                        </div>
-                    ))}
-                </div>
-
                 <input
                     type="text"
-                    className="border rounded-lg p-2 flex-1 mx-2"
-                    placeholder="Type a message..."
                     value={messageText}
                     onChange={(e) => setMessageText(e.target.value)}
+                    className="flex-1 border border-gray-300 rounded p-2 ml-2"
+                    placeholder="Type a message..."
                 />
                 <button
-                    className="ml-2 p-2 bg-blue-500 text-white rounded-lg"
                     onClick={sendMessage}
                     disabled={uploading}
+                    className={`ml-2 bg-blue-500 text-white px-4 py-2 rounded ${uploading ? 'opacity-50' : ''}`}
                 >
-                    {uploading ? "Sending..." : "Send"}
+                    {uploading ? 'Sending...' : 'Send'}
                 </button>
             </div>
         </div>
     );
 };
 
-export default Chat0;
+export default Chat;
