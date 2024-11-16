@@ -60,10 +60,11 @@ const UserPage = () => {
         );
     }
 
-    if (!userActive) {
+    if (!userActive || !userData) {
         return <p>User not found or inactive.</p>;
     }
 
+    // Ensure userData exists before accessing its properties
     return (
         <UserProvider>
             <Chat0 user={{ id: userName, name: userData?.name }} />
