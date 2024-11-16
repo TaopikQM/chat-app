@@ -45,6 +45,126 @@ const Chat0 = ({ user }) => {
     }, []); // Empty dependency array means this effect runs once when the component mounts
 
     // Handle messages and other logic (no change needed)
+     // Fetch messages and user status from Firebase on component mount
+    useEffect(() => {
+        const messagesRef = databaseRef(database, `messagesU/${user.id}/${otherUser.id}`);
+        onValue(messagesRef, (snapshot) => {
+            const data = snapshot.val();
+            const loadedMessages = data ? Object.values(data) : [];
+            setMessages(loadedMessages);
+
+            // Mark all messages as read when the user views the chat
+            loadedMessages.forEach((msg) => {
+                if (!msg.read && msg.sender !== user.id) {
+                    update(databaseRef(database, `messagesU/${user.id}/${otherUser.id}/${msg.id}`), { read: true });
+                    update(databaseRef(database, `messagesU/${otherUser.id}/${user.id}/${msg.id}`), { read: true });
+                }
+            });
+        });
+
+        // Fetch other user's last seen status
+        // const userStatusRef = databaseRef(database, `lastSeen/${otherUser.id}`);
+        // onValue(userStatusRef, (snapshot) => {
+        //     const status = snapshot.val();
+        //     setLastSeen(status ? new Date(status.timestamp).toLocaleTimeString() : 'Offline');
+        // });
+        // Fetch other user's last seen status
+        const userStatusRef = databaseRef(database, `lastSeen/${otherUser.id}`);
+        onValue(userStatusRef, (snapshot) => {
+            const status = snapshot.val();
+            if (status && status.timestamp) {
+                const date = new Date(status.timestamp);
+                setLastSeen(!isNaN(date.getTime()) ? date.toLocaleTimeString() : 'Offline');
+            } else {
+                setLastSeen('Offline');
+            }
+        });
+
+        // Update last seen when user is active
+        const lastSeenRef = databaseRef(database, `lastSeen/${user.id}`);
+        update(lastSeenRef, { timestamp: Date.now() });
+
+        return () => {
+            // Cleanup: Remove last seen status when component unmounts
+            update(lastSeenRef, { timestamp: null });
+        };
+    }, [user.id, otherUser.id]);
+
+    // Handle file selection
+    const handleFileChange = (event) => {
+        const files = Array.from(event.target.files);
+        setSelectedFiles((prevFiles) => [...prevFiles, ...files]);
+    };
+
+    // Remove a selected file
+    const removeFile = (index) => {
+        setSelectedFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
+    };
+
+    // Function to send a new message with media support
+    const sendMessage = async () => {
+        if (messageText.trim() === "" && selectedFiles.length === 0) return; // Prevent sending empty messages
+
+        const messagesRef = databaseRef(database, `messagesU/${user.id}/${otherUser.id}`);
+        const newMessage = {
+            text: messageText,
+            sender: user.id,
+            timestamp: Date.now(),
+            read: false,
+            files: [],
+        };
+
+        setUploading(true);
+
+        // Upload selected files (images and videos) to Firebase Storage
+        const uploadedFiles = await Promise.all(selectedFiles.map(async (file) => {
+            const fileRef = storageRef(storage, `chatFiles/${file.name}`);
+            await uploadBytes(fileRef, file);
+            return getDownloadURL(fileRef);
+        }));
+
+        // Update newMessage with uploaded file URLs
+        newMessage.files = uploadedFiles;
+
+        // Push message to Firebase Database
+        const newMsgRef = await push(messagesRef, newMessage);
+        setMessageText(''); // Clear input after sending
+        setSelectedFiles([]); // Clear selected files
+
+        // Update the recipient's message status
+        const recipientRef = databaseRef(database, `messagesU/${otherUser.id}/${user.id}`);
+        await push(recipientRef, { ...newMessage, id: newMsgRef.key });
+
+        setUploading(false);
+
+        // Update last seen when a message is sent
+        const lastSeenRef = databaseRef(database, `lastSeen/${user.id}`);
+        update(lastSeenRef, { timestamp: Date.now() });
+    };
+
+    const renderMedia = (files) => {
+        if (!files || files.length === 0) return null;
+
+        return (
+            <div className="flex flex-wrap mt-1">
+                {files.map((file, index) => (
+                    <a
+                        key={index}
+                        href={file}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-20 h-20 flex items-center justify-center border border-gray-300 rounded-lg m-1"
+                    >
+                        {file.endsWith('.jpg') || file.endsWith('.png') || file.endsWith('.gif') ? (
+                            <img src={file} alt="Media" className="object-cover h-full w-full rounded-lg" />
+                        ) : (
+                            <span className="text-sm">File</span>
+                        )}
+                    </a>
+                ))}
+            </div>
+        );
+    };
 
     return (
         <div className="flex">
