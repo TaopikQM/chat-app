@@ -67,7 +67,7 @@ const UserPage = () => {
     // Ensure userData exists before accessing its properties
     return (
         <UserProvider>
-            <Chat0 user={{ name: userData?.name }} />
+        user;
         </UserProvider>
     );
 };
