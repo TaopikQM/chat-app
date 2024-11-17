@@ -16,54 +16,7 @@ const Chat0 = ({ user }) => {
     const [otherUserStatus, setOtherUserStatus] = useState(''); // Online status or last seen
     const [lastSeen, setLastSeen] = useState(''); // Last seen timestamp
 
-    useEffect(() => {
-        const fetchUserData = async () => {
-            try {
-                // Extract the 'id' from the URL
-                const pathParts = window.location.pathname.split('/');
-                const idFromUrl = pathParts[pathParts.length - 1];
-                setUserName(idFromUrl);
-                console.log("ID from URL:", idFromUrl);
-
-                // Initialize Firebase Database reference
-                const db = getDatabase();
-                const userRef = ref(db, `chat/users/${idFromUrl}`); // Reference to specific user in Firebase
-
-                // Fetch user data from Firebase
-                const snapshot = await get(userRef);
-
-                if (snapshot.exists()) {
-                    const user = snapshot.val();
-                    console.log("User data:", user);
-
-                    // Check if the user is active
-                    if (user.status === 'Active') {
-                        setUserData(user);
-                        setUserActive(true);
-                    } else {
-                        setUserActive(false);
-                    }
-
-                    // Set the other user based on user.id and fetched data
-                    const otherUserId = user.id === 'user1' ? 'user2' : 'user1';
-                    const otherUserName = user.id === 'user1' ? 'User 2' : 'User 1';
-                    setOtherUser({ id: otherUserId, name: otherUserName });
-
-                } else {
-                    // User not found in Firebase
-                    setUserActive(false);
-                }
-            } catch (error) {
-                console.error("Error fetching user data:", error);
-                setUserActive(false); // Set to false if error occurs
-            } finally {
-                setLoading(false); // Set loading to false after fetching data
-            }
-        };
-
-        fetchUserData();
-    }, []); // Empty dependency array means this effect runs once when the component mounts
-
+   
     // Fetch messages and user status from Firebase on component mount
     useEffect(() => {
         if (!otherUser) return; // Ensure otherUser is set before proceeding
