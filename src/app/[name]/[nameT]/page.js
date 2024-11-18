@@ -173,8 +173,6 @@ const UserPage = () => {
         </div>
     </UserProvider>
 );
-
-  );
 };
 
 export default UserPage;
