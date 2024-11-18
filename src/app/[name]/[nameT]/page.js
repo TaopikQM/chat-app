@@ -1,7 +1,6 @@
 "use client";
 import { useEffect, useState } from 'react';
 import { UserProvider } from '../../context/UserContext'; // Sesuaikan path jika berbeda
-import { useEffect, useState } from 'react';
 import { getDatabase, ref, get } from 'firebase/database'; // Firebase database functions
 
 
