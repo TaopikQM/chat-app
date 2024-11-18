@@ -4,6 +4,67 @@ import { useEffect, useState } from 'react';
 const UserPage = () => {
   const [currentUserName, setCurrentUserName] = useState('');
   const [otherUser, setOtherUser] = useState('');
+  const [userData, setUserData] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [userActive, setUserActive] = useState(false);
+    const [userName, setUserName] = useState('');
+    const [otherUsers, setOtherUsers] = useState([]); // State untuk menyimpan data pengguna lain
+
+    useEffect(() => {
+        const fetchUserData = async () => {
+            try {
+                // Extract the 'id' from the URL
+                const pathParts = window.location.pathname.split('/');
+                const idFromUrl = pathParts[pathParts.length - 1];
+                setUserName(idFromUrl);
+                console.log("ID from URL:", idFromUrl);
+
+                // Initialize Firebase Database reference
+                const db = getDatabase();
+                const userRef = ref(db, `chat/users/${idFromUrl}`); // Reference to specific user in Firebase
+
+                // Fetch current user data
+                const snapshot = await get(userRef);
+                
+                if (snapshot.exists()) {
+                    const user = snapshot.val();
+                    console.log("User data:", user);
+
+                    if (user.status === 'Active') {
+                        setUserData(user);
+                        setUserActive(true);
+
+                        // Fetch all users to populate the sidebar
+                        const allUsersRef = ref(db, 'chat/users');
+                        const allUsersSnapshot = await get(allUsersRef);
+
+                        if (allUsersSnapshot.exists()) {
+                            const allUsersData = allUsersSnapshot.val();
+                            const otherUsersArray = Object.keys(allUsersData)
+                                .filter(userId => allUsersData[userId].name !== user.name) // Filter out current user
+                                .map(userId => ({
+                                    id: userId,
+                                    name: allUsersData[userId].name,
+                                    status: allUsersData[userId].status
+                                }));
+                            setOtherUsers(otherUsersArray);
+                        }
+                    } else {
+                        setUserActive(false);
+                    }
+                } else {
+                    setUserActive(false); // User not found
+                }
+            } catch (error) {
+                console.error("Error fetching user data:", error);
+                setUserActive(false);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchUserData();
+    }, []);
 
   useEffect(() => {
     // Menggunakan window.location.pathname untuk mendapatkan path URL
