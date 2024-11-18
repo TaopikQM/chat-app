@@ -97,8 +97,7 @@ const UserPage = () => {
                             </svg>
                          </button>
                         <a href="https://flowbite.com" class="flex ms-2 md:me-24">
-                            <h1>Welcome, {userData.name}</h1>
-                            <p>Status: {userData.status}</p>
+                            
                           <span class="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap dark:text-white">Welcome, {userData.name}</span>
                         </a>
                       </div>
