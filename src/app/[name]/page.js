@@ -13,61 +13,65 @@ const UserPage = () => {
     const [selectedUser, setSelectedUser] = useState(null); // State untuk pengguna yang dipilih
 
 
-    useEffect(() => {
-        const fetchUserData = async () => {
-            try {
-                // Extract the 'id' from the URL
-                const pathParts = window.location.pathname.split('/');
-                const idFromUrl = pathParts[pathParts.length - 1];
-                setUserName(idFromUrl);
-                console.log("ID from URL:", idFromUrl);
+   useEffect(() => {
+    const fetchUserData = async () => {
+        try {
+            // Extract the 'id' from the URL
+            const pathParts = window.location.pathname.split('/');
+            const idFromUrl = pathParts[pathParts.length - 1];
+            setUserName(idFromUrl);
+            console.log("ID from URL:", idFromUrl);
 
-                // Initialize Firebase Database reference
-                const db = getDatabase();
-                const userRef = ref(db, `chat/users/${idFromUrl}`); // Reference to specific user in Firebase
+            // Initialize Firebase Database reference
+            const db = getDatabase();
+            const userRef = ref(db, `chat/users/${idFromUrl}`); // Reference to specific user in Firebase
 
-                // Fetch current user data
-                const snapshot = await get(userRef);
-                
-                if (snapshot.exists()) {
-                    const user = snapshot.val();
-                    console.log("User data:", user);
+            // Fetch current user data
+            const snapshot = await get(userRef);
+            
+            if (snapshot.exists()) {
+                const user = snapshot.val();
+                console.log("User data:", user);
 
-                    if (user.status === 'Active') {
-                        setUserData(user);
-                        setUserActive(true);
+                if (user.status === 'Active') {
+                    setUserData(user);
+                    setUserActive(true);
 
-                        // Fetch all users to populate the sidebar
-                        const allUsersRef = ref(db, 'chat/users');
-                        const allUsersSnapshot = await get(allUsersRef);
+                    // Fetch all users to populate the sidebar
+                    const allUsersRef = ref(db, 'chat/users');
+                    const allUsersSnapshot = await get(allUsersRef);
 
-                        if (allUsersSnapshot.exists()) {
-                            const allUsersData = allUsersSnapshot.val();
-                            const otherUsersArray = Object.keys(allUsersData)
-                                .filter(userId => allUsersData[userId].name !== user.name) // Filter out current user
-                                .map(userId => ({
-                                    id: userId,
-                                    name: allUsersData[userId].name,
-                                    status: allUsersData[userId].status
-                                }));
-                            setOtherUsers(otherUsersArray);
-                        }
-                    } else {
-                        setUserActive(false);
+                    if (allUsersSnapshot.exists()) {
+                        const allUsersData = allUsersSnapshot.val();
+                        const otherUsersArray = Object.keys(allUsersData)
+                            .filter(userId => 
+                                allUsersData[userId].status === 'Active' && // Only include active users
+                                allUsersData[userId].name !== user.name    // Exclude current user
+                            )
+                            .map(userId => ({
+                                id: userId,
+                                name: allUsersData[userId].name,
+                                status: allUsersData[userId].status
+                            }));
+                        setOtherUsers(otherUsersArray);
                     }
                 } else {
-                    setUserActive(false); // User not found
+                    setUserActive(false);
                 }
-            } catch (error) {
-                console.error("Error fetching user data:", error);
-                setUserActive(false);
-            } finally {
-                setLoading(false);
+            } else {
+                setUserActive(false); // User not found
             }
-        };
+        } catch (error) {
+            console.error("Error fetching user data:", error);
+            setUserActive(false);
+        } finally {
+            setLoading(false);
+        }
+    };
 
-        fetchUserData();
-    }, []);
+    fetchUserData();
+}, []);
+
 
     if (loading) {
         return (
