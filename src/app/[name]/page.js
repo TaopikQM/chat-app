@@ -10,6 +10,8 @@ const UserPage = () => {
     const [userActive, setUserActive] = useState(false);
     const [userName, setUserName] = useState('');
     const [otherUsers, setOtherUsers] = useState([]); // State untuk menyimpan data pengguna lain
+    const [selectedUser, setSelectedUser] = useState(null); // State untuk pengguna yang dipilih
+
 
     useEffect(() => {
         const fetchUserData = async () => {
