@@ -172,7 +172,7 @@ const UserPage = () => {
                             ini halaman
                                   {selectedUser ? (
                                         <div>
-                                            <h2 className="text-lg font-bold text-gray-900 dark:text-white">
+                                            <h2 className="text-lg font-bold text-gray-900 dark:text-gray-700">
                                                 {selectedUser.name}
                                             </h2>
                                             <p className="text-sm text-gray-600 dark:text-gray-400">
