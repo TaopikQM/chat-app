@@ -140,7 +140,11 @@ const UserPage = () => {
                                 <li key={user.id}>
                                     <button
                                         onClick={() => setSelectedUser(user)} // Simpan pengguna yang dipilih
-                                        className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
+                                        className={`flex items-center p-2 rounded-lg group ${
+                                            selectedUser?.id === user.id
+                                                ? "bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white"
+                                                : "text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
+                                        }`}
                                     >
                                         <svg
                                             className="w-5 h-5 text-gray-500 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
@@ -166,15 +170,20 @@ const UserPage = () => {
                 <div class="p-4 sm:ml-64">
                    <div class="p-4 border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700 mt-14">
                             ini halaman
-                                 {selectedUser ? (
-                            <div>
-                                <h2 className="text-xl font-bold">User Information</h2>
-                                <p>Name: {selectedUser.name}</p>
-                                <p>Status: {selectedUser.status}</p>
-                            </div>
-                        ) : (
-                            <p>Select a user to view details.</p>
-                        )}
+                                  {selectedUser ? (
+                                        <div>
+                                            <h2 className="text-lg font-bold text-gray-900 dark:text-white">
+                                                {selectedUser.name}
+                                            </h2>
+                                            <p className="text-sm text-gray-600 dark:text-gray-400">
+                                                Status: {selectedUser.status}
+                                            </p>
+                                        </div>
+                                    ) : (
+                                        <p className="text-gray-600 dark:text-gray-400">
+                                            Pilih pengguna dari sidebar untuk melihat detail.
+                                        </p>
+                                    )}
                    </div>
                 </div>
                
