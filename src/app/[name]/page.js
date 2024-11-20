@@ -93,7 +93,7 @@ const UserPage = () => {
     useEffect(() => {
         if (selectedUser) {
             const db = getDatabase();
-            const lastSeenRef = ref(db, chat/lastseen/${selectedUser.name});
+            const lastSeenRef = ref(db, `chat/lastseen/${selectedUser.name}`);
 
             const unsubscribe = onValue(lastSeenRef, (snapshot) => {
                 if (snapshot.exists()) {
