@@ -1,3 +1,4 @@
+"use client";
 import { useEffect, useState } from "react";
 import { getDatabase, ref, get, push, set, onValue } from "firebase/database";
 import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage"; // Import getStorage
