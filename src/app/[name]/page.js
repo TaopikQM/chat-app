@@ -129,22 +129,29 @@ const UserPage = () => {
             const unsubscribe = onValue(messagesRef, (snapshot) => {
                 if (snapshot.exists()) {
                     const allMessages = snapshot.val();
-                    const filteredMessages = Object.values(allMessages) .map((key) => {
+                    const filteredMessages = Object.values(allMessages)
+                        .map((key) => {
                     const msg = allMessages[key];
                     // Perbarui status `read` jika penerima adalah pengguna saat ini
-                    if (msg.penerima === userData.name && !msg.read) {
-                        set(ref(db, `chat/messages/${key}`), {
-                            ...msg,
-                            read: true, // Tandai sebagai sudah dibaca
-                        });
-                    }
-                    return { key, ...msg }; // Kembalikan objek pesan dengan kunci
-                })
-                .filter(
-                    (msg) =>
-                        (msg.pengirim === userData.name && msg.penerima === selectedUser.name) ||
-                        (msg.penerima === userData.name && msg.pengirim === selectedUser.name)
-                );
+                     if (msg && msg.penerima && msg.pengirim) {
+                            // Tandai pesan sebagai telah dibaca jika penerima adalah pengguna saat ini
+                            if (msg.penerima === userData.name && !msg.read) {
+                                set(ref(db, `chat/messages/${key}`), {
+                                    ...msg,
+                                    read: true,
+                                });
+                            }
+                            return { key, ...msg }; // Tambahkan kunci ke pesan
+                        }
+                        return null; // Abaikan pesan yang tidak valid
+                    })
+                    .filter((msg) => {
+                        return (
+                            msg &&
+                            ((msg.pengirim === userData.name && msg.penerima === selectedUser.name) ||
+                                (msg.penerima === userData.name && msg.pengirim === selectedUser.name))
+                        );
+                    });
                     setMessages(filteredMessages);
                 } else {
                     setMessages([]);
