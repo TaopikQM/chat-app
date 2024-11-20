@@ -89,6 +89,24 @@ const UserPage = () => {
         }
     }, [userData]);
 
+     // Memantau perubahan lastSeen pengguna yang dipilih
+    useEffect(() => {
+        if (selectedUser) {
+            const db = getDatabase();
+            const lastSeenRef = ref(db, chat/lastseen/${selectedUser.name});
+
+            const unsubscribe = onValue(lastSeenRef, (snapshot) => {
+                if (snapshot.exists()) {
+                    setLastSeen(snapshot.val().lastSeen);
+                } else {
+                    setLastSeen("Tidak tersedia");
+                }
+            });
+
+            return () => unsubscribe(); // Hapus listener saat komponen di-unmount
+        }
+    }, [selectedUser]);
+
     // Memantau pesan antara pengguna saat ini dan pengguna yang dipilih
     useEffect(() => {
         if (selectedUser) {
