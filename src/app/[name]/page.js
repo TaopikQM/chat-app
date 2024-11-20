@@ -185,7 +185,10 @@ const UserPage = () => {
                     {selectedUser ? (
                         <div>
                             <h2 className="text-xl font-bold">Obrolan dengan {selectedUser.name}</h2>
-                            <p className="text-sm text-gray-500">Last seen: {lastSeen}</p>
+                             <p className="text-sm text-gray-500">
+                                Last seen: {new Date().toLocaleTimeString("en-US", { timeZone: "Asia/Jakarta" })}
+                            </p>
+                            // <p className="text-sm text-gray-500">Last seen: {lastSeen}</p>
                             <div className="border p-4 h-[400px] overflow-y-scroll">
                                 {messages.map((msg, index) => (
                                     <div
