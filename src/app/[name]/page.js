@@ -258,6 +258,8 @@ const UserPage = () => {
                                                     {file.name}
                                                 </a>
                                             ))}
+                                            
+                                        <small>{msg.createdAt}</small>
                                     </div>
                                 ))}
                             </div>
