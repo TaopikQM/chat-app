@@ -129,7 +129,7 @@ const UserPage = () => {
             const unsubscribe = onValue(messagesRef, (snapshot) => {
                 if (snapshot.exists()) {
                     const allMessages = snapshot.val();
-                    const filteredMessages = Object.values(allMessages). .map((key) => {
+                    const filteredMessages = Object.values(allMessages) .map((key) => {
                     const msg = allMessages[key];
                     // Perbarui status `read` jika penerima adalah pengguna saat ini
                     if (msg.penerima === userData.name && !msg.read) {
