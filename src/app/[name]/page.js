@@ -16,6 +16,34 @@ const UserPage = () => {
     const [messages, setMessages] = useState([]);
     const [lastSeen, setLastSeen] = useState("");
     const [selectedFiles, setSelectedFiles] = useState([]); // State untuk menyimpan file yang dipilih
+    // parent element wrapping the speed dial
+    const $parentEl = document.getElementById('dialParent');
+    
+    // the trigger element that can be clicked or hovered
+    const $triggerEl = document.getElementById('dialButton');
+    
+    // the content wrapping element of menu items or buttons
+    const $targetEl = document.getElementById('dialContent');
+    
+    // options with default values
+    const options = {
+        triggerType: 'click',
+        onHide: () => {
+            console.log('speed dial is shown');
+        },
+        onShow: () => {
+            console.log('speed dial is hidden');
+        },
+        onToggle: () => {
+            console.log('speed dial is toggled');
+        },
+    };
+    
+    // instance options with default values
+    const instanceOptions = {
+      id: 'dialContent',
+      override: true
+    };
 
     useEffect(() => {
         const fetchUserData = async () => {
@@ -289,8 +317,7 @@ const UserPage = () => {
                                         )}
                                     </div>
                                 ))}
-                            </div>
-                             <div data-dial-init class="fixed bottom-6 right-24 group">
+                                    <div data-dial-init class="fixed bottom-6 right-24 group">
                                 <div id="speed-dial-menu-dropdown" class="flex flex-col justify-end hidden py-1 mb-4 space-y-2 bg-white border border-gray-100 rounded-lg shadow-sm dark:border-gray-600 dark:bg-gray-700">
                                     <ul class="text-sm text-gray-500 dark:text-gray-300">
                                         <li>
@@ -337,6 +364,8 @@ const UserPage = () => {
                                     <span class="sr-only">Open actions menu</span>
                                 </button>
                             </div>
+                            </div>
+                             
                             <div className="mt-4">
                                 <label
                                     htmlFor="file_upload"
