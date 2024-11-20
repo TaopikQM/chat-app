@@ -82,7 +82,6 @@ const UserPage = () => {
                 const jakartaTime = new Date().toLocaleString("en-US", {
                     timeZone: "Asia/Jakarta",
                     hour12: false,
-                    weekday: 'short', // Opsional, menambahkan hari
                     year: 'numeric',
                     month: '2-digit',
                     day: '2-digit',
