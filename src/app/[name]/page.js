@@ -278,15 +278,30 @@ const UserPage = () => {
                                             ))}
                                             
                                         <small>{msg.createdAt}</small>
+                                        {msg.pengirim  === userData.name && (
+                                            <span className="ml-2">
+                                                {msg.read ? (
+                                                    <span className="text-blue-500">✔✔</span>
+                                                ) : (
+                                                    <span>✔</span>
+                                                )}
+                                            </span>
+                                        )}
                                     </div>
                                 ))}
                             </div>
                             <div className="mt-4">
+                                <label
+                                    htmlFor="file_upload"
+                                    className="flex items-center justify-center w-10 h-10 bg-gray-200 rounded-full cursor-pointer hover:bg-gray-300"
+                                >
+                                    📎
+                                </label>
                                 <input
                                     type="file"
                                     multiple
                                     onChange={handleFileChange}
-                                    className="mb-2"
+                                    className="hidden"
                                 />
                                 <div className="space-x-2">
                                     {selectedFiles.length > 0 && (
