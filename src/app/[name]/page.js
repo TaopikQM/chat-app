@@ -13,6 +13,10 @@ import {
     serverTimestamp,
 } from "firebase/database"; // Firebase database functions
 
+import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
+
+import { database, storage } from '../config/firebase';
+
 const UserPage = () => {
     const [userData, setUserData] = useState(null);
     const [loading, setLoading] = useState(true);
