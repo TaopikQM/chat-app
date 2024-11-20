@@ -130,12 +130,22 @@ const UserPage = () => {
                 if (snapshot.exists()) {
                     const allMessages = snapshot.val();
                     const filteredMessages = Object.values(allMessages).filter(
-                        (msg) =>
-                            (msg.pengirim === userData.name &&
-                                msg.penerima === selectedUser.name) ||
-                            (msg.penerima === userData.name &&
-                                msg.pengirim === selectedUser.name)
-                    );
+                        const msg = allMessages[key];
+                    // Perbarui status `read` jika penerima adalah pengguna saat ini
+                    if (msg.penerima === userData.name && !msg.read) {
+                        set(ref(db, `chat/messages/${key}`), {
+                            ...msg,
+                            read: true, // Tandai sebagai sudah dibaca
+                        });
+                    }
+                    return msg;
+                }).filter(
+                    (msg) =>
+                        (msg.pengirim === userData.name &&
+                            msg.penerima === selectedUser.name) ||
+                        (msg.penerima === userData.name &&
+                            msg.pengirim === selectedUser.name)
+                );
                     setMessages(filteredMessages);
                 } else {
                     setMessages([]);
@@ -164,6 +174,7 @@ const UserPage = () => {
                 penerima: selectedUser.name,
                 createdAt: jakartaTime,
                 read: false,
+                files: [],
             });
 
             setMessage(""); // Reset input pesan
@@ -225,13 +236,63 @@ const UserPage = () => {
                                         }`}
                                     >
                                         <p>{msg.text}</p>
+                                        {/* Menampilkan file jika ada */}
+                                        {msg.file && (
+                                            <div className="mt-2">
+                                                {msg.file.endsWith(".jpg") || msg.file.endsWith(".png") || msg.file.endsWith(".gif") ? (
+                                                    // Menampilkan gambar
+                                                    <img
+                                                        src={msg.file}
+                                                        alt="Media"
+                                                        className="object-cover h-40 w-40 rounded-lg"
+                                                    />
+                                                ) : (
+                                                    // Menampilkan label file untuk tipe lain
+                                                    <a
+                                                        href={msg.file}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="text-sm text-blue-600 underline"
+                                                    >
+                                                        Lihat File
+                                                    </a>
+                                                )}
+                                            </div>
+                                        )}
+
                                         <span className="text-xs text-gray-500">
                                             {msg.createdAt}
                                         </span>
+                                         {msg.pengirim === userData.name && (
+                                            <span className="text-xs ml-2">
+                                                {msg.read ? "✔✔" : "✔"} {/* Indikator centang */}
+                                            </span>
+                                        )}
                                     </div>
                                 ))}
                             </div>
-                            <div className="mt-4">
+                            <div className="mt-4 flex items-center gap-2">
+                                     {/* Tombol untuk upload file */}
+                                <label
+                                    htmlFor="file_upload"
+                                    className="flex items-center justify-center w-10 h-10 bg-gray-200 rounded-full cursor-pointer hover:bg-gray-300"
+                                >
+                                    {/* Ikon klip */}
+                                    📎
+                                </label>
+                            
+                                {/* Input file tersembunyi */}
+                                <input
+                                    id="file_upload"
+                                    type="file"
+                                    multiple
+                                    className="hidden"
+                                    onChange={(e) => {
+                                        const files = e.target.files;
+                                        // Lakukan sesuatu dengan file yang dipilih
+                                        console.log(files);
+                                    }}
+                                />
                                 <textarea
                                     className="w-full p-2 border rounded-lg"
                                     rows="4"
