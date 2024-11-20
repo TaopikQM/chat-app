@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { getDatabase, ref, get, push, set, onValue } from "firebase/database";
-import { ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
+import { ref as getStorage,storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
 import { database, storage } from "../config/firebase";
 import { UserProvider } from "../context/UserContext"; // Sesuaikan path jika berbeda
 
