@@ -53,12 +53,7 @@ const UserPage = () => {
                             setOtherUsers(otherUsersArray);
                         }
 
-                        // Update lastSeen di Firebase
-                        const lastSeenRef = ref(db, `chat/users/${idFromUrl}/lastSeen`);
-                        const jakartaTime = new Date().toLocaleString("id-ID", {
-                            timeZone: "Asia/Jakarta",
-                        });
-                        set(lastSeenRef, jakartaTime);
+                        
                     } else {
                         setUserActive(false);
                     }
@@ -76,19 +71,32 @@ const UserPage = () => {
         fetchUserData();
     }, []);
 
+    // Update lastSeen setiap 30 detik
+    useEffect(() => {
+        if (userData) {
+            const db = getDatabase();
+            const lastSeenRef = ref(db, `chat/lastseen/${userData.name}`);
+
+            const updateLastSeen = () => {
+                const jakartaTime = new Date().toLocaleTimeString("en-US", {
+                    timeZone: "Asia/Jakarta",
+                    hour12: false,
+                });
+                set(lastSeenRef, { lastSeen: jakartaTime });
+            };
+
+            updateLastSeen(); // Update saat pertama kali
+            const interval = setInterval(updateLastSeen, 30000); // Update setiap 30 detik
+
+            return () => clearInterval(interval); // Hapus interval saat komponen di-unmount
+        }
+    }, [userData]);
+
     useEffect(() => {
         if (selectedUser) {
             const db = getDatabase();
 
-            // Ambil lastSeen pengguna terpilih
-            const lastSeenRef = ref(db, `chat/users/${selectedUser.id}/lastSeen`);
-            onValue(lastSeenRef, (snapshot) => {
-                if (snapshot.exists()) {
-                    setLastSeen(snapshot.val());
-                } else {
-                    setLastSeen("Belum tersedia");
-                }
-            });
+            
 
             // Pantau pesan yang melibatkan pengguna saat ini dan pengguna terpilih
             const messagesRef = ref(db, "chat/messages");
