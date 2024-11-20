@@ -72,25 +72,34 @@ const UserPage = () => {
     }, []);
 
     // Update lastSeen setiap 30 detik
+   // Update lastSeen setiap 30 detik
     useEffect(() => {
         if (userData) {
             const db = getDatabase();
             const lastSeenRef = ref(db, `chat/lastseen/${userData.name}`);
-
+    
             const updateLastSeen = () => {
-                const jakartaTime = new Date().toLocaleTimeString("en-US", {
+                const jakartaTime = new Date().toLocaleString("en-US", {
                     timeZone: "Asia/Jakarta",
                     hour12: false,
+                    weekday: 'short', // Opsional, menambahkan hari
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
                 });
                 set(lastSeenRef, { lastSeen: jakartaTime });
             };
-
+    
             updateLastSeen(); // Update saat pertama kali
             const interval = setInterval(updateLastSeen, 30000); // Update setiap 30 detik
-
+    
             return () => clearInterval(interval); // Hapus interval saat komponen di-unmount
         }
     }, [userData]);
+
 
     useEffect(() => {
         if (selectedUser) {
