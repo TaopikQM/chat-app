@@ -159,33 +159,58 @@ const UserPage = () => {
             return () => unsubscribe(); // Hapus listener saat komponen di-unmount
         }
     }, [selectedUser, userData]);
+    
+    const handleFileChange = async (e) => {
+    const files = e.target.files;
+    await sendMessage(files); // Kirim file yang dipilih
+};
 
-    const sendMessage = async () => {
-        if (!message.trim()) return;
 
-        try {
-            const db = getDatabase();
-            const messagesRef = ref(db, "chat/messages");
+   const sendMessage = async (selectedFiles = []) => {
+    if (!message.trim() && selectedFiles.length === 0) return;
 
-            const jakartaTime = new Date().toLocaleString("id-ID", {
-                timeZone: "Asia/Jakarta",
-            });
+    try {
+        const db = getDatabase();
+        const storage = getStorage(); // Inisialisasi Firebase Storage
+        const messagesRef = ref(db, "chat/messages");
 
-            await push(messagesRef, {
-                text: message,
-                pengirim: userData.name,
-                penerima: selectedUser.name,
-                createdAt: jakartaTime,
-                read: false,
-                files: [],
-            });
+        const jakartaTime = new Date().toLocaleString("id-ID", {
+            timeZone: "Asia/Jakarta",
+        });
 
-            setMessage(""); // Reset input pesan
-        } catch (error) {
-            console.error("Error sending message:", error);
-            alert("Gagal mengirim pesan.");
+        let uploadedFiles = [];
+
+        // Jika ada file yang dipilih, unggah ke Firebase Storage
+        if (selectedFiles.length > 0) {
+            uploadedFiles = await Promise.all(
+                Array.from(selectedFiles).map(async (file) => {
+                    const fileRef = storageRef(storage, `chat/chatFiles/${Date.now()}_${file.name}`);
+                    await uploadBytes(fileRef, file);
+                    const downloadURL = await getDownloadURL(fileRef);
+                    return { name: file.name, url: downloadURL };
+                })
+            );
         }
-    };
+
+        // Buat pesan baru dengan teks dan file yang diunggah
+        const newMessage = {
+            text: message,
+            pengirim: userData.name,
+            penerima: selectedUser.name,
+            createdAt: jakartaTime,
+            read: false,
+            files: uploadedFiles,
+        };
+
+        // Simpan pesan ke Firebase Realtime Database
+        await push(messagesRef, newMessage);
+
+        setMessage(""); // Reset input pesan
+    } catch (error) {
+        console.error("Error sending message:", error);
+        alert("Gagal mengirim pesan.");
+    }
+};
 
     if (loading) {
         return (
@@ -243,6 +268,18 @@ const UserPage = () => {
                                         }`}
                                     >
                                         <p>{msg.text}</p>
+                                        {msg.files &&
+                                            msg.files.map((file, i) => (
+                                                <a
+                                                    key={i}
+                                                    href={file.url}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="text-blue-500 underline"
+                                                >
+                                                    File: {file.name}
+                                                </a>
+                                            ))}
                                         <span className="text-xs text-gray-500">
                                             {msg.createdAt}
                                         </span>
@@ -255,6 +292,20 @@ const UserPage = () => {
                                 ))}
                             </div>
                             <div className="mt-4 flex items-center gap-2">
+                                     {/* Tombol untuk upload file */}
+                                <label
+                                    htmlFor="file_upload"
+                                    className="flex items-center justify-center w-10 h-10 bg-gray-200 rounded-full cursor-pointer hover:bg-gray-300"
+                                >
+                                    📎
+                                </label>
+                                <input
+                                    id="file_upload"
+                                    type="file"
+                                    multiple
+                                    className="hidden"
+                                     onChange={handleFileChange}
+                                />
                                 <textarea
                                     className="w-full p-2 border rounded-lg"
                                     rows="4"
@@ -262,6 +313,7 @@ const UserPage = () => {
                                     onChange={(e) => setMessage(e.target.value)}
                                     placeholder="Tulis pesan..."
                                 />
+                                 
                                 <button
                                     onClick={sendMessage}
                                     className="px-4 py-2 mt-2 text-white bg-blue-500 rounded-lg"
