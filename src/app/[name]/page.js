@@ -298,6 +298,8 @@ const UserPage = () => {
                                     📎
                                 </label>
                                 <input
+                                    
+                                    id="file_upload"
                                     type="file"
                                     multiple
                                     onChange={handleFileChange}
