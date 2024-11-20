@@ -100,6 +100,24 @@ const UserPage = () => {
         }
     }, [userData]);
 
+    useEffect(() => {
+    if (selectedUser) {
+        const db = getDatabase();
+        const lastSeenRef = ref(db, `chat/lastseen/${selectedUser.name}`);
+        
+        // Pantau perubahan lastSeen dari Firebase
+        const unsubscribe = onValue(lastSeenRef, (snapshot) => {
+            if (snapshot.exists()) {
+                setLastSeen(snapshot.val().lastSeen);
+            } else {
+                setLastSeen("Tidak tersedia");
+            }
+        });
+
+        return () => unsubscribe(); // Hapus listener saat komponen di-unmount
+    }
+}, [selectedUser]);
+
 
     useEffect(() => {
         if (selectedUser) {
@@ -194,9 +212,9 @@ const UserPage = () => {
                     {selectedUser ? (
                         <div>
                             <h2 className="text-xl font-bold">Obrolan dengan {selectedUser.name}</h2>
-                             <p className="text-sm text-gray-500">
-                                Last seen: {new Date().toLocaleTimeString("en-US", { timeZone: "Asia/Jakarta" })}
-                            </p>
+                             {lastSeen && (
+                                <p className="text-sm text-gray-500">Terakhir terlihat: {lastSeen}</p>
+                            )}
                             <div className="border p-4 h-[400px] overflow-y-scroll">
                                 {messages.map((msg, index) => (
                                     <div
