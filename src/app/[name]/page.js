@@ -292,7 +292,7 @@ const UserPage = () => {
                                         )}
                                     </div>
                                 ))}
-                                  <div className="fixed bottom-6 right-24 group">
+                                  <div className="fixed group">
       <div
         id="speed-dial-menu-dropdown"
         className={`flex flex-col justify-end ${
@@ -343,7 +343,7 @@ const UserPage = () => {
         onClick={toggleMenu}
         aria-controls="speed-dial-menu-dropdown"
         aria-expanded={isOpen}
-        className="flex items-center justify-center ml-auto text-white bg-blue-700 rounded-full w-14 h-14 hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 focus:outline-none dark:focus:ring-blue-800"
+        className="flex items-center justify-center ml-auto text-white bg-blue-700 rounded-5 w-14 h-14 hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 focus:outline-none dark:focus:ring-blue-800"
       >
         <svg
           className="w-6 h-6"
@@ -357,6 +357,7 @@ const UserPage = () => {
         <span className="sr-only">Open actions menu</span>
       </button>
     </div>
+              
                             </div>
                              
                             <div className="mt-4">
