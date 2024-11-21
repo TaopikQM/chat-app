@@ -256,6 +256,71 @@ const UserPage = () => {
                                     Terakhir terlihat: {lastSeen}
                                 </p>
                             )}
+                                                              <div className="fixed group">
+                                      <div
+                                        id="speed-dial-menu-dropdown"
+                                        className={`flex flex-col justify-end ${
+                                          isOpen ? "flex" : "hidden"
+                                        } py-1 mb-4 space-y-2 bg-white border border-gray-100 rounded-lg shadow-sm dark:border-gray-600 dark:bg-gray-700`}
+                                      >
+                                        <ul className="text-sm text-gray-500 dark:text-gray-300">
+                                          <li>
+                                            <a
+                                              href="#"
+                                              className="flex items-center px-5 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 hover:text-gray-900 dark:hover:text-white"
+                                            >
+                                              <svg
+                                                className="w-3.5 h-3.5 me-2"
+                                                aria-hidden="true"
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                fill="currentColor"
+                                                viewBox="0 0 18 18"
+                                              >
+                                                <path d="M14.419 10.581a3.564 3.564 0 0 0-2.574 1.1l-4.756-2.49a3.54 3.54 0 0 0 .072-.71 3.55 3.55 0 0 0-.043-.428L11.67 6.1a3.56 3.56 0 1 0-.831-2.265c.006.143.02.286.043.428L6.33 6.218a3.573 3.573 0 1 0-.175 4.743l4.756 2.491a3.58 3.58 0 1 0 3.508-2.871Z" />
+                                              </svg>
+                                              <span className="text-sm font-medium">Share</span>
+                                            </a>
+                                          </li>
+                                          <li>
+                                            <a
+                                              href="#"
+                                              className="flex items-center px-5 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 hover:text-gray-900 dark:hover:text-white"
+                                            >
+                                              <svg
+                                                className="w-3.5 h-3.5 me-2"
+                                                aria-hidden="true"
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                fill="currentColor"
+                                                viewBox="0 0 20 20"
+                                              >
+                                                <path d="M5 20h10a1 1 0 0 0 1-1v-5H4v5a1 1 0 0 0 1 1Z" />
+                                                <path d="M18 7H2a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2v-3a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2Zm-1-2V2a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v3h14Z" />
+                                              </svg>
+                                              <span className="text-sm font-medium">Print</span>
+                                            </a>
+                                          </li>
+                                          {/* Tambahkan item lainnya */}
+                                        </ul>
+                                      </div>
+                                      <button
+                                        type="button"
+                                        onClick={toggleMenu}
+                                        aria-controls="speed-dial-menu-dropdown"
+                                        aria-expanded={isOpen}
+                                        className="flex items-center justify-center ml-auto text-white bg-blue-700 rounded-5 w-14 h-14 hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 focus:outline-none dark:focus:ring-blue-800"
+                                      >
+                                        <svg
+                                          className="w-6 h-6"
+                                          aria-hidden="true"
+                                          xmlns="http://www.w3.org/2000/svg"
+                                          fill="currentColor"
+                                          viewBox="0 0 16 3"
+                                        >
+                                          <path d="M2 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm6.041 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM14 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Z" />
+                                        </svg>
+                                        <span className="sr-only">Open actions menu</span>
+                                      </button>
+                                    </div>
                             <div className="border p-4 h-[400px] overflow-y-scroll">
                                 {messages.map((msg, index) => (
                                     <div
@@ -292,71 +357,7 @@ const UserPage = () => {
                                         )}
                                     </div>
                                 ))}
-                                  <div className="fixed group">
-      <div
-        id="speed-dial-menu-dropdown"
-        className={`flex flex-col justify-end ${
-          isOpen ? "flex" : "hidden"
-        } py-1 mb-4 space-y-2 bg-white border border-gray-100 rounded-lg shadow-sm dark:border-gray-600 dark:bg-gray-700`}
-      >
-        <ul className="text-sm text-gray-500 dark:text-gray-300">
-          <li>
-            <a
-              href="#"
-              className="flex items-center px-5 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 hover:text-gray-900 dark:hover:text-white"
-            >
-              <svg
-                className="w-3.5 h-3.5 me-2"
-                aria-hidden="true"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="currentColor"
-                viewBox="0 0 18 18"
-              >
-                <path d="M14.419 10.581a3.564 3.564 0 0 0-2.574 1.1l-4.756-2.49a3.54 3.54 0 0 0 .072-.71 3.55 3.55 0 0 0-.043-.428L11.67 6.1a3.56 3.56 0 1 0-.831-2.265c.006.143.02.286.043.428L6.33 6.218a3.573 3.573 0 1 0-.175 4.743l4.756 2.491a3.58 3.58 0 1 0 3.508-2.871Z" />
-              </svg>
-              <span className="text-sm font-medium">Share</span>
-            </a>
-          </li>
-          <li>
-            <a
-              href="#"
-              className="flex items-center px-5 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 hover:text-gray-900 dark:hover:text-white"
-            >
-              <svg
-                className="w-3.5 h-3.5 me-2"
-                aria-hidden="true"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path d="M5 20h10a1 1 0 0 0 1-1v-5H4v5a1 1 0 0 0 1 1Z" />
-                <path d="M18 7H2a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2v-3a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2Zm-1-2V2a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v3h14Z" />
-              </svg>
-              <span className="text-sm font-medium">Print</span>
-            </a>
-          </li>
-          {/* Tambahkan item lainnya */}
-        </ul>
-      </div>
-      <button
-        type="button"
-        onClick={toggleMenu}
-        aria-controls="speed-dial-menu-dropdown"
-        aria-expanded={isOpen}
-        className="flex items-center justify-center ml-auto text-white bg-blue-700 rounded-5 w-14 h-14 hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 focus:outline-none dark:focus:ring-blue-800"
-      >
-        <svg
-          className="w-6 h-6"
-          aria-hidden="true"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="currentColor"
-          viewBox="0 0 16 3"
-        >
-          <path d="M2 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm6.041 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM14 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Z" />
-        </svg>
-        <span className="sr-only">Open actions menu</span>
-      </button>
-    </div>
+
               
                             </div>
                              
