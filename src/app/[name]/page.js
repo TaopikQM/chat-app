@@ -331,7 +331,7 @@ const UserPage = () => {
                                   </ul>
                                 </div>
                               )}
-                            
+                            </div>
                           </div>
                         </div>
                                                              
