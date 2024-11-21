@@ -333,7 +333,6 @@ const UserPage = () => {
                               )}
                             </div>
                           </div>
-                        </div>
                                                              
                             <div className="border p-4 h-[400px] overflow-y-scroll">
                                 {messages.map((msg, index) => (
