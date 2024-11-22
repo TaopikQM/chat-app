@@ -250,7 +250,7 @@ const UserPage = () => {
                 </aside>
                 <div className="flex-1 p-4">
                     {selectedUser ? (
-                         <div className="flex">
+                         <div>
                             <div>
                               <h2 className="text-xl font-bold">
                                 Obrolan dengan {selectedUser.name}
