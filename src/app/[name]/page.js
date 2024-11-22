@@ -252,14 +252,16 @@ const UserPage = () => {
                     {selectedUser ? (
                          <div>
                             <div className="flex">
-                              <h2 className="text-xl font-bold">
-                                Obrolan dengan {selectedUser.name}
-                              </h2>
-                              {lastSeen && (
-                                <p className="text-sm text-gray-500">
-                                  Terakhir terlihat: {lastSeen}
-                                </p>
-                              )}
+                                <div>
+                                  <h2 className="text-xl font-bold">
+                                    Obrolan dengan {selectedUser.name}
+                                  </h2>
+                                  {lastSeen && (
+                                    <p className="text-sm text-gray-500">
+                                      Terakhir terlihat: {lastSeen}
+                                    </p>
+                                  )}
+                                </div>
                            
                                 {/* Dropdown Menu */}
                                 <div className="relative">
