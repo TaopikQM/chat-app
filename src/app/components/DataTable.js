@@ -73,10 +73,10 @@ export default function DataTable() {
         <tbody>
           {filteredData.map((item) => (
             <tr key={item.id}>
-              <td>{item.NAMA}</td>
-              <td>{item.JENIS KELAMIN}</td>
-              <td>{item.USIA}</td>
-              <td>{item.DUSUN/ALAMAT}</td>
+              <td>{item.name}</td>
+              <td>{item.gender}</td>
+              <td>{item.usia}</td>
+              <td>{item.alamat}</td>
               <td>{item.status || 'Belum Hadir'}</td>
               <td>
                 <button
