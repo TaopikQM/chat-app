@@ -24,13 +24,13 @@ export default function UploadData() {
         const columns = line.split(/\s+/); // Pisahkan berdasarkan spasi
         if (columns.length >= 6) {
           const parsedData = {
-            NAMA: columns[0] || '',
-            JENIS KELAMIN: columns[1] || '',
-            USIA: parseInt(columns[2], 10) || 0,
-            DUSUN/ALAMAT: columns[3] || '',
-            RT: parseInt(columns[4], 10) || 0,
-            RW: parseInt(columns[5], 10) || 0,
-            KET.: '-',
+            name: columns[1] || '',
+            gender: columns[2] || '',
+            usia: parseInt(columns[3, 10) || 0,
+            alamat: columns[4] || '',
+            rt: parseInt(columns[5], 10) || 0,
+            rw: parseInt(columns[6], 10) || 0,
+            ket: '-',
             createdAt: new Date().toISOString().replace('T', ' ').substring(0, 19),
           };
           dataToUpload.push(parsedData);
