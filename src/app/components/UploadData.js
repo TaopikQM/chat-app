@@ -27,7 +27,7 @@ export default function UploadData() {
           const parsedData = {
             name: columns[1] || '',
             gender: columns[2] || '',
-            usia: parseInt(columns[3, 10) || 0,
+            usia: parseInt(columns[3], 10) || 0,
             alamat: columns[4] || '',
             rt: parseInt(columns[5], 10) || 0,
             rw: parseInt(columns[6], 10) || 0,
