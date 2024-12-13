@@ -5,7 +5,7 @@ import { UserProvider } from '../context/UserContext';
 const Syifa = () => {
     return (
         <UserProvider>
-            <Chats user={{ id: 'user2', name: 'User 2' }} />
+            <Chat user={{ id: 'user1', name: 'User 1' }} />
         </UserProvider>
     );
 };
