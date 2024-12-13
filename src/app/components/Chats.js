@@ -17,7 +17,7 @@ const Chats = ({ user }) => {
 
     // Fetch messages and user status from Firebase on component mount
     useEffect(() => {
-        const messagesRef = databaseRef(database, `messagessif/${user.id}/${otherUser.id}`);
+        const messagesRef = databaseRef(database, `messagessif/${user.id}/${otherUsers.id}`);
         onValue(messagesRef, (snapshot) => {
             const data = snapshot.val();
             const loadedMessages = data ? Object.values(data) : [];
