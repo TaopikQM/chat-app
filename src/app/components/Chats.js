@@ -140,7 +140,7 @@ const Chats = ({ user }) => {
         <div className="flex flex-col h-screen bg-gray-100">
             <div className="flex-none p-4 bg-white border-b border-gray-300">
                 <h2 className="text-xl text-center">{otherUsers.name}</h2>
-                <p className="text-sm text-center">{lastSeensif ? 'Last seen: ' + lastSeen : 'Offline'}</p>
+                <p className="text-sm text-center">{lastSeensif ? 'Last seen: ' + lastSeensif : 'Offline'}</p>
             </div>
            
             
