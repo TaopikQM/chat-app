@@ -13,7 +13,7 @@ const Chats = ({ user }) => {
     const [selectedFiles, setSelectedFiles] = useState([]);
     const [uploading, setUploading] = useState(false);
     const [otherUserStatus, setOtherUserStatus] = useState(''); // Online status or last seen
-    const [lastSeen, setLastSeen] = useState(''); // Last seen timestamp
+    const [lastSeensif, setLastSeen] = useState(''); // Last seen timestamp
 
     // Fetch messages and user status from Firebase on component mount
     useEffect(() => {
