@@ -1,5 +1,5 @@
 "use client"; // Enable client-side rendering
-import React, { useState, useRef , useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { database, storage } from '../config/firebase'; // Pastikan Firebase Storage sudah dikonfigurasi
 import { ref as databaseRef, onValue, push, update } from 'firebase/database';
 import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
@@ -15,6 +15,28 @@ const Chat = ({ user }) => {
     const [otherUserStatus, setOtherUserStatus] = useState(''); // Online status or last seen
     const [lastSeen, setLastSeen] = useState(''); // Last seen timestamp
 
+    const [showButton, setShowButton] = useState(false);
+
+    useEffect(() => {
+    const handleScroll = () => {
+        const currentScrollY = window.scrollY;
+        if (currentScrollY < previousScrollY) {
+            setShowButton(true); // Show button when scrolling up
+        } else {
+            setShowButton(false); // Hide button when scrolling down
+        }
+        previousScrollY = currentScrollY; // Update previous scroll position
+    };
+    
+    let previousScrollY = window.scrollY;
+    window.addEventListener('scroll', handleScroll);
+    
+    return () => {
+        window.removeEventListener('scroll', handleScroll);
+    };
+}, [user.id, otherUser.id]);
+
+    
     // Fetch messages and user status from Firebase on component mount
     useEffect(() => {
         const messagesRef = databaseRef(database, `messagesdes/${user.id}/${otherUser.id}`);
@@ -148,36 +170,7 @@ const Chat = ({ user }) => {
     };
 
                             // {new Date(msg.timestamp).toLocaleTimeString()}
-const [showScrollButton, setShowScrollButton] = useState(false);
-    const messageEndRef = useRef(null);
-    const messageContainerRef = useRef(null);
 
-    // Scroll ke bawah
-    const scrollToBottom = () => {
-        messageEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    };
-
-    // Pantau posisi scroll
-    useEffect(() => {
-        const handleScroll = () => {
-            if (!messageContainerRef.current) return;
-
-            const { scrollTop, scrollHeight, clientHeight } = messageContainerRef.current;
-
-            // Tampilkan tombol jika tidak berada di bagian bawah
-            setShowScrollButton(scrollHeight - scrollTop - clientHeight > 100);
-        };
-
-        const container = messageContainerRef.current;
-        container?.addEventListener("scroll", handleScroll);
-
-        return () => container?.removeEventListener("scroll", handleScroll);
-    }, []);
-
-    useEffect(() => {
-        // Scroll otomatis ke bawah setiap kali pesan baru ditambahkan
-        scrollToBottom();
-    }, [messages]);
 
     return (
         <div className="flex flex-col h-screen bg-gray-100">
@@ -273,14 +266,20 @@ const [showScrollButton, setShowScrollButton] = useState(false);
                 </button>
             </div>
                     {/* Tombol melayang */}
-            {showScrollButton && (
-                <button
-                    onClick={scrollToBottom}
-                    className="fixed bottom-16 right-4 p-3 bg-blue-500 text-white rounded-full shadow-lg z-10"
-                >
-                    ↓
-                </button>
-            )}
+
+{showButton && (
+    <button 
+        className="fixed bottom-4 right-4 bg-blue-500 text-white p-2 rounded-full"
+        onClick={() => {
+            // Scroll to the latest message or perform desired action
+            const messageContainer = document.querySelector('.flex-1');
+            messageContainer.scrollTop = messageContainer.scrollHeight;
+        }}
+    >
+        ↓
+    </button>
+)}
+
         </div>
     );
 };
