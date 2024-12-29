@@ -164,7 +164,16 @@ const Chat = ({ user }) => {
                             {renderMedia(msg.files)}
                         </div>
                         <div className="text-xs text-gray-500 flex justify-end items-center">
-                            {new Date(msg.timestamp).toLocaleTimeString()}
+                            // {new Date(msg.timestamp).toLocaleTimeString()}
+                            {new Date(msg.timestamp).toLocaleString('id-ID', {
+                                year: 'numeric',
+                                month: '2-digit',
+                                day: '2-digit',
+                                hour: '2-digit',
+                                minute: '2-digit',
+                                second: '2-digit',
+                                hour12: false, // Gunakan format 24 jam
+                              })}
                             {msg.sender === user.id && (
                                 <span className="ml-2">
                                     {msg.read ? (
