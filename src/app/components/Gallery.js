@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+"use client"
+import { useEffect, useState } from 'react';
 import { ref as storageRef, listAll, getDownloadURL } from 'firebase/storage';
 import { storage } from '../config/firebase'; // Pastikan ini adalah konfigurasi Firebase Anda
 
