@@ -147,6 +147,8 @@ const Chat = ({ user }) => {
         );
     };
 
+                            // {new Date(msg.timestamp).toLocaleTimeString()}
+
     return (
         <div className="flex flex-col h-screen bg-gray-100">
             <div className="flex-none p-4 bg-white border-b border-gray-300">
@@ -164,7 +166,6 @@ const Chat = ({ user }) => {
                             {renderMedia(msg.files)}
                         </div>
                         <div className="text-xs text-gray-500 flex justify-end items-center">
-                            // {new Date(msg.timestamp).toLocaleTimeString()}
                             {new Date(msg.timestamp).toLocaleString('id-ID', {
                                 year: 'numeric',
                                 month: '2-digit',
