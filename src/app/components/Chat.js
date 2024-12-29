@@ -15,26 +15,6 @@ const Chat = ({ user }) => {
     const [otherUserStatus, setOtherUserStatus] = useState(''); // Online status or last seen
     const [lastSeen, setLastSeen] = useState(''); // Last seen timestamp
 
-    const [showButton, setShowButton] = useState(false);
-
-    useEffect(() => {
-    const handleScroll = () => {
-        const currentScrollY = window.scrollY;
-        if (currentScrollY < previousScrollY) {
-            setShowButton(true); // Show button when scrolling up
-        } else {
-            setShowButton(false); // Hide button when scrolling down
-        }
-        previousScrollY = currentScrollY; // Update previous scroll position
-    };
-    
-    let previousScrollY = window.scrollY;
-    window.addEventListener('scroll', handleScroll);
-    
-    return () => {
-        window.removeEventListener('scroll', handleScroll);
-    };
-}, [user.id, otherUser.id]);
 
     
     // Fetch messages and user status from Firebase on component mount
@@ -211,18 +191,7 @@ const Chat = ({ user }) => {
                     </div>
                 ))}
             </div>
-                    {showButton && (
-    <button 
-        className="fixed bottom-4 right-4 bg-blue-500 text-white p-2 rounded-full"
-        onClick={() => {
-            // Scroll to the latest message or perform desired action
-            const messageContainer = document.querySelector('.flex-1');
-            messageContainer.scrollTop = messageContainer.scrollHeight;
-        }}
-    >
-        ↓
-    </button>
-)}
+                  
              <div className="flex-none flex items-center p-4 border-t border-gray-300 sticky bottom-0 bg-white">
         <input
                     type="file"
