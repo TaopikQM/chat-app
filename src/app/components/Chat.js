@@ -188,8 +188,8 @@ const Chat = ({ user }) => {
                     </div>
                 ))}
             </div>
-            <div className="flex items-center p-4 border-t border-gray-300">
-                <input
+             <div className="flex-none flex items-center p-4 border-t border-gray-300 sticky bottom-0 bg-white">
+        <input
                     type="file"
                     multiple
                     accept="image/*,video/*"
