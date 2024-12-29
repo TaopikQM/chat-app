@@ -44,7 +44,18 @@ const Chat = ({ user }) => {
             const status = snapshot.val();
             if (status && status.timestamp) {
                 const date = new Date(status.timestamp);
-                setLastSeen(!isNaN(date.getTime()) ? date.toLocaleTimeString() : 'Offline');
+                // setLastSeen(!isNaN(date.getTime()) ? date.toLocaleTimeString() : 'Offline');
+                const formattedDate = date.toLocaleString('id-ID', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    hour12: false, // Format 24 jam
+                });
+        
+                setLastSeen(!isNaN(date.getTime()) ? formattedDate : 'Offline');
             } else {
                 setLastSeen('Offline');
             }
