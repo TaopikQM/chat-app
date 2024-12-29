@@ -1,5 +1,5 @@
 // import UploadData from '../components/UploadData';
-import Gallery from '../components/gallery';
+import Gallery from '../components/Gallery';
 
 export default function HomePage() {
   return (
