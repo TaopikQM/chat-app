@@ -19,6 +19,7 @@ const Gallery = () => {
                 setMediaFiles(urls);
             } catch (error) {
                 console.error('Error fetching media files:', error);
+            setMediaFiles([]); // Set default data jika terjadi error
             }
         };
 
