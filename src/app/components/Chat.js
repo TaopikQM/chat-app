@@ -211,6 +211,18 @@ const Chat = ({ user }) => {
                     </div>
                 ))}
             </div>
+                    {showButton && (
+    <button 
+        className="fixed bottom-4 right-4 bg-blue-500 text-white p-2 rounded-full"
+        onClick={() => {
+            // Scroll to the latest message or perform desired action
+            const messageContainer = document.querySelector('.flex-1');
+            messageContainer.scrollTop = messageContainer.scrollHeight;
+        }}
+    >
+        ↓
+    </button>
+)}
              <div className="flex-none flex items-center p-4 border-t border-gray-300 sticky bottom-0 bg-white">
         <input
                     type="file"
@@ -267,18 +279,7 @@ const Chat = ({ user }) => {
             </div>
                     {/* Tombol melayang */}
 
-{showButton && (
-    <button 
-        className="fixed bottom-4 right-4 bg-blue-500 text-white p-2 rounded-full"
-        onClick={() => {
-            // Scroll to the latest message or perform desired action
-            const messageContainer = document.querySelector('.flex-1');
-            messageContainer.scrollTop = messageContainer.scrollHeight;
-        }}
-    >
-        ↓
-    </button>
-)}
+
 
         </div>
     );
