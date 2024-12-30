@@ -6,12 +6,16 @@ import { storage } from "../config/firebase";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/swiper-bundle.min.css"; // Pastikan untuk mengimpor style Swiper
 
+import { format } from "date-fns"; // Untuk memformat tanggal
+
 const Gallery = () => {
     const [files, setFiles] = useState([]);
     const [activeFilter, setActiveFilter] = useState("all");
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalFileIndex, setModalFileIndex] = useState(0); // Menyimpan index file yang dibuka
     const [filteredFiles, setFilteredFiles] = useState([]);
+    
+    const [groupedFiles, setGroupedFiles] = useState({});
 
     useEffect(() => {
         const fetchFiles = async () => {
@@ -22,11 +26,22 @@ const Gallery = () => {
                     res.items.map(async (item) => {
                         const fileUrl = await getDownloadURL(item);
                         const metadata = await getMetadata(item);
-                        return { url: fileUrl, contentType: metadata.contentType };
+                        return { url: fileUrl, contentType: metadata.contentType, timeCreated: timeCreated };
                     })
                 );
                 setFiles(fileDetails);
                 setFilteredFiles(fileDetails); // Set initial filtered files
+                 // Group files by month and year
+                const grouped = fileDetails.reduce((acc, file) => {
+                    const date = new Date(file.timeCreated);
+                    const yearMonth = format(date, "yyyy-MM"); // Format as yyyy-MM (e.g., 2024-11)
+
+                    if (!acc[yearMonth]) acc[yearMonth] = [];
+                    acc[yearMonth].push(file);
+                    return acc;
+                }, {});
+
+                setGroupedFiles(grouped); 
             } catch (error) {
                 console.error("Error fetching files: ", error);
             }
@@ -95,39 +110,44 @@ const Gallery = () => {
                 </button>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-                {filteredFiles.length === 0 ? (
-                    <p>Tidak ada file untuk ditampilkan.</p>
-                ) : (
-                    filteredFiles.map((file, index) => (
-                        <div
-                            key={index}
-                            className="file-preview cursor-pointer"
-                            onClick={() => openModal(index)}
-                        >
-                            {file.contentType.startsWith('video/') ? (
-                                <video className="h-auto max-w-full rounded-lg" width="100%" controls>
-                                    <source src={file.url} type={file.contentType} />
-                                    Your browser does not support the video tag.
-                                </video>
-                            ) : file.contentType.startsWith('image/') ? (
-                                <img
-                                    className="h-auto max-w-full rounded-lg"
-                                    src={file.url}
-                                    alt={`File ${index}`}
-                                    style={{ width: '100%', height: 'auto' }}
-                                />
-                            ) : (
-                                <p className="text-red-500">Unsupported format</p>
-                            )}
+            {/* Render files grouped by year-month */}
+            <div className="space-y-6">
+                {Object.keys(groupedFiles).map((yearMonth) => (
+                    <div key={yearMonth} className="space-y-2">
+                        <h2 className="text-xl font-semibold text-gray-800">{yearMonth}</h2>
+                        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                            {groupedFiles[yearMonth].map((file, index) => (
+                                <div
+                                    key={index}
+                                    className="file-preview cursor-pointer"
+                                    onClick={() => openModal(index)}
+                                >
+                                    {file.contentType.startsWith('video/') ? (
+                                        <video className="h-auto max-w-full rounded-lg" width="100%" controls>
+                                            <source src={file.url} type={file.contentType} />
+                                            Your browser does not support the video tag.
+                                        </video>
+                                    ) : file.contentType.startsWith('image/') ? (
+                                        <img
+                                            className="h-auto max-w-full rounded-lg"
+                                            src={file.url}
+                                            alt={`File ${index}`}
+                                            style={{ width: '100%', height: 'auto' }}
+                                        />
+                                    ) : (
+                                        <p className="text-red-500">Unsupported format</p>
+                                    )}
+                                </div>
+                            ))}
                         </div>
-                    ))
-                )}
+                        <hr className="my-4 border-gray-300" />
+                    </div>
+                ))}
             </div>
 
             {/* Modal with Swiper */}
             {isModalOpen && (
-                <div className="fixed inset-0 bg-gray-800 bg-opacity-75 flex justify-center items-center z-50">
+                <div className="fixed inset-0 bg-gray-800 bg-opacity-75 flex justify-center items-center z-50"  onClick={handleOverlayClick}>
                     <div className="relative bg-white rounded-lg p-4 w-full max-w-3xl">
                         <Swiper
                             initialSlide={modalFileIndex}
@@ -140,7 +160,7 @@ const Gallery = () => {
                             {filteredFiles.map((file, index) => (
                                 <SwiperSlide key={index}>
                                     {file.contentType.startsWith("video/") ? (
-                                        <video className="h-auto max-w-full rounded-lg" width="100%" controls>
+                                        <video className="h-auto max-w-full rounded-lg" width="80%" controls>
                                             <source src={file.url} type={file.contentType} />
                                             Your browser does not support the video tag.
                                         </video>
