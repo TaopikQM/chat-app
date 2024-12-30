@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { database, storage } from '../config/firebase';
 // import { storage, rtdb } from '../config/firebase';
 import { ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
-import { ref as databaseRef, push, set } from "firebase/database";
+import { ref as databaseRef, push, set,onValue, update } from "firebase/database";
 
 const AddFiles = () => {
   const [uploadType, setUploadType] = useState("files"); // "files" or "folder"
@@ -54,7 +54,7 @@ const AddFiles = () => {
 
       const uploadPromises = selectedFiles.map(async (file) => {
         const filePath = file.webkitRelativePath || file.name;
-        const fileRef = storageRef(storage, `chatFiles/${newEntryKey}/${filePath}`);
+        const fileRef = storageRef(storage, `chatFiles/${filePath}`);
         
         const snapshot = await uploadBytes(fileRef, file);
         const downloadURL = await getDownloadURL(snapshot.ref);
