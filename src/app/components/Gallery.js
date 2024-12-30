@@ -1,194 +1,4 @@
-"use client";
 
-import { useEffect, useState } from "react";
-import { ref, listAll, getDownloadURL, getMetadata } from "firebase/storage";
-import { storage } from "../config/firebase";
-import { Swiper, SwiperSlide } from "swiper/react";
-import "swiper/swiper-bundle.min.css";
-
-import { format } from "date-fns";
-
-const Gallery = () => {
-    const [files, setFiles] = useState([]);
-    const [activeFilter, setActiveFilter] = useState("all");
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [modalFileIndex, setModalFileIndex] = useState(0);
-    const [filteredFiles, setFilteredFiles] = useState([]);
-    const [groupedFiles, setGroupedFiles] = useState({});
-    const [currentGroup, setCurrentGroup] = useState([]);
-
-    useEffect(() => {
-        const fetchFiles = async () => {
-            const listRef = ref(storage, "chatFiles/");
-            try {
-                const res = await listAll(listRef);
-                const fileDetails = await Promise.all(
-                    res.items.map(async (item) => {
-                        const fileUrl = await getDownloadURL(item);
-                        const metadata = await getMetadata(item);
-
-                        return {
-                            url: fileUrl,
-                            contentType: metadata.contentType,
-                            timeCreated: metadata.timeCreated,
-                        };
-                    })
-                );
-                setFiles(fileDetails);
-                setFilteredFiles(fileDetails);
-
-                const grouped = fileDetails.reduce((acc, file) => {
-                    const date = new Date(file.timeCreated);
-                    const yearMonth = format(date, "yyyy-MM");
-
-                    if (!acc[yearMonth]) acc[yearMonth] = [];
-                    acc[yearMonth].push(file);
-                    return acc;
-                }, {});
-
-                setGroupedFiles(grouped);
-            } catch (error) {
-                console.error("Error fetching files: ", error);
-            }
-        };
-
-        fetchFiles();
-    }, []);
-
-    const handleFilterChange = (filter) => {
-        setActiveFilter(filter);
-        if (filter === "all") {
-            setFilteredFiles(files);
-        } else {
-            setFilteredFiles(
-                files.filter((file) =>
-                    filter === "images" ? file.contentType.startsWith("image/") : file.contentType.startsWith("video/")
-                )
-            );
-        }
-    };
-
-    const openModal = (groupKey, index) => {
-        setCurrentGroup(groupedFiles[groupKey] || []);
-        setModalFileIndex(index);
-        setIsModalOpen(true);
-    };
-
-    const closeModal = () => {
-        setIsModalOpen(false);
-    };
-
-    const handleOverlayClick = (e) => {
-        if (e.target.id === "modal-overlay") {
-            closeModal();
-        }
-    };
-
-    return (
-        <div>
-            {/* Filter Buttons */}
-            <div className="flex items-center justify-center py-4 md:py-8 flex-wrap">
-                {["all", "images", "videos"].map((filter) => (
-                    <button
-                        key={filter}
-                        type="button"
-                        onClick={() => handleFilterChange(filter)}
-                        className={`${
-                            activeFilter === filter
-                                ? "text-blue-700 hover:text-white border border-blue-600 bg-white hover:bg-blue-700"
-                                : "text-gray-900 border border-white hover:border-gray-200"
-                        } px-5 py-2.5 rounded-full mb-3`}
-                    >
-                        {filter.charAt(0).toUpperCase() + filter.slice(1)}
-                    </button>
-                ))}
-            </div>
-
-            {/* Grouped Files */}
-            <div className="space-y-6">
-                {Object.keys(groupedFiles).map((yearMonth) => (
-                    <div key={yearMonth} className="space-y-2">
-                        <h2 className="text-xl font-semibold">{yearMonth}</h2>
-                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-                            {groupedFiles[yearMonth]
-                                .filter((file) =>
-                                    activeFilter === "all"
-                                        ? true
-                                        : activeFilter === "images"
-                                        ? file.contentType.startsWith("image/")
-                                        : file.contentType.startsWith("video/")
-                                )
-                                .map((file, index) => (
-                                    <div
-                                        key={index}
-                                        onClick={() => openModal(yearMonth, index)}
-                                        className="cursor-pointer"
-                                    >
-                                        {file.contentType.startsWith("video/") ? (
-                                            <video className="h-auto rounded-lg" controls>
-                                                <source src={file.url} type={file.contentType} />
-                                                Your browser does not support the video tag.
-                                            </video>
-                                        ) : (
-                                            <img
-                                                className="h-auto rounded-lg"
-                                                src={file.url}
-                                                alt={`File ${index}`}
-                                            />
-                                        )}
-                                    </div>
-                                ))}
-                        </div>
-                        <hr className="my-4" />
-                    </div>
-                ))}
-            </div>
-
-            {/* Modal */}
-            {isModalOpen && (
-                <div
-                    id="modal-overlay"
-                    className="fixed inset-0 bg-black bg-opacity-90 flex justify-center items-center z-50"
-                    onClick={handleOverlayClick}
-                >
-                    <div className="relative rounded-lg w-full max-w-[90%] max-h-[90vh] p-4 bg-black">
-                        <Swiper
-                            initialSlide={modalFileIndex}
-                            spaceBetween={10}
-                            slidesPerView={1}
-                            navigation
-                            loop
-                        >
-                            {currentGroup.map((file, index) => (
-                                <SwiperSlide key={index}>
-                                    {file.contentType.startsWith("video/") ? (
-                                        <video className="max-w-full max-h-[80vh] object-contain" controls>
-                                            <source src={file.url} type={file.contentType} />
-                                        </video>
-                                    ) : (
-                                        <img
-                                            className="max-w-full max-h-[80vh] object-contain"
-                                            src={file.url}
-                                            alt={`File ${index}`}
-                                        />
-                                    )}
-                                </SwiperSlide>
-                            ))}
-                        </Swiper>
-                        <button
-                            onClick={closeModal}
-                            className="absolute top-4 right-4 bg-red-600 text-white rounded-full px-3 py-2 text-lg"
-                        >
-                            &#10005;
-                        </button>
-                    </div>
-                </div>
-            )}
-        </div>
-    );
-};
-
-export default Gallery;
 
 
 // "use client";
@@ -379,188 +189,188 @@ export default Gallery;
 
 // export default Gallery;
 
-// // "use client";
+"use client";
 
-// // import { useEffect, useState } from "react";
-// // import { ref, listAll, getDownloadURL, getMetadata } from "firebase/storage";
-// // import { storage } from "../config/firebase";
-// // import { Swiper, SwiperSlide } from "swiper/react";
-// // import "swiper/swiper-bundle.min.css";
+import { useEffect, useState } from "react";
+import { ref, listAll, getDownloadURL, getMetadata } from "firebase/storage";
+import { storage } from "../config/firebase";
+import { Swiper, SwiperSlide } from "swiper/react";
+import "swiper/swiper-bundle.min.css";
 
-// // import { format } from "date-fns";
+import { format } from "date-fns";
 
-// // const Gallery = () => {
-// //     const [files, setFiles] = useState([]);
-// //     const [activeFilter, setActiveFilter] = useState("all");
-// //     const [isModalOpen, setIsModalOpen] = useState(false);
-// //     const [modalFileIndex, setModalFileIndex] = useState(0);
-// //     const [filteredFiles, setFilteredFiles] = useState([]);
-// //     const [groupedFiles, setGroupedFiles] = useState({});
-// //     const [currentGroup, setCurrentGroup] = useState([]);
+const Gallery = () => {
+    const [files, setFiles] = useState([]);
+    const [activeFilter, setActiveFilter] = useState("all");
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [modalFileIndex, setModalFileIndex] = useState(0);
+    const [filteredFiles, setFilteredFiles] = useState([]);
+    const [groupedFiles, setGroupedFiles] = useState({});
+    const [currentGroup, setCurrentGroup] = useState([]);
 
-// //     useEffect(() => {
-// //         const fetchFiles = async () => {
-// //             const listRef = ref(storage, "chatFiles/");
-// //             try {
-// //                 const res = await listAll(listRef);
-// //                 const fileDetails = await Promise.all(
-// //                     res.items.map(async (item) => {
-// //                         const fileUrl = await getDownloadURL(item);
-// //                         const metadata = await getMetadata(item);
+    useEffect(() => {
+        const fetchFiles = async () => {
+            const listRef = ref(storage, "chatFiles/");
+            try {
+                const res = await listAll(listRef);
+                const fileDetails = await Promise.all(
+                    res.items.map(async (item) => {
+                        const fileUrl = await getDownloadURL(item);
+                        const metadata = await getMetadata(item);
 
-// //                         return {
-// //                             url: fileUrl,
-// //                             contentType: metadata.contentType,
-// //                             timeCreated: metadata.timeCreated,
-// //                         };
-// //                     })
-// //                 );
-// //                 setFiles(fileDetails);
-// //                 setFilteredFiles(fileDetails);
+                        return {
+                            url: fileUrl,
+                            contentType: metadata.contentType,
+                            timeCreated: metadata.timeCreated,
+                        };
+                    })
+                );
+                setFiles(fileDetails);
+                setFilteredFiles(fileDetails);
 
-// //                 const grouped = fileDetails.reduce((acc, file) => {
-// //                     const date = new Date(file.timeCreated);
-// //                     const yearMonth = format(date, "yyyy-MM");
+                const grouped = fileDetails.reduce((acc, file) => {
+                    const date = new Date(file.timeCreated);
+                    const yearMonth = format(date, "yyyy-MM");
 
-// //                     if (!acc[yearMonth]) acc[yearMonth] = [];
-// //                     acc[yearMonth].push(file);
-// //                     return acc;
-// //                 }, {});
+                    if (!acc[yearMonth]) acc[yearMonth] = [];
+                    acc[yearMonth].push(file);
+                    return acc;
+                }, {});
 
-// //                 setGroupedFiles(grouped);
-// //             } catch (error) {
-// //                 console.error("Error fetching files: ", error);
-// //             }
-// //         };
+                setGroupedFiles(grouped);
+            } catch (error) {
+                console.error("Error fetching files: ", error);
+            }
+        };
 
-// //         fetchFiles();
-// //     }, []);
+        fetchFiles();
+    }, []);
 
-// //     const handleFilterChange = (filter) => {
-// //         setActiveFilter(filter);
-// //         if (filter === "all") {
-// //             setFilteredFiles(files);
-// //         } else {
-// //             setFilteredFiles(
-// //                 files.filter((file) =>
-// //                     filter === "images" ? file.contentType.startsWith("image/") : file.contentType.startsWith("video/")
-// //                 )
-// //             );
-// //         }
-// //     };
+    const handleFilterChange = (filter) => {
+        setActiveFilter(filter);
+        if (filter === "all") {
+            setFilteredFiles(files);
+        } else {
+            setFilteredFiles(
+                files.filter((file) =>
+                    filter === "images" ? file.contentType.startsWith("image/") : file.contentType.startsWith("video/")
+                )
+            );
+        }
+    };
 
-// //     const openModal = (groupKey, index) => {
-// //         setCurrentGroup(groupedFiles[groupKey] || []);
-// //         setModalFileIndex(index);
-// //         setIsModalOpen(true);
-// //     };
+    const openModal = (groupKey, index) => {
+        setCurrentGroup(groupedFiles[groupKey] || []);
+        setModalFileIndex(index);
+        setIsModalOpen(true);
+    };
 
-// //     const closeModal = () => {
-// //         setIsModalOpen(false);
-// //     };
+    const closeModal = () => {
+        setIsModalOpen(false);
+    };
 
-// //     const handleOverlayClick = (e) => {
-// //         if (e.target.id === "modal-overlay") {
-// //             closeModal();
-// //         }
-// //     };
+    const handleOverlayClick = (e) => {
+        if (e.target.id === "modal-overlay") {
+            closeModal();
+        }
+    };
 
-// //     return (
-// //         <div>
-// //             <div className="flex items-center justify-center py-4 md:py-8 flex-wrap">
-// //                 {["all", "images", "videos"].map((filter) => (
-// //                     <button
-// //                         key={filter}
-// //                         type="button"
-// //                         onClick={() => handleFilterChange(filter)}
-// //                         className={`${
-// //                             activeFilter === filter
-// //                                 ? "text-blue-700 hover:text-white border border-blue-600 bg-white hover:bg-blue-700"
-// //                                 : "text-gray-900 border border-white hover:border-gray-200"
-// //                         } px-5 py-2.5 rounded-full mb-3`}
-// //                     >
-// //                         {filter.charAt(0).toUpperCase() + filter.slice(1)}
-// //                     </button>
-// //                 ))}
-// //             </div>
+    return (
+        <div>
+            <div className="flex items-center justify-center py-4 md:py-8 flex-wrap">
+                {["all", "images", "videos"].map((filter) => (
+                    <button
+                        key={filter}
+                        type="button"
+                        onClick={() => handleFilterChange(filter)}
+                        className={`${
+                            activeFilter === filter
+                                ? "text-blue-700 hover:text-white border border-blue-600 bg-white hover:bg-blue-700"
+                                : "text-gray-900 border border-white hover:border-gray-200"
+                        } px-5 py-2.5 rounded-full mb-3`}
+                    >
+                        {filter.charAt(0).toUpperCase() + filter.slice(1)}
+                    </button>
+                ))}
+            </div>
 
-// //             <div className="space-y-6">
-// //                 {Object.keys(groupedFiles).map((yearMonth) => (
-// //                     <div key={yearMonth} className="space-y-2">
-// //                         <h2 className="text-xl font-semibold">{yearMonth}</h2>
-// //                         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-// //                             {groupedFiles[yearMonth]
-// //                                 .filter((file) =>
-// //                                     activeFilter === "all"
-// //                                         ? true
-// //                                         : activeFilter === "images"
-// //                                         ? file.contentType.startsWith("image/")
-// //                                         : file.contentType.startsWith("video/")
-// //                                 )
-// //                                 .map((file, index) => (
-// //                                     <div
-// //                                         key={index}
-// //                                         onClick={() => openModal(yearMonth, index)}
-// //                                         className="cursor-pointer"
-// //                                     >
-// //                                         {file.contentType.startsWith("video/") ? (
-// //                                             <video className="h-auto rounded-lg" controls>
-// //                                                 <source src={file.url} type={file.contentType} />
-// //                                                 Your browser does not support the video tag.
-// //                                             </video>
-// //                                         ) : (
-// //                                             <img
-// //                                                 className="h-auto rounded-lg"
-// //                                                 src={file.url}
-// //                                                 alt={`File ${index}`}
-// //                                             />
-// //                                         )}
-// //                                     </div>
-// //                                 ))}
-// //                         </div>
-// //                         <hr className="my-4" />
-// //                     </div>
-// //                 ))}
-// //             </div>
+            <div className="space-y-6">
+                {Object.keys(groupedFiles).map((yearMonth) => (
+                    <div key={yearMonth} className="space-y-2">
+                        <h2 className="text-xl font-semibold">{yearMonth}</h2>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                            {groupedFiles[yearMonth]
+                                .filter((file) =>
+                                    activeFilter === "all"
+                                        ? true
+                                        : activeFilter === "images"
+                                        ? file.contentType.startsWith("image/")
+                                        : file.contentType.startsWith("video/")
+                                )
+                                .map((file, index) => (
+                                    <div
+                                        key={index}
+                                        onClick={() => openModal(yearMonth, index)}
+                                        className="cursor-pointer"
+                                    >
+                                        {file.contentType.startsWith("video/") ? (
+                                            <video className="h-auto rounded-lg" controls>
+                                                <source src={file.url} type={file.contentType} />
+                                                Your browser does not support the video tag.
+                                            </video>
+                                        ) : (
+                                            <img
+                                                className="h-auto rounded-lg"
+                                                src={file.url}
+                                                alt={`File ${index}`}
+                                            />
+                                        )}
+                                    </div>
+                                ))}
+                        </div>
+                        <hr className="my-4" />
+                    </div>
+                ))}
+            </div>
 
-// //             {isModalOpen && (
-// //                 <div
-// //                     id="modal-overlay"
-// //                     className="fixed inset-0 bg-gray-800 bg-opacity-75 flex justify-center items-center z-50"
-// //                     onClick={handleOverlayClick}
-// //                 >
-// //                     <div className="relative rounded-lg w-full max-w-3xl p-4">
-// //                         <Swiper
-// //                             initialSlide={modalFileIndex}
-// //                             spaceBetween={10}
-// //                             slidesPerView={1}
-// //                             navigation
-// //                             loop 
-// //                         >
-// //                             {currentGroup.map((file, index) => (
-// //                                 <SwiperSlide key={index}>
-// //                                     {file.contentType.startsWith("video/") ? (
-// //                                         <video className="h-auto max-h-[80vh] rounded-lg" controls>
-// //                                             <source src={file.url} type={file.contentType} />
-// //                                         </video>
-// //                                     ) : (
-// //                                         <img className="h-auto rounded-lg" src={file.url} alt={`File ${index}`} />
-// //                                     )}
-// //                                 </SwiperSlide>
-// //                             ))}
-// //                         </Swiper>
-// //                         <button
-// //                             onClick={closeModal}
-// //                             className="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white rounded-full px-3 py-1 text-lg"
-// //                         >
-// //                             &#10005;
-// //                         </button>
-// //                     </div>
-// //                 </div>
-// //             )}
-// //         </div>
-// //     );
-// // };
+            {isModalOpen && (
+                <div
+                    id="modal-overlay"
+                    className="fixed inset-0 bg-gray-800 bg-opacity-75 flex justify-center items-center z-50"
+                    onClick={handleOverlayClick}
+                >
+                    <div className="relative rounded-lg w-full max-w-xl p-4">
+                        <Swiper
+                            initialSlide={modalFileIndex}
+                            spaceBetween={10}
+                            slidesPerView={1}
+                            navigation
+                            loop 
+                        >
+                            {currentGroup.map((file, index) => (
+                                <SwiperSlide key={index}>
+                                    {file.contentType.startsWith("video/") ? (
+                                        <video className="h-auto max-h-[80vh] rounded-lg" controls>
+                                            <source src={file.url} type={file.contentType} />
+                                        </video>
+                                    ) : (
+                                        <img className="h-auto rounded-lg" src={file.url} alt={`File ${index}`} />
+                                    )}
+                                </SwiperSlide>
+                            ))}
+                        </Swiper>
+                        <button
+                            onClick={closeModal}
+                            className="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white rounded-full px-3 py-1 text-lg"
+                        >
+                            &#10005;
+                        </button>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+};
 
 // // export default Gallery;
 // // // "use client";
