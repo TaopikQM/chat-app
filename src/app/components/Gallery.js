@@ -1,3 +1,6 @@
+
+
+
 "use client"; // Pastikan ini ada di bagian atas file jika menggunakan Next.js 13+
 
 import { useEffect, useState } from "react";
@@ -5,8 +8,7 @@ import { getStorage, ref, listAll, getDownloadURL } from "firebase/storage";
 import { storage } from "../config/firebase"; // Pastikan path ini benar
 
 const Gallery = () => {
-    const [filesByDate, setFilesByDate] = useState({ images: {}, videos: {} });
-    const [activeTab, setActiveTab] = useState("all"); // Tab aktif (all, images atau videos)
+    const [files, setFiles] = useState([]);
 
     useEffect(() => {
         const fetchFiles = async () => {
@@ -14,39 +16,12 @@ const Gallery = () => {
 
             try {
                 const res = await listAll(listRef);
-                const filesData = await Promise.all(
+                const fileUrls = await Promise.all(
                     res.items.map(async (item) => {
-                        const url = await getDownloadURL(item); // Mendapatkan URL untuk setiap file
-                        const metadata = await item.getMetadata(); // Mendapatkan metadata
-                        return {
-                            url,
-                            name: item.name,
-                            timeCreated: metadata.timeCreated,
-                        };
+                        return await getDownloadURL(item); // Mendapatkan URL untuk setiap file
                     })
                 );
-
-                // Mengelompokkan file berdasarkan jenis (gambar atau video)
-                const groupedFiles = filesData.reduce((acc, file) => {
-                    const date = new Date(file.timeCreated);
-                    const dateKey = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`; // Format YYYY-MM-DD
-
-                    if (file.url.endsWith('.mp4')) {
-                        if (!acc.videos[dateKey]) {
-                            acc.videos[dateKey] = [];
-                        }
-                        acc.videos[dateKey].push(file);
-                    } else {
-                        if (!acc.images[dateKey]) {
-                            acc.images[dateKey] = [];
-                        }
-                        acc.images[dateKey].push(file);
-                    }
-
-                    return acc;
-                }, { images: {}, videos: {} });
-
-                setFilesByDate(groupedFiles); // Menyimpan data yang dikelompokkan ke state
+                setFiles(fileUrls); // Menyimpan URL ke state
             } catch (error) {
                 console.error("Error fetching files: ", error);
             }
@@ -56,171 +31,28 @@ const Gallery = () => {
     }, []);
 
     return (
-        <div className="container mx-auto p-4">
-            <h2 className="text-2xl font-bold mb-4">Galeri File</h2>
-            <nav className="mb-4">
-                <button 
-                    onClick={() => setActiveTab("all")} 
-                    className={`px-4 py-2 mr-2 rounded ${activeTab === "all" ? "bg-blue-500 text-white" : "bg-gray-200"}`}
-                >
-                    Semua
-                </button>
-                <button 
-                    onClick={() => setActiveTab("images")} 
-                    className={`px-4 py-2 mr-2 rounded ${activeTab === "images" ? "bg-blue-500 text-white" : "bg-gray-200"}`}
-                >
-                    Gambar
-                </button>
-                <button 
-                    onClick={() => setActiveTab("videos")} 
-                    className={`px-4 py-2 rounded ${activeTab === "videos" ? "bg-blue-500 text-white" : "bg-gray-200"}`}
-                >
-                    Video
-                </button>
-            </nav>
-
-            {activeTab === "all" && (
-                <>
-                    {Object.keys(filesByDate.images).length === 0 && Object.keys(filesByDate.videos).length === 0 ? (
-                        <p>Tidak ada file untuk ditampilkan.</p>
-                    ) : (
-                        <>
-                            {Object.keys(filesByDate.images).map((dateKey) => (
-                                <div key={dateKey} className="mb-6">
-                                    <span className="block text-xl font-semibold mb-2">{dateKey}</span>
-                                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-                                        {filesByDate.images[dateKey].map((file, index) => (
-                                            <div key={index} className="file-preview">
-                                                <img src={file.url} alt={`Image ${index + 1}`} className="h-auto max-w-full rounded-lg object-cover" />
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            ))}
-                            {Object.keys(filesByDate.videos).map((dateKey) => (
-                                <div key={dateKey} className="mb-6">
-                                    <span className="block text-xl font-semibold mb-2">{dateKey}</span>
-                                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-                                        {filesByDate.videos[dateKey].map((file, index) => (
-                                            <div key={index} className="file-preview">
-                                                <video controls className="h-auto max-w-full rounded-lg object-cover">
-                                                    <source src={file.url} type="video/mp4" />
-                                                    Your browser does not support the video tag.
-                                                </video>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            ))}
-                        </>
-                    )}
-                </>
-            )}
-
-            {activeTab === "images" && (
-                <>
-                    {Object.keys(filesByDate.images).length === 0 ? (
-                        <p>Tidak ada gambar untuk ditampilkan.</p>
-                    ) : (
-                        Object.keys(filesByDate.images).map((dateKey) => (
-                            <div key={dateKey} className="mb-6">
-                                <span className="block text-xl font-semibold mb-2">{dateKey}</span>
-                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-                                    {filesByDate.images[dateKey].map((file, index) => (
-                                        <div key={index}>
-                                            <img src={file.url} alt={`Image ${index + 1}`} className="h-auto max-w-full rounded-lg object-cover" />
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        ))
-                    )}
-                </>
-            )}
-
-            {activeTab === "videos" && (
-                <>
-                    {Object.keys(filesByDate.videos).length === 0 ? (
-                        <p>Tidak ada video untuk ditampilkan.</p>
-                    ) : (
-                        Object.keys(filesByDate.videos).map((dateKey) => (
-                            <div key={dateKey} className="mb-6">
-                                <span className="block text-xl font-semibold mb-2">{dateKey}</span>
-                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-                                    {filesByDate.videos[dateKey].map((file, index) => (
-                                        <div key={index}>
-                                            <video controls className="h-auto max-w-full rounded-lg object-cover">
-                                                <source src={file.url} type="video/mp4" />
-                                                Your browser does not support the video tag.
-                                            </video>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        ))
-                    )}
-                </>
+        <div className="grid grid-cols-3 md:grid-cols-4 gap-2">
+            {files.length === 0 ? (
+                <p>Tidak ada file untuk ditampilkan.</p>
+            ) : (
+                files.map((url, index) => (
+                    <div key={index} className="file-preview">
+                        {url.endsWith('.mp4') ? (
+                            <video class="h-auto max-w-full rounded-lg" width="300" controls>
+                                <source src={url} type="video/mp4" />
+                                Your browser does not support the video tag.
+                            </video>
+                        ) : (
+                            <img class="h-auto max-w-full rounded-lg" src={url} alt={`File ${index}`} style={{ width: '300px', height: 'auto' }} />
+                        )}
+                    </div>
+                ))
             )}
         </div>
     );
 };
 
 export default Gallery;
-
-
-
-// // "use client"; // Pastikan ini ada di bagian atas file jika menggunakan Next.js 13+
-
-// // import { useEffect, useState } from "react";
-// // import { getStorage, ref, listAll, getDownloadURL } from "firebase/storage";
-// // import { storage } from "../config/firebase"; // Pastikan path ini benar
-
-// // const Gallery = () => {
-// //     const [files, setFiles] = useState([]);
-
-// //     useEffect(() => {
-// //         const fetchFiles = async () => {
-// //             const listRef = ref(storage, 'chatFiles/'); // Path ke folder chatFiles
-
-// //             try {
-// //                 const res = await listAll(listRef);
-// //                 const fileUrls = await Promise.all(
-// //                     res.items.map(async (item) => {
-// //                         return await getDownloadURL(item); // Mendapatkan URL untuk setiap file
-// //                     })
-// //                 );
-// //                 setFiles(fileUrls); // Menyimpan URL ke state
-// //             } catch (error) {
-// //                 console.error("Error fetching files: ", error);
-// //             }
-// //         };
-
-// //         fetchFiles(); // Memanggil fungsi untuk mengambil file
-// //     }, []);
-
-// //     return (
-// //         <div className="grid grid-cols-3 md:grid-cols-4 gap-2">
-// //             {files.length === 0 ? (
-// //                 <p>Tidak ada file untuk ditampilkan.</p>
-// //             ) : (
-// //                 files.map((url, index) => (
-// //                     <div key={index} className="file-preview">
-// //                         {url.endsWith('.mp4') ? (
-// //                             <video class="h-auto max-w-full rounded-lg" width="300" controls>
-// //                                 <source src={url} type="video/mp4" />
-// //                                 Your browser does not support the video tag.
-// //                             </video>
-// //                         ) : (
-// //                             <img class="h-auto max-w-full rounded-lg" src={url} alt={`File ${index}`} style={{ width: '300px', height: 'auto' }} />
-// //                         )}
-// //                     </div>
-// //                 ))
-// //             )}
-// //         </div>
-// //     );
-// // };
-
-// // export default Gallery;
 // // // "use client";
 // // // import { useEffect, useState } from "react";
 // // // import { getStorage, ref, listAll, getDownloadURL } from "firebase/storage";
