@@ -372,7 +372,7 @@ const Gallery = () => {
     );
 };
 
-// // export default Gallery;
+export default Gallery;
 // // // "use client";
 
 // // // import { useEffect, useState } from "react";
