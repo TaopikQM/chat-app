@@ -3,8 +3,6 @@
 
 import React, { useState } from 'react';
 
-import ContainerAw from '../components/containerAw';
-import Navbar from '../components/Navbar';
 import AddFiles from '../components/AddFiles';
 import FilesList from '../components/FilesList';
 
