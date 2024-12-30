@@ -1,32 +1,33 @@
 import React from 'react';
 
+// Image preview component
+const ImagePreview = ({ url }) => {
+    return (
+        <div className="file-preview">
+            <img
+                className="h-auto max-w-full rounded-lg"
+                src={url}
+                alt="File preview"
+                style={{ width: '300px', height: 'auto' }}
+            />
+        </div>
+    );
+};
+
+// Video preview component
+const VideoPreview = ({ url }) => {
+    return (
+        <div className="file-preview">
+            <video className="h-auto max-w-full rounded-lg" width="300" controls>
+                <source src={url} type="video/mp4" />
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    );
+};
+
+// Main FilePreview component
 const FilePreview = ({ files }) => {
-    // Image preview component
-    const ImagePreview = ({ url }) => {
-        return (
-            <div className="file-preview">
-                <img
-                    className="h-auto max-w-full rounded-lg"
-                    src={url}
-                    alt="File preview"
-                    style={{ width: '300px', height: 'auto' }}
-                />
-            </div>
-        );
-    };
-
-    // Video preview component
-    const VideoPreview = ({ url }) => {
-        return (
-            <div className="file-preview">
-                <video className="h-auto max-w-full rounded-lg" width="300" controls>
-                    <source src={url} type="video/mp4" />
-                    Your browser does not support the video tag.
-                </video>
-            </div>
-        );
-    };
-
     return (
         <div>
             {files.length === 0 ? (
@@ -49,3 +50,4 @@ const FilePreview = ({ files }) => {
     );
 };
 
+export default FilePreview;
