@@ -16,6 +16,8 @@ const Gallery = () => {
     const [filteredFiles, setFilteredFiles] = useState([]);
     
     const [groupedFiles, setGroupedFiles] = useState({});
+    
+    const [currentGroup, setCurrentGroup] = useState([]);
 
     useEffect(() => {
         const fetchFiles = async () => {
