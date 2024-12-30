@@ -80,8 +80,6 @@ const Gallery = () => {
 
 export default Gallery;
 
-
-
 // "use client"; // Pastikan ini ada di bagian atas file jika menggunakan Next.js 13+
 
 // import { useEffect, useState } from "react";
