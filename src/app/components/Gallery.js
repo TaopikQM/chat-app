@@ -64,6 +64,8 @@ const Gallery = () => {
     };
 
     const openModal = (index) => {
+        setFilteredFiles((prev) => groupedFiles[format(new Date(file.timeCreated), "yyyy-MM")] || prev);
+        
         setModalFileIndex(index);
         setIsModalOpen(true);
     };
@@ -75,41 +77,21 @@ const Gallery = () => {
     return (
         <div>
             <div className="flex items-center justify-center py-4 md:py-8 flex-wrap">
-                <button
-                    type="button"
-                    onClick={() => handleFilterChange("all")}
-                    className={`${
-                        activeFilter === "all"
-                            ? "text-blue-700 hover:text-white border border-blue-600 bg-white hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-full text-base font-medium px-5 py-2.5 text-center me-3 mb-3 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 dark:bg-gray-900 dark:focus:ring-blue-800"
+                 {["all", "images", "videos"].map((filter) => (
+                    <button
+                        key={filter}
+                        type="button"
+                        onClick={() => handleFilterChange(filter)}
+                        className={`${
+                            activeFilter === filter
+                               ? "text-blue-700 hover:text-white border border-blue-600 bg-white hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-full text-base font-medium px-5 py-2.5 text-center me-3 mb-3 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 dark:bg-gray-900 dark:focus:ring-blue-800"
                             : "text-gray-900 border border-white hover:border-gray-200 dark:border-gray-900 dark:bg-gray-900 dark:hover:border-gray-700 bg-white focus:ring-4 focus:outline-none focus:ring-gray-300 rounded-full text-base font-medium px-5 py-2.5 text-center me-3 mb-3 dark:text-white dark:focus:ring-gray-800"
-                    }`}
-                >
-                    All Categories
-                </button>
-
-                <button
-                    type="button"
-                    onClick={() => handleFilterChange("images")}
-                    className={`${
-                        activeFilter === "images"
-                            ? "text-blue-700 hover:text-white border border-blue-600 bg-white hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-full text-base font-medium px-5 py-2.5 text-center me-3 mb-3 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 dark:bg-gray-900 dark:focus:ring-blue-800"
-                            : "text-gray-900 border border-white hover:border-gray-200 dark:border-gray-900 dark:bg-gray-900 dark:hover:border-gray-700 bg-white focus:ring-4 focus:outline-none focus:ring-gray-300 rounded-full text-base font-medium px-5 py-2.5 text-center me-3 mb-3 dark:text-white dark:focus:ring-gray-800"
-                    }`}
-                >
-                    Images
-                </button>
-
-                <button
-                    type="button"
-                    onClick={() => handleFilterChange("videos")}
-                    className={`${
-                        activeFilter === "videos"
-                            ? "text-blue-700 hover:text-white border border-blue-600 bg-white hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-full text-base font-medium px-5 py-2.5 text-center me-3 mb-3 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 dark:bg-gray-900 dark:focus:ring-blue-800"
-                            : "text-gray-900 border border-white hover:border-gray-200 dark:border-gray-900 dark:bg-gray-900 dark:hover:border-gray-700 bg-white focus:ring-4 focus:outline-none focus:ring-gray-300 rounded-full text-base font-medium px-5 py-2.5 text-center me-3 mb-3 dark:text-white dark:focus:ring-gray-800"
-                    }`}
-                >
-                    Videos
-                </button>
+                        } `}
+                        >
+                            {filter.charAt(0).toUpperCase() + filter.slice(1)}
+                        </button>
+                    ))}
+                
             </div>
 
             {/* Render files grouped by year-month */}
@@ -118,13 +100,19 @@ const Gallery = () => {
                     <div key={yearMonth} className="space-y-2">
                         <h2 className="text-xl font-semibold text-gray-800">{yearMonth}</h2>
                         <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-                            {groupedFiles[yearMonth].map((file, index) => (
+                            {groupedFiles[yearMonth]
+                                .filter((file) =>
+                                    activeFilter === "all"
+                                        ? true
+                                        : activeFilter === "images"
+                                        ? file.contentType.startsWith("image/")
+                                        : file.contentType.startsWith("video/")
+                                )
+                                .map((file, index) => (
                                 <div
                                     key={index}
                                     className="file-preview cursor-pointer"
-                                    onClick={() => openModal(
-                                            files.findIndex((f) => f.url === file.url)
-                                        )
+                                    onClick={() => openModal(file, index)}
                                 >
                                     {file.contentType.startsWith('video/') ? (
                                         <video className="h-auto max-w-full rounded-lg" width="100%" controls>
