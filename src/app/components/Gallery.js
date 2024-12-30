@@ -154,12 +154,12 @@ const Gallery = () => {
                             spaceBetween={10}
                             slidesPerView={1}
                             navigation
-                            loop
+                            loop 
                         >
                             {currentGroup.map((file, index) => (
                                 <SwiperSlide key={index}>
                                     {file.contentType.startsWith("video/") ? (
-                                        <video className="h-auto rounded-lg" controls>
+                                        <video className="h-auto max-h-[80vh] rounded-lg" controls>
                                             <source src={file.url} type={file.contentType} />
                                         </video>
                                     ) : (
