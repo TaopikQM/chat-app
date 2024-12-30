@@ -29,8 +29,6 @@ const Gallery = () => {
     return (
          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
        
-            <h2>Galeri File Riva</h2>
-            <div className="gallery">
                 {files.length === 0 ? (
                     <p>Tidak ada file untuk ditampilkan.</p>
                 ) : (
@@ -47,7 +45,6 @@ const Gallery = () => {
                         </div>
                     ))
                 )}
-            </div>
         </div>
     );
 };
