@@ -3,19 +3,22 @@
 import { useEffect, useState } from "react";
 import { ref, listAll, getDownloadURL, getMetadata } from "firebase/storage";
 import { storage } from "../config/firebase";
-import { format } from "date-fns";
+import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/swiper-bundle.min.css";
+import { format } from "date-fns";
 
 const Gallery = () => {
     const [files, setFiles] = useState([]);
+    const [activeFilter, setActiveFilter] = useState("all");
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [modalFileIndex, setModalFileIndex] = useState(0);
     const [filteredFiles, setFilteredFiles] = useState([]);
     const [groupedFiles, setGroupedFiles] = useState({});
-    const [loading, setLoading] = useState(true);
-    const [loadedFiles, setLoadedFiles] = useState({}); // Cache sementara
+    const [currentGroup, setCurrentGroup] = useState([]);
+    const [isLoading, setIsLoading] = useState(true); // To manage loading state
 
     useEffect(() => {
         const fetchFiles = async () => {
-            setLoading(true);
             const listRef = ref(storage, "chatFiles/");
             try {
                 const res = await listAll(listRef);
@@ -24,14 +27,19 @@ const Gallery = () => {
                         const fileUrl = await getDownloadURL(item);
                         const metadata = await getMetadata(item);
 
+                        // Save to localStorage if it's not already cached
+                        const cachedFile = localStorage.getItem(item.name);
+                        if (!cachedFile) {
+                            localStorage.setItem(item.name, fileUrl);
+                        }
+
                         return {
-                            url: fileUrl,
+                            url: cachedFile || fileUrl, // Use cached URL if available
                             contentType: metadata.contentType,
                             timeCreated: metadata.timeCreated,
                         };
                     })
                 );
-
                 setFiles(fileDetails);
                 setFilteredFiles(fileDetails);
 
@@ -44,7 +52,7 @@ const Gallery = () => {
                     return acc;
                 }, {});
 
-                // Sort keys in descending order
+                // Sort keys in descending order (newest first)
                 const sortedGrouped = Object.keys(grouped)
                     .sort((a, b) => new Date(b) - new Date(a))
                     .reduce((acc, key) => {
@@ -53,98 +61,155 @@ const Gallery = () => {
                     }, {});
 
                 setGroupedFiles(sortedGrouped);
+                setIsLoading(false); // Files are loaded, hide the loading state
             } catch (error) {
                 console.error("Error fetching files: ", error);
-            } finally {
-                setLoading(false);
+                setIsLoading(false);
             }
         };
 
         fetchFiles();
     }, []);
 
-    const handleImageLoad = (fileUrl) => {
-        setLoadedFiles((prev) => ({ ...prev, [fileUrl]: true }));
+    const handleFilterChange = (filter) => {
+        setActiveFilter(filter);
+        if (filter === "all") {
+            setFilteredFiles(files);
+        } else {
+            setFilteredFiles(
+                files.filter((file) =>
+                    filter === "images" ? file.contentType.startsWith("image/") : file.contentType.startsWith("video/")
+                )
+            );
+        }
+    };
+
+    const openModal = (groupKey, index) => {
+        setCurrentGroup(groupedFiles[groupKey] || []);
+        setModalFileIndex(index);
+        setIsModalOpen(true);
+    };
+
+    const closeModal = () => {
+        setIsModalOpen(false);
+    };
+
+    const handleOverlayClick = (e) => {
+        if (e.target.id === "modal-overlay") {
+            closeModal();
+        }
     };
 
     return (
-        <div className="space-y-6">
-            {loading ? (
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-                    {Array(8)
-                        .fill(0)
-                        .map((_, index) => (
-                            <div
-                                key={index}
-                                className="flex items-center justify-center h-56 max-w-sm bg-gray-300 rounded-lg animate-pulse dark:bg-gray-700"
-                            >
-                                <svg
-                                    className="w-10 h-10 text-gray-200 dark:text-gray-600"
-                                    aria-hidden="true"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    fill="currentColor"
-                                    viewBox="0 0 16 20"
-                                >
-                                    <path d="M5 5V.13a2.96 2.96 0 0 0-1.293.749L.879 3.707A2.98 2.98 0 0 0 .13 5H5Z" />
-                                    <path d="M14.066 0H7v5a2 2 0 0 1-2 2H0v11a1.97 1.97 0 0 0 1.934 2h12.132A1.97 1.97 0 0 0 16 18V2a1.97 1.97 0 0 0-1.934-2ZM9 13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-2a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2Zm4 .382a1 1 0 0 1-1.447.894L10 13v-2l1.553-1.276a1 1 0 0 1 1.447.894v2.764Z" />
-                                </svg>
-                                <span className="sr-only">Loading...</span>
-                            </div>
-                        ))}
+        <div>
+            {/* Loading Spinner */}
+            {isLoading && (
+                <div role="status" className="flex items-center justify-center h-56 max-w-sm bg-gray-300 rounded-lg animate-pulse dark:bg-gray-700">
+                    <svg className="w-10 h-10 text-gray-200 dark:text-gray-600" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 20">
+                        <path d="M5 5V.13a2.96 2.96 0 0 0-1.293.749L.879 3.707A2.98 2.98 0 0 0 .13 5H5Z"/>
+                        <path d="M14.066 0H7v5a2 2 0 0 1-2 2H0v11a1.97 1.97 0 0 0 1.934 2h12.132A1.97 1.97 0 0 0 16 18V2a1.97 1.97 0 0 0-1.934-2ZM9 13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-2a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2Zm4 .382a1 1 0 0 1-1.447.894L10 13v-2l1.553-1.276a1 1 0 0 1 1.447.894v2.764Z"/>
+                    </svg>
+                    <span className="sr-only">Loading...</span>
                 </div>
-            ) : (
-                Object.keys(groupedFiles).map((yearMonth) => (
+            )}
+
+            <div className="flex items-center justify-center py-4 md:py-8 flex-wrap">
+                {["all", "images", "videos"].map((filter) => (
+                    <button
+                        key={filter}
+                        type="button"
+                        onClick={() => handleFilterChange(filter)}
+                        className={`${
+                            activeFilter === filter
+                                ? "text-blue-700 hover:text-white border border-blue-600 bg-white hover:bg-blue-700"
+                                : "text-gray-900 border border-white hover:border-gray-200"
+                        } px-5 py-2.5 rounded-full mb-3`}
+                    >
+                        {filter.charAt(0).toUpperCase() + filter.slice(1)}
+                    </button>
+                ))}
+            </div>
+
+            <div className="space-y-6">
+                {Object.keys(groupedFiles).map((yearMonth) => (
                     <div key={yearMonth} className="space-y-2">
                         <h2 className="text-xl font-semibold">{yearMonth}</h2>
                         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-                            {groupedFiles[yearMonth].map((file, index) => (
-                                <div key={index} className="relative">
-                                    {loadedFiles[file.url] ? (
-                                        file.contentType.startsWith("video/") ? (
-                                            <video
-                                                className="h-auto rounded-lg"
-                                                controls
-                                                onLoad={() => handleImageLoad(file.url)}
-                                            >
+                            {groupedFiles[yearMonth]
+                                .filter((file) =>
+                                    activeFilter === "all"
+                                        ? true
+                                        : activeFilter === "images"
+                                        ? file.contentType.startsWith("image/")
+                                        : file.contentType.startsWith("video/")
+                                )
+                                .map((file, index) => (
+                                    <div
+                                        key={index}
+                                        onClick={() => openModal(yearMonth, index)}
+                                        className="cursor-pointer"
+                                    >
+                                        {file.contentType.startsWith("video/") ? (
+                                            <video className="h-auto rounded-lg" controls>
                                                 <source src={file.url} type={file.contentType} />
+                                                Your browser does not support the video tag.
                                             </video>
                                         ) : (
                                             <img
                                                 className="h-auto rounded-lg"
                                                 src={file.url}
                                                 alt={`File ${index}`}
-                                                onLoad={() => handleImageLoad(file.url)}
                                             />
-                                        )
-                                    ) : (
-                                        <div
-                                            role="status"
-                                            className="flex items-center justify-center h-56 max-w-sm bg-gray-300 rounded-lg animate-pulse dark:bg-gray-700"
-                                        >
-                                            <svg
-                                                className="w-10 h-10 text-gray-200 dark:text-gray-600"
-                                                aria-hidden="true"
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                fill="currentColor"
-                                                viewBox="0 0 16 20"
-                                            >
-                                                <path d="M5 5V.13a2.96 2.96 0 0 0-1.293.749L.879 3.707A2.98 2.98 0 0 0 .13 5H5Z" />
-                                                <path d="M14.066 0H7v5a2 2 0 0 1-2 2H0v11a1.97 1.97 0 0 0 1.934 2h12.132A1.97 1.97 0 0 0 16 18V2a1.97 1.97 0 0 0-1.934-2ZM9 13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-2a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2Zm4 .382a1 1 0 0 1-1.447.894L10 13v-2l1.553-1.276a1 1 0 0 1 1.447.894v2.764Z" />
-                                            </svg>
-                                            <span className="sr-only">Loading...</span>
-                                        </div>
-                                    )}
-                                </div>
-                            ))}
+                                        )}
+                                    </div>
+                                ))}
                         </div>
+                        <hr className="my-4" />
                     </div>
-                ))
+                ))}
+            </div>
+
+            {isModalOpen && (
+                <div
+                    id="modal-overlay"
+                    className="fixed inset-0 bg-gray-800 bg-opacity-75 flex justify-center items-center z-50"
+                    onClick={handleOverlayClick}
+                >
+                    <div className="relative rounded-lg w-full max-w-xl p-4">
+                        <Swiper
+                            initialSlide={modalFileIndex}
+                            spaceBetween={10}
+                            slidesPerView={1}
+                            navigation
+                            loop 
+                        >
+                            {currentGroup.map((file, index) => (
+                                <SwiperSlide key={index}>
+                                    {file.contentType.startsWith("video/") ? (
+                                        <video className="h-auto max-h-[80vh] rounded-lg" controls>
+                                            <source src={file.url} type={file.contentType} />
+                                        </video>
+                                    ) : (
+                                        <img className="h-auto rounded-lg" src={file.url} alt={`File ${index}`} />
+                                    )}
+                                </SwiperSlide>
+                            ))}
+                        </Swiper>
+                        <button
+                            onClick={closeModal}
+                            className="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white rounded-full px-3 py-1 text-lg"
+                        >
+                            &#10005;
+                        </button>
+                    </div>
+                </div>
             )}
         </div>
     );
 };
 
 export default Gallery;
+
 // "use client";
 // import React, { useState, useEffect, useRef } from 'react';
 // import { database, storage } from '../config/firebase';
