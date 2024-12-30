@@ -1,219 +1,219 @@
 
 
-"use client";
-import React, { useState, useEffect, useRef } from 'react';
-import { database, storage } from '../config/firebase';
-import { ref as databaseRef, onValue, push, update } from 'firebase/database';
-import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
-import 'tailwindcss/tailwind.css';
+// "use client";
+// import React, { useState, useEffect, useRef } from 'react';
+// import { database, storage } from '../config/firebase';
+// import { ref as databaseRef, onValue, push, update } from 'firebase/database';
+// import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
+// import 'tailwindcss/tailwind.css';
 
-const Chat = ({ user }) => {
-    const otherUser = user.id === 'user1' ? { id: 'user2', name: 'User 2' } : { id: 'user1', name: 'User 1' };
+// const Chat = ({ user }) => {
+//     const otherUser = user.id === 'user1' ? { id: 'user2', name: 'User 2' } : { id: 'user1', name: 'User 1' };
 
-    const [messages, setMessages] = useState([]);
-    const [messageText, setMessageText] = useState('');
-    const [selectedFiles, setSelectedFiles] = useState([]);
-    const [uploading, setUploading] = useState(false);
-    const [lastSeen, setLastSeen] = useState('');
-    const messageEndRef = useRef(null);
+//     const [messages, setMessages] = useState([]);
+//     const [messageText, setMessageText] = useState('');
+//     const [selectedFiles, setSelectedFiles] = useState([]);
+//     const [uploading, setUploading] = useState(false);
+//     const [lastSeen, setLastSeen] = useState('');
+//     const messageEndRef = useRef(null);
 
-    useEffect(() => {
-        const messagesRef = databaseRef(database, `messagesdes/${user.id}/${otherUser.id}`);
-        onValue(messagesRef, (snapshot) => {
-            const data = snapshot.val();
-            const loadedMessages = data ? Object.values(data) : [];
-            setMessages(loadedMessages);
+//     useEffect(() => {
+//         const messagesRef = databaseRef(database, `messagesdes/${user.id}/${otherUser.id}`);
+//         onValue(messagesRef, (snapshot) => {
+//             const data = snapshot.val();
+//             const loadedMessages = data ? Object.values(data) : [];
+//             setMessages(loadedMessages);
 
-            // Mark messages as read
-            loadedMessages.forEach((msg) => {
-                if (!msg.read && msg.sender !== user.id) {
-                    update(databaseRef(database, `messagesdes/${user.id}/${otherUser.id}/${msg.id}`), { read: true });
-                    update(databaseRef(database, `messagesdes/${otherUser.id}/${user.id}/${msg.id}`), { read: true });
-                }
-            });
-        });
+//             // Mark messages as read
+//             loadedMessages.forEach((msg) => {
+//                 if (!msg.read && msg.sender !== user.id) {
+//                     update(databaseRef(database, `messagesdes/${user.id}/${otherUser.id}/${msg.id}`), { read: true });
+//                     update(databaseRef(database, `messagesdes/${otherUser.id}/${user.id}/${msg.id}`), { read: true });
+//                 }
+//             });
+//         });
 
-        const userStatusRef = databaseRef(database, `lastSeen/${otherUser.id}`);
-        onValue(userStatusRef, (snapshot) => {
-            const status = snapshot.val();
-            if (status && status.timestamp) {
-                const formattedDate = new Date(status.timestamp).toLocaleString('id-ID', {
-                    year: 'numeric',
-                    month: '2-digit',
-                    day: '2-digit',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    second: '2-digit',
-                    hour12: false,
-                });
-                setLastSeen(formattedDate);
-            } else {
-                setLastSeen('Offline');
-            }
-        });
+//         const userStatusRef = databaseRef(database, `lastSeen/${otherUser.id}`);
+//         onValue(userStatusRef, (snapshot) => {
+//             const status = snapshot.val();
+//             if (status && status.timestamp) {
+//                 const formattedDate = new Date(status.timestamp).toLocaleString('id-ID', {
+//                     year: 'numeric',
+//                     month: '2-digit',
+//                     day: '2-digit',
+//                     hour: '2-digit',
+//                     minute: '2-digit',
+//                     second: '2-digit',
+//                     hour12: false,
+//                 });
+//                 setLastSeen(formattedDate);
+//             } else {
+//                 setLastSeen('Offline');
+//             }
+//         });
 
-        const lastSeenRef = databaseRef(database, `lastSeen/${user.id}`);
-        update(lastSeenRef, { timestamp: Date.now() });
+//         const lastSeenRef = databaseRef(database, `lastSeen/${user.id}`);
+//         update(lastSeenRef, { timestamp: Date.now() });
 
-        return () => {
-            update(lastSeenRef, { timestamp: null });
-        };
-    }, [user.id, otherUser.id]);
+//         return () => {
+//             update(lastSeenRef, { timestamp: null });
+//         };
+//     }, [user.id, otherUser.id]);
 
-    useEffect(() => {
-        scrollToLatestMessage();
-    }, [messages]);
+//     useEffect(() => {
+//         scrollToLatestMessage();
+//     }, [messages]);
 
-    const handleFileChange = (event) => {
-        const files = Array.from(event.target.files);
-        setSelectedFiles((prevFiles) => [...prevFiles, ...files]);
-    };
+//     const handleFileChange = (event) => {
+//         const files = Array.from(event.target.files);
+//         setSelectedFiles((prevFiles) => [...prevFiles, ...files]);
+//     };
 
-    const removeFile = (index) => {
-        setSelectedFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
-    };
+//     const removeFile = (index) => {
+//         setSelectedFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
+//     };
 
-    const sendMessage = async () => {
-        if (messageText.trim() === '' && selectedFiles.length === 0) return;
+//     const sendMessage = async () => {
+//         if (messageText.trim() === '' && selectedFiles.length === 0) return;
 
-        const messagesRef = databaseRef(database, `messagesdes/${user.id}/${otherUser.id}`);
-        const newMessage = {
-            text: messageText,
-            sender: user.id,
-            timestamp: Date.now(),
-            read: false,
-            files: [],
-        };
+//         const messagesRef = databaseRef(database, `messagesdes/${user.id}/${otherUser.id}`);
+//         const newMessage = {
+//             text: messageText,
+//             sender: user.id,
+//             timestamp: Date.now(),
+//             read: false,
+//             files: [],
+//         };
 
-        setUploading(true);
+//         setUploading(true);
 
-        const uploadedFiles = await Promise.all(
-            selectedFiles.map(async (file) => {
-                const fileRef = storageRef(storage, `chatFiles/${file.name}`);
-                await uploadBytes(fileRef, file);
-                return getDownloadURL(fileRef);
-            })
-        );
+//         const uploadedFiles = await Promise.all(
+//             selectedFiles.map(async (file) => {
+//                 const fileRef = storageRef(storage, `chatFiles/${file.name}`);
+//                 await uploadBytes(fileRef, file);
+//                 return getDownloadURL(fileRef);
+//             })
+//         );
 
-        newMessage.files = uploadedFiles;
+//         newMessage.files = uploadedFiles;
 
-        const newMsgRef = await push(messagesRef, newMessage);
-        setMessageText('');
-        setSelectedFiles([]);
+//         const newMsgRef = await push(messagesRef, newMessage);
+//         setMessageText('');
+//         setSelectedFiles([]);
 
-        const recipientRef = databaseRef(database, `messagesdes/${otherUser.id}/${user.id}`);
-        await push(recipientRef, { ...newMessage, id: newMsgRef.key });
+//         const recipientRef = databaseRef(database, `messagesdes/${otherUser.id}/${user.id}`);
+//         await push(recipientRef, { ...newMessage, id: newMsgRef.key });
 
-        setUploading(false);
+//         setUploading(false);
 
-        const lastSeenRef = databaseRef(database, `lastSeen/${user.id}`);
-        update(lastSeenRef, { timestamp: Date.now() });
-    };
+//         const lastSeenRef = databaseRef(database, `lastSeen/${user.id}`);
+//         update(lastSeenRef, { timestamp: Date.now() });
+//     };
 
-    const scrollToLatestMessage = () => {
-        if (messageEndRef.current) {
-            messageEndRef.current.scrollIntoView({ behavior: 'smooth' });
-        }
-    };
+//     const scrollToLatestMessage = () => {
+//         if (messageEndRef.current) {
+//             messageEndRef.current.scrollIntoView({ behavior: 'smooth' });
+//         }
+//     };
 
-    const renderMedia = (files) => {
-        if (!files || files.length === 0) return null;
+//     const renderMedia = (files) => {
+//         if (!files || files.length === 0) return null;
 
-        return (
-            <div className="flex flex-wrap mt-1">
-                {files.map((file, index) => (
-                    <a
-                        key={index}
-                        href={file}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="w-20 h-20 flex items-center justify-center border border-gray-300 rounded-lg m-1"
-                    >
-                        {file.endsWith('.jpg') || file.endsWith('.png') || file.endsWith('.gif') ? (
-                            <img src={file} alt="Media" className="object-cover h-full w-full rounded-lg" />
-                        ) : (
-                            <span className="text-sm">File</span>
-                        )}
-                    </a>
-                ))}
-            </div>
-        );
-    };
+//         return (
+//             <div className="flex flex-wrap mt-1">
+//                 {files.map((file, index) => (
+//                     <a
+//                         key={index}
+//                         href={file}
+//                         target="_blank"
+//                         rel="noopener noreferrer"
+//                         className="w-20 h-20 flex items-center justify-center border border-gray-300 rounded-lg m-1"
+//                     >
+//                         {file.endsWith('.jpg') || file.endsWith('.png') || file.endsWith('.gif') ? (
+//                             <img src={file} alt="Media" className="object-cover h-full w-full rounded-lg" />
+//                         ) : (
+//                             <span className="text-sm">File</span>
+//                         )}
+//                     </a>
+//                 ))}
+//             </div>
+//         );
+//     };
 
-    return (
-        <div className="flex flex-col h-screen bg-gray-100">
-            <div className="flex-none p-4 bg-white border-b border-gray-300">
-                <h2 className="text-xl text-center">{otherUser.name}</h2>
-                <p className="text-sm text-center">{lastSeen ? 'Last seen: ' + lastSeen : 'Offline'}</p>
-            </div>
+//     return (
+//         <div className="flex flex-col h-screen bg-gray-100">
+//             <div className="flex-none p-4 bg-white border-b border-gray-300">
+//                 <h2 className="text-xl text-center">{otherUser.name}</h2>
+//                 <p className="text-sm text-center">{lastSeen ? 'Last seen: ' + lastSeen : 'Offline'}</p>
+//             </div>
 
-            <div className="flex-1 overflow-y-auto p-4">
-                {messages.map((msg, index) => (
-                    <div key={index} className={`mb-2 ${msg.sender === user.id ? 'text-right' : 'text-left'}`}>
-                        <div className={`inline-block p-2 rounded-lg ${msg.sender === user.id ? 'bg-blue-500 text-white' : 'bg-gray-300'}`}>
-                            {msg.text}
-                            {renderMedia(msg.files)}
-                        </div>
-                        <div className="text-xs text-gray-500 flex justify-end items-center">
-                            {new Date(msg.timestamp).toLocaleString('id-ID', {
-                                year: 'numeric',
-                                month: '2-digit',
-                                day: '2-digit',
-                                hour: '2-digit',
-                                minute: '2-digit',
-                                second: '2-digit',
-                                hour12: false,
-                            })}
-                            {msg.sender === user.id && (
-                                <span className="ml-2">
-                                    {msg.read ? (
-                                        <span className="text-blue-500">✔✔</span>
-                                    ) : (
-                                        <span>✔</span>
-                                    )}
-                                </span>
-                            )}
-                        </div>
-                    </div>
-                ))}
-                <div ref={messageEndRef}></div>
-            </div>
+//             <div className="flex-1 overflow-y-auto p-4">
+//                 {messages.map((msg, index) => (
+//                     <div key={index} className={`mb-2 ${msg.sender === user.id ? 'text-right' : 'text-left'}`}>
+//                         <div className={`inline-block p-2 rounded-lg ${msg.sender === user.id ? 'bg-blue-500 text-white' : 'bg-gray-300'}`}>
+//                             {msg.text}
+//                             {renderMedia(msg.files)}
+//                         </div>
+//                         <div className="text-xs text-gray-500 flex justify-end items-center">
+//                             {new Date(msg.timestamp).toLocaleString('id-ID', {
+//                                 year: 'numeric',
+//                                 month: '2-digit',
+//                                 day: '2-digit',
+//                                 hour: '2-digit',
+//                                 minute: '2-digit',
+//                                 second: '2-digit',
+//                                 hour12: false,
+//                             })}
+//                             {msg.sender === user.id && (
+//                                 <span className="ml-2">
+//                                     {msg.read ? (
+//                                         <span className="text-blue-500">✔✔</span>
+//                                     ) : (
+//                                         <span>✔</span>
+//                                     )}
+//                                 </span>
+//                             )}
+//                         </div>
+//                     </div>
+//                 ))}
+//                 <div ref={messageEndRef}></div>
+//             </div>
 
-            <div className="flex-none flex items-center p-4 border-t border-gray-300 sticky bottom-0 bg-white">
-                <input
-                    type="file"
-                    multiple
-                    accept="image/*,video/*"
-                    className="hidden"
-                    id="fileInput"
-                    onChange={handleFileChange}
-                />
-                <label htmlFor="fileInput" className="cursor-pointer">
-                    <span className="material-icons">file</span>
-                </label>
+//             <div className="flex-none flex items-center p-4 border-t border-gray-300 sticky bottom-0 bg-white">
+//                 <input
+//                     type="file"
+//                     multiple
+//                     accept="image/*,video/*"
+//                     className="hidden"
+//                     id="fileInput"
+//                     onChange={handleFileChange}
+//                 />
+//                 <label htmlFor="fileInput" className="cursor-pointer">
+//                     <span className="material-icons">file</span>
+//                 </label>
 
-                <input
-                    type="text"
-                    className="border rounded-lg p-2 flex-1 mx-2"
-                    placeholder="Type a message..."
-                    value={messageText}
-                    onChange={(e) => setMessageText(e.target.value)}
-                />
-                <button
-                    className="ml-2 p-2 bg-blue-500 text-white rounded-lg"
-                    onClick={sendMessage}
-                    disabled={uploading}
-                >
-                    {uploading ? "Sending..." : "Send"}
-                </button>
-            </div>
+//                 <input
+//                     type="text"
+//                     className="border rounded-lg p-2 flex-1 mx-2"
+//                     placeholder="Type a message..."
+//                     value={messageText}
+//                     onChange={(e) => setMessageText(e.target.value)}
+//                 />
+//                 <button
+//                     className="ml-2 p-2 bg-blue-500 text-white rounded-lg"
+//                     onClick={sendMessage}
+//                     disabled={uploading}
+//                 >
+//                     {uploading ? "Sending..." : "Send"}
+//                 </button>
+//             </div>
 
            
-        </div>
-    );
-};
+//         </div>
+//     );
+// };
 
-export default Chat;
+// export default Chat;
  // <button
             //     onClick={scrollToLatestMessage}
             //     className="fixed bottom-16 right-4 bg-blue-500 text-white p-3 rounded-full shadow-lg"
@@ -678,249 +678,249 @@ export default Chat;
 
 // // export default Chat;
 
-// // // "use client"; // Enable client-side rendering
-// // // import React, { useState, useEffect } from 'react';
-// // // import { database, storage } from '../config/firebase'; // Ensure Firebase Storage is configured
-// // // import { ref as databaseRef, onValue, push, update } from 'firebase/database';
-// // // import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
-// // // import 'tailwindcss/tailwind.css';
+"use client"; // Enable client-side rendering
+import React, { useState, useEffect } from 'react';
+import { database, storage } from '../config/firebase'; // Ensure Firebase Storage is configured
+import { ref as databaseRef, onValue, push, update } from 'firebase/database';
+import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
+import 'tailwindcss/tailwind.css';
 
-// // // const Chat = ({ user }) => {
-// // //     const otherUser = user.id === 'user1' ? { id: 'user2', name: 'User 2' } : { id: 'user1', name: 'User 1' };
+const Chat = ({ user }) => {
+    const otherUser = user.id === 'user1' ? { id: 'user2', name: 'User 2' } : { id: 'user1', name: 'User 1' };
 
-// // //     const [messages, setMessages] = useState([]);
-// // //     const [messageText, setMessageText] = useState('');
-// // //     const [selectedFiles, setSelectedFiles] = useState([]);
-// // //     const [uploading, setUploading] = useState(false);
-// // //     const [otherUserStatus, setOtherUserStatus] = useState(''); // Online status or last seen
-// // //     const [isOtherUserTyping, setIsOtherUserTyping] = useState(false); // Typing status
+    const [messages, setMessages] = useState([]);
+    const [messageText, setMessageText] = useState('');
+    const [selectedFiles, setSelectedFiles] = useState([]);
+    const [uploading, setUploading] = useState(false);
+    const [otherUserStatus, setOtherUserStatus] = useState(''); // Online status or last seen
+    const [isOtherUserTyping, setIsOtherUserTyping] = useState(false); // Typing status
 
-// // //     // Fetch messages and user status on component mount
-// // //     useEffect(() => {
-// // //         const messagesRef = databaseRef(database, `messages/${user.id}/${otherUser.id}`);
-// // //         const userStatusRef = databaseRef(database, `users/${otherUser.id}/status`);
-// // //         const typingRef = databaseRef(database, `typing/${otherUser.id}`);
+    // Fetch messages and user status on component mount
+    useEffect(() => {
+        const messagesRef = databaseRef(database, `messages/${user.id}/${otherUser.id}`);
+        const userStatusRef = databaseRef(database, `users/${otherUser.id}/status`);
+        const typingRef = databaseRef(database, `typing/${otherUser.id}`);
 
-// // //         // Get messages
-// // //         onValue(messagesRef, (snapshot) => {
-// // //             const data = snapshot.val();
-// // //             const loadedMessages = data ? Object.values(data) : [];
-// // //             setMessages(loadedMessages);
+        // Get messages
+        onValue(messagesRef, (snapshot) => {
+            const data = snapshot.val();
+            const loadedMessages = data ? Object.values(data) : [];
+            setMessages(loadedMessages);
 
-// // //             // Mark all messages as read when the user views the chat
-// // //             loadedMessages.forEach((msg) => {
-// // //                 if (!msg.read && msg.sender !== user.id) {
-// // //                     update(databaseRef(database, `messages/${user.id}/${otherUser.id}/${msg.id}`), { read: true });
-// // //                     update(databaseRef(database, `messages/${otherUser.id}/${user.id}/${msg.id}`), { read: true });
-// // //                 }
-// // //             });
-// // //         });
+            // Mark all messages as read when the user views the chat
+            loadedMessages.forEach((msg) => {
+                if (!msg.read && msg.sender !== user.id) {
+                    update(databaseRef(database, `messages/${user.id}/${otherUser.id}/${msg.id}`), { read: true });
+                    update(databaseRef(database, `messages/${otherUser.id}/${user.id}/${msg.id}`), { read: true });
+                }
+            });
+        });
 
-// // //         // Fetch user's status
-// // //         onValue(userStatusRef, (snapshot) => {
-// // //             const status = snapshot.val();
-// // //             if (status) {
-// // //                 if (status.online) {
-// // //                     setOtherUserStatus('Online');
-// // //                 } else if (status.lastSeen) {
-// // //                     const lastSeenTime = new Date(status.lastSeen);
-// // //                     setOtherUserStatus('Last seen: ' + lastSeenTime.toLocaleString([], {
-// // //                         year: 'numeric',
-// // //                         month: '2-digit',
-// // //                         day: '2-digit',
-// // //                         hour: '2-digit',
-// // //                         minute: '2-digit',
-// // //                         hour12: true // Use 12-hour format
-// // //                     }));
-// // //                 } else {
-// // //                     setOtherUserStatus('Last seen: Unknown'); // Adjust if necessary
-// // //                 }
-// // //             } else {
-// // //                 setOtherUserStatus('Last seen: Unknown'); // If status data is not available
-// // //             }
-// // //         });
+        // Fetch user's status
+        onValue(userStatusRef, (snapshot) => {
+            const status = snapshot.val();
+            if (status) {
+                if (status.online) {
+                    setOtherUserStatus('Online');
+                } else if (status.lastSeen) {
+                    const lastSeenTime = new Date(status.lastSeen);
+                    setOtherUserStatus('Last seen: ' + lastSeenTime.toLocaleString([], {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: true // Use 12-hour format
+                    }));
+                } else {
+                    setOtherUserStatus('Last seen: Unknown'); // Adjust if necessary
+                }
+            } else {
+                setOtherUserStatus('Last seen: Unknown'); // If status data is not available
+            }
+        });
 
-// // //         // Handle typing status
-// // //         onValue(typingRef, (snapshot) => {
-// // //             const typingData = snapshot.val();
-// // //             setIsOtherUserTyping(typingData?.typing || false);
-// // //         });
+        // Handle typing status
+        onValue(typingRef, (snapshot) => {
+            const typingData = snapshot.val();
+            setIsOtherUserTyping(typingData?.typing || false);
+        });
 
-// // //         // Update user status to online when the component mounts
-// // //         update(databaseRef(database, `users/${user.id}/status`), { online: true, lastSeen: null });
+        // Update user status to online when the component mounts
+        update(databaseRef(database, `users/${user.id}/status`), { online: true, lastSeen: null });
 
-// // //         // Set user to offline when the component unmounts
-// // //         return () => {
-// // //             update(databaseRef(database, `users/${user.id}/status`), { online: false, lastSeen: Date.now() });
-// // //         };
-// // //     }, [user.id, otherUser.id]);
+        // Set user to offline when the component unmounts
+        return () => {
+            update(databaseRef(database, `users/${user.id}/status`), { online: false, lastSeen: Date.now() });
+        };
+    }, [user.id, otherUser.id]);
 
-// // //     // Handle file selection
-// // //     const handleFileChange = (event) => {
-// // //         const files = Array.from(event.target.files);
-// // //         setSelectedFiles((prevFiles) => [...prevFiles, ...files]);
-// // //     };
+    // Handle file selection
+    const handleFileChange = (event) => {
+        const files = Array.from(event.target.files);
+        setSelectedFiles((prevFiles) => [...prevFiles, ...files]);
+    };
 
-// // //     // Remove a selected file
-// // //     const removeFile = (index) => {
-// // //         setSelectedFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
-// // //     };
+    // Remove a selected file
+    const removeFile = (index) => {
+        setSelectedFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
+    };
 
-// // //     // Function to send a new message with media support
-// // //     const sendMessage = async () => {
-// // //         if (messageText.trim() === "" && selectedFiles.length === 0) return; // Prevent sending empty messages
+    // Function to send a new message with media support
+    const sendMessage = async () => {
+        if (messageText.trim() === "" && selectedFiles.length === 0) return; // Prevent sending empty messages
 
-// // //         const messagesRef = databaseRef(database, `messages/${user.id}/${otherUser.id}`);
-// // //         const newMessage = {
-// // //             text: messageText,
-// // //             sender: user.id,
-// // //             timestamp: Date.now(),
-// // //             read: false,
-// // //             files: [],
-// // //         };
+        const messagesRef = databaseRef(database, `messages/${user.id}/${otherUser.id}`);
+        const newMessage = {
+            text: messageText,
+            sender: user.id,
+            timestamp: Date.now(),
+            read: false,
+            files: [],
+        };
 
-// // //         setUploading(true);
+        setUploading(true);
 
-// // //         // Upload selected files (images and videos) to Firebase Storage
-// // //         const uploadedFiles = await Promise.all(selectedFiles.map(async (file) => {
-// // //             const fileRef = storageRef(storage, `chatFiles/${file.name}`);
-// // //             await uploadBytes(fileRef, file);
-// // //             return getDownloadURL(fileRef);
-// // //         }));
+        // Upload selected files (images and videos) to Firebase Storage
+        const uploadedFiles = await Promise.all(selectedFiles.map(async (file) => {
+            const fileRef = storageRef(storage, `chatFiles/${file.name}`);
+            await uploadBytes(fileRef, file);
+            return getDownloadURL(fileRef);
+        }));
 
-// // //         // Update newMessage with uploaded file URLs
-// // //         newMessage.files = uploadedFiles;
+        // Update newMessage with uploaded file URLs
+        newMessage.files = uploadedFiles;
 
-// // //         // Push message to Firebase Database
-// // //         const newMsgRef = await push(messagesRef, newMessage);
-// // //         setMessageText(''); // Clear input after sending
-// // //         setSelectedFiles([]); // Clear selected files
+        // Push message to Firebase Database
+        const newMsgRef = await push(messagesRef, newMessage);
+        setMessageText(''); // Clear input after sending
+        setSelectedFiles([]); // Clear selected files
 
-// // //         // Update the recipient's message status
-// // //         const recipientRef = databaseRef(database, `messages/${otherUser.id}/${user.id}`);
-// // //         await push(recipientRef, { ...newMessage, id: newMsgRef.key });
+        // Update the recipient's message status
+        const recipientRef = databaseRef(database, `messages/${otherUser.id}/${user.id}`);
+        await push(recipientRef, { ...newMessage, id: newMsgRef.key });
 
-// // //         setUploading(false);
-// // //     };
+        setUploading(false);
+    };
 
-// // //     // Function to handle typing status
-// // //     useEffect(() => {
-// // //         const typingRef = databaseRef(database, `typing/${user.id}`);
+    // Function to handle typing status
+    useEffect(() => {
+        const typingRef = databaseRef(database, `typing/${user.id}`);
 
-// // //         if (messageText.trim() || selectedFiles.length > 0) {
-// // //             update(typingRef, { typing: true });
-// // //         } else {
-// // //             update(typingRef, { typing: false });
-// // //         }
+        if (messageText.trim() || selectedFiles.length > 0) {
+            update(typingRef, { typing: true });
+        } else {
+            update(typingRef, { typing: false });
+        }
 
-// // //         // Cleanup function to stop typing when unmounting
-// // //         return () => {
-// // //             update(typingRef, { typing: false });
-// // //         };
-// // //     }, [messageText, selectedFiles, user.id]);
+        // Cleanup function to stop typing when unmounting
+        return () => {
+            update(typingRef, { typing: false });
+        };
+    }, [messageText, selectedFiles, user.id]);
 
-// // //     const renderMedia = (files) => {
-// // //         if (!files || files.length === 0) return null;
+    const renderMedia = (files) => {
+        if (!files || files.length === 0) return null;
 
-// // //         return (
-// // //             <div className="flex flex-wrap mt-1">
-// // //                 {files.map((file, index) => (
-// // //                     <a
-// // //                         key={index}
-// // //                         href={file}
-// // //                         target="_blank"
-// // //                         rel="noopener noreferrer"
-// // //                         className="w-20 h-20 flex items-center justify-center border border-gray-300 rounded-lg m-1"
-// // //                     >
-// // //                         {file.endsWith('.jpg') || file.endsWith('.png') || file.endsWith('.gif') ? (
-// // //                             <img src={file} alt="Media" className="object-cover h-full w-full rounded-lg" />
-// // //                         ) : (
-// // //                             <span className="text-sm">File</span>
-// // //                         )}
-// // //                     </a>
-// // //                 ))}
-// // //             </div>
-// // //         );
-// // //     };
+        return (
+            <div className="flex flex-wrap mt-1">
+                {files.map((file, index) => (
+                    <a
+                        key={index}
+                        href={file}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-20 h-20 flex items-center justify-center border border-gray-300 rounded-lg m-1"
+                    >
+                        {file.endsWith('.jpg') || file.endsWith('.png') || file.endsWith('.gif') ? (
+                            <img src={file} alt="Media" className="object-cover h-full w-full rounded-lg" />
+                        ) : (
+                            <span className="text-sm">File</span>
+                        )}
+                    </a>
+                ))}
+            </div>
+        );
+    };
 
-// // //     return (
-// // //         <div className="flex flex-col h-screen bg-gray-100">
-// // //             <div className="flex-none p-4 bg-white border-b border-gray-300">
-// // //                 <h2 className="text-xl text-center">{otherUser.name}</h2>
-// // //                 <p className="text-sm text-center">{otherUserStatus}</p>
-// // //                 {isOtherUserTyping && <p className="text-sm text-center italic">User is typing...</p>}
-// // //             </div>
-// // //             <div className="flex-1 overflow-y-auto p-4">
-// // //                 {/* Display messages */}
-// // //                 {messages.map((msg, index) => (
-// // //                     <div key={index} className={`mb-2 ${msg.sender === user.id ? 'text-right' : 'text-left'}`}>
-// // //                         <div className={`inline-block p-2 rounded-lg ${msg.sender === user.id ? 'bg-blue-500 text-white' : 'bg-gray-300'}`}>
-// // //                             {msg.text}
-// // //                             {renderMedia(msg.files)}
-// // //                         </div>
-// // //                         <div className="text-xs text-gray-500 flex justify-end items-center">
-// // //                             {new Date(msg.timestamp).toLocaleString([], {
-// // //                                 year: 'numeric',
-// // //                                 month: '2-digit',
-// // //                                 day: '2-digit',
-// // //                                 hour: '2-digit',
-// // //                                 minute: '2-digit',
-// // //                                 hour12: true
-// // //                             })}
-// // //                             {msg.sender === user.id && (
-// // //                                 <span className="ml-2">
-// // //                                     {msg.read ? (
-// // //                                         <span className="text-blue-500">✔✔</span>
-// // //                                     ) : (
-// // //                                         <span>✔</span>
-// // //                                     )}
-// // //                                 </span>
-// // //                             )}
-// // //                         </div>
-// // //                     </div>
-// // //                 ))}
-// // //             </div>
-// // //             <div className="flex items-center p-4 border-t border-gray-300">
-// // //                 <input
-// // //                     type="file"
-// // //                     multiple
-// // //                     accept="image/*,video/*"
-// // //                     className="hidden"
-// // //                     id="fileInput"
-// // //                     onChange={handleFileChange}
-// // //                 />
-// // //                 <label htmlFor="fileInput" className="cursor-pointer">
-// // //                     <span className="material-icons">📎</span>
-// // //                 </label>
-// // //                 <div className="flex flex-wrap">
-// // //                     {selectedFiles.map((file, index) => (
-// // //                         <div key={index} className="relative mr-2">
-// // //                             <span
-// // //                                 className="absolute top-0 right-0 cursor-pointer text-red-500"
-// // //                                 onClick={() => removeFile(index)}
-// // //                             >
-// // //                                 &times;
-// // //                             </span>
-// // //                             <span>{file.name}</span>
-// // //                         </div>
-// // //                     ))}
-// // //                 </div>
-// // //                 <input
-// // //                     type="text"
-// // //                     value={messageText}
-// // //                     onChange={(e) => setMessageText(e.target.value)}
-// // //                     placeholder="Type a message..."
-// // //                     className="flex-1 p-2 border border-gray-300 rounded-lg mx-2"
-// // //                 />
-// // //                 <button onClick={sendMessage} className="bg-blue-500 text-white p-2 rounded-lg">
-// // //                     Send
-// // //                 </button>
-// // //             </div>
-// // //         </div>
-// // //     );
-// // // };
+    return (
+        <div className="flex flex-col h-screen bg-gray-100">
+            <div className="flex-none p-4 bg-white border-b border-gray-300">
+                <h2 className="text-xl text-center">{otherUser.name}</h2>
+                <p className="text-sm text-center">{otherUserStatus}</p>
+                {isOtherUserTyping && <p className="text-sm text-center italic">User is typing...</p>}
+            </div>
+            <div className="flex-1 overflow-y-auto p-4">
+                {/* Display messages */}
+                {messages.map((msg, index) => (
+                    <div key={index} className={`mb-2 ${msg.sender === user.id ? 'text-right' : 'text-left'}`}>
+                        <div className={`inline-block p-2 rounded-lg ${msg.sender === user.id ? 'bg-blue-500 text-white' : 'bg-gray-300'}`}>
+                            {msg.text}
+                            {renderMedia(msg.files)}
+                        </div>
+                        <div className="text-xs text-gray-500 flex justify-end items-center">
+                            {new Date(msg.timestamp).toLocaleString([], {
+                                year: 'numeric',
+                                month: '2-digit',
+                                day: '2-digit',
+                                hour: '2-digit',
+                                minute: '2-digit',
+                                hour12: true
+                            })}
+                            {msg.sender === user.id && (
+                                <span className="ml-2">
+                                    {msg.read ? (
+                                        <span className="text-blue-500">✔✔</span>
+                                    ) : (
+                                        <span>✔</span>
+                                    )}
+                                </span>
+                            )}
+                        </div>
+                    </div>
+                ))}
+            </div>
+            <div className="flex items-center p-4 border-t border-gray-300">
+                <input
+                    type="file"
+                    multiple
+                    accept="image/*,video/*"
+                    className="hidden"
+                    id="fileInput"
+                    onChange={handleFileChange}
+                />
+                <label htmlFor="fileInput" className="cursor-pointer">
+                    <span className="material-icons">📎</span>
+                </label>
+                <div className="flex flex-wrap">
+                    {selectedFiles.map((file, index) => (
+                        <div key={index} className="relative mr-2">
+                            <span
+                                className="absolute top-0 right-0 cursor-pointer text-red-500"
+                                onClick={() => removeFile(index)}
+                            >
+                                &times;
+                            </span>
+                            <span>{file.name}</span>
+                        </div>
+                    ))}
+                </div>
+                <input
+                    type="text"
+                    value={messageText}
+                    onChange={(e) => setMessageText(e.target.value)}
+                    placeholder="Type a message..."
+                    className="flex-1 p-2 border border-gray-300 rounded-lg mx-2"
+                />
+                <button onClick={sendMessage} className="bg-blue-500 text-white p-2 rounded-lg">
+                    Send
+                </button>
+            </div>
+        </div>
+    );
+};
 
-// // // export default Chat;
+export default Chat;
 
 // // // // "use client"; // Enable client-side rendering
 // // // // import React, { useState, useEffect } from 'react';
