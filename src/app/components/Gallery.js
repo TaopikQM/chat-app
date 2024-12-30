@@ -1,61 +1,55 @@
 "use client";
+import { getStorage, ref, listAll, getDownloadURL } from "firebase/storage";
 import { useEffect, useState } from "react";
-import { getFirestore, collection, getDocs } from "firebase/firestore";
 
 const Gallery = () => {
     const [files, setFiles] = useState([]);
 
     useEffect(() => {
         const fetchFiles = async () => {
-            const firestore = getFirestore();
-            const filesCollection = collection(firestore, 'yourFirestoreCollection'); // Ganti dengan koleksi Anda
-            const snapshot = await getDocs(filesCollection);
-            const filesData = snapshot.docs.map(doc => doc.data());
-            setFiles(filesData);
+            const storage = getStorage();
+            const listRef = ref(storage, 'chatFiles/'); // Path ke folder chatFiles
+
+            try {
+                const res = await listAll(listRef);
+                const fileUrls = await Promise.all(
+                    res.items.map(async (item) => {
+                        // Mendapatkan URL download untuk setiap file
+                        return await getDownloadURL(item);
+                    })
+                );
+                setFiles(fileUrls); // Menyimpan URL ke state
+            } catch (error) {
+                console.error("Error fetching files: ", error);
+            }
         };
 
-        fetchFiles();
+        fetchFiles(); // Memanggil fungsi untuk mengambil file
     }, []);
 
     return (
         <div>
             <h2>Galeri File</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Size</th>
-                        <th>Type</th>
-                        <th>Last Modified</th>
-                        <th>Preview</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {files.map((file, index) => (
-                        <tr key={index}>
-                            <td>{file.name}</td>
-                            <td>{(file.size / (1024 * 1024)).toFixed(2)} MB</td> {/* Mengonversi ke MB */}
-                            <td>{file.type}</td>
-                            <td>{file.lastModified}</td>
-                            <td>
-                                {file.type.startsWith('image/') ? (
-                                    <img src={file.url} alt={file.name} style={{ width: '100px' }} />
-                                ) : (
-                                    <video width="100" controls>
-                                        <source src={file.url} type={file.type} />
-                                        Your browser does not support the video tag.
-                                    </video>
-                                )}
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
+            <div className="gallery">
+                {files.map((url, index) => (
+                    <div key={index} className="file-preview">
+                        {url.endsWith('.mp4') ? (
+                            <video width="300" controls>
+                                <source src={url} type="video/mp4" />
+                                Your browser does not support the video tag.
+                            </video>
+                        ) : (
+                            <img src={url} alt={`File ${index}`} style={{ width: '300px', height: 'auto' }} />
+                        )}
+                    </div>
+                ))}
+            </div>
         </div>
     );
 };
 
 export default Gallery;
+
 
 
 // "use client";
