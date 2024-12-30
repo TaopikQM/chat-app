@@ -1,20 +1,19 @@
 "use client";
-import { getStorage, ref, listAll, getDownloadURL } from "firebase/storage";
 import { useEffect, useState } from "react";
+import { getStorage, ref, listAll, getDownloadURL } from "firebase/storage";
+import { storage } from "../config/firebase"; // Pastikan path ini benar
 
 const Gallery = () => {
     const [files, setFiles] = useState([]);
 
     useEffect(() => {
         const fetchFiles = async () => {
-            const storage = getStorage();
             const listRef = ref(storage, 'chatFiles/'); // Path ke folder chatFiles
 
             try {
                 const res = await listAll(listRef);
                 const fileUrls = await Promise.all(
                     res.items.map(async (item) => {
-                        // Mendapatkan URL download untuk setiap file
                         return await getDownloadURL(item);
                     })
                 );
@@ -31,18 +30,22 @@ const Gallery = () => {
         <div>
             <h2>Galeri File</h2>
             <div className="gallery">
-                {files.map((url, index) => (
-                    <div key={index} className="file-preview">
-                        {url.endsWith('.mp4') ? (
-                            <video width="300" controls>
-                                <source src={url} type="video/mp4" />
-                                Your browser does not support the video tag.
-                            </video>
-                        ) : (
-                            <img src={url} alt={`File ${index}`} style={{ width: '300px', height: 'auto' }} />
-                        )}
-                    </div>
-                ))}
+                {files.length === 0 ? (
+                    <p>Tidak ada file untuk ditampilkan.</p>
+                ) : (
+                    files.map((url, index) => (
+                        <div key={index} className="file-preview">
+                            {url.endsWith('.mp4') ? (
+                                <video width="300" controls>
+                                    <source src={url} type="video/mp4" />
+                                    Your browser does not support the video tag.
+                                </video>
+                            ) : (
+                                <img src={url} alt={`File ${index}`} style={{ width: '300px', height: 'auto' }} />
+                            )}
+                        </div>
+                    ))
+                )}
             </div>
         </div>
     );
