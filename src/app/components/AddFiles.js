@@ -1,7 +1,8 @@
 
 
 import React, { useState } from 'react';
-import { storage, rtdb } from '../config/firebase';
+import { database, storage } from '../config/firebase';
+// import { storage, rtdb } from '../config/firebase';
 import { ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
 import { ref as databaseRef, push, set } from "firebase/database";
 
@@ -48,7 +49,7 @@ const AddFiles = () => {
     setIsLoading(true);
 
     try {
-      const newEntryRef = push(databaseRef(rtdb, 'chatFiles'));
+      const newEntryRef = push(databaseRef(database, 'chatFiles'));
       const newEntryKey = newEntryRef.key;
 
       const uploadPromises = selectedFiles.map(async (file) => {
