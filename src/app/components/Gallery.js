@@ -81,7 +81,7 @@ const Gallery = () => {
                         Object.keys(filesByDate.images).map((dateKey) => (
                             <div key={dateKey} className="mb-6">
                                 <span className="block text-xl font-semibold mb-2">{dateKey}</span>
-                                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
                                     {filesByDate.images[dateKey].map((file, index) => (
                                         <div key={index} className="file-preview bg-white rounded-lg shadow-md overflow-hidden">
                                             <img src={file.url} alt={file.name} className="w-full h-auto rounded-t-lg" />
@@ -105,7 +105,7 @@ const Gallery = () => {
                         Object.keys(filesByDate.videos).map((dateKey) => (
                             <div key={dateKey} className="mb-6">
                                 <span className="block text-xl font-semibold mb-2">{dateKey}</span>
-                                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
                                     {filesByDate.videos[dateKey].map((file, index) => (
                                         <div key={index} className="file-preview bg-white rounded-lg shadow-md overflow-hidden">
                                             <video width="100%" controls className="rounded-t-lg">
