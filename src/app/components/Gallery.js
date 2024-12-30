@@ -122,7 +122,9 @@ const Gallery = () => {
                                 <div
                                     key={index}
                                     className="file-preview cursor-pointer"
-                                    onClick={() => openModal(index)}
+                                    onClick={() => openModal(
+                                            files.findIndex((f) => f.url === file.url)
+                                        )
                                 >
                                     {file.contentType.startsWith('video/') ? (
                                         <video className="h-auto max-w-full rounded-lg" width="100%" controls>
@@ -137,7 +139,7 @@ const Gallery = () => {
                                             style={{ width: '100%', height: 'auto' }}
                                         />
                                     ) : (
-                                        <p className="text-red-500">Unsupported format</p>
+                                        <p className="text-red-500">Data Tidak Ada</p>
                                     )}
                                 </div>
                             ))}
@@ -174,7 +176,7 @@ const Gallery = () => {
                                             style={{ width: '100%', height: 'auto' }}
                                         />
                                     ) : (
-                                        <p className="text-red-500">Unsupported format</p>
+                                        <p className="text-red-500">Data Tidak Ada</p>
                                     )}
                                 </SwiperSlide>
                             ))}
