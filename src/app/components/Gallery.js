@@ -29,27 +29,30 @@ const Gallery = () => {
 
     return (
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            {mediaFiles.map((fileUrl, index) => (
-                <div key={index} className="relative">
-                    {fileUrl.match(/\.(jpg|jpeg|png|gif)$/i) ? (
-                        <img
-                            src={fileUrl}
-                            alt={`Media ${index}`}
-                            className="h-auto max-w-full rounded-lg"
-                        />
-                    ) : fileUrl.match(/\.(mp4|webm|ogg)$/i) ? (
-                        <video
-                            controls
-                            className="h-auto max-w-full rounded-lg"
-                        >
-                            <source src={fileUrl} type="video/mp4" />
-                            Your browser does not support the video tag.
-                        </video>
-                    ) : (
-                        <p>Unsupported format</p>
-                    )}
-                </div>
-            ))}
+            {mediaFiles.map((fileUrl, index) => {
+                // Cek format file
+                const isImage = fileUrl.match(/\.(jpg|jpeg|png|gif|bmp|svg|webp)$/i);
+                const isVideo = fileUrl.match(/\.(mp4|webm|ogg|mkv)$/i);
+
+                return (
+                    <div key={index} className="relative">
+                        {isImage ? (
+                            <img
+                                src={fileUrl}
+                                alt={`Media ${index}`}
+                                className="h-auto max-w-full rounded-lg"
+                            />
+                        ) : isVideo ? (
+                            <video controls className="h-auto max-w-full rounded-lg">
+                                <source src={fileUrl} type="video/mp4" />
+                                Your browser does not support the video tag.
+                            </video>
+                        ) : (
+                            <p className="text-red-500">Unsupported format</p>
+                        )}
+                    </div>
+                );
+            })}
         </div>
     );
 };
