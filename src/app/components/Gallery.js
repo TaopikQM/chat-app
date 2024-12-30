@@ -148,7 +148,7 @@ const Gallery = () => {
                     className="fixed inset-0 bg-gray-800 bg-opacity-75 flex justify-center items-center z-50"
                     onClick={handleOverlayClick}
                 >
-                    <div className="relative bg-white rounded-lg w-full max-w-3xl p-4">
+                    <div className="relative rounded-lg w-full max-w-3xl p-4">
                         <Swiper
                             initialSlide={modalFileIndex}
                             spaceBetween={10}
@@ -170,7 +170,7 @@ const Gallery = () => {
                         </Swiper>
                         <button
                             onClick={closeModal}
-                            className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white rounded-full px-3 py-1 text-lg"
+                            className="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white rounded-full px-3 py-1 text-lg"
                         >
                             &#10005;
                         </button>
