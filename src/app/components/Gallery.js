@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -148,29 +147,33 @@ const Gallery = () => {
                     className="fixed inset-0 bg-gray-800 bg-opacity-75 flex justify-center items-center z-50"
                     onClick={handleOverlayClick}
                 >
-                    <div className="relative bg-white rounded-lg w-full max-w-2xl p-4">
+                    <div className="relative bg-white rounded-lg w-full max-w-4xl p-4">
                         <Swiper
                             initialSlide={modalFileIndex}
                             spaceBetween={10}
                             slidesPerView={1}
                             navigation
-                            loop 
+                            loop
                         >
                             {currentGroup.map((file, index) => (
                                 <SwiperSlide key={index}>
                                     {file.contentType.startsWith("video/") ? (
-                                        <video className="w-full max-h-[70vh] rounded-lg" controls>
+                                        <video className="max-w-full max-h-[85vh] rounded-lg mx-auto" controls>
                                             <source src={file.url} type={file.contentType} />
                                         </video>
                                     ) : (
-                                        <img className="w-full max-h-[70vh] rounded-lg" src={file.url} alt={`File ${index}`} />
+                                        <img
+                                            className="max-w-full max-h-[85vh] rounded-lg mx-auto"
+                                            src={file.url}
+                                            alt={`File ${index}`}
+                                        />
                                     )}
                                 </SwiperSlide>
                             ))}
                         </Swiper>
                         <button
                             onClick={closeModal}
-                            className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white rounded-full px-3 py-1 text-lg"
+                            className="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white rounded-full px-4 py-2 text-lg shadow-lg"
                         >
                             &#10005;
                         </button>
@@ -182,6 +185,7 @@ const Gallery = () => {
 };
 
 export default Gallery;
+
 // "use client";
 
 // import { useEffect, useState } from "react";
