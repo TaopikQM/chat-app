@@ -4,7 +4,6 @@ import Gallery from '../components/Gallery';
 export default function HomePage() {
   return (
     <div>
-      <h1>Manajemen Data Kehadiran</h1>
       <Gallery />
     </div>
   );
