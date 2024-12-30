@@ -6,6 +6,9 @@ import { storage } from "../config/firebase"; // Pastikan path ini benar
 
 const Gallery = () => {
     const [files, setFiles] = useState([]);
+    
+    const [activeFilter, setActiveFilter] = useState("all"); // Tracks the active filter
+
 
     useEffect(() => {
         const fetchFiles = async () => {
@@ -30,38 +33,119 @@ const Gallery = () => {
         fetchFiles(); // Memanggil fungsi untuk mengambil file
     }, []);
 
+        const handleFilterChange = (filter) => {
+        setActiveFilter(filter);
+    };
+
+    // Filter files based on active filter
+    const filteredFiles = files.filter((file) => {
+        if (activeFilter === "all") return true;
+        if (activeFilter === "images" && file.contentType.startsWith('image/')) return true;
+        if (activeFilter === "videos" && file.contentType.startsWith('video/')) return true;
+        return false;
+    });
+
+
     return (
-        <div className="grid grid-cols-3 md:grid-cols-4 gap-2">
-            {files.length === 0 ? (
-                <p>Tidak ada file untuk ditampilkan.</p>
-            ) : (
-                files.map((file, index) => (
-                    <div key={index} className="file-preview">
-                        {/* Check contentType and render accordingly */}
-                        {file.contentType.startsWith('video/') ? (
-                            <video className="h-auto max-w-full rounded-lg" width="300" controls>
-                                <source src={file.url} type={file.contentType} />
-                                Your browser does not support the video tag.
-                            </video>
-                        ) : file.contentType.startsWith('image/') ? (
-                            <img
-                                className="h-auto max-w-full rounded-lg"
-                                src={file.url}
-                                alt={`File ${index}`}
-                                style={{ width: '300px', height: 'auto' }}
-                            />
-                        ) : (
-                            <p className="text-red-500">Unsupported format</p>
-                        )}
-                    </div>
-                ))
-            )}
-        </div>
+        <div>
+            <div className="flex items-center justify-center py-4 md:py-8 flex-wrap">
+                {/* All Categories Button */}
+                <button
+                    type="button"
+                    onClick={() => handleFilterChange("all")}
+                    className={`${
+                        activeFilter === "all"
+                            ? "text-blue-700 hover:text-white border border-blue-600 bg-white hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 dark:bg-gray-900 dark:focus:ring-blue-800"
+                            : "text-gray-900 border border-white hover:border-gray-200 dark:border-gray-900 dark:bg-gray-900 dark:hover:border-gray-700 bg-white focus:ring-4 focus:outline-none focus:ring-gray-300 rounded-full text-base font-medium px-5 py-2.5 text-center me-3 mb-3 dark:text-white dark:focus:ring-gray-800"
+                    }`}
+                >
+                    All Categories
+                </button>
+
+                {/* Images Button */}
+                <button
+                    type="button"
+                    onClick={() => handleFilterChange("images")}
+                    className={`${
+                        activeFilter === "images"
+                            ? "text-blue-700 hover:text-white border border-blue-600 bg-white hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 dark:bg-gray-900 dark:focus:ring-blue-800"
+                            : "text-gray-900 border border-white hover:border-gray-200 dark:border-gray-900 dark:bg-gray-900 dark:hover:border-gray-700 bg-white focus:ring-4 focus:outline-none focus:ring-gray-300 rounded-full text-base font-medium px-5 py-2.5 text-center me-3 mb-3 dark:text-white dark:focus:ring-gray-800"
+                    }`}
+                >
+                    Images
+                </button>
+
+                {/* Videos Button */}
+                <button
+                    type="button"
+                    onClick={() => handleFilterChange("videos")}
+                    className={`${
+                        activeFilter === "videos"
+                            ? "text-blue-700 hover:text-white border border-blue-600 bg-white hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 dark:bg-gray-900 dark:focus:ring-blue-800"
+                            : "text-gray-900 border border-white hover:border-gray-200 dark:border-gray-900 dark:bg-gray-900 dark:hover:border-gray-700 bg-white focus:ring-4 focus:outline-none focus:ring-gray-300 rounded-full text-base font-medium px-5 py-2.5 text-center me-3 mb-3 dark:text-white dark:focus:ring-gray-800"
+                    }`}
+                >
+                    Videos
+                </button>
+            </div>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+            
+                {filteredFiles.length === 0 ? (
+                        <p>Tidak ada file untuk ditampilkan.</p>
+                    ) : (
+                        filteredFiles.map((file, index) => (
+                            <div key={index} className="file-preview">
+                                {/* Check contentType and render accordingly */}
+                                {file.contentType.startsWith('video/') ? (
+                                    <video className="h-auto max-w-full rounded-lg" width="100%" controls>
+                                        <source src={file.url} type={file.contentType} />
+                                        Your browser does not support the video tag.
+                                    </video>
+                                ) : file.contentType.startsWith('image/') ? (
+                                    <img
+                                        className="h-auto max-w-full rounded-lg"
+                                        src={file.url}
+                                        alt={`File ${index}`}
+                                        style={{ width: '100%', height: 'auto' }}
+                                    />
+                                ) : (
+                                    <p className="text-red-500">Unsupported format</p>
+                                )}
+                            </div>
+                        ))
+                    )}
+                </div>
+             </div>
     );
 };
 
 export default Gallery;
 
+// {files.length === 0 ? (
+//                 <p>Tidak ada file untuk ditampilkan.</p>
+//             ) : (
+//                 files.map((file, index) => (
+//                     <div key={index} className="file-preview">
+//                         {/* Check contentType and render accordingly */}
+//                         {file.contentType.startsWith('video/') ? (
+//                             <video className="h-auto max-w-full rounded-lg" width="300" controls>
+//                                 <source src={file.url} type={file.contentType} />
+//                                 Your browser does not support the video tag.
+//                             </video>
+//                         ) : file.contentType.startsWith('image/') ? (
+//                             <img
+//                                 className="h-auto max-w-full rounded-lg"
+//                                 src={file.url}
+//                                 alt={`File ${index}`}
+//                                 style={{ width: '300px', height: 'auto' }}
+//                             />
+//                         ) : (
+//                             <p className="text-red-500">Unsupported format</p>
+//                         )}
+//                     </div>
+//                 ))
+//             )}
 // "use client"; // Pastikan ini ada di bagian atas file jika menggunakan Next.js 13+
 
 // import { useEffect, useState } from "react";
