@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getDatabase, ref as databaseRef, onValue } from 'firebase/database';
-import { rtdb, storage } from '../config/firebase';
+import { database, storage } from '../config/firebase';
 import { getDownloadURL, ref as storageRef, uploadBytes } from 'firebase/storage';
 
 const FilesList = ({isDayMode}) => {
