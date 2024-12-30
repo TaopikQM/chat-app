@@ -13,18 +13,7 @@ export default function HomePage() {
       <Gallery />
     <h1>INI GALERI UTAMA</h1>
       <GalleryU />
-    <h1>INI GALERI UTAMAa</h1>
-    
-            <FilePreview files={files} />
-      {/* Image file */}
-            <div className="file-preview">
-                <img
-                    className="h-auto max-w-full rounded-lg"
-                    src="https://firebasestorage.googleapis.com/v0/b/env-sib.appspot.com/o/chatFiles%2F1693183058_c6b5a9f146cfab9cc063%20(1).jpg?alt=media&token=8b67096b-a2d4-47b2-8cc3-4b03cc51efe7"
-                    alt="Image Preview"
-                    style={{ width: '300px', height: 'auto' }}
-                />
-            </div>
+     
 
             {/* Video file */}
             <div className="file-preview">
