@@ -206,18 +206,18 @@ const Chat = ({ user }) => {
                 </button>
             </div>
 
-            <button
-                onClick={scrollToLatestMessage}
-                className="fixed bottom-16 right-4 bg-blue-500 text-white p-3 rounded-full shadow-lg"
-            >
-                ↓
-            </button>
+           
         </div>
     );
 };
 
 export default Chat;
-
+ // <button
+            //     onClick={scrollToLatestMessage}
+            //     className="fixed bottom-16 right-4 bg-blue-500 text-white p-3 rounded-full shadow-lg"
+            // >
+            //     ↓
+            // </button>
 // "use client"; // Enable client-side rendering
 // import React, { useState, useEffect } from 'react';
 // import { database, storage } from '../config/firebase'; // Pastikan Firebase Storage sudah dikonfigurasi
