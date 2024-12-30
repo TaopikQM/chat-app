@@ -6,6 +6,7 @@ export default function HomePage() {
   return (
     <div>
       <Gallery />
+    <h1>INI GALERI UTAMA</h1>
       <GalleryU />
     </div>
   );
