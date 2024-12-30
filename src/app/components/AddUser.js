@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { database } from '../config/firebase';
 import { ref as databaseRef, set } from 'firebase/database';
 
-const AddUserComponent = () => {
+const AddUserComponent = () => { 
     const [name, setName] = useState('');
     const [message, setMessage] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
