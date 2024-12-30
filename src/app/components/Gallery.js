@@ -26,6 +26,8 @@ const Gallery = () => {
                     res.items.map(async (item) => {
                         const fileUrl = await getDownloadURL(item);
                         const metadata = await getMetadata(item);
+                        
+                        const timeCreated = metadata.timeCreated;
                         return { url: fileUrl, contentType: metadata.contentType, timeCreated: timeCreated };
                     })
                 );
