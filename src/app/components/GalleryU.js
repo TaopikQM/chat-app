@@ -48,6 +48,25 @@ const Gallery = () => {
                     </div>
                 ))
             )}
+            {files.length === 0 ? (
+                <p>Tidak ada file untuk ditampilkan.</p>
+            ) : (
+                files.map((url, index) => (
+                    <div key={index} className="file-preview">
+                        {url.match(/\.(mp4|webm|ogg|mkv)$/i) ? (
+                            <video className="h-auto max-w-full rounded-lg" controls>
+                                <source src={url} type="video/mp4" />
+                                Your browser does not support the video tag.
+                            </video>
+                        ) : url.match(/\.(jpg|jpeg|png|gif|bmp|svg|webp)$/i) ? (
+                            <img className="h-auto max-w-full rounded-lg" src={url} alt={`File ${index}`} />
+                        ) : (
+                            <p className="text-red-500">Unsupported format</p>
+                        )}
+
+                    </div>
+                ))
+            )}
         </div>
     );
 };
