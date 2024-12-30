@@ -64,8 +64,8 @@ const Gallery = () => {
     };
 
     const openModal = (index) => {
-        setFilteredFiles((prev) => groupedFiles[format(new Date(file.timeCreated), "yyyy-MM")] || prev);
-        
+        // setFilteredFiles((prev) => groupedFiles[format(new Date(file.timeCreated), "yyyy-MM")] || prev);
+        setCurrentGroup(groupedFiles[groupKey] || []);
         setModalFileIndex(index);
         setIsModalOpen(true);
     };
@@ -109,27 +109,27 @@ const Gallery = () => {
                                         : file.contentType.startsWith("video/")
                                 )
                                 .map((file, index) => (
-                                <div
-                                    key={index}
-                                    className="file-preview cursor-pointer"
-                                    onClick={() => openModal(file, index)}
-                                >
-                                    {file.contentType.startsWith('video/') ? (
-                                        <video className="h-auto max-w-full rounded-lg" width="100%" controls>
-                                            <source src={file.url} type={file.contentType} />
-                                            Your browser does not support the video tag.
-                                        </video>
-                                    ) : file.contentType.startsWith('image/') ? (
-                                        <img
-                                            className="h-auto max-w-full rounded-lg"
-                                            src={file.url}
-                                            alt={`File ${index}`}
-                                            style={{ width: '100%', height: 'auto' }}
-                                        />
-                                    ) : (
-                                        <p className="text-red-500">Data Tidak Ada</p>
-                                    )}
-                                </div>
+                                    <div
+                                        key={index}
+                                        className="file-preview cursor-pointer"
+                                        onClick={() => openModal(file, index)}
+                                    >
+                                        {file.contentType.startsWith('video/') ? (
+                                            <video className="h-auto max-w-full rounded-lg" width="100%" controls>
+                                                <source src={file.url} type={file.contentType} />
+                                                Your browser does not support the video tag.
+                                            </video>
+                                        ) : file.contentType.startsWith('image/') ? (
+                                            <img
+                                                className="h-auto max-w-full rounded-lg"
+                                                src={file.url}
+                                                alt={`File ${index}`}
+                                                style={{ width: '100%', height: 'auto' }}
+                                            />
+                                        ) : (
+                                            <p className="text-red-500">Data Tidak Ada</p>
+                                        )}
+                                    </div>
                             ))}
                         </div>
                         <hr className="my-4 border-gray-300" />
@@ -149,22 +149,14 @@ const Gallery = () => {
                             loop
                             onSlideChange={(swiper) => setModalFileIndex(swiper.activeIndex)}
                         >
-                            {filteredFiles.map((file, index) => (
+                            {currentGroup.map((file, index) => (
                                 <SwiperSlide key={index}>
                                     {file.contentType.startsWith("video/") ? (
-                                        <video className="h-auto max-w-full rounded-lg" width="80%" controls>
+                                        <video className="h-auto rounded-lg" controls>
                                             <source src={file.url} type={file.contentType} />
-                                            Your browser does not support the video tag.
                                         </video>
-                                    ) : file.contentType.startsWith("image/") ? (
-                                        <img
-                                            className="h-auto max-w-full rounded-lg"
-                                            src={file.url}
-                                            alt={`Selected File ${index}`}
-                                            style={{ width: '100%', height: 'auto' }}
-                                        />
                                     ) : (
-                                        <p className="text-red-500">Data Tidak Ada</p>
+                                        <img className="h-auto rounded-lg" src={file.url} alt={`File ${index}`} />
                                     )}
                                 </SwiperSlide>
                             ))}
