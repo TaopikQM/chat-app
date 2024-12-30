@@ -40,8 +40,8 @@ const Gallery = () => {
     return (
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             {mediaFiles.map((fileUrl, index) => {
-                const isImage = fileUrl.match(/\.(jpg|jpeg|png|gif|bmp|svg|webp)$/i);
-                const isVideo = fileUrl.match(/\.(mp4|webm|ogg|mkv)$/i);
+                 const isImage = /\.(jpg|jpeg|png|gif|bmp|svg|webp)$/i.test(fileUrl);
+                const isVideo = /\.(mp4|webm|ogg|mkv)$/i.test(fileUrl);
 
                 return (
                     <div key={index} className="relative">
