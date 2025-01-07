@@ -1,42 +1,12 @@
 "use client"
 import { useState, useEffect } from 'react';
 
-const calculateAzimuth = (lat1, lon1, lat2, lon2) => {
-  const toRad = (angle) => angle * (Math.PI / 180);
-  const toDeg = (rad) => rad * (180 / Math.PI);
-
-  const dLon = toRad(lon2 - lon1);
-  const lat1Rad = toRad(lat1);
-  const lat2Rad = toRad(lat2);
-
-  const y = Math.sin(dLon) * Math.cos(lat2Rad);
-  const x =
-    Math.cos(lat1Rad) * Math.sin(lat2Rad) -
-    Math.sin(lat1Rad) * Math.cos(lat2Rad) * Math.cos(dLon);
-
-  let azimuth = Math.atan2(y, x);
-  azimuth = toDeg(azimuth);
-
-  return (azimuth + 360) % 360; // Mengembalikan azimuth dalam derajat antara 0 dan 360
-};
-
-const calculateDirection = (degree) => {
-  if (degree >= 337.5 || degree < 22.5) return "Utara";
-  if (degree >= 22.5 && degree < 67.5) return "Timur Laut";
-  if (degree >= 67.5 && degree < 112.5) return "Timur";
-  if (degree >= 112.5 && degree < 157.5) return "Tenggara";
-  if (degree >= 157.5 && degree < 202.5) return "Selatan";
-  if (degree >= 202.5 && degree < 247.5) return "Barat Daya";
-  if (degree >= 247.5 && degree < 292.5) return "Barat";
-  if (degree >= 292.5 && degree < 337.5) return "Barat Laut";
-  return "Tidak Diketahui";
-};
-
 const ArahMataAngin  = () => {
   const [location, setLocation] = useState(null);
-  const [direction, setDirection] = useState(null);
+  const [direction, setDirection] = useState(0); // untuk menyimpan nilai arah kompas
   const [error, setError] = useState(null);
 
+  // Fungsi untuk mengambil lokasi GPS
   const fetchGpsLocation = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -54,15 +24,40 @@ const ArahMataAngin  = () => {
     }
   };
 
+  // Ambil lokasi GPS saat komponen pertama kali dimuat
   useEffect(() => {
     fetchGpsLocation();
   }, []);
 
+  // Fungsi untuk menghitung arah azimuth (dari utara geografis)
+  const calculateAzimuth = (lat1, lon1, lat2, lon2) => {
+    const toRad = (angle) => angle * (Math.PI / 180);
+    const toDeg = (rad) => rad * (180 / Math.PI);
+
+    const dLon = toRad(lon2 - lon1);
+    const lat1Rad = toRad(lat1);
+    const lat2Rad = toRad(lat2);
+
+    const y = Math.sin(dLon) * Math.cos(lat2Rad);
+    const x =
+      Math.cos(lat1Rad) * Math.sin(lat2Rad) -
+      Math.sin(lat1Rad) * Math.cos(lat2Rad) * Math.cos(dLon);
+
+    let azimuth = Math.atan2(y, x);
+    azimuth = toDeg(azimuth);
+
+    return (azimuth + 360) % 360; // Mengembalikan azimuth dalam derajat antara 0 dan 360
+  };
+
+  // Fungsi untuk memutar ikon panah
   useEffect(() => {
     if (location) {
-      const azimuth = calculateAzimuth(location.lat, location.lon, 0, 0);
-      const dir = calculateDirection(azimuth);
-      setDirection(dir);
+      // Tentukan lokasi lat/lon untuk utara geografis
+      const northLat = 90;  // Latitude utara geografis
+      const northLon = 0;   // Longitude utara geografis
+      const azimuth = calculateAzimuth(location.lat, location.lon, northLat, northLon);
+
+      setDirection(azimuth); // Set arah untuk rotasi panah
     }
   }, [location]);
 
@@ -76,9 +71,7 @@ const ArahMataAngin  = () => {
           <p>
             Lokasi Anda: {location.lat.toFixed(6)}° Lat, {location.lon.toFixed(6)}° Lon
           </p>
-          <h2>
-            Arah Mata Angin: {direction}
-          </h2>
+          <h2>Arah Utara: {direction.toFixed(2)}°</h2>
           <div
             style={{
               margin: '20px auto',
@@ -89,16 +82,17 @@ const ArahMataAngin  = () => {
               display: 'flex',
               justifyContent: 'center',
               alignItems: 'center',
-              transform: `rotate(${calculateAzimuth(location.lat, location.lon, 0, 0)}deg)`,
+              transform: `rotate(${direction}deg)`, // Rotasi berdasarkan arah azimuth
             }}
           >
+            {/* Gunakan ikon panah */}
             <img
               src="https://upload.wikimedia.org/wikipedia/commons/3/37/Red_arrow.svg" // URL gambar panah (bisa diganti dengan gambar lain)
               alt="Panah"
               style={{
                 width: '50px',
                 height: '50px',
-                transform: `rotate(${calculateAzimuth(location.lat, location.lon, 0, 0)}deg)`, // Menyesuaikan arah panah dengan azimuth
+                transform: `rotate(${direction}deg)`, // Memutar ikon panah sesuai arah utara
               }}
             />
           </div>
@@ -111,6 +105,7 @@ const ArahMataAngin  = () => {
 };
 
 export default ArahMataAngin ;
+
 
 
 
