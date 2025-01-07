@@ -1,5 +1,5 @@
 "use client"
-  import { useState, useEffect } from "react";
+ import { useState, useEffect } from "react";
 
 const ArahMataAngin = () => {
   const [location, setLocation] = useState({ lat: null, lon: null }); // Lokasi GPS
@@ -41,25 +41,37 @@ const ArahMataAngin = () => {
   useEffect(() => {
     fetchGpsLocation(); // Ambil lokasi GPS saat pertama kali komponen dimuat
 
-    // Tangani orientasi perangkat
-    if (window.DeviceOrientationEvent) {
-      const handleOrientation = (event) => {
-        const alpha = event.alpha; // Orientasi perangkat terhadap utara magnetik
-        if (alpha !== null) {
-          setHeading(alpha);
-          const arah = calculateDirection(alpha); // Hitung arah mata angin
-          setDirection(arah);
+    const enableOrientation = async () => {
+      if (typeof DeviceOrientationEvent !== "undefined" && DeviceOrientationEvent.requestPermission) {
+        // Untuk browser yang memerlukan izin eksplisit
+        const permission = await DeviceOrientationEvent.requestPermission();
+        if (permission !== "granted") {
+          setError("Izin untuk sensor orientasi ditolak.");
+          return;
         }
-      };
+      }
 
-      window.addEventListener("deviceorientation", handleOrientation);
+      if (window.DeviceOrientationEvent) {
+        const handleOrientation = (event) => {
+          const alpha = event.alpha; // Orientasi perangkat terhadap utara magnetik
+          if (alpha !== null) {
+            setHeading(alpha);
+            const arah = calculateDirection(alpha); // Hitung arah mata angin
+            setDirection(arah);
+          }
+        };
 
-      return () => {
-        window.removeEventListener("deviceorientation", handleOrientation);
-      };
-    } else {
-      setError("Perangkat Anda tidak mendukung orientasi.");
-    }
+        window.addEventListener("deviceorientation", handleOrientation);
+
+        return () => {
+          window.removeEventListener("deviceorientation", handleOrientation);
+        };
+      } else {
+        setError("Perangkat Anda tidak mendukung orientasi.");
+      }
+    };
+
+    enableOrientation();
   }, []);
 
   return (
@@ -108,6 +120,7 @@ const ArahMataAngin = () => {
 };
 
 export default ArahMataAngin;
+
 
 // "use client"
 //   import { useState, useEffect } from "react";
