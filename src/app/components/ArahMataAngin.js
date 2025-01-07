@@ -1,9 +1,9 @@
 "use client"
 import { useState, useEffect } from 'react';
 
-const ArahMataAngin  = () => {
+const Kompas = () => {
   const [location, setLocation] = useState(null);
-  const [direction, setDirection] = useState(0); // untuk menyimpan nilai arah kompas
+  const [direction, setDirection] = useState(0); // Untuk menyimpan arah kompas
   const [error, setError] = useState(null);
 
   // Fungsi untuk mengambil lokasi GPS
@@ -85,14 +85,16 @@ const ArahMataAngin  = () => {
               transform: `rotate(${direction}deg)`, // Rotasi berdasarkan arah azimuth
             }}
           >
-            {/* Gunakan ikon panah */}
-            <img
-              src="https://upload.wikimedia.org/wikipedia/commons/3/37/Red_arrow.svg" // URL gambar panah (bisa diganti dengan gambar lain)
-              alt="Panah"
+            {/* Ikon Panah yang menggunakan CSS */}
+            <div
               style={{
-                width: '50px',
-                height: '50px',
-                transform: `rotate(${direction}deg)`, // Memutar ikon panah sesuai arah utara
+                width: '40px',
+                height: '40px',
+                borderTop: '4px solid red',
+                borderRight: '4px solid transparent',
+                borderLeft: '4px solid transparent',
+                borderBottom: '4px solid transparent',
+                transformOrigin: 'center',
               }}
             />
           </div>
@@ -104,10 +106,7 @@ const ArahMataAngin  = () => {
   );
 };
 
-export default ArahMataAngin ;
-
-
-
+export default Kompas;
 
 // "use client"
 //   import { useState, useEffect } from "react";
