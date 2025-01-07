@@ -63,7 +63,7 @@ const ArahMataAngin  = () => {
 
   return (
     <div style={{ textAlign: 'center', marginTop: '50px' }}>
-      <h1>Kompas Arah Mata Angin Berdasarkan Lokasi GPS</h1>
+      <h1>Kompas Arah Mata Angin Berdasarkan Lokasi GPS2</h1>
       {error ? (
         <p style={{ color: 'red' }}>{error}</p>
       ) : location ? (
