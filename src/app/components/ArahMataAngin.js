@@ -1,4 +1,6 @@
-import { useState, useEffect } from "react";
+
+"use client"
+  import { useState, useEffect } from "react";
 
 const ArahMataAngin = () => {
   const [heading, setHeading] = useState(null); // Derajat arah utara
