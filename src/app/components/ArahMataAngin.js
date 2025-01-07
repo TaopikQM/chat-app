@@ -2,25 +2,26 @@
 import React, { useState, useEffect } from 'react';
 
 const ArahMataAngin  = () => {
-  const [direction, setDirection] = useState(0); // Arah kompas dalam derajat
-  const [error, setError] = useState(null);
+  const [direction, setDirection] = useState(0); // Arah utara dalam derajat
+  const [error, setError] = useState(null); // Menyimpan error jika tidak didukung
 
+  // Menangkap orientasi perangkat
   useEffect(() => {
     const handleOrientation = (event) => {
-      // event.alpha memberikan rotasi perangkat pada sumbu Z
       if (event.alpha !== null) {
-        setDirection(event.alpha); // Set arah sesuai rotasi perangkat
+        // alpha adalah sudut rotasi perangkat pada sumbu Z (arah perangkat)
+        setDirection(event.alpha);
       }
     };
 
-    // Periksa apakah DeviceOrientationEvent didukung oleh perangkat
+    // Mengecek apakah browser mendukung DeviceOrientationEvent
     if (window.DeviceOrientationEvent) {
       window.addEventListener('deviceorientation', handleOrientation);
     } else {
       setError('DeviceOrientationEvent tidak didukung oleh perangkat ini.');
     }
 
-    // Bersihkan event listener ketika komponen dibersihkan
+    // Membersihkan event listener saat komponen di-unmount
     return () => {
       if (window.DeviceOrientationEvent) {
         window.removeEventListener('deviceorientation', handleOrientation);
@@ -30,7 +31,7 @@ const ArahMataAngin  = () => {
 
   return (
     <div style={{ textAlign: 'center', marginTop: '50px' }}>
-      <h1>Kompas Arah Mata Angin Berdasarkan Orientasi Perangkat</h1>
+      <h1>Kompas Arah Mata Angin</h1>
       {error ? (
         <p style={{ color: 'red' }}>{error}</p>
       ) : (
@@ -46,10 +47,10 @@ const ArahMataAngin  = () => {
               display: 'flex',
               justifyContent: 'center',
               alignItems: 'center',
-              transform: `rotate(${direction}deg)`, // Rotasi berdasarkan arah
+              transform: `rotate(${direction}deg)`, // Rotasi panah berdasarkan arah perangkat
             }}
           >
-            {/* Ikon Panah menggunakan CSS */}
+            {/* Ikon panah yang akan berputar */}
             <div
               style={{
                 width: '40px',
@@ -69,6 +70,7 @@ const ArahMataAngin  = () => {
 };
 
 export default ArahMataAngin ;
+
 
 
 // "use client"
