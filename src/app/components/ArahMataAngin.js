@@ -2,76 +2,41 @@
 import { useState, useEffect } from 'react';
 
 const ArahMataAngin  = () => {
-  const [location, setLocation] = useState(null);
-  const [direction, setDirection] = useState(0); // Untuk menyimpan arah kompas
+  const [direction, setDirection] = useState(0); // Untuk menyimpan arah kompas dalam derajat
   const [error, setError] = useState(null);
 
-  // Fungsi untuk mengambil lokasi GPS
-  const fetchGpsLocation = () => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
-          setLocation({ lat: latitude, lon: longitude });
-        },
-        (error) => {
-          setError("Gagal mendapatkan lokasi GPS2.");
-          console.error(error);
-        }
-      );
+  // Mengambil orientasi perangkat dari DeviceOrientation API
+  useEffect(() => {
+    const handleOrientation = (event) => {
+      if (event.alpha !== null) {
+        // event.alpha memberikan rotasi perangkat pada sumbu Z (arah utara)
+        setDirection(event.alpha); // set direction sesuai dengan rotasi perangkat
+      }
+    };
+
+    // Periksa apakah DeviceOrientation API tersedia
+    if (window.DeviceOrientationEvent) {
+      window.addEventListener('deviceorientation', handleOrientation);
     } else {
-      setError("Geolocation tidak didukung oleh browser.");
+      setError('DeviceOrientationEvent tidak didukung di perangkat ini.');
     }
-  };
 
-  // Ambil lokasi GPS saat komponen pertama kali dimuat
-  useEffect(() => {
-    fetchGpsLocation();
+    // Bersihkan event listener saat komponen dihapus
+    return () => {
+      if (window.DeviceOrientationEvent) {
+        window.removeEventListener('deviceorientation', handleOrientation);
+      }
+    };
   }, []);
-
-  // Fungsi untuk menghitung arah azimuth (dari utara geografis)
-  const calculateAzimuth = (lat1, lon1, lat2, lon2) => {
-    const toRad = (angle) => angle * (Math.PI / 180);
-    const toDeg = (rad) => rad * (180 / Math.PI);
-
-    const dLon = toRad(lon2 - lon1);
-    const lat1Rad = toRad(lat1);
-    const lat2Rad = toRad(lat2);
-
-    const y = Math.sin(dLon) * Math.cos(lat2Rad);
-    const x =
-      Math.cos(lat1Rad) * Math.sin(lat2Rad) -
-      Math.sin(lat1Rad) * Math.cos(lat2Rad) * Math.cos(dLon);
-
-    let azimuth = Math.atan2(y, x);
-    azimuth = toDeg(azimuth);
-
-    return (azimuth + 360) % 360; // Mengembalikan azimuth dalam derajat antara 0 dan 360
-  };
-
-  // Fungsi untuk memutar ikon panah
-  useEffect(() => {
-    if (location) {
-      // Tentukan lokasi lat/lon untuk utara geografis
-      const northLat = 90;  // Latitude utara geografis
-      const northLon = 0;   // Longitude utara geografis
-      const azimuth = calculateAzimuth(location.lat, location.lon, northLat, northLon);
-
-      setDirection(azimuth); // Set arah untuk rotasi panah
-    }
-  }, [location]);
 
   return (
     <div style={{ textAlign: 'center', marginTop: '50px' }}>
-      <h1>Kompas Arah Mata Angin Berdasarkan Lokasi GPS2</h1>
+      <h1>Kompas Arah Mata Angin Berdasarkan Orientasi Perangkat</h1>
       {error ? (
         <p style={{ color: 'red' }}>{error}</p>
-      ) : location ? (
+      ) : (
         <>
-          <p>
-            Lokasi Anda: {location.lat.toFixed(6)}° Lat, {location.lon.toFixed(6)}° Lon
-          </p>
-          <h2>Arah Utara: {direction.toFixed(2)}°</h2>
+          <h2>Arah Mata Angin: {direction.toFixed(2)}°</h2>
           <div
             style={{
               margin: '20px auto',
@@ -82,7 +47,7 @@ const ArahMataAngin  = () => {
               display: 'flex',
               justifyContent: 'center',
               alignItems: 'center',
-              transform: `rotate(${direction}deg)`, // Rotasi berdasarkan arah azimuth
+              transform: `rotate(${direction}deg)`, // Rotasi berdasarkan arah
             }}
           >
             {/* Ikon Panah yang menggunakan CSS */}
@@ -99,14 +64,13 @@ const ArahMataAngin  = () => {
             />
           </div>
         </>
-      ) : (
-        <p>Memuat lokasi GPS...</p>
       )}
     </div>
   );
 };
 
 export default ArahMataAngin ;
+
 
 // "use client"
 //   import { useState, useEffect } from "react";
