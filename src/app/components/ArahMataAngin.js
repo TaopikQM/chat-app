@@ -1,27 +1,26 @@
 "use client"
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const ArahMataAngin  = () => {
-  const [direction, setDirection] = useState(0); // Untuk menyimpan arah kompas dalam derajat
+  const [direction, setDirection] = useState(0); // Arah kompas dalam derajat
   const [error, setError] = useState(null);
 
-  // Mengambil orientasi perangkat dari DeviceOrientation API
   useEffect(() => {
     const handleOrientation = (event) => {
+      // event.alpha memberikan rotasi perangkat pada sumbu Z
       if (event.alpha !== null) {
-        // event.alpha memberikan rotasi perangkat pada sumbu Z (arah utara)
-        setDirection(event.alpha); // set direction sesuai dengan rotasi perangkat
+        setDirection(event.alpha); // Set arah sesuai rotasi perangkat
       }
     };
 
-    // Periksa apakah DeviceOrientation API tersedia
+    // Periksa apakah DeviceOrientationEvent didukung oleh perangkat
     if (window.DeviceOrientationEvent) {
       window.addEventListener('deviceorientation', handleOrientation);
     } else {
-      setError('DeviceOrientationEvent tidak didukung di perangkat ini.');
+      setError('DeviceOrientationEvent tidak didukung oleh perangkat ini.');
     }
 
-    // Bersihkan event listener saat komponen dihapus
+    // Bersihkan event listener ketika komponen dibersihkan
     return () => {
       if (window.DeviceOrientationEvent) {
         window.removeEventListener('deviceorientation', handleOrientation);
@@ -50,7 +49,7 @@ const ArahMataAngin  = () => {
               transform: `rotate(${direction}deg)`, // Rotasi berdasarkan arah
             }}
           >
-            {/* Ikon Panah yang menggunakan CSS */}
+            {/* Ikon Panah menggunakan CSS */}
             <div
               style={{
                 width: '40px',
