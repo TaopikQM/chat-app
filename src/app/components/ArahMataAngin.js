@@ -1,14 +1,13 @@
 "use client"
- import { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 
-const ArahMataAngin = () => {
+const ArahMataAngin  = () => {
+  const [heading, setHeading] = useState(null); // Sudut arah perangkat
+  const [error, setError] = useState(null); // Menangani error
   const [location, setLocation] = useState({ lat: null, lon: null }); // Lokasi GPS
-  const [heading, setHeading] = useState(null); // Orientasi perangkat
-  const [direction, setDirection] = useState(null); // Arah mata angin
-  const [error, setError] = useState(null);
 
   // Fungsi untuk mendapatkan lokasi GPS
-  const fetchGpsLocation = async () => {
+  const fetchGpsLocation = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
@@ -16,16 +15,50 @@ const ArahMataAngin = () => {
           setLocation({ lat: latitude, lon: longitude });
         },
         (error) => {
-          console.error("Error fetching GPS location:", error);
           setError("Gagal mendapatkan lokasi GPS.");
+          console.error(error);
         }
       );
     } else {
-      setError("Geolocation tidak didukung oleh browser ini.");
+      setError("Geolocation tidak didukung oleh browser.");
     }
   };
 
-  // Fungsi untuk menentukan arah mata angin berdasarkan derajat
+  // Fungsi untuk menangani orientasi perangkat
+  const handleOrientation = (event) => {
+    const alpha = event.alpha; // Mengambil sudut utara magnetik perangkat
+    if (alpha !== null) {
+      setHeading(alpha);
+    }
+  };
+
+  useEffect(() => {
+    // Meminta izin perangkat (untuk beberapa browser dan perangkat)
+    if (typeof DeviceOrientationEvent !== "undefined" && DeviceOrientationEvent.requestPermission) {
+      DeviceOrientationEvent.requestPermission().then((permission) => {
+        if (permission !== "granted") {
+          setError("Izin sensor orientasi ditolak.");
+        }
+      });
+    }
+
+    // Ambil lokasi saat pertama kali komponen dimuat
+    fetchGpsLocation();
+
+    // Cek jika perangkat mendukung event orientasi
+    if (window.DeviceOrientationEvent) {
+      window.addEventListener("deviceorientation", handleOrientation);
+    } else {
+      setError("Perangkat Anda tidak mendukung orientasi.");
+    }
+
+    // Cleanup event listener
+    return () => {
+      window.removeEventListener("deviceorientation", handleOrientation);
+    };
+  }, []);
+
+  // Fungsi untuk menentukan arah mata angin
   const calculateDirection = (degree) => {
     if (degree >= 337.5 || degree < 22.5) return "Utara";
     if (degree >= 22.5 && degree < 67.5) return "Timur Laut";
@@ -38,61 +71,24 @@ const ArahMataAngin = () => {
     return "Tidak Diketahui";
   };
 
-  useEffect(() => {
-    fetchGpsLocation(); // Ambil lokasi GPS saat pertama kali komponen dimuat
-
-    const enableOrientation = async () => {
-      if (typeof DeviceOrientationEvent !== "undefined" && DeviceOrientationEvent.requestPermission) {
-        // Untuk browser yang memerlukan izin eksplisit
-        const permission = await DeviceOrientationEvent.requestPermission();
-        if (permission !== "granted") {
-          setError("Izin untuk sensor orientasi ditolak.");
-          return;
-        }
-      }
-
-      if (window.DeviceOrientationEvent) {
-        const handleOrientation = (event) => {
-          const alpha = event.alpha; // Orientasi perangkat terhadap utara magnetik
-          if (alpha !== null) {
-            setHeading(alpha);
-            const arah = calculateDirection(alpha); // Hitung arah mata angin
-            setDirection(arah);
-          }
-        };
-
-        window.addEventListener("deviceorientation", handleOrientation);
-
-        return () => {
-          window.removeEventListener("deviceorientation", handleOrientation);
-        };
-      } else {
-        setError("Perangkat Anda tidak mendukung orientasi.");
-      }
-    };
-
-    enableOrientation();
-  }, []);
-
   return (
     <div style={{ textAlign: "center", marginTop: "50px" }}>
-      <h1>Arah Mata Angin</h1>
+      <h1>Kompas Arah Mata Angin</h1>
       {error ? (
         <p style={{ color: "red" }}>{error}</p>
       ) : (
         <>
           {location.lat && location.lon ? (
             <p>
-              Lokasi Anda: {location.lat.toFixed(6)}° Lat,{" "}
-              {location.lon.toFixed(6)}° Lon
+              Lokasi Anda: {location.lat.toFixed(6)}° Lat, {location.lon.toFixed(6)}° Lon
             </p>
           ) : (
             <p>Memuat lokasi GPS...</p>
           )}
-          {heading !== null && direction ? (
+          {heading !== null ? (
             <>
               <h2>
-                {direction} ({Math.round(heading)}°)
+                {calculateDirection(heading)} ({Math.round(heading)}°)
               </h2>
               <div
                 style={{
@@ -104,7 +100,7 @@ const ArahMataAngin = () => {
                   display: "flex",
                   justifyContent: "center",
                   alignItems: "center",
-                  transform: `rotate(${heading}deg)`,
+                  transform: `rotate(${heading}deg)`, // Mengubah arah kompas
                 }}
               >
                 <span style={{ fontSize: "24px", fontWeight: "bold" }}>N</span>
@@ -119,7 +115,8 @@ const ArahMataAngin = () => {
   );
 };
 
-export default ArahMataAngin;
+export default ArahMataAngin ;
+
 
 
 // "use client"
