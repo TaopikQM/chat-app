@@ -1,7 +1,7 @@
 "use client"
 import { useState, useEffect } from 'react';
 
-const Kompas = () => {
+const ArahMataAngin  = () => {
   const [location, setLocation] = useState(null);
   const [direction, setDirection] = useState(0); // Untuk menyimpan arah kompas
   const [error, setError] = useState(null);
@@ -106,7 +106,7 @@ const Kompas = () => {
   );
 };
 
-export default Kompas;
+export default ArahMataAngin ;
 
 // "use client"
 //   import { useState, useEffect } from "react";
