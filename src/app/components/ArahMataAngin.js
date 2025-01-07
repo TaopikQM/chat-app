@@ -1,87 +1,72 @@
 "use client"
-import { useState, useEffect } from 'react';
+// components/ArahMataAngin.js
+import { useEffect, useState } from 'react';
 
 const ArahMataAngin = () => {
-  const [heading, setHeading] = useState(null);
-  const [isMobile, setIsMobile] = useState(false);
+  const [heading, setHeading] = useState(null); // Device heading angle
+  const [direction, setDirection] = useState(''); // Cardinal direction
 
-  useEffect(() => {
-    // Check if the device supports orientation events
-    if (window.DeviceOrientationEvent) {
-      setIsMobile(true);
-      const handleOrientation = (event) => {
-        const { alpha } = event; // alpha is the direction the device is facing (0-360 degrees)
-        if (alpha !== null) {
-          setHeading(alpha);
-        }
-      };
+  // Function to convert heading to cardinal direction
+  const headingToString = (heading) => {
+    const cardinal = {
+      North: 0,
+      Northeast: 45,
+      East: 90,
+      Southeast: 135,
+      South: 180,
+      Southwest: 225,
+      West: 270,
+      Northwest: 315,
+    };
 
-      window.addEventListener('deviceorientation', handleOrientation);
+    let closestDirection = 'North';
 
-      // Cleanup event listener on component unmount
-      return () => {
-        window.removeEventListener('deviceorientation', handleOrientation);
-      };
-    } else {
-      alert('Device orientation is not supported on this device.');
+    for (const direction in cardinal) {
+      const value = cardinal[direction];
+      if (Math.abs(heading - value) < 30 || (heading >= 330 && heading <= 30)) {
+        closestDirection = direction;
+        break;
+      }
     }
-  }, []);
 
-  if (!isMobile) {
-    return <p>Device orientation is not supported on your device.</p>;
-  }
-
-  const getArrowRotation = (heading) => {
-    // Normalize heading to 0-360 range
-    if (heading === null) return 0;
-    return heading;
+    return closestDirection;
   };
 
+  // Handle device orientation event
+  useEffect(() => {
+    const handleOrientation = (event) => {
+      if (event.alpha !== null) {
+        setHeading(event.alpha);
+        setDirection(headingToString(event.alpha));
+      }
+    };
+
+    // Listen for device orientation changes
+    window.addEventListener('deviceorientation', handleOrientation);
+
+    // Clean up the event listener on component unmount
+    return () => {
+      window.removeEventListener('deviceorientation', handleOrientation);
+    };
+  }, []);
+
   return (
-    <div style={styles.container}>
-      <h1>Find North</h1>
-      <div style={styles.compassContainer}>
-        <div
-          style={{
-            ...styles.arrow,
-            transform: `rotate(${getArrowRotation(heading)}deg)`,
-          }}
-        />
-      </div>
-      <p>Heading: {heading ? heading.toFixed(2) : '0'}°</p>
-      <p>{heading && heading >= 0 && heading < 45 ? 'North' : 'Rotating...'}</p>
+    <div className="flex flex-col items-center justify-center h-screen bg-gray-100">
+      <h1 className="text-2xl font-bold mb-4">Arah Mata Angin Berdasarkan Rotasi HP</h1>
+      {heading !== null ? (
+        <div className="text-center">
+          <p className="text-lg text-gray-700 mb-2">Heading: {heading.toFixed(2)}°</p>
+          <p className="text-3xl font-semibold text-blue-500">{direction}</p>
+        </div>
+      ) : (
+        <p className="text-lg text-gray-500">Menunggu data orientasi...</p>
+      )}
     </div>
   );
 };
 
-const styles = {
-  container: {
-    textAlign: 'center',
-    marginTop: '50px',
-  },
-  compassContainer: {
-    position: 'relative',
-    width: '200px',
-    height: '200px',
-    margin: 'auto',
-    border: '2px solid black',
-    borderRadius: '50%',
-    backgroundColor: '#f0f0f0',
-  },
-  arrow: {
-    position: 'absolute',
-    width: '10px',
-    height: '50px',
-    backgroundColor: 'red',
-    top: '50%',
-    left: '50%',
-    transformOrigin: '50% 100%',
-    marginLeft: '-5px',
-    marginTop: '-100px',
-  },
-};
-
 export default ArahMataAngin;
+
 
 
 
