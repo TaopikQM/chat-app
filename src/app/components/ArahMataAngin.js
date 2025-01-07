@@ -15,7 +15,7 @@ const Kompas = () => {
           setLocation({ lat: latitude, lon: longitude });
         },
         (error) => {
-          setError("Gagal mendapatkan lokasi GPS.");
+          setError("Gagal mendapatkan lokasi GPS2.");
           console.error(error);
         }
       );
