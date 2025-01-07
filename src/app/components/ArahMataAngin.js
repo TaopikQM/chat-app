@@ -1,75 +1,61 @@
 "use client"
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 
-const ArahMataAngin  = () => {
-  const [direction, setDirection] = useState(0); // Arah utara dalam derajat
-  const [error, setError] = useState(null); // Menyimpan error jika tidak didukung
+const ArahMataAngin = () => {
+  const [heading, setHeading] = useState(0); // Default heading
 
-  // Menangkap orientasi perangkat
-  useEffect(() => {
-    const handleOrientation = (event) => {
-      if (event.alpha !== null) {
-        // alpha adalah sudut rotasi perangkat pada sumbu Z (arah perangkat)
-        setDirection(event.alpha);
-      }
+  // Function to determine the cardinal direction
+  const headingToString = (heading) => {
+    let strHeading = '?';
+    const cardinal = {
+      North_1: 0,
+      Northeast: 45,
+      East: 90,
+      Southeast: 135,
+      South: 180,
+      Southwest: 225,
+      West: 270,
+      Northwest: 315,
+      North_2: 360,
     };
 
-    // Mengecek apakah browser mendukung DeviceOrientationEvent
-    if (window.DeviceOrientationEvent) {
-      window.addEventListener('deviceorientation', handleOrientation);
-    } else {
-      setError('DeviceOrientationEvent tidak didukung oleh perangkat ini.');
+    for (const key in cardinal) {
+      const value = cardinal[key];
+      if (Math.abs(heading - value) < 30) {
+        strHeading = key;
+        if (key.includes('North_')) {
+          strHeading = 'North';
+        }
+        break;
+      }
     }
+    return strHeading;
+  };
 
-    // Membersihkan event listener saat komponen di-unmount
-    return () => {
-      if (window.DeviceOrientationEvent) {
-        window.removeEventListener('deviceorientation', handleOrientation);
-      }
-    };
-  }, []);
+  // Handle input change for heading
+  const handleHeadingChange = (event) => {
+    setHeading(parseFloat(event.target.value));
+  };
 
   return (
-    <div style={{ textAlign: 'center', marginTop: '50px' }}>
-      <h1>Kompas Arah Mata Angin</h1>
-      {error ? (
-        <p style={{ color: 'red' }}>{error}</p>
-      ) : (
-        <>
-          <h2>Arah Mata Angin: {direction.toFixed(2)}°</h2>
-          <div
-            style={{
-              margin: '20px auto',
-              width: '150px',
-              height: '150px',
-              border: '5px solid black',
-              borderRadius: '50%',
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              transform: `rotate(${direction}deg)`, // Rotasi panah berdasarkan arah perangkat
-            }}
-          >
-            {/* Ikon panah yang akan berputar */}
-            <div
-              style={{
-                width: '40px',
-                height: '40px',
-                borderTop: '4px solid red',
-                borderRight: '4px solid transparent',
-                borderLeft: '4px solid transparent',
-                borderBottom: '4px solid transparent',
-                transformOrigin: 'center',
-              }}
-            />
-          </div>
-        </>
-      )}
+    <div>
+      <h1>Compass Direction</h1>
+      <input
+        type="number"
+        value={heading}
+        onChange={handleHeadingChange}
+        step="1"
+        min="0"
+        max="360"
+      />
+      <p>Heading: {heading}°</p>
+      <p>Direction: {headingToString(heading)}</p>
     </div>
   );
 };
 
-export default ArahMataAngin ;
+export default ArahMataAngin;
+
 
 
 
