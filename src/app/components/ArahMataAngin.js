@@ -1,7 +1,6 @@
 "use client"
 import { useState, useEffect } from 'react';
 
-// Fungsi untuk menghitung azimuth antara dua titik menggunakan rumus Haversine
 const calculateAzimuth = (lat1, lon1, lat2, lon2) => {
   const toRad = (angle) => angle * (Math.PI / 180);
   const toDeg = (rad) => rad * (180 / Math.PI);
@@ -21,7 +20,6 @@ const calculateAzimuth = (lat1, lon1, lat2, lon2) => {
   return (azimuth + 360) % 360; // Mengembalikan azimuth dalam derajat antara 0 dan 360
 };
 
-// Fungsi untuk menentukan arah berdasarkan azimuth
 const calculateDirection = (degree) => {
   if (degree >= 337.5 || degree < 22.5) return "Utara";
   if (degree >= 22.5 && degree < 67.5) return "Timur Laut";
@@ -39,7 +37,6 @@ const ArahMataAngin  = () => {
   const [direction, setDirection] = useState(null);
   const [error, setError] = useState(null);
 
-  // Fungsi untuk mendapatkan lokasi GPS
   const fetchGpsLocation = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -63,7 +60,6 @@ const ArahMataAngin  = () => {
 
   useEffect(() => {
     if (location) {
-      // Menghitung azimuth antara lokasi pengguna dan titik utara geografis
       const azimuth = calculateAzimuth(location.lat, location.lon, 0, 0);
       const dir = calculateDirection(azimuth);
       setDirection(dir);
@@ -96,7 +92,15 @@ const ArahMataAngin  = () => {
               transform: `rotate(${calculateAzimuth(location.lat, location.lon, 0, 0)}deg)`,
             }}
           >
-            <span style={{ fontSize: '24px', fontWeight: 'bold' }}>N</span>
+            <img
+              src="https://upload.wikimedia.org/wikipedia/commons/3/37/Red_arrow.svg" // URL gambar panah (bisa diganti dengan gambar lain)
+              alt="Panah"
+              style={{
+                width: '50px',
+                height: '50px',
+                transform: `rotate(${calculateAzimuth(location.lat, location.lon, 0, 0)}deg)`, // Menyesuaikan arah panah dengan azimuth
+              }}
+            />
           </div>
         </>
       ) : (
@@ -107,6 +111,7 @@ const ArahMataAngin  = () => {
 };
 
 export default ArahMataAngin ;
+
 
 
 // "use client"
