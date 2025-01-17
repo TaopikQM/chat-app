@@ -163,7 +163,8 @@ const PrayerTimes = () => {
         </div>
       ) : (
         <div id="randomLoaderContainer" className="flex justify-center items-center h-screen">
-          <div dangerouslySetInnerHTML={{ __html: loaderHtml }} />
+          <p>Loading prayer times...</p>
+        
         </div>
       )}
     </div>
@@ -171,3 +172,5 @@ const PrayerTimes = () => {
 };
 
 export default PrayerTimes;
+// /<div dangerouslySetInnerHTML={{ __html: loaderHtml }} />
+         
