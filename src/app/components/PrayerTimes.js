@@ -22,11 +22,11 @@ const PrayerTimes = () => {
 
   // Format waktu sesuai dengan zona waktu Jakarta, termasuk detik
   const formatTimeWithSeconds = (time) => {
-    const [hours, minutes, seconds] = time.split(":").map(Number);
+    const [hours, minutes] = time.split(":").map(Number);
     const date = new Date();
     date.setHours(hours + 7); // Menambahkan 7 jam untuk waktu WIB
     date.setMinutes(minutes);
-    // date.setSeconds(seconds);
+    // date.setSeconds(seconds);, seconds
 
     return date.toLocaleTimeString([], { hour12: false });
   };
