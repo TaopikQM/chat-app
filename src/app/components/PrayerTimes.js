@@ -26,7 +26,7 @@ const PrayerTimes = () => {
     const date = new Date();
     date.setHours(hours + 7); // Menambahkan 7 jam untuk waktu WIB
     date.setMinutes(minutes);
-    date.setSeconds(seconds);
+    // date.setSeconds(seconds);
 
     return date.toLocaleTimeString([], { hour12: false });
   };
