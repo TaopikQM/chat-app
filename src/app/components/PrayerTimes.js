@@ -6,6 +6,8 @@ const PrayerTimes = () => {
   const [prayerTimes, setPrayerTimes] = useState(null);
   const [currentTime, setCurrentTime] = useState(new Date());
   
+  const [loaderHtml, setLoaderHtml] = useState(null);
+  
   // Fungsi untuk mendapatkan tanggal hari ini dalam format DD-MM-YYYY di zona waktu Jakarta
   const getFormattedDate = () => {
     const jakartaOffset = 7 * 60; // Offset untuk Jakarta dalam menit (UTC+7)
@@ -127,10 +129,10 @@ const PrayerTimes = () => {
   ];
 
   // Fungsi untuk memilih loader secara acak dan menampilkannya
-  const showRandomLoader = () => {
-    const randomIndex = Math.floor(Math.random() * loaders.length); // Pilih acak loader
-    return loaders[randomIndex]; // Return loader acak
-  };
+  useEffect(() => {
+    const randomIndex = Math.floor(Math.random() * loaders.length);
+    setLoaderHtml(loaders[randomIndex]); // Set loader acak
+  }, []);
 
   return (
     <div className="p-4 space-y-6">
@@ -159,7 +161,7 @@ const PrayerTimes = () => {
         </div>
       ) : (
         <div id="randomLoaderContainer" className="flex justify-center items-center h-screen">
-          <div dangerouslySetInnerHTML={{ __html: showRandomLoader() }} />
+          <div dangerouslySetInnerHTML={{ __html: loaderHtml }} />
         </div>
       )}
     </div>
