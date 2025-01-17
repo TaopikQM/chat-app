@@ -30,7 +30,8 @@ const PrayerTimes = () => {
     date.setMinutes(minutes);
     // date.setSeconds(seconds);, seconds
 
-    return date.toLocaleTimeString([], { hour12: false });
+  //  return date.toLocaleTimeString([], { hour12: false });
+    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   };
 
   const fetchPrayerTimes = async () => {
