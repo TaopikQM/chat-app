@@ -56,18 +56,32 @@ const PrayerTimes = () => {
     fetchPrayerTimes();
   }, []);
 
+   // Menerjemahkan waktu sholat ke Bahasa Indonesia
+  const prayerNames = {
+    Fajr: "Subuh",
+    Dhuhr: "Dhuha",
+    Asr: "Ashar",
+    Maghrib: "Maghrib",
+    Isha: "Isya",
+    Sunrise: "Terbit",
+    Sunset: "Tenggelam",
+    Imsak: "Imsak",
+    Midnight: "Tengah Malam",
+    Firstthird: "Sepertiga Pertama",
+    Lastthird: "Sepertiga Terakhir",
+  };
+
   return (
     <div className="p-4 space-y-6">
       {prayerTimes ? (
         <div className="space-y-4">
           {/* Kotak Digital dan Tanggal */}
-          <div className="flex justify-between items-center rounded-lg p-4 bg-gray-800 text-white">
+          <div className="flex justify-center items-center rounded-lg p-4 bg-gray-800 text-white">
             <div className="text-3xl font-semibold">
               {currentTime.toLocaleTimeString("en-GB", { hour12: false })}
             </div>
-            <div>
-              <p className="text-sm">{getFormattedDate().date}</p>
-              <p className="text-lg">{getFormattedDate().day}</p>
+            <div className="flex justify-center text-white">
+              <p className="text-xl">{getFormattedDate().day}, {getFormattedDate().date}</p>
             </div>
           </div>
 
@@ -75,8 +89,11 @@ const PrayerTimes = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
             {Object.keys(prayerTimes).map((prayer) => (
               <div key={prayer} className="flex flex-col items-center bg-blue-600 text-white rounded-lg p-4 shadow-md">
-                <div className="text-lg font-semibold">{prayer}</div>
+                // <div className="text-lg font-semibold">{prayer}</div>
+                <div className="text-lg font-semibold">{prayerNames[prayer] || prayer}</div>
                 <div className="text-xl">{formatTimeWithSeconds(prayerTimes[prayer])}</div>
+              
+                // <div className="text-xl">{formatTimeWithSeconds(prayerTimes[prayer])}</div>
               </div>
             ))}
           </div>
