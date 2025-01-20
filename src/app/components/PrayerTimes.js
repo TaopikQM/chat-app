@@ -9,6 +9,8 @@ const PrayerTimes = () => {
   // const [loaderHtml, setLoaderHtml] = useState(null);
 
   const [currentLoader, setCurrentLoader] = useState("");
+  setCurrentLoader(loaders[0]);
+
   // const [loaderHtml, setLoaderHtml] = useState(loaders[0]); 
   
   // Fungsi untuk mendapatkan tanggal hari ini dalam format DD-MM-YYYY di zona waktu Jakarta
@@ -167,7 +169,8 @@ const PrayerTimes = () => {
         </div>
       ) : (
         <div  className="flex justify-center items-center h-screen">
-          <div dangerouslySetInnerHTML={{ __html: currentLoader }} />
+        <div dangerouslySetInnerHTML={{ __html: currentLoader }} />
+
         </div>
       )}
     </div>
