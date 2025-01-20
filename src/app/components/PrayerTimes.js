@@ -7,7 +7,9 @@ const PrayerTimes = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
   
   // const [loaderHtml, setLoaderHtml] = useState(null);
-const [loaderHtml, setLoaderHtml] = useState(loaders[0]); 
+
+  const [currentLoader, setCurrentLoader] = useState("");
+  // const [loaderHtml, setLoaderHtml] = useState(loaders[0]); 
   
   // Fungsi untuk mendapatkan tanggal hari ini dalam format DD-MM-YYYY di zona waktu Jakarta
   const getFormattedDate = () => {
@@ -164,12 +166,8 @@ const [loaderHtml, setLoaderHtml] = useState(loaders[0]);
           </div>
         </div>
       ) : (
-        <div id="randomLoaderContainer" className="flex justify-center items-center h-screen">
-          {loaderHtml && (
-  <div dangerouslySetInnerHTML={{ __html: loaderHtml }} />
-)}
-
-        
+        <div  className="flex justify-center items-center h-screen">
+          <div dangerouslySetInnerHTML={{ __html: currentLoader }} />
         </div>
       )}
     </div>
@@ -177,5 +175,8 @@ const [loaderHtml, setLoaderHtml] = useState(loaders[0]);
 };
 
 export default PrayerTimes;
+// <div id="randomLoaderContainer" className="flex justify-center items-center h-screen">
+//            <p>Loading prayer times...</p>
+
 // /<div dangerouslySetInnerHTML={{ __html: loaderHtml }} />
          
