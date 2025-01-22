@@ -1,5 +1,5 @@
 // pages/index.js
-import PrayerTimes from "../components/ProvinsiPulauForm";
+import ProvinsiPulauForm from "../components/ProvinsiPulauForm";
 
 export default function Home() {
   return (
