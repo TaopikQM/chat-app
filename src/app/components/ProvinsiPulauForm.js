@@ -1,33 +1,51 @@
 "use client";
-import React, { useState, useEffect } from 'react';
-import { database } from '../config/firebase';  // Pastikan konfigurasi Firebase sudah benar
-import { collection, addDoc } from 'firebase/firestore';
+import React, { useState } from "react";
+import { database } from "../config/firebase"; // Pastikan konfigurasi Firebase sudah benar
+import { ref as databaseRef, push, set } from "firebase/database";
 
 const ProvinsiPulauForm = () => {
-  const [pulau, setPulau] = useState('');
+  const [pulau, setPulau] = useState("");
   const [provinsiList, setProvinsiList] = useState([]);
 
   // Data Provinsi berdasarkan Pulau
   const pulauProvinsiData = {
     Sumatera: [
-      'Aceh', 'Sumatera Utara', 'Sumatera Barat', 'Riau', 'Kepulauan Riau', 'Jambi',
-      'Bengkulu', 'Sumatera Selatan', 'Kepulauan Bangka Belitung', 'Lampung'
+      "Aceh",
+      "Sumatera Utara",
+      "Sumatera Barat",
+      "Riau",
+      "Kepulauan Riau",
+      "Jambi",
+      "Bengkulu",
+      "Sumatera Selatan",
+      "Kepulauan Bangka Belitung",
+      "Lampung",
     ],
     Jawa: [
-      'Banten', 'DKI Jakarta', 'Jawa Barat', 'Jawa Tengah', 'DI Yogyakarta', 'Jawa Timur'
+      "Banten",
+      "DKI Jakarta",
+      "Jawa Barat",
+      "Jawa Tengah",
+      "DI Yogyakarta",
+      "Jawa Timur",
     ],
-    'Bali dan Nusa Tenggara': [
-      'Bali', 'Nusa Tenggara Barat', 'Nusa Tenggara Timur'
-    ],
+    "Bali dan Nusa Tenggara": ["Bali", "Nusa Tenggara Barat", "Nusa Tenggara Timur"],
     Kalimantan: [
-      'Kalimantan Barat', 'Kalimantan Tengah', 'Kalimantan Selatan', 'Kalimantan Timur', 'Kalimantan Utara'
+      "Kalimantan Barat",
+      "Kalimantan Tengah",
+      "Kalimantan Selatan",
+      "Kalimantan Timur",
+      "Kalimantan Utara",
     ],
     Sulawesi: [
-      'Sulawesi Barat', 'Sulawesi Selatan', 'Sulawesi Tenggara', 'Sulawesi Tengah', 'Sulawesi Utara', 'Gorontalo'
+      "Sulawesi Barat",
+      "Sulawesi Selatan",
+      "Sulawesi Tenggara",
+      "Sulawesi Tengah",
+      "Sulawesi Utara",
+      "Gorontalo",
     ],
-    'Maluku dan Papua': [
-      'Maluku', 'Maluku Utara', 'Papua Barat', 'Papua'
-    ]
+    "Maluku dan Papua": ["Maluku", "Maluku Utara", "Papua Barat", "Papua"],
   };
 
   // Ketika pulau dipilih, set daftar provinsi sesuai dengan pulau yang dipilih
@@ -37,16 +55,20 @@ const ProvinsiPulauForm = () => {
     setProvinsiList(pulauProvinsiData[selectedPulau] || []);
   };
 
-  // Simpan semua provinsi dalam satu pulau ke Firebase
+  // Simpan semua provinsi dalam satu pulau ke Firebase Realtime Database
   const handleSimpanProvinsi = async () => {
     if (!pulau || provinsiList.length === 0) {
-      alert('Pilih pulau terlebih dahulu!');
+      alert("Pilih pulau terlebih dahulu!");
       return;
     }
 
     try {
-      const batch = provinsiList.map(async (provinsi, index) => {
-        await addDoc(collection(database, 'pulau', pulau, 'provinsi'), {
+      const pulauRef = databaseRef(database, `pulau/${pulau}/provinsi`);
+
+      provinsiList.forEach(async (provinsi, index) => {
+        const newProvRef = push(pulauRef); // Buat ID unik untuk setiap provinsi
+        await set(newProvRef, {
+          id: newProvRef.key, // ID unik dari Firebase
           name_pulau: pulau,
           name_provinsi: provinsi,
           urutan: index + 1,
@@ -54,10 +76,10 @@ const ProvinsiPulauForm = () => {
         });
       });
 
-      await Promise.all(batch);
-      alert(`Semua provinsi di ${pulau} berhasil disimpan!`);
+      alert(`Semua provinsi di ${pulau} berhasil disimpan ke Realtime Database!`);
     } catch (error) {
-      console.error('Error adding documents:', error);
+      console.error("Error adding data:", error);
+      alert("Gagal menyimpan data! Cek console.");
     }
   };
 
@@ -96,6 +118,7 @@ const ProvinsiPulauForm = () => {
 };
 
 export default ProvinsiPulauForm;
+
 
 // import React, { useState, useEffect } from 'react';
 
