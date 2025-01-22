@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 
-import { db } from '../config/firebase';  // Pastikan konfigurasi Firebase sudah benar
+import { database } from '../config/firebase';  // Pastikan konfigurasi Firebase sudah benar
 import { collection, addDoc, getDocs, query, orderBy } from 'firebase/firestore';
 
 const ProvinsiPulauForm = () => {
@@ -58,7 +58,7 @@ const ProvinsiPulauForm = () => {
 
     try {
       const createdAt = new Date();
-      const docRef = await addDoc(collection(db, 'pulau', pulau, 'provinsi'), {
+      const docRef = await addDoc(collection(database, 'pulau', pulau, 'provinsi'), {
         name_pulau: pulau,
         name_provinsi: provinsi,
         urutan: urutan,
