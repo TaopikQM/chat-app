@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 
-import { db } from './firebaseConfig';  // Pastikan konfigurasi Firebase sudah benar
+import { db } from '../config/firebase';  // Pastikan konfigurasi Firebase sudah benar
 import { collection, addDoc, getDocs, query, orderBy } from 'firebase/firestore';
 
 const ProvinsiPulauForm = () => {
