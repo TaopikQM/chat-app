@@ -8,45 +8,50 @@ const ProvinsiPulauForm = () => {
   const [provinsiList, setProvinsiList] = useState([]);
 
   // Data Provinsi berdasarkan Pulau
-  const pulauProvinsiData = {
-    Sumatera: [
-      "Aceh",
-      "Sumatera Utara",
-      "Sumatera Barat",
-      "Riau",
-      "Kepulauan Riau",
-      "Jambi",
-      "Bengkulu",
-      "Sumatera Selatan",
-      "Kepulauan Bangka Belitung",
-      "Lampung",
-    ],
-    Jawa: [
-      "Banten",
-      "DKI Jakarta",
-      "Jawa Barat",
-      "Jawa Tengah",
-      "DI Yogyakarta",
-      "Jawa Timur",
-    ],
-    "Bali dan Nusa Tenggara": ["Bali", "Nusa Tenggara Barat", "Nusa Tenggara Timur"],
-    Kalimantan: [
-      "Kalimantan Barat",
-      "Kalimantan Tengah",
-      "Kalimantan Selatan",
-      "Kalimantan Timur",
-      "Kalimantan Utara",
-    ],
-    Sulawesi: [
-      "Sulawesi Barat",
-      "Sulawesi Selatan",
-      "Sulawesi Tenggara",
-      "Sulawesi Tengah",
-      "Sulawesi Utara",
-      "Gorontalo",
-    ],
-    "Maluku dan Papua": ["Maluku", "Maluku Utara", "Papua Barat", "Papua"],
-  };
+  const pulauProvinsiData = [
+    {
+      name: "Sumatera",
+      urutan: 1,
+      provinsi: [
+        "Aceh",
+        "Sumatera Utara",
+        "Sumatera Barat",
+        "Riau",
+        "Kepulauan Riau",
+        "Jambi",
+        "Bengkulu",
+        "Sumatera Selatan",
+        "Kepulauan Bangka Belitung",
+        "Lampung",
+      ],
+    },
+    {
+      name: "Jawa",
+      urutan: 2,
+      provinsi: ["Banten", "DKI Jakarta", "Jawa Barat", "Jawa Tengah", "DI Yogyakarta", "Jawa Timur"],
+    },
+    {
+      name: "Bali dan Nusa Tenggara",
+      urutan: 3,
+      provinsi: ["Bali", "Nusa Tenggara Barat", "Nusa Tenggara Timur"],
+    },
+    {
+      name: "Kalimantan",
+      urutan: 4,
+      provinsi: ["Kalimantan Barat", "Kalimantan Tengah", "Kalimantan Selatan", "Kalimantan Timur", "Kalimantan Utara"],
+    },
+    {
+      name: "Sulawesi",
+      urutan: 5,
+      provinsi: ["Sulawesi Barat", "Sulawesi Selatan", "Sulawesi Tenggara", "Sulawesi Tengah", "Sulawesi Utara", "Gorontalo"],
+    },
+    {
+      name: "Maluku dan Papua",
+      urutan: 6,
+      provinsi: ["Maluku", "Maluku Utara", "Papua Barat", "Papua"],
+    },
+  ];
+
 
   // Ketika pulau dipilih, set daftar provinsi sesuai dengan pulau yang dipilih
   const handlePulauChange = (event) => {
