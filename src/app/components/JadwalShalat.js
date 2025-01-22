@@ -105,7 +105,15 @@ const JadwalShalat = () => {
 
       <div>
         <label>Pilih Kabupaten/Kota:</label>
-        <select value={kabupaten} onChange={(e) => setKabupaten(e.target.value)}>
+        <select value={provinsi} onChange={(e) => {
+            const selectedProvinsi = e.target.value;
+            setProvinsi(selectedProvinsi);
+            // Menampilkan provinsi yang dipilih di console
+            const selectedProvinsiObj = provinsiList.find((prov) => prov.id === selectedProvinsi);
+            if (selectedProvinsiObj) {
+              console.log(`Provinsi yang dipilih: ${selectedProvinsiObj.name}`);
+            }
+          }}>
           <option value="">Pilih Kabupaten</option>
           {listKabupaten.map((kab, index) => (
             <option key={index} value={kab.id}>{kab.nama}</option>
