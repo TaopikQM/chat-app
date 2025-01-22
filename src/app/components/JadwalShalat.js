@@ -31,6 +31,7 @@ const JadwalShalat = () => {
               provArray.push({
                 id: prov.id, // ID provinsi
                 name: prov.name_provinsi.toUpperCase(), // Nama provinsi
+                key: prov.key, // key
                 urutan: data[pulauKey].urutan_pulau, // Urutan provinsi berdasarkan urutan_pulau
               });
             });
@@ -51,7 +52,7 @@ const JadwalShalat = () => {
           const selectedProvinsi = provinsiList.find((prov) => prov.id === provinsi);
           if (selectedProvinsi) {
             // Mengirimkan name_provinsi
-            getKabupaten(selectedProvinsi.name);
+            getKabupaten(selectedProvinsi.key);
           }
       }
   }, [provinsi]);
