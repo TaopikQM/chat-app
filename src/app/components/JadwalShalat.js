@@ -30,7 +30,7 @@ const JadwalShalat = () => {
               const prov = provinsiObj[provKey];
               provArray.push({
                 id: prov.id, // ID provinsi
-                name: prov.name_provinsi, // Nama provinsi
+                name: prov.name_provinsi.toUpperCase(), // Nama provinsi
                 urutan: data[pulauKey].urutan_pulau, // Urutan provinsi berdasarkan urutan_pulau
               });
             });
@@ -48,12 +48,12 @@ const JadwalShalat = () => {
   useEffect(() => {
      if (provinsi) {
     // Menemukan provinsi yang dipilih dari provinsiList
-    const selectedProvinsi = provinsiList.find((prov) => prov.id === provinsi);
-    if (selectedProvinsi) {
-      // Mengirimkan name_provinsi
-      getKabupaten(selectedProvinsi.name);
-    }
-  }
+          const selectedProvinsi = provinsiList.find((prov) => prov.id === provinsi);
+          if (selectedProvinsi) {
+            // Mengirimkan name_provinsi
+            getKabupaten(selectedProvinsi.name);
+          }
+      }
   }, [provinsi]);
 
   const getKabupaten = async (prov) => {
