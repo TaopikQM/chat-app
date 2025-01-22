@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import { db } from './firebaseConfig';  // Pastikan konfigurasi Firebase sudah benar
+import { database } from '../config/firebase';  // Pastikan konfigurasi Firebase sudah benar
 import { collection, addDoc } from 'firebase/firestore';
 
 const ProvinsiPulauForm = () => {
@@ -46,7 +46,7 @@ const ProvinsiPulauForm = () => {
 
     try {
       const batch = provinsiList.map(async (provinsi, index) => {
-        await addDoc(collection(db, 'pulau', pulau, 'provinsi'), {
+        await addDoc(collection(database, 'pulau', pulau, 'provinsi'), {
           name_pulau: pulau,
           name_provinsi: provinsi,
           urutan: index + 1,
