@@ -46,9 +46,14 @@ const JadwalShalat = () => {
 
   // Ambil data kabupaten saat provinsi berubah
   useEffect(() => {
-    if (provinsi) {
-      getKabupaten(provinsi);
+     if (provinsi) {
+    // Menemukan provinsi yang dipilih dari provinsiList
+    const selectedProvinsi = provinsiList.find((prov) => prov.id === provinsi);
+    if (selectedProvinsi) {
+      // Mengirimkan name_provinsi
+      getKabupaten(selectedProvinsi.name);
     }
+  }
   }, [provinsi]);
 
   const getKabupaten = async (prov) => {
