@@ -68,7 +68,6 @@ const ProvinsiPulauForm = () => {
       provinsiList.forEach(async (provinsi, index) => {
         const newProvRef = push(pulauRef); // Buat ID unik untuk setiap provinsi
         await set(newProvRef, {
-          id: newProvRef.key, // ID unik dari Firebase
           name_pulau: pulau,
           name_provinsi: provinsi,
           urutan: index + 1,
