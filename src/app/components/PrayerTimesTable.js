@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 export default function PrayerTimesTable() {
   const [prayerTimes, setPrayerTimes] = useState([]);
   const [currentTime, setCurrentTime] = useState(new Date());
-  const [today, setToday] = useState("");
+  const [today, setToday] = useState('');
 
   useEffect(() => {
     // Ambil data jadwal sholat dari API
