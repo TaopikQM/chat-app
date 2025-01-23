@@ -20,7 +20,7 @@ const Chat = ({ user }) => {
     
     // Fetch messages and user status from Firebase on component mount
     useEffect(() => {
-        const messagesRef = databaseRef(database, `messagesdes2/${user.id}/${otherUser.id}`);
+        const messagesRef = databaseRef(database, `januari/${user.id}/${otherUser.id}`);
         onValue(messagesRef, (snapshot) => {
             const data = snapshot.val();
             const loadedMessages = data ? Object.values(data) : [];
@@ -29,8 +29,8 @@ const Chat = ({ user }) => {
             // Mark all messages as read when the user views the chat
             loadedMessages.forEach((msg) => {
                 if (!msg.read && msg.sender !== user.id) {
-                    update(databaseRef(database, `messagesdes2/${user.id}/${otherUser.id}/${msg.id}`), { read: true });
-                    update(databaseRef(database, `messagesdes2/${otherUser.id}/${user.id}/${msg.id}`), { read: true });
+                    update(databaseRef(database, `januari/${user.id}/${otherUser.id}/${msg.id}`), { read: true });
+                    update(databaseRef(database, `januari/${otherUser.id}/${user.id}/${msg.id}`), { read: true });
                 }
             });
         });
@@ -89,7 +89,7 @@ const Chat = ({ user }) => {
     const sendMessage = async () => {
         if (messageText.trim() === "" && selectedFiles.length === 0) return; // Prevent sending empty messages
 
-        const messagesRef = databaseRef(database, `messagesdes2/${user.id}/${otherUser.id}`);
+        const messagesRef = databaseRef(database, `januari/${user.id}/${otherUser.id}`);
         const newMessage = {
             text: messageText,
             sender: user.id,
@@ -116,7 +116,7 @@ const Chat = ({ user }) => {
         setSelectedFiles([]); // Clear selected files
 
         // Update the recipient's message status
-        const recipientRef = databaseRef(database, `messagesdes2/${otherUser.id}/${user.id}`);
+        const recipientRef = databaseRef(database, `januari/${otherUser.id}/${user.id}`);
         await push(recipientRef, { ...newMessage, id: newMsgRef.key });
 
         setUploading(false);
