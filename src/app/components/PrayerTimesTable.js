@@ -57,6 +57,20 @@ export default function PrayerTimesTable() {
         {currentTime.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
       </div>
 
+     {/* Kotak-kotak jam sholat */}
+      {!loading && prayerTimes.length > 0 && (
+        <div className="flex justify-center gap-4 mb-6">
+          {Object.entries(prayerTimes[0].timings)
+            .filter(([key]) => ["Imsak", "Fajr", "Sunrise", "Dhuhr", "Asr", "Maghrib", "Isha", "Midnight"].includes(key))
+            .map(([key, time], index) => (
+              <div key={index} className="bg-blue-500 text-white p-3 rounded-lg text-center shadow-md w-24">
+                <p className="text-sm font-semibold">{key}</p>
+                <p className="text-lg font-bold">{convertToWIB(time.split(" ")[0])}</p>
+              </div>
+            ))}
+        </div>
+      )}
+
       {/* Judul */}
       <h2 className="text-center text-3xl font-semibold text-blue-600">Jadwal Sholat Bulanan</h2>
       <p className="text-center text-gray-500 mt-2">{today}</p>
