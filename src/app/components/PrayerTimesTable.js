@@ -85,7 +85,7 @@ export default function PrayerTimesTable() {
               <tr key={index} className={`text-center ${isTodayRow ? "bg-yellow-200 font-bold" : ""}`}>
                   <td className="border border-gray-300 p-2">
                     {day.date.gregorian.date} 
-                    {isTodayRow && }
+                    {isTodayRow}
                   </td>
                 <td className="border border-gray-300 p-2">{convertToWIB(day.timings.Imsak)}</td>
                 <td className="border border-gray-300 p-2">{convertToWIB(day.timings.Fajr)}</td>
