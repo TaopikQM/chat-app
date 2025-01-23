@@ -50,7 +50,7 @@ export default function PrayerTimesTable() {
     if (!timeString) return "-";
     const [hours, minutes] = timeString.split(" ")[0].split(":").map(Number);
     let newHours = (hours + 7) % 24;
-    return `${String(newHours).padStart(2, "0")}:${String(minutes).padStart(2, "0")} WIB`;
+    return `${String(newHours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
   };
 
   // Fungsi untuk mengecek apakah tanggal dari API adalah hari ini
