@@ -35,6 +35,14 @@ export default function PrayerTimesTable() {
     setToday(date.toLocaleDateString("id-ID", options));
   }, []);
 
+   // Fungsi untuk konversi waktu UTC ke WIB
+  const convertToWIB = (timeString) => {
+    if (!timeString) return "-";
+    const [hours, minutes] = timeString.split(" ")[0].split(":").map(Number);
+    let newHours = (hours + 7) % 24;
+    return `${String(newHours).padStart(2, "0")}:${String(minutes).padStart(2, "0")} WIB`;
+  };
+
   return (
     <div className="max-w-4xl mx-auto p-6 bg-white shadow-lg rounded-lg">
       {/* Jam Digital */}
@@ -66,14 +74,14 @@ export default function PrayerTimesTable() {
             {prayerTimes.map((day, index) => (
               <tr key={index} className="text-center">
                 <td className="border border-gray-300 p-2">{day.date.gregorian.date}</td>
-                <td className="border border-gray-300 p-2">{day.timings.Imsak}</td>
-                <td className="border border-gray-300 p-2">{day.timings.Fajr}</td>
-                <td className="border border-gray-300 p-2">{day.timings.Sunrise}</td>
-                <td className="border border-gray-300 p-2">{day.timings.Dhuhr}</td>
-                <td className="border border-gray-300 p-2">{day.timings.Asr}</td>
-                <td className="border border-gray-300 p-2">{day.timings.Maghrib}</td>
-                <td className="border border-gray-300 p-2">{day.timings.Isha}</td>
-                <td className="border border-gray-300 p-2">{day.timings.Midnight}</td>
+                <td className="border border-gray-300 p-2">{convertToWIB(day.timings.Imsak)}</td>
+                <td className="border border-gray-300 p-2">{convertToWIB(day.timings.Fajr)}</td>
+                <td className="border border-gray-300 p-2">{convertToWIB(day.timings.Sunrise)}</td>
+                <td className="border border-gray-300 p-2">{convertToWIB(day.timings.Dhuhr)}</td>
+                <td className="border border-gray-300 p-2">{convertToWIB(day.timings.Asr)}</td>
+                <td className="border border-gray-300 p-2">{convertToWIB(day.timings.Maghrib)}</td>
+                <td className="border border-gray-300 p-2">{convertToWIB(day.timings.Isha)}</td>
+                <td className="border border-gray-300 p-2">{convertToWIB(day.timings.Midnight)}</td>
               </tr>
             ))}
           </tbody>
