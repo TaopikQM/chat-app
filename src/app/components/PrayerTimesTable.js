@@ -61,7 +61,7 @@ export default function PrayerTimesTable() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-white shadow-lg rounded-lg">
+    <div className="">
       {/* Jam Digital */}
       <div className="text-center text-2xl font-bold text-gray-700 mb-4">
         {currentTime.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
