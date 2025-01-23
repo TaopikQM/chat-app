@@ -6,17 +6,27 @@ export default function PrayerTimesTable() {
   const [prayerTimes, setPrayerTimes] = useState([]);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [today, setToday] = useState('');
+  
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Ambil data jadwal sholat dari API
-    fetch("https://api.aladhan.com/v1/calendar/2025/1?latitude=-6.9667&longitude=110.4167&method=20&shafaq=general&tune=5%2C3%2C5%2C7%2C9%2C-1%2C0%2C8%2C-6&timezonestring=UTC&calendarMethod=UAQ")
-      .then(response => response.json())
-      .then(data => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch(
+          "https://api.aladhan.com/v1/calendar/2025/1?latitude=-6.9667&longitude=110.4167&method=20&shafaq=general&tune=5%2C3%2C5%2C7%2C9%2C-1%2C0%2C8%2C-6&timezonestring=UTC&calendarMethod=UAQ"
+        );
+        const data = await response.json();
         if (data && data.data) {
           setPrayerTimes(data.data);
+          setLoading(false);
         }
-      })
-      .catch(error => console.error("Error fetching data:", error));
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        setLoading(false);
+      }
+    };
+
+    fetchData();
   }, []);
 
   useEffect(() => {
