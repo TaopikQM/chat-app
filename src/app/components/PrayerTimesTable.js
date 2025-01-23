@@ -43,6 +43,13 @@ export default function PrayerTimesTable() {
     return `${String(newHours).padStart(2, "0")}:${String(minutes).padStart(2, "0")} WIB`;
   };
 
+  // Fungsi untuk mengecek apakah tanggal dari API adalah hari ini
+  const isToday = (dateString) => {
+    const today = new Date();
+    const [day, month, year] = dateString.split("-").map(Number);
+    return today.getDate() === day && today.getMonth() + 1 === month && today.getFullYear() === year;
+  };
+
   return (
     <div className="max-w-4xl mx-auto p-6 bg-white shadow-lg rounded-lg">
       {/* Jam Digital */}
@@ -68,10 +75,13 @@ export default function PrayerTimesTable() {
               <th className="border border-gray-300 p-2">Maghrib</th>
               <th className="border border-gray-300 p-2">Isya</th>
               <th className="border border-gray-300 p-2">Tengah Malam</th>
+              <th className="border border-gray-300 p-2">Sepertiga Malam</th>
             </tr>
           </thead>
           <tbody>
-            {prayerTimes.map((day, index) => (
+            {prayerTimes.map((day, index) => {
+              const isTodayRow = isToday(day.date.gregorian.date);
+              return (
               <tr key={index} className="text-center">
                 <td className="border border-gray-300 p-2">{day.date.gregorian.date}</td>
                 <td className="border border-gray-300 p-2">{convertToWIB(day.timings.Imsak)}</td>
@@ -82,8 +92,10 @@ export default function PrayerTimesTable() {
                 <td className="border border-gray-300 p-2">{convertToWIB(day.timings.Maghrib)}</td>
                 <td className="border border-gray-300 p-2">{convertToWIB(day.timings.Isha)}</td>
                 <td className="border border-gray-300 p-2">{convertToWIB(day.timings.Midnight)}</td>
+                <td className="border border-gray-300 p-2">{convertToWIB(day.timings.Lastthird)}</td>
               </tr>
-            ))}
+            );
+            })}
           </tbody>
         </table>
       </div>
