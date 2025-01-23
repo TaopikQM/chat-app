@@ -68,18 +68,21 @@ export default function PrayerTimesTable() {
       </div>
 
      {/* Kotak-kotak jam sholat */}
-      {!loading && prayerTimes.length > 0 && (
-        <div className="flex justify-center gap-4 mb-6">
-          {Object.entries(prayerTimes[0].timings)
-            .filter(([key]) => ["Imsak", "Fajr", "Sunrise", "Dhuhr", "Asr", "Maghrib", "Isha", "Midnight"].includes(key))
-            .map(([key, time], index) => (
-              <div key={index} className="bg-blue-500 text-white p-3 rounded-lg text-center shadow-md w-24">
-                <p className="text-sm font-semibold">{key}</p>
-                <p className="text-lg font-bold">{convertToWIB(time.split(" ")[0])}</p>
-              </div>
-            ))}
+     {!loading && prayerTimes.length > 0 && (
+        <div className="overflow-x-auto">
+          <div className="flex justify-center gap-4 mb-6 min-w-max">
+            {Object.entries(prayerTimes[0].timings)
+              .filter(([key]) => ["Imsak", "Fajr", "Sunrise", "Dhuhr", "Asr", "Maghrib", "Isha", "Midnight"].includes(key))
+              .map(([key, time], index) => (
+                <div key={index} className="bg-blue-500 text-white p-3 rounded-lg text-center shadow-md min-w-[100px]">
+                  <p className="text-sm font-semibold">{key}</p>
+                  <p className="text-lg font-bold">{convertToWIB(time.split(" ")[0])}</p>
+                </div>
+              ))}
+          </div>
         </div>
       )}
+
 
       {/* Judul */}
       <h2 className="text-center text-3xl font-semibold text-blue-600">Jadwal Sholat Bulanan</h2>
@@ -87,6 +90,7 @@ export default function PrayerTimesTable() {
 
       {/* Tabel */}
       <div className="mt-6 overflow-x-auto">
+        <div className="min-w-max">
         <table className="w-full border-collapse border border-gray-300">
           <thead>
             <tr className="bg-blue-500 text-white">
@@ -125,6 +129,7 @@ export default function PrayerTimesTable() {
             })}
           </tbody>
         </table>
+      </div>
       </div>
     </div>
   );
