@@ -12,7 +12,7 @@ export default function DigitalClock() {
   // const alarmHours = [5, 6, 7, 8];
   const alarmDuration = 2 * 60 * 1000;
 
-  const defaultCoords = { latitude: -6.9667, longitude: 110.4167 };
+  // const defaultCoords = { latitude: -6.9667, longitude: 110.4167 };
 
   // Ambil daftar suara dari SpeechSynthesis
   useEffect(() => {
