@@ -19,7 +19,7 @@ export default function DigitalClock() {
       if (data && data.current_weather) {
         setWeather({
           temperature: `${data.current_weather.temperature}°C`,
-          condition: "Cerah", // Open-Meteo tidak langsung berikan deskripsi, bisa tambahkan logika kondisi
+          condition: "Cerah",
         });
       }
     } catch (error) {
@@ -32,7 +32,6 @@ export default function DigitalClock() {
     const interval = setInterval(() => {
       setCurrentTime(new Date());
     }, 1000);
-
     return () => clearInterval(interval);
   }, []);
 
@@ -49,13 +48,18 @@ export default function DigitalClock() {
     const minutes = currentTime.getMinutes();
 
     if (alarmHours.includes(hours) && minutes === 0) {
-      setIsAlarmActive(true);
-      speakAlarm(hours, minutes);
-      
-      // Matikan alarm setelah 5 menit
-      setTimeout(() => setIsAlarmActive(false), alarmDuration);
+      triggerAlarm(hours, minutes);
     }
   }, [currentTime]);
+
+  // Fungsi untuk memicu alarm
+  const triggerAlarm = (hours, minutes) => {
+    setIsAlarmActive(true);
+    speakAlarm(hours, minutes);
+
+    // Matikan alarm setelah 5 menit
+    setTimeout(() => setIsAlarmActive(false), alarmDuration);
+  };
 
   // Fungsi untuk mengucapkan waktu saat alarm berbunyi
   const speakAlarm = (hours, minutes) => {
@@ -64,6 +68,12 @@ export default function DigitalClock() {
     speech.lang = "id-ID";
     speech.rate = 1;
     speechSynthesis.speak(speech);
+  };
+
+  // Fungsi untuk tombol Test Alarm
+  const handleTestAlarm = () => {
+    const now = new Date();
+    triggerAlarm(now.getHours(), now.getMinutes());
   };
 
   return (
@@ -89,6 +99,14 @@ export default function DigitalClock() {
           🔔 ALARM BERBUNYI! 🔔
         </div>
       )}
+
+      {/* Tombol Test Alarm */}
+      <button
+        onClick={handleTestAlarm}
+        className="mt-6 px-6 py-3 bg-green-500 text-white font-bold rounded-lg shadow-md hover:bg-green-600 transition"
+      >
+        🔊 Test Alarm
+      </button>
     </div>
   );
 }
