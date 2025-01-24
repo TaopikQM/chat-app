@@ -5,15 +5,19 @@ import { useEffect, useState } from "react";
 export default function DigitalClock() {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [weather, setWeather] = useState({ temperature: "-", condition: "-" });
+  const [location, setLocation] = useState("Mendeteksi lokasi...");
   const [isAlarmActive, setIsAlarmActive] = useState(false);
   const alarmHours = [5, 6, 7, 8]; // Alarm pukul 5, 6, 7, dan 8 pagi
   const alarmDuration = 5 * 60 * 1000; // Alarm berbunyi selama 5 menit
 
-  // Fungsi untuk mengambil cuaca dari API Open-Meteo
-  const fetchWeather = async () => {
+  // Koordinat default: Semarang, Indonesia
+  const defaultCoords = { latitude: -6.9667, longitude: 110.4167 };
+
+  // Fungsi mengambil cuaca dari API Open-Meteo
+  const fetchWeather = async (latitude, longitude) => {
     try {
       const response = await fetch(
-        "https://api.open-meteo.com/v1/forecast?latitude=-6.9667&longitude=110.4167&current_weather=true"
+        `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true`
       );
       const data = await response.json();
       if (data && data.current_weather) {
@@ -27,6 +31,43 @@ export default function DigitalClock() {
     }
   };
 
+  // Fungsi mengambil lokasi berdasarkan koordinat dengan Nominatim API
+  const fetchLocation = async (latitude, longitude) => {
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
+      );
+      const data = await response.json();
+      if (data && data.address) {
+        setLocation(`${data.address.city || data.address.town || "Tidak Diketahui"}, ${data.address.country}`);
+      }
+    } catch (error) {
+      console.error("Gagal mengambil lokasi:", error);
+      setLocation("Lokasi tidak ditemukan");
+    }
+  };
+
+  // Fungsi untuk mendapatkan lokasi pengguna
+  const getUserLocation = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          fetchWeather(latitude, longitude);
+          fetchLocation(latitude, longitude);
+        },
+        (error) => {
+          console.error("Gagal mendapatkan lokasi pengguna:", error);
+          setLocation("Lokasi tidak ditemukan");
+          fetchWeather(defaultCoords.latitude, defaultCoords.longitude);
+          fetchLocation(defaultCoords.latitude, defaultCoords.longitude);
+        }
+      );
+    } else {
+      setLocation("Geolokasi tidak didukung di browser ini");
+    }
+  };
+
   // Update jam setiap detik
   useEffect(() => {
     const interval = setInterval(() => {
@@ -35,11 +76,9 @@ export default function DigitalClock() {
     return () => clearInterval(interval);
   }, []);
 
-  // Ambil data cuaca setiap 10 menit
+  // Ambil data cuaca & lokasi saat halaman dimuat
   useEffect(() => {
-    fetchWeather();
-    const weatherInterval = setInterval(fetchWeather, 600000);
-    return () => clearInterval(weatherInterval);
+    getUserLocation();
   }, []);
 
   // Alarm otomatis setiap pukul 5, 6, 7, dan 8 pagi WIB
@@ -63,7 +102,7 @@ export default function DigitalClock() {
 
   // Fungsi untuk mengucapkan waktu saat alarm berbunyi
   const speakAlarm = (hours, minutes) => {
-    const text = `Sekarang pukul ${hours} lewat ${minutes} menit`;
+    const text = `Sekarang pukul ${hours} lewat ${minutes} menit di ${location}`;
     const speech = new SpeechSynthesisUtterance(text);
     speech.lang = "id-ID";
     speech.rate = 1;
@@ -87,10 +126,15 @@ export default function DigitalClock() {
         })}
       </div>
 
+      {/* Lokasi */}
+      <div className="mt-3 text-lg text-center bg-white bg-opacity-20 p-3 rounded-lg shadow-md">
+        <p className="font-semibold">🌍 Lokasi: {location}</p>
+      </div>
+
       {/* Cuaca & Suhu */}
-      <div className="mt-4 text-xl text-center bg-white bg-opacity-20 p-4 rounded-lg shadow-md">
-        <p className="font-semibold">Cuaca: {weather.condition}</p>
-        <p className="font-semibold">Suhu: {weather.temperature}</p>
+      <div className="mt-3 text-xl text-center bg-white bg-opacity-20 p-4 rounded-lg shadow-md">
+        <p className="font-semibold">🌤 Cuaca: {weather.condition}</p>
+        <p className="font-semibold">🌡 Suhu: {weather.temperature}</p>
       </div>
 
       {/* Efek Alarm */}
