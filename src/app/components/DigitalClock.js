@@ -9,8 +9,8 @@ export default function DigitalClock() {
   const [isAlarmActive, setIsAlarmActive] = useState(false);
   const [voices, setVoices] = useState([]); // Menyimpan daftar suara
   const [selectedVoice, setSelectedVoice] = useState(null); // Suara yang dipilih
-  const alarmHours = [5, 6, 7, 8];
-  const alarmDuration = 5 * 60 * 1000;
+  // const alarmHours = [5, 6, 7, 8];
+  const alarmDuration = 2 * 60 * 1000;
 
   const defaultCoords = { latitude: -6.9667, longitude: 110.4167 };
 
@@ -93,8 +93,8 @@ export default function DigitalClock() {
   useEffect(() => {
     const hours = currentTime.getHours();
     const minutes = currentTime.getMinutes();
-
-    if (alarmHours.includes(hours) && minutes === 0) {
+//alarmHours.includes(hours) && 
+    if (minutes === 0) {
       triggerAlarm(hours, minutes);
     }
   }, [currentTime]);
@@ -131,7 +131,7 @@ export default function DigitalClock() {
   const speakAlarm = (hours, minutes) => {
     if (!selectedVoice) return;
 
-    const text = `Selamat Pagi Topik, Sekarang pukul ${hours} lewat ${minutes} menit di ${location}. Cuaca saat ini ${weather.condition} dengan suhu ${weather.temperature}`;
+    const text = `Sekarang pukul ${hours} lewat ${minutes} menit di ${location}. Cuaca saat ini ${weather.condition} dengan suhu ${weather.temperature}`;
     const speech = new SpeechSynthesisUtterance(text);
     speech.voice = selectedVoice; // Pakai suara yang dipilih
     speech.lang = "id-ID";
@@ -182,6 +182,8 @@ export default function DigitalClock() {
             setSelectedVoice(voice);
           }}
           className="p-2 rounded bg-gray-200 text-black"
+            
+        disabled={isAlarmActive} 
         >
           {voices.map((voice, index) => (
             <option key={index} value={voice.name}>
@@ -194,7 +196,9 @@ export default function DigitalClock() {
       <button
         onClick={handleTestAlarm}
         className="mt-6 px-6 py-3 bg-green-500 text-white font-bold rounded-lg shadow-md hover:bg-green-600 transition"
-      >
+      
+        disabled={isAlarmActive} 
+          >
         🔊 Test Alarm
       </button>
     </div>
