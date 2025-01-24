@@ -129,7 +129,7 @@ export default function DigitalClock() {
 
   // Fungsi mengucapkan alarm dengan suara pilihan
   const speakAlarm = (hours, minutes) => {
-    if (!selectedVoice) {\
+    if (!selectedVoice) {
         return;
       }
 
