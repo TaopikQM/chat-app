@@ -126,7 +126,7 @@ export default function DigitalClock() {
 
   // Fungsi untuk mengucapkan waktu, lokasi, cuaca, dan suhu saat alarm berbunyi
   const speakAlarm = (hours, minutes) => {
-    const text = `Selamat Pagi Taopik, Sekarang pukul ${hours} lewat ${minutes} menit di ${location}. Cuaca saat ini ${weather.condition} dengan suhu ${weather.temperature}`;
+    const text = `Selamat Pagi Topek, Sekarang pukul ${hours} lewat ${minutes} menit di ${location}. Cuaca saat ini ${weather.condition} dengan suhu ${weather.temperature}`;
     const speech = new SpeechSynthesisUtterance(text);
     speech.lang = "id-ID";
     speech.rate = 1;
