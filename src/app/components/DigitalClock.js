@@ -96,8 +96,12 @@ export default function DigitalClock() {
     setIsAlarmActive(true);
 
     let count = 0;
+     // Langsung ucapkan alarm saat di-trigger
+    speakAlarm(hours, minutes);
+    count++;
     const interval = setInterval(() => {
-      if (count >= 5) {
+      //perulangaan alarm
+      if (count >= 2) {
         clearInterval(interval);
         setIsAlarmActive(false);
       } else {
@@ -109,10 +113,20 @@ export default function DigitalClock() {
     // Matikan alarm setelah 5 kali berbunyi
     setTimeout(() => clearInterval(interval), alarmDuration);
   };
+  // Efek Alarm: Tambahkan logika untuk memastikan state diperbarui dengan benar
+    useEffect(() => {
+      if (isAlarmActive) {
+        const timeout = setTimeout(() => {
+          setIsAlarmActive(false);
+        }, alarmDuration);
+        return () => clearTimeout(timeout);
+      }
+    }, [isAlarmActive]);
+
 
   // Fungsi untuk mengucapkan waktu, lokasi, cuaca, dan suhu saat alarm berbunyi
   const speakAlarm = (hours, minutes) => {
-    const text = `Sekarang pukul ${hours} lewat ${minutes} menit di ${location}. Cuaca saat ini ${weather.condition} dengan suhu ${weather.temperature}`;
+    const text = `Selamat Pagi Taopik, Sekarang pukul ${hours} lewat ${minutes} menit di ${location}. Cuaca saat ini ${weather.condition} dengan suhu ${weather.temperature}`;
     const speech = new SpeechSynthesisUtterance(text);
     speech.lang = "id-ID";
     speech.rate = 1;
