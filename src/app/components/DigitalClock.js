@@ -13,6 +13,10 @@ export default function DigitalClock() {
   const alarmDuration = 2 * 60 * 1000;
 
   // const defaultCoords = { latitude: -6.9667, longitude: 110.4167 };
+  // ip
+  // https://web-api.nordvpn.com/v1/ips/info
+  // lokasi
+  // https://nominatim.openstreetmap.org/reverse?format=json&lat=-6.2114&lon=106.8446
 
   // Ambil daftar suara dari SpeechSynthesis
   useEffect(() => {
