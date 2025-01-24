@@ -129,7 +129,9 @@ export default function DigitalClock() {
 
   // Fungsi mengucapkan alarm dengan suara pilihan
   const speakAlarm = (hours, minutes) => {
-    if (!selectedVoice) return;
+    if (!selectedVoice) {\
+        return;
+      }
 
     const text = `Sekarang pukul ${hours} lewat ${minutes} menit di ${location}. Cuaca saat ini ${weather.condition} dengan suhu ${weather.temperature}`;
     const speech = new SpeechSynthesisUtterance(text);
