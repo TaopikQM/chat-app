@@ -41,13 +41,26 @@ const AdminChatTable = () => {
                 <td className="border border-gray-300 px-4 py-2 text-center">{msg.pengirim}</td>
                 <td className="border border-gray-300 px-4 py-2 text-center">{msg.penerima}</td>
                 <td className="border border-gray-300 px-4 py-2">{msg.pesan}</td>
-                <td className="border border-gray-300 px-4 py-2 text-center">
-                  {msg.fileUrl && (
-                    <a href={msg.fileUrl} target="_blank" className="text-blue-500 underline">
-                      📄 {msg.fileName}
-                    </a>
-                  )}
-                </td>
+                {/* File yang dikirim */}
+                  <td className="border border-gray-300 px-4 py-2 text-center">
+                    {msg.files && msg.files.length > 0 ? (
+                      <div className="flex flex-col gap-1">
+                        {msg.files.map((file, fileIndex) => (
+                          <a
+                            key={fileIndex}
+                            href={file.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-500 underline"
+                          >
+                            📄 {file.name}
+                          </a>
+                        ))}
+                      </div>
+                    ) : (
+                      "-"
+                    )}
+                  </td>
                 <td className="border border-gray-300 px-4 py-2">{msg.timestamp && format(msg.timestamp, "dd/MM/yyyy HH:mm")}</td>
                 <td className="border border-gray-300 px-4 py-2">{msg.read ? "✅ Dibaca" : "❌ Belum Dibaca"}</td>
               </tr>
