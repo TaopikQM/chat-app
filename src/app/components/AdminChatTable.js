@@ -13,6 +13,8 @@ const AdminChatTable = () => {
     onValue(messagesRef, (snapshot) => {
       const data = snapshot.val(); // Mengambil data dari Firebase
       if (data) {
+         console.log("Data dari Firebase:", data); // Debugging: menampilkan data di console
+     
         setMessages(Object.values(data).reverse()); // Mengambil data dan langsung menampilkan tanpa format
       }
     });
