@@ -91,11 +91,14 @@ const ChatBox = ({ pengirim, penerima }) => {
   }, [messages, pengirim]);
 
   return (
-    <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md">
-      <h2 className="text-xl font-semibold mb-4">Chat dengan {penerima}</h2>
-      
+    <div className="h-screen flex flex-col bg-gray-100">
+      {/* Header */}
+      <div className="p-4 bg-white shadow-md">
+        <h2 className="text-xl font-semibold">Chat dengan {penerima}</h2>
+      </div>
+
       {/* Tampilkan pesan */}
-      <div className="h-96 overflow-y-auto border p-4 mb-4 rounded-lg">
+      <div className="flex-1 overflow-y-auto p-4">
         {messages.map((msg) => (
           <div
             key={msg.id}
@@ -128,7 +131,7 @@ const ChatBox = ({ pengirim, penerima }) => {
       </div>
 
       {/* Input Pesan & File */}
-      <div className="flex flex-col gap-2">
+      <div className="bg-white p-4 shadow-md sticky bottom-0 w-full">
         {/* Pratinjau File */}
         {files.length > 0 && (
           <div className="flex gap-2 flex-wrap mb-2">
@@ -157,6 +160,8 @@ const ChatBox = ({ pengirim, penerima }) => {
         )}
 
         {/* Input Pesan */}
+      {/* Input Pesan & File */}
+      <div className="flex gap-2">
         <input
           type="text"
           value={newMessage}
@@ -178,6 +183,7 @@ const ChatBox = ({ pengirim, penerima }) => {
           {uploading ? "Mengupload..." : "Kirim"}
         </button>
       </div>
+    </div>
     </div>
   );
 };
