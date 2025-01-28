@@ -34,36 +34,22 @@ const AdminChatTable = () => {
             </tr>
           </thead>
           <tbody>
-            {messages.length > 0 ? (
-              messages.map((msg) => (
-                <tr key={msg.id} className="hover:bg-gray-100">
-                  <td className="border border-gray-300 px-4 py-2 text-center">{msg.pengirim}</td>
-                  <td className="border border-gray-300 px-4 py-2 text-center">{msg.penerima}</td>
-                  <td className="border border-gray-300 px-4 py-2">{msg.pesan || "—"}</td>
-                  <td className="border border-gray-300 px-4 py-2 text-center">
-                    {msg.fileUrl ? (
-                      <a href={msg.fileUrl} target="_blank" className="text-blue-500 underline">
-                        📄 {msg.fileName}
-                      </a>
-                    ) : (
-                      "—"
-                    )}
-                  </td>
-                  <td className="border border-gray-300 px-4 py-2">
-                    {msg.timestamp ? format(msg.timestamp, "dd/MM/yyyy HH:mm") : "—"}
-                  </td>
-                  <td className="border border-gray-300 px-4 py-2">
-                    {msg.read ? "✅ Dibaca" : "❌ Belum Dibaca"}
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="6" className="border border-gray-300 px-4 py-2 text-center text-gray-500">
-                  Tidak ada pesan.
+             {messages.map((msg, index) => (
+              <tr key={index} className="hover:bg-gray-100">
+                <td className="border border-gray-300 px-4 py-2 text-center">{msg.pengirim}</td>
+                <td className="border border-gray-300 px-4 py-2 text-center">{msg.penerima}</td>
+                <td className="border border-gray-300 px-4 py-2">{msg.pesan}</td>
+                <td className="border border-gray-300 px-4 py-2 text-center">
+                  {msg.fileUrl && (
+                    <a href={msg.fileUrl} target="_blank" className="text-blue-500 underline">
+                      📄 {msg.fileName}
+                    </a>
+                  )}
                 </td>
+                <td className="border border-gray-300 px-4 py-2">{msg.timestamp && format(msg.timestamp, "dd/MM/yyyy HH:mm")}</td>
+                <td className="border border-gray-300 px-4 py-2">{msg.read ? "✅ Dibaca" : "❌ Belum Dibaca"}</td>
               </tr>
-            )}
+            ))}
           </tbody>
         </table>
       </div>
