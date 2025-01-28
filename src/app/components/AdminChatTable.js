@@ -9,17 +9,11 @@ const AdminChatTable = () => {
   const [messages, setMessages] = useState([]);
 
   useEffect(() => {
-    const messagesRef = databaseRef(database, "chatsBox");
+    const messagesRef = databaseRef(database, "chatsBox"); // Referensi ke chatsBox di Firebase
     onValue(messagesRef, (snapshot) => {
-      const data = snapshot.val();
+      const data = snapshot.val(); // Mengambil data dari Firebase
       if (data) {
-        const formattedData = Object.entries(data).map(([id, value]) => ({
-          id,
-          ...value,
-          timestamp: value.timestamp ? new Date(value.timestamp) : null,
-          timestampRead: value.timestampRead ? new Date(value.timestampRead) : null,
-        }));
-        setMessages(formattedData.reverse());
+        setMessages(Object.values(data).reverse()); // Mengambil data dan langsung menampilkan tanpa format
       }
     });
   }, []);
