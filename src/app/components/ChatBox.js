@@ -12,7 +12,7 @@ const ChatBox = ({ pengirim, penerima }) => {
   const [file, setFile] = useState(null);
 
   useEffect(() => {
-    const messagesRef = databaseRef(database, "chats");
+    const messagesRef = databaseRef(database, "chatsBox");
     onValue(messagesRef, (snapshot) => {
       const data = snapshot.val();
       if (data) {
