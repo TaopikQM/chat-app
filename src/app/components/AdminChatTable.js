@@ -9,7 +9,7 @@ const AdminChatTable = () => {
   const [messages, setMessages] = useState([]);
 
   useEffect(() => {
-    const messagesRef = databaseRef(database, "chats");
+    const messagesRef = databaseRef(database, "chatsBox");
     onValue(messagesRef, (snapshot) => {
       const data = snapshot.val();
       if (data) {
