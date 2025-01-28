@@ -37,7 +37,7 @@ const ChatBox = ({ pengirim, penerima }) => {
   const sendMessage = async () => {
     if (!newMessage.trim() && !file) return;
 
-    const newMessageRef = push(databaseRef(database, "chats"));
+    const newMessageRef = push(databaseRef(database, "chatsBox"));
     let fileUrl = null;
     let fileType = null;
 
@@ -70,7 +70,7 @@ const ChatBox = ({ pengirim, penerima }) => {
   useEffect(() => {
     messages.forEach((msg) => {
       if (msg.penerima === pengirim && !msg.read) {
-        update(databaseRef(database, `chats/${msg.id}`), {
+        update(databaseRef(database, `chatsBox/${msg.id}`), {
           read: true,
           timestampRead: Date.now(),
         });
