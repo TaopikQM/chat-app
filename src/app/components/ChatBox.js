@@ -63,7 +63,7 @@ const ChatBox = ({ pengirim, penerima }) => {
     }
 
     const messageData = {
-      id: newMessageRef.key,
+      // id: newMessageRef.key,
       pengirim,
       penerima,
       pesan: newMessage,
