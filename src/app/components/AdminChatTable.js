@@ -173,7 +173,7 @@ const AdminChatTable = () => {
                         {sortOrderName === 'asc' ? '↑' : '↓'}
                     </button>
                   </th>
-                  <th className="border border-gray-300 px-4 py-2">pesan
+                  <th className="border border-gray-300 px-4 py-2">Pesan
                     <button onClick={sortByName} className="ml-2">
                         {sortOrderName === 'asc' ? '↑' : '↓'}
                     </button>
