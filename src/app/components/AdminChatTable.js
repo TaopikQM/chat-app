@@ -59,37 +59,17 @@ const AdminChatTable = () => {
       return pages;
   };
 
-  useEffect(() => {
-    const fetchMessages = async () => {
-      try {
-        const dbRef = databaseRef(database, "messages");
-          onValue(dbRef, (snapshot) => {
-            const data = snapshot.val();
-            if (data) {
-              setMessages(Object.values(data));
-              response.setMessages(Object.values(data));
-              console.log("Data berhasil diambil"); // Debugging: menampilkan pesan jika data berhasil diambil
-            }
-          });
-        if(response.ok){
-          const data = await response.json();
-          setMessages(data);
-          console.log("Data berhasil diambil"); // Debugging: menampilkan pesan jika data berhasil diambil
-          setSortOrderName('asc'); // Menjadikan data diambil secara ascending
-          setSearchTerm(''); // Menghapus search term setelah data diambil
-          setItemsPerPage(10); // Mengatur jumlah item per halaman menjadi 10
-          setCurrentPage(1); // Mengatur halaman yang ditampilkan menjadi 1
-          } else {
-            console.error("Data gagal diambil"); // Debugging: menampilkan pesan jika data gagal diambil
-        }
-      } catch (error) {
-        console.error("Data gagal diambil", error); // Debugging: menampilkan pesan jika data gagal diambil
-      }
-      // ambil data Firebase
-      
-      };
-      
-      fetchMessages();
+ useEffect(() => {
+    const messagesRef = databaseRef(database, "messages");
+    onValue(messagesRef, (snapshot) => {
+      const data = snapshot.val();
+      const messages = [];
+      Object.keys(data).forEach((key) => {
+        messages.push({...data[key], id: key });
+      });
+      setMessages(messages);
+    }
+    );
   }, []);
   
 
