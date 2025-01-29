@@ -112,7 +112,7 @@ const ChatBox = ({ pengirim, penerima }) => {
   }, [messages, pengirim]);
 
   return (
-    <div className="flex flex-col h-screen bg-gray-100">
+    <div className="h-screen bg-gray-100">
       {/* Header */}
       <div className="flex-none p-4 bg-white border-b border-gray-300">
         <h2 className="text-xl font-semibold text-center">Chat dengan {penerima}</h2>
