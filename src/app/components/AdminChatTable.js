@@ -85,6 +85,8 @@ const AdminChatTable = () => {
         }
       });
       };
+    
+      fetchMessages();
   }, []);
   
 
