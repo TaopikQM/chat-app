@@ -8,9 +8,30 @@ import { format } from "date-fns";
 
 const ChatBox = ({ pengirim, penerima }) => {
   const [messages, setMessages] = useState([]);
+   const [dropdownOpen, setDropdownOpen] = useState(null);
+  const [replyMessage, setReplyMessage] = useState(null);
   const [newMessage, setNewMessage] = useState("");
   const [files, setFiles] = useState([]);
   const [uploading, setUploading] = useState(false);
+
+  const toggleDropdown = (messageId) => {
+    setDropdownOpen(prevState => (prevState === messageId ? null : messageId));
+  };
+
+  const handleReply = (msg) => {
+    setReplyMessage(msg);  // Set pesan yang akan di-reply
+    setDropdownOpen(null);  // Menutup dropdown setelah memilih reply
+  };
+
+  const handleSendMessage = () => {
+    sendMessage({
+      pesan: newMessage,
+      replyTo: replyMessage?.id,  // Menyimpan ID pesan yang di-reply
+      originalMessage: replyMessage?.pesan,  // Menyimpan pesan asli yang di-reply
+    });
+    setNewMessage('');
+    setReplyMessage(null);  // Reset setelah mengirim pesan
+  };
 
   useEffect(() => {
     const messagesRef = databaseRef(database, "chatsBox");
@@ -91,10 +112,10 @@ const ChatBox = ({ pengirim, penerima }) => {
   }, [messages, pengirim]);
 
   return (
-    <div className="h-screen flex flex-col bg-gray-100">
+    <div className="flex flex-col h-screen bg-gray-100">
       {/* Header */}
-      <div className="p-4 bg-white shadow-md">
-        <h2 className="text-xl font-semibold">Chat dengan {penerima}</h2>
+      <div className="flex-none p-4 bg-white border-b border-gray-300">
+        <h2 className="text-xl font-semibold text-center">Chat dengan {penerima}</h2>
       </div>
 
       {/* Tampilkan pesan */}
@@ -124,10 +145,76 @@ const ChatBox = ({ pengirim, penerima }) => {
               ))}
             <p>{msg.pesan}</p>
             <small className="block text-xs mt-1">
-              {format(msg.timestamp, "HH:mm")} • {msg.read ? "✅" : "❌"}
+              {format(msg.timestamp, "HH:mm:ss")} • {msg.read ? (
+                  <span className="text-blue-500">✔✔</span>
+              ) : (
+                  <span>✔</span>
+              )}
             </small>
+                    {/* Dropdown button */}
+            <button
+              onClick={() => toggleDropdown(msg.id)}
+              className="inline-flex self-center items-center p-2 text-sm font-medium text-center text-gray-900 bg-white rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none dark:text-white focus:ring-gray-50 dark:bg-gray-900 dark:hover:bg-gray-800 dark:focus:ring-gray-600"
+              type="button"
+            >
+              <svg
+                className="w-4 h-4 text-gray-500 dark:text-gray-400"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="currentColor"
+                viewBox="0 0 4 15"
+              >
+                <path d="M3.5 1.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm0 6.041a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm0 5.959a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Z"/>
+              </svg>
+            </button>
+      
+            {/* Dropdown menu */}
+            {dropdownOpen === msg.id && (
+              <div
+                id="dropdownDots"
+                className="z-10 absolute bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-40 dark:bg-gray-700 dark:divide-gray-600"
+              >
+                <ul className="py-2 text-sm text-gray-700 dark:text-gray-200">
+                  <li>
+                    <a href="#" onClick={() => handleReply(msg)} className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">
+                      Reply
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Forward</a>
+                  </li>
+                  <li>
+                    <a href="#" className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Copy</a>
+                  </li>
+                  <li>
+                    <a href="#" className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Report</a>
+                  </li>
+                  <li>
+                    <a href="#" className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Delete</a>
+                  </li>
+                </ul>
+              </div>
+            )}
           </div>
         ))}
+        {/* Message reply input */}
+        {replyMessage && (
+          <div className="mt-4 p-2 border border-gray-300 rounded-lg">
+            <div className="bg-gray-100 p-2 rounded-lg">
+              <strong>Replying to:</strong>
+              <p>{replyMessage.pesan}</p>
+            </div>
+            <textarea
+              value={newMessage}
+              onChange={(e) => setNewMessage(e.target.value)}
+              placeholder="Type your reply..."
+              className="w-full p-2 mt-2 border border-gray-300 rounded-lg"
+            />
+            <button onClick={handleSendMessage} className="bg-blue-500 text-white px-4 py-2 rounded-lg mt-2">
+              Send Reply
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Input Pesan & File */}
@@ -220,6 +307,7 @@ const ChatBox = ({ pengirim, penerima }) => {
 
 export default ChatBox;
 
+// "✅" : "❌"}
 // "use client";
 
 // import { useEffect, useState } from "react";
