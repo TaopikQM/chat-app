@@ -248,7 +248,7 @@ const ChatBox = ({ pengirim, penerima }) => {
 
         {/* Input Pesan */}
       {/* Input Pesan & File */}
-      <div className="flex items-center p-4 border-t border-gray-300">
+      <div className="flex-none flex items-center p-4 border-t border-gray-300 sticky bottom-0 bg-white">
         {/* Input File */}
         <input type="file" multiple onChange={handleFileChange} disabled={uploading} className="hidden" id="fileInput" />
          <label htmlFor="fileInput" className="cursor-pointer">
