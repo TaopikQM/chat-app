@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { rtdb } from "../config/firebase";
+import { database } from "../config/firebase";
 import { ref as databaseRef, get, onValue,remove } from "firebase/database";
 import { format } from "date-fns";
 
@@ -17,7 +17,7 @@ const AdminChatTable = () => {
 
   //ambil buat nampilin data
   useEffect(() => {
-    const messagesRef = databaseRef(rtdb, "chatsBox");
+    const messagesRef = databaseRef(database, "chatsBox");
     onValue(messagesRef, (snapshot) => {
       const data = snapshot.val();
       // const messages = [];
@@ -39,7 +39,7 @@ const AdminChatTable = () => {
     //     await remove(userRef);
     //     alert("Data berhasil dihapus.");
     // }
-    const userRef = databaseRef(rtdb, `chatsBox/${Id}`);
+    const userRef = databaseRef(database, `chatsBox/${Id}`);
 
     try {
         // Ambil data user berdasarkan userId
