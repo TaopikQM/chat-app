@@ -123,7 +123,7 @@ const AdminChatTable = () => {
         <div className="relative overflow-x-auto shadow-md sm:rounded-lg ">
             {/* //title */}
             <div className="flex justify-between items-center px-4 py-3 ">
-                <h2 className="text-xl font-bold mb-4">Laporan Data4</h2>
+                <h2 className="text-xl font-bold mb-4">Pesan Messages</h2>
             </div>
             {/* //search */}
             <div className="flex justify-between  px-4 py-3">
