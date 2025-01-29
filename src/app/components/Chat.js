@@ -154,7 +154,7 @@ const Chat = ({ user }) => {
 
 
     return (
-        <div className="flex flex-col h-screen bg-gray-100">
+        <div className=" h-screen bg-gray-100">
             <div className="flex-none p-4 bg-white border-b border-gray-300">
                 <h2 className="text-xl text-center">{otherUser.name}</h2>
                 <p className="text-sm text-center">{lastSeen ? 'Last seen: ' + lastSeen : 'Offline'}</p>
