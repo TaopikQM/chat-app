@@ -31,8 +31,11 @@ const AdminChatTable = () => {
       setCurrentPage(1);
   };
   const filteredData = Array.isArray(messages) ? messages.filter(item => {
-     const name = item.name.toLowerCase().includes(searchTerm.toLowerCase()) || item.pesan.toLowerCase().includes(searchTerm.toLowerCase()) || item.penerima.toLowerCase().includes(searchTerm.toLowerCase()) || item.pengirim.includes(searchTerm);
-        return  name;
+     const name = item.name.toLowerCase().includes(searchTerm.toLowerCase());
+     const pesan = item.pesan.toLowerCase().includes(searchTerm.toLowerCase());
+     const penerima = item.penerima.toLowerCase().includes(searchTerm.toLowerCase()); 
+     const pengirim = item.pengirim.toLowerCase().includes(searchTerm.toLowerCase());
+        return  name,penerima,pesan,pengirim;
   }) : [];
 
   // Pagination Logic
@@ -59,7 +62,7 @@ const AdminChatTable = () => {
       return pages;
   };
 
- useEffect(() => {
+  useEffect(() => {
     const messagesRef = databaseRef(database, "messages");
     onValue(messagesRef, (snapshot) => {
       const data = snapshot.val();
@@ -217,6 +220,7 @@ const AdminChatTable = () => {
 };
 
 export default AdminChatTable;
+
 
 // "use client";
 
