@@ -62,6 +62,15 @@ const AdminChatTable = () => {
   useEffect(() => {
     const fetchMessages = async () => {
       try {
+        const dbRef = databaseRef(database, "messages");
+          onValue(dbRef, (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+              setMessages(Object.values(data));
+              response.setMessages(Object.values(data));
+              console.log("Data berhasil diambil"); // Debugging: menampilkan pesan jika data berhasil diambil
+            }
+          });
         if(response.ok){
           const data = await response.json();
           setMessages(data);
@@ -77,15 +86,9 @@ const AdminChatTable = () => {
         console.error("Data gagal diambil", error); // Debugging: menampilkan pesan jika data gagal diambil
       }
       // ambil data Firebase
-      const dbRef = databaseRef(database, "messages");
-      onValue(dbRef, (snapshot) => {
-        const data = snapshot.val();
-        if (data) {
-          setMessages(Object.values(data));
-        }
-      });
+      
       };
-    
+      
       fetchMessages();
   }, []);
   
