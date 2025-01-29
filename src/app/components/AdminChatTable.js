@@ -10,6 +10,8 @@ const AdminChatTable = () => {
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
+  
+  const [sortOrderName, setSortOrderName] = useState('asc');
 
 
   // Fungsi untuk mengurutkan berdasarkan nama
@@ -18,7 +20,7 @@ const AdminChatTable = () => {
         const comparison = a.name.localeCompare(b.name);
         return sortOrderName === 'asc' ? comparison : -comparison;
     });
-    setAttendanceData(sortedData);
+    setMessages(sortedData);
     setSortOrderName(sortOrderName === 'asc' ? 'desc' : 'asc');
   };
 
@@ -240,6 +242,8 @@ const AdminChatTable = () => {
 };
 
 export default AdminChatTable;
+
+
 // "use client";
 
 // import { useEffect, useState } from "react";
