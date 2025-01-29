@@ -92,11 +92,11 @@ const AdminChatTable = () => {
   ) ;
 
   // Pagination Logic
-  const totalItemss = filteredData.length;
+  const totalItems = filteredData.length;
   const indexOfLast = currentPage * itemsPerPage;
   const indexOfFirst = indexOfLast - itemsPerPage;
   const displayedData = filteredData.slice(indexOfFirst, indexOfLast);
-  const totalPages = Math.ceil(totalItemss / itemsPerPage);
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
 
   const getPagination = () => {
       let pages = [];
