@@ -10,7 +10,7 @@ const AdminChatTable = () => {
   
   const [searchTerm, setSearchTerm] = useState(''); 
     
-  const [totalItems, setTotalItems] = useState(0);
+  // const [totalItems, setTotalItems] = useState(0);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
   const [sortOrderName, setSortOrderName] = useState('asc');
@@ -26,7 +26,7 @@ const AdminChatTable = () => {
       setMessages(messages);
       // console.log(messages);
       
-      setTotalItems(data.length);
+      // setTotalItems(data.length);
     }
     );
   }, []);
