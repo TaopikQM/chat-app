@@ -312,15 +312,7 @@ const Gallery = () => {
         }
     };
 
-    const openModalm = (groupKey, index) => {
-        setCurrentGroup(groupedFiles[groupKey] || []);
-        setModalFileIndex(index);
-        setIsModalOpen(true);
-    };
-
-    const closeModaml = () => {
-        setIsModalOpen(false);
-    };
+    
 
     const handleOverlayClick = (e) => {
         if (e.target.id === "modal-overlay") {
@@ -415,41 +407,7 @@ const Gallery = () => {
             )}
 
 
-            {isModalOpen && (
-                <div
-                    id="modal-overlay"
-                    className="fixed inset-0 bg-gray-800 bg-opacity-75 flex justify-center items-center z-50"
-                    onClick={handleOverlayClick}
-                >
-                    <div className="relative rounded-lg w-full max-w-xl p-4">
-                        <Swiper
-                            initialSlide={modalFileIndex}
-                            spaceBetween={10}
-                            slidesPerView={1}
-                            navigation
-                            loop 
-                        >
-                            {currentGroup.map((file, index) => (
-                                <SwiperSlide key={index}>
-                                    {file.contentType.startsWith("video/") ? (
-                                        <video className="h-auto max-h-[80vh] rounded-lg" controls>
-                                            <source src={file.url} type={file.contentType} />
-                                        </video>
-                                    ) : (
-                                        <img className="h-auto rounded-lg" src={file.url} alt={`File ${index}`} />
-                                    )}
-                                </SwiperSlide>
-                            ))}
-                        </Swiper>
-                        <button
-                            onClick={closeModal}
-                            className="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white rounded-full px-3 py-1 text-lg"
-                        >
-                            &#10005;
-                        </button>
-                    </div>
-                </div>
-            )}
+           
         </div>
     );
 };
