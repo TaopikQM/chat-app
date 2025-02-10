@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "./ui/button";
+import { Card, CardContent } from "./ui/card";
 import { FaDownload, FaShareAlt, FaInfoCircle, FaTrash, FaEllipsisH, FaTimes, FaPlay, FaPause, FaExpand, FaSearchPlus, FaSearchMinus } from "react-icons/fa";
 
 const MediaViewer = ({ imageUrl, fileName, fileIndex, totalFiles }) => {
