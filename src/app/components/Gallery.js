@@ -457,10 +457,12 @@ const Gallery = () => {
                     </div>
                 ))}
             </div>
-            {isViewerOpen && selectedFile && (
+            {/* Media Viewer */}
+            {selectedMedia && (
                 <MediaViewer
-                    file={selectedFile}
-                    onClose={closeMediaViewer}
+                    media={selectedMedia.media}
+                    initialIndex={selectedMedia.initialIndex}
+                    onClose={closeModal}
                 />
             )}
 
