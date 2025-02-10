@@ -159,9 +159,7 @@ const AdminChatTable = () => {
             <thead>
                 <tr className="bg-gray-200">
                   <th className="border border-gray-300 px-4 py-2">No 
-                    <button onClick={sortByName} className="ml-2">
-                        {sortOrderName === 'asc' ? '↑' : '↓'}
-                    </button>
+                   
                   </th>
                   <th className="border border-gray-300 px-4 py-2">Pengirim
                     <button onClick={sortByName} className="ml-2">
