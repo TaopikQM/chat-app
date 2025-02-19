@@ -14,6 +14,7 @@ export default function MapView() {
   const [currentPosition, setCurrentPosition] = useState(null);
 
   useEffect(() => {
+     if (typeof window === "undefined") return;
     const unsubscribe = onValue(locationRef, (snapshot) => {
       const data = snapshot.val();
       if (data) {
