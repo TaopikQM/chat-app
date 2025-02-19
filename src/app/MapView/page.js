@@ -1,6 +1,6 @@
-"use client";
-import MapView from "../components/MapView";
+// "use client";
+// import MapView from "../components/MapView";
 
-export default function Home() {
-  return <MapView />;
-}
+// export default function Home() {
+//   return <MapView />;
+// }
