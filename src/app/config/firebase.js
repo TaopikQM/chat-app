@@ -1,4 +1,4 @@
- // app/firebase.js
+"use client"; // app/firebase.js
  import { initializeApp, getApps, getApp } from "firebase/app";
  import { getFirestore } from "firebase/firestore";
  import { getStorage } from "firebase/storage";
