@@ -65,7 +65,7 @@ const [previousPage, setPreviousPage] = useState(1);
 
         setMessages(messagesArray);
 
-        console.log(messagesArray);
+        // console.log(messagesArray);
         // **✅ Set halaman terakhir saat pertama kali load**
         const calculatedTotalPages = Math.ceil(messagesArray.length / itemsPerPage);
         // setTotalPages(calculatedTotalPages);
