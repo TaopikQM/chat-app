@@ -4,7 +4,6 @@ import { ref as databaseRef, onValue,update } from "firebase/database";
 
 import { getStorage, ref as storageRef, getMetadata } from "firebase/storage";
 import ChatMessage from "./ChatMessage";
-import VideoCall from "./VideoCall"; // Tambahkan komponen VideoCall
 
 const storage = getStorage();
 
