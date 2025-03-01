@@ -32,7 +32,9 @@ const [previousPage, setPreviousPage] = useState(1);
         .map(([id, msg]) => ({ id, ...msg })) // Menambahkan id ke objek pesan
         .filter((msg) =>
             (msg.pengirim === user1 && msg.penerima === user2) ||
-            (msg.pengirim === user2 && msg.penerima === user1)
+            (msg.pengirim === user2 && msg.penerima === user1)&&
+          msg.status === "ACTIVE"
+
         )
         .sort((a, b) => a.timestamp - b.timestamp);
         
