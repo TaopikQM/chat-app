@@ -1,3 +1,5 @@
+"use client";
+
 // "use client"; // Pastikan ini ada agar berjalan di client
 
 // import { useEffect, useState } from "react";
