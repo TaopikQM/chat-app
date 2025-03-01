@@ -1,13 +1,13 @@
 "use client";
 
-import ChatList from "../../components/ChatList";
-import ChatInput from "../../components/ChatInput";
-import UserStatus from "../../components/UserStatus";
+import ChatList from "../components/ChatList";
+import ChatInput from "../components/ChatInput";
+import UserStatus from "../components/UserStatus";
 import {useEffect, useState } from "react";
 
 // import { rtdb, ref, update, serverTimestamp } from "../../config/firebase";
 
-import { database, storage } from "../../config/firebase";
+import { database, storage } from "../config/firebase";
 import { ref as databaseRef, push, update,set ,onValue,serverTimestamp } from "firebase/database";
 const ChatPage = () => {
   const [currentUser] = useState("user1"); // Gantilah dengan ID pengguna yang sesuai
