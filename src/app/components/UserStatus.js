@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 // import { rtdb, ref, onValue } from "../config/firebase";
 
-import { rtdb, storage } from "../config/firebase";
+import { database, storage } from "../config/firebase";
 import { ref as databaseRef, push, update,set ,onValue} from "firebase/database";
 import { formatDistanceToNow, format  } from "date-fns";
 
@@ -10,7 +10,7 @@ const UserStatus = ({ userId }) => {
   const [isOnline, setIsOnline] = useState(false);
 
   useEffect(() => {
-    const userRef = databaseRef(rtdb, `pengguna/${userId}`);
+    const userRef = databaseRef(database, `pengguna/${userId}`);
     onValue(userRef, (snapshot) => {
       const data = snapshot.val();
       if (data) {
