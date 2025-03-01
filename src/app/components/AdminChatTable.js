@@ -84,11 +84,17 @@ const AdminChatTable = () => {
       setItemsPerPage(e.target.value);
       setCurrentPage(1);
   };
+  // const filteredData = messages.filter(item => 
+  //   (item.pesan.toLowerCase().includes(searchTerm.toLowerCase()))||
+  //     (item.penerima.toLowerCase().includes(searchTerm.toLowerCase()))||
+  //    (item.pengirim.toLowerCase().includes(searchTerm.toLowerCase()))
+  // ) ;
   const filteredData = messages.filter(item => 
-    (item.pesan.toLowerCase().includes(searchTerm.toLowerCase()))||
-      (item.penerima.toLowerCase().includes(searchTerm.toLowerCase()))||
-     (item.pengirim.toLowerCase().includes(searchTerm.toLowerCase()))
-  ) ;
+  (item.pesan && item.pesan.toLowerCase().includes(searchTerm.toLowerCase())) ||
+  (item.penerima && item.penerima.toLowerCase().includes(searchTerm.toLowerCase())) ||
+  (item.pengirim && item.pengirim.toLowerCase().includes(searchTerm.toLowerCase()))
+);
+
 
   // Pagination Logic
   const totalItems = filteredData.length;
