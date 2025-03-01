@@ -15,13 +15,51 @@ const ChatPage = () => {
 
   const [replyMessage, setReplyMessage] = useState(null); // ✅ Reply Message
 
+  // useEffect(() => {
+  //   const userRef = databaseRef(database, `pengguna/${chatWith}`);
+
+  //   // Set pengguna online saat masuk
+  //   update(userRef, {
+  //     isOnline: true,
+  //     lastSeen: serverTimestamp(),
+  //   });
+
+  //   // Set pengguna offline saat keluar
+  //   const handleDisconnect = () => {
+  //     update(userRef, {
+  //       isOnline: false,
+  //       lastSeen: serverTimestamp(),
+  //     });
+  //   };
+
+  //   // Update setiap 20 detik
+  //   const interval = setInterval(() => {
+  //     update(userRef, { lastSeen: serverTimestamp() });
+  //   }, 20000);
+
+  //   window.addEventListener("beforeunload", handleDisconnect);
+  //   return () => {
+  //     clearInterval(interval);
+  //     window.removeEventListener("beforeunload", handleDisconnect);
+  //     handleDisconnect(); // Jika komponen di-unmount
+  //   };
+  // }, [chatWith]);  
   useEffect(() => {
     const userRef = databaseRef(database, `pengguna/${chatWith}`);
+
+    const logsRef = databaseRef(database, `logs_pengguna/${chatWith}`);
+    
 
     // Set pengguna online saat masuk
     update(userRef, {
       isOnline: true,
       lastSeen: serverTimestamp(),
+    });
+
+    // Simpan log saat user online
+    push(logsRef, {
+      status: "online",
+      timestamp: serverTimestamp(),
     });
 
     // Set pengguna offline saat keluar
@@ -30,11 +68,23 @@ const ChatPage = () => {
         isOnline: false,
         lastSeen: serverTimestamp(),
       });
+
+       // Simpan log saat user offline
+       push(logsRef, {
+        status: "offline",
+        timestamp: serverTimestamp(),
+      });
     };
 
     // Update setiap 20 detik
     const interval = setInterval(() => {
       update(userRef, { lastSeen: serverTimestamp() });
+
+       // Simpan log waktu terakhir dilihat
+       push(logsRef, {
+        status: "update_lastSeen",
+        timestamp: serverTimestamp(),
+      });
     }, 20000);
 
     window.addEventListener("beforeunload", handleDisconnect);
@@ -43,7 +93,7 @@ const ChatPage = () => {
       window.removeEventListener("beforeunload", handleDisconnect);
       handleDisconnect(); // Jika komponen di-unmount
     };
-  }, [chatWith]);  
+  }, [chatWith]);
   return (
      <div className="max-w-full mx-auto h-screen flex flex-col bg-gray-100">
       <div className="flex-none p-4 bg-white border-b border-gray-300 shadow-md">
