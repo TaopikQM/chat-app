@@ -114,6 +114,31 @@ const AdminChatTable = () => {
       return pages;
   };
 
+  const handleToggleStatus = async (Id, currentStatus) => {
+    const userRef = databaseRef(database, `chatsBox/${Id}`);
+
+    try {
+        const newStatus = currentStatus === "ACTIVE" ? "NOT ACTIVE" : "ACTIVE";
+        const confirmation = window.confirm(`Apakah Anda yakin ingin mengubah status ke ${newStatus}?`);
+        
+        if (confirmation) {
+            await update(userRef, { status: newStatus });
+
+            // Update state secara lokal agar UI langsung berubah tanpa reload
+            setMessages(prevMessages =>
+                prevMessages.map(msg =>
+                    msg.id === Id ? { ...msg, status: newStatus } : msg
+                )
+            );
+            alert(`Status berhasil diubah menjadi ${newStatus}.`);
+        }
+    } catch (error) {
+        console.error("Error memperbarui status:", error);
+        alert("Terjadi kesalahan saat memperbarui status.");
+    }
+};
+
+
   
   
 
@@ -182,6 +207,7 @@ const AdminChatTable = () => {
                   </th>
                   <th className="border border-gray-300 px-4 py-2">Status</th>
                   <th className="border border-gray-300 px-4 py-2">Read</th>
+                  <th className="border border-gray-300 px-4 py-2">Status</th>
                   <th className="border border-gray-300 px-4 py-2">Action</th>
                 </tr>
             </thead>
@@ -214,6 +240,17 @@ const AdminChatTable = () => {
                      )}
                    </td>
                   <td className="border border-gray-300 px-4 py-2 text-center">{msg.timestamp && format(msg.timestamp, "dd/MM/yyyy HH:mm:ss")}</td>
+                  <td className="border border-gray-300 px-4 py-2 text-center">
+                      <button
+                          onClick={() => handleToggleStatus(msg.id, msg.status)}
+                          className={`px-4 py-2 rounded-lg text-white ${
+                              msg.status === "ACTIVE" ? "bg-green-600 hover:bg-green-700" : "bg-red-600 hover:bg-red-700"
+                          }`}
+                      >
+                          {msg.status}
+                      </button>
+                  </td>
+
                   <td className="border border-gray-300 px-4 py-2">{msg.read ? (
                     <button
                         type="button"
