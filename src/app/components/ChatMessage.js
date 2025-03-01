@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { format } from "date-fns";
-import { rtdb } from "../config/firebase";
+import { database } from "../config/firebase";
 import { ref as databaseRef, onValue,update,remove,set } from "firebase/database";
 
 import Modal from "react-modal";
@@ -169,8 +169,8 @@ const ChatMessage = ({ message, user1, openDropdownId, setOpenDropdownId, setRep
                             return;
                           }
 
-                          const messageRef = databaseRef(rtdb, `chatsBox/${message.id}`);
-                          const logMessageRef = databaseRef(rtdb, `log_chatsBox/${message.id}`);
+                          const messageRef = databaseRef(database, `chatsBox/${message.id}`);
+                          const logMessageRef = databaseRef(database, `log_chatsBox/${message.id}`);
 
                           try {
                             // Tambahkan pesan ke log_chatsBox dengan deleteTime
@@ -242,7 +242,7 @@ const ChatMessage = ({ message, user1, openDropdownId, setOpenDropdownId, setRep
                             return;
                           }
 
-                          const messageRef = databaseRef(rtdb, `chatsBox/${message.id}`);
+                          const messageRef = databaseRef(database, `chatsBox/${message.id}`);
                           
                           try {
                             // Update pesan di chatsBox
