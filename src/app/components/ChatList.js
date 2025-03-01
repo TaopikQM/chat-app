@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef  } from "react";
-import { rtdb } from "../config/firebase";
+import { database } from "../config/firebase";
 import { ref as databaseRef, onValue,update } from "firebase/database";
 
 import { getStorage, ref as storageRef, getMetadata } from "firebase/storage";
@@ -24,7 +24,7 @@ const ChatList = ({ user1, user2, setReplyMessage  }) => {
 const [previousPage, setPreviousPage] = useState(1); 
   
   useEffect(() => {
-    const chatRef = databaseRef(rtdb, "chatsBox");
+    const chatRef = databaseRef(database, "chatsBox");
     onValue(chatRef, async (snapshot) => {
       const data = snapshot.val();
       if (data) {
@@ -78,7 +78,7 @@ const [previousPage, setPreviousPage] = useState(1);
   useEffect(() => {
     messages.forEach((msg) => {
       if (msg.penerima === user1 && !msg.read && msg.id) {
-        update(databaseRef(rtdb, `chatsBox/${msg.id}`), {
+        update(databaseRef(database, `chatsBox/${msg.id}`), {
           read: true,
           timestampRead: Date.now(),
         });
