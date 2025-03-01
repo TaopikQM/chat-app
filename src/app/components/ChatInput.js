@@ -1,5 +1,5 @@
 import { useState, useRef,useEffect } from "react";
-import { rtdb, storage } from "../config/firebase";
+import { database, storage } from "../config/firebase";
 import { ref as databaseRef, push, update,set ,onValue} from "firebase/database";
 import { ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
 const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage}) => {
@@ -139,7 +139,7 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage}) => {
       return;
     }
     setUploading(true);
-    const newMessageRef = push(databaseRef(rtdb, "chatsBox"));
+    const newMessageRef = push(databaseRef(database, "chatsBox"));
     let uploadedFiles = [];
    // 🔹 Tambahkan deklarasi uploadPromises sebelum digunakan
   //  let uploadPromises = [];
