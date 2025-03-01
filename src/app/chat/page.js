@@ -6,7 +6,7 @@ import {useEffect, useState } from "react";
 
 // import { rtdb, ref, update, serverTimestamp } from "../../config/firebase";
 
-import { rtdb, storage } from "../../config/firebase";
+import { database, storage } from "../../config/firebase";
 import { ref as databaseRef, push, update,set ,onValue,serverTimestamp } from "firebase/database";
 
 const ChatPage = () => {
@@ -16,7 +16,7 @@ const ChatPage = () => {
   const [replyMessage, setReplyMessage] = useState(null); // ✅ Reply Message
 
   useEffect(() => {
-    const userRef = databaseRef(rtdb, `pengguna/${chatWith}`);
+    const userRef = databaseRef(database, `pengguna/${chatWith}`);
 
     // Set pengguna online saat masuk
     update(userRef, {
