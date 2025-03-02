@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { rtdb } from "../config/firebase";
+import { database } from "../config/firebase";
 import { ref as databaseRef, get, onValue,remove,update } from "firebase/database";
 import { format } from "date-fns";
 
@@ -15,7 +15,7 @@ const UsersChatTable = () => {
   const [sortOrderName, setSortOrderName] = useState('asc');
   
     useEffect(() => {
-        const usersRef = databaseRef(rtdb, "pengguna");
+        const usersRef = databaseRef(database, "pengguna");
 
         onValue(usersRef, (snapshot) => {
             const data = snapshot.val();
@@ -38,7 +38,7 @@ const UsersChatTable = () => {
     const confirmDelete = window.confirm(`Apakah Anda yakin ingin menghapus pengguna ${userName}?`);
     if (confirmDelete) {
         try {
-            await remove(databaseRef(rtdb, `pengguna/${userId}`));
+            await remove(databaseRef(database, `pengguna/${userId}`));
             alert(`Pengguna ${userName} berhasil dihapus.`);
         } catch (error) {
             console.error("Error menghapus pengguna:", error);
