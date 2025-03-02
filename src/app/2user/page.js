@@ -44,20 +44,22 @@ const ChatPage = () => {
   //     handleDisconnect(); // Jika komponen di-unmount
   //   };
   // }, [chatWith]);  
-  useEffect(() => {
-    const userRef = databaseRef(database, `pengguna/${chatWith}`);
+ useEffect(() => {
+    const userRef = databaseRef(rtdb, `pengguna/${chatWith}`);
 
-    const logsRef = databaseRef(database, `logs_pengguna/${chatWith}`);
+    const logsRef = databaseRef(rtdb, `logs_pengguna/${chatWith}`);
     
 
     // Set pengguna online saat masuk
     update(userRef, {
+      user: chatWith,
       isOnline: true,
       lastSeen: serverTimestamp(),
     });
 
     // Simpan log saat user online
     push(logsRef, {
+      user: chatWith,
       status: "online",
       timestamp: serverTimestamp(),
     });
@@ -65,12 +67,14 @@ const ChatPage = () => {
     // Set pengguna offline saat keluar
     const handleDisconnect = () => {
       update(userRef, {
+        user: chatWith,
         isOnline: false,
         lastSeen: serverTimestamp(),
       });
 
        // Simpan log saat user offline
        push(logsRef, {
+        user: chatWith,
         status: "offline",
         timestamp: serverTimestamp(),
       });
@@ -82,6 +86,7 @@ const ChatPage = () => {
 
        // Simpan log waktu terakhir dilihat
        push(logsRef, {
+        user: chatWith,
         status: "update_lastSeen",
         timestamp: serverTimestamp(),
       });
