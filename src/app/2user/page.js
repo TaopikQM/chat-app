@@ -45,9 +45,9 @@ const ChatPage = () => {
   //   };
   // }, [chatWith]);  
  useEffect(() => {
-    const userRef = databaseRef(rtdb, `pengguna/${chatWith}`);
+    const userRef = databaseRef(database, `pengguna/${chatWith}`);
 
-    const logsRef = databaseRef(rtdb, `logs_pengguna/${chatWith}`);
+    const logsRef = databaseRef(database, `logs_pengguna/${chatWith}`);
     
 
     // Set pengguna online saat masuk
