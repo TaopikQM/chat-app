@@ -341,8 +341,12 @@ const Gallery = () => {
                         };
                     })
                 );
+                        // **Urutkan berdasarkan timeCreated (terbaru dulu)**
+            fileDetails.sort((a, b) => new Date(b.timeCreated) - new Date(a.timeCreated));
+
                 setFiles(fileDetails);
                 setFilteredFiles(fileDetails);
+                        
 
                 const grouped = fileDetails.reduce((acc, file) => {
                     const date = new Date(file.timeCreated);
