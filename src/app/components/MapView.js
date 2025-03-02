@@ -8,7 +8,6 @@ import { ref, onValue } from "firebase/database";
 import L from "leaflet";
 
 const customIcon = new L.Icon({
-  // iconUrl: "/assets/Icon/gridicons_location.svg",
   iconUrl: "https://maps.google.com/mapfiles/ms/icons/red-dot.png",
   iconSize: [32, 32],
   iconAnchor: [16, 32],
@@ -123,6 +122,8 @@ const MapView = () => {
 
 export default MapView;
 // "use client";
+
+  // iconUrl: "/assets/Icon/gridicons_location.svg",
 // import { MapContainer, TileLayer, Polyline, Marker, Popup, useMap } from "react-leaflet";
 // import "leaflet/dist/leaflet.css";
 // import { useState, useEffect } from "react";
