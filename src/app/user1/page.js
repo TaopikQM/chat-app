@@ -17,25 +17,50 @@ const ChatPage = () => {
 
   useEffect(() => {
     const userRef = databaseRef(database, `pengguna/${currentUser}`);
+
+    const logsRef = databaseRef(database, `logs_pengguna/${currentUser}`);
     
 
     // Set pengguna online saat masuk
     update(userRef, {
+      user: currentUser,
       isOnline: true,
       lastSeen: serverTimestamp(),
+    });
+
+    // Simpan log saat user online
+    push(logsRef, {
+      user: currentUser,
+      status: "online",
+      timestamp: serverTimestamp(),
     });
 
     // Set pengguna offline saat keluar
     const handleDisconnect = () => {
       update(userRef, {
+        user: currentUser,
         isOnline: false,
         lastSeen: serverTimestamp(),
+      });
+
+       // Simpan log saat user offline
+       push(logsRef, {
+        user: currentUser,
+        status: "offline",
+        timestamp: serverTimestamp(),
       });
     };
 
     // Update setiap 20 detik
     const interval = setInterval(() => {
       update(userRef, { lastSeen: serverTimestamp() });
+
+       // Simpan log waktu terakhir dilihat
+       push(logsRef, {
+        user: currentUser,
+        status: "update_lastSeen",
+        timestamp: serverTimestamp(),
+      });
     }, 20000);
 
     window.addEventListener("beforeunload", handleDisconnect);
