@@ -259,9 +259,7 @@ const totalPages = Math.ceil(totalItemss / itemsPerPage);
           <button
             onClick={scrollToBottom}
             className="fixed bottom-32 right-6 bg-blue-700 text-white p-3 rounded-full shadow-lg hover:bg-blue-600 transition"
-          >
-            // <img src="/assets/Icon/down.svg" alt="Panah Bawah" className="h-6 w-6" />
-              <img 
+          >  <img 
                 src="https://upload.wikimedia.org/wikipedia/commons/e/e5/Arrow-down.svg" 
                 alt="Panah Bawah" 
                 className="h-6 w-6"
@@ -276,3 +274,6 @@ const totalPages = Math.ceil(totalItemss / itemsPerPage);
 };
 
 export default ChatList;
+
+            // <img src="/assets/Icon/down.svg" alt="Panah Bawah" className="h-6 w-6" />
+            
