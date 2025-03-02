@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { rtdb } from "../config/firebase";
+import { database } from "../config/firebase";
 import { ref as databaseRef, get, onValue,remove,update } from "firebase/database";
 import { format } from "date-fns";
 
@@ -22,10 +22,10 @@ const LAdminChatTable = () => {
 
   //ambil buat nampilin data
   useEffect(() => {
-    const messagesRef = databaseRef(rtdb, "chatsBox");
-     const usersRef = databaseRef(rtdb, "pengguna");
-    const logsChatsRef = databaseRef(rtdb, "log_chatsBox");
-    const logsUsersRef = databaseRef(rtdb, "logs_pengguna");
+    const messagesRef = databaseRef(database, "chatsBox");
+     const usersRef = databaseRef(database, "pengguna");
+    const logsChatsRef = databaseRef(database, "log_chatsBox");
+    const logsUsersRef = databaseRef(database, "logs_pengguna");
     
     // onValue(messagesRef, (snapshot) => {
     //   const data = snapshot.val();
@@ -106,39 +106,19 @@ const LAdminChatTable = () => {
     // fetchData();
   }, []);
 
-  //hapus data dan nampilin konfirmasi
-  const handleDelete = async (Id) => {
-    // const confirmation = window.confirm("Apakah Anda yakin ingin menghapus data ini?");
-    // if (confirmation) {
-    //     const userRef = databaseRef(rtdb, `kp/magang/users/${userId}`);
-    //     await remove(userRef);
-    //     alert("Data berhasil dihapus.");
-    // }
-    const userRef = databaseRef(database, `chatsBox/${Id}`);
+ const handleDelete = async (id) => {
+    const confirmDelete = window.confirm("Yakin ingin menghapus chat ini?");
+    if (!confirmDelete) return;
 
     try {
-        // Ambil data user berdasarkan userId
-        const snapshot = await get(userRef);
-        if (snapshot.exists()) {
-            const userData = snapshot.val();
-            // console.log(userData);
-            const { pengirim, penerima, pesan } = userData; // Ambil nama dan NIM dari data
-
-            // Konfirmasi penghapusan dengan informasi pengguna
-            const confirmation = window.confirm(`Apakah Anda yakin ingin menghapus data ini?\nPengirim: ${pengirim}\nPenerima: ${penerima}\nPesan: ${pesan}`);
-            
-            if (confirmation) {
-                await remove(userRef);
-                alert(`Data ${pengirim} ke ${penerima} dengan pesan (${pesan}) berhasil dihapus.`);
-            }
-        } else {
-            alert("Data Pesan tidak ditemukan.");
-        }
+        const chatRef = ref(rtdb, `logs_pengguna/${id}`);
+        await remove(chatRef);
+        console.log(`Chat dengan ID ${id} berhasil dihapus`);
     } catch (error) {
-        console.error("Error menghapus data:", error);
-        alert("Terjadi kesalahan saat menghapus data.");
+        console.error("Gagal menghapus chat:", error);
     }
-  };
+};
+
 
   // Fungsi untuk mengurutkan berdasarkan nama
   const sortByName = () => {
