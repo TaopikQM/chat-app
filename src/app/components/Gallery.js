@@ -274,6 +274,8 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/swiper-bundle.min.css";
 import { format } from "date-fns";
 
+import { FaFilePdf, FaFileWord, FaFileAlt, FaMusic } from "react-icons/fa";
+
 import MediaViewer from "./MediaViewer";
 
 const Gallery = () => {
@@ -288,15 +290,28 @@ const Gallery = () => {
              const [selectedMedia, setSelectedMedia] = useState(null);
     const [selectedIndex, setSelectedIndex] = useState(0);
 
-    const openModal = (yearMonth, index) => {
+    // const openModal = (yearMonth, index) => {
+    //     setSelectedMedia({
+    //         media: groupedFiles[yearMonth].map((file) => ({
+    //             type: file.contentType.startsWith("image/") ? "image" : "video",
+    //             src: file.url,
+    //         })),
+    //         initialIndex: index,
+    //     });
+    //     setSelectedIndex(index);
+    // };
+             const openModal = (yearMonth, index) => {
         setSelectedMedia({
             media: groupedFiles[yearMonth].map((file) => ({
-                type: file.contentType.startsWith("image/") ? "image" : "video",
+                type: file.contentType.startsWith("image/")
+                    ? "image"
+                    : file.contentType.startsWith("video/")
+                    ? "video"
+                    : "other",
                 src: file.url,
             })),
             initialIndex: index,
         });
-        setSelectedIndex(index);
     };
 
     const closeModal = () => {
@@ -378,12 +393,18 @@ const Gallery = () => {
         }
     };
 
+              const getFileIcon = (type) => {
+        if (type.includes("pdf")) return <FaFilePdf className="text-red-600 w-12 h-12" />;
+        if (type.includes("word") || type.includes("msword")) return <FaFileWord className="text-blue-600 w-12 h-12" />;
+        if (type.includes("audio")) return <FaMusic className="text-green-600 w-12 h-12" />;
+        return <FaFileAlt className="text-gray-600 w-12 h-12" />;
+    };
     return (
         <div>
            
            
             <div className="flex items-center justify-center py-4 md:py-8 flex-wrap">
-                {["all", "images", "videos"].map((filter) => (
+                {["all", "images", "videos", "audio", "documents"].map((filter) => (
                     <button
                         key={filter}
                         type="button"
@@ -430,27 +451,35 @@ const Gallery = () => {
                                         ? true
                                         : activeFilter === "images"
                                         ? file.contentType.startsWith("image/")
-                                        : file.contentType.startsWith("video/")
+                                            : activeFilter === "videos"
+                                            ? file.contentType.startsWith("video/")
+                                            : activeFilter === "audio"
+                                            ? file.contentType.startsWith("audio/")
+                                            : activeFilter === "documents"
+                                            ? file.contentType.includes("pdf") || file.contentType.includes("word")
+                                            : false
                                 )
-                                .map((file, index) => (
-                                    <div
-                                        key={index}
-                                        onClick={() =>  openModal(yearMonth, index)}
-                                        className="cursor-pointer"
-                                    >
-                                        {file.contentType.startsWith("video/") ? (
-                                            <video className="h-auto rounded-lg" controls>
-                                                <source src={file.url} type={file.contentType} />
-                                                Your browser does not support the video tag.
-                                            </video>
-                                        ) : (
-                                            <img
-                                                className="h-auto rounded-lg"
-                                                src={file.url}
-                                                alt={`File ${index}`}
-                                            />
-                                        )}
-                                    </div>
+                                 .map((file, index) => (
+                                        <div key={index} onClick={() => openModal(yearMonth, index)} className="cursor-pointer">
+                                            {file.contentType.startsWith("video/") ? (
+                                                <video className="h-auto rounded-lg" controls>
+                                                    <source src={file.url} type={file.contentType} />
+                                                    Your browser does not support the video tag.
+                                                </video>
+                                            ) : file.contentType.startsWith("image/") ? (
+                                                <img className="h-auto rounded-lg" src={file.url} alt={`File ${index}`} />
+                                            ) : file.contentType.startsWith("audio/") ? (
+                                                <audio controls className="w-full">
+                                                    <source src={file.url} type={file.contentType} />
+                                                    Your browser does not support the audio tag.
+                                                </audio>
+                                            ) : (
+                                                <div className="flex flex-col items-center p-4 border rounded-lg">
+                                                    {getFileIcon(file.contentType)}
+                                                    <p className="text-sm mt-2 truncate">{file.name}</p>
+                                                </div>
+                                            )}
+                                        </div>
                                 ))}
                         </div>
                         <hr className="my-4" />
@@ -474,6 +503,27 @@ const Gallery = () => {
 
 export default Gallery;
 
+
+                                        // : file.contentType.startsWith("video/")
+// .map((file, index) => (
+//                                     <div
+//                                         key={index}
+//                                         onClick={() =>  openModal(yearMonth, index)}
+//                                         className="cursor-pointer"
+//                                     >
+//                                         {file.contentType.startsWith("video/") ? (
+//                                             <video className="h-auto rounded-lg" controls>
+//                                                 <source src={file.url} type={file.contentType} />
+//                                                 Your browser does not support the video tag.
+//                                             </video>
+//                                         ) : (
+//                                             <img
+//                                                 className="h-auto rounded-lg"
+//                                                 src={file.url}
+//                                                 alt={`File ${index}`}
+//                                             />
+//                                         )}
+//                                     </div>
 
 
 
