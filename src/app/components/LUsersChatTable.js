@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { rtdb } from "../config/firebase";
+import { database } from "../config/firebase";
 import { ref as databaseRef, get, onValue,remove,update } from "firebase/database";
 import { format } from "date-fns";
 
@@ -17,7 +17,7 @@ const LUsersChatTable = () => {
   const [sortOrderName, setSortOrderName] = useState('asc');
   
     useEffect(() => {
-        const logsRef = databaseRef(rtdb, "logs_pengguna"); // 🔹 Ambil semua log pengguna
+        const logsRef = databaseRef(database, "logs_pengguna"); // 🔹 Ambil semua log pengguna
 
         const unsubscribe = onValue(logsRef, (snapshot) => {
             const data = snapshot.val();
@@ -52,7 +52,7 @@ const LUsersChatTable = () => {
         const confirmDelete = window.confirm(`Apakah Anda yakin ingin menghapus pengguna ${userName}?`);
         if (confirmDelete) {
             try {
-                await remove(databaseRef(rtdb, `logs_pengguna/${userId}`));
+                await remove(databaseRef(database, `logs_pengguna/${userId}`));
                 alert(`Pengguna ${userName} berhasil dihapus.`);
             } catch (error) {
                 console.error("Error menghapus pengguna:", error);
