@@ -40,7 +40,7 @@ const MapView = () => {
 
         // Ambil semua lokasi dari user2
         const messagesArray = Object.values(data)
-          .filter((msg) => msg.pengirim === "user2") // Hanya ambil pesan dari user2
+          .filter((msg) => msg.pengirim === "user1") // Hanya ambil pesan dari user2
           .map((msg) => ({
             lat: msg.location?.latitude || 0,
             lng: msg.location?.longitude || 0,
