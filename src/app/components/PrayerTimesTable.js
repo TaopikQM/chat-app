@@ -33,9 +33,12 @@ export default function PrayerTimesTable() {
     const fetchData = async (latitude, longitude) => {
       try {
         const currentYear = new Date().getFullYear();
-        const response = await fetch(
-          `https://api.aladhan.com/v1/calendar/${currentYear}/1?latitude=${latitude}&longitude=${longitude}&method=20&shafaq=general&tune=5%2C3%2C5%2C7%2C9%2C-1%2C0%2C8%2C-6&timezonestring=UTC&calendarMethod=UAQ`
-        );
+        const apiUrl =
+          calendarType === "hijriah"
+            ? `https://api.aladhan.com/v1/hijriCalendar/${year}?latitude=${latitude}&longitude=${longitude}&method=20&shafaq=general&tune=5%2C3%2C5%2C7%2C9%2C-1%2C0%2C8%2C-6&timezonestring=UTC&calendarMethod=UAQ`
+            : `https://api.aladhan.com/v1/calendar/${year}/1?latitude=${latitude}&longitude=${longitude}&method=20&shafaq=general&tune=5%2C3%2C5%2C7%2C9%2C-1%2C0%2C8%2C-6&timezonestring=UTC&calendarMethod=UAQ`;
+
+        const response = await fetch(apiUrl);
         const data = await response.json();
         if (data && data.data) {
           setPrayerTimes(data.data);
@@ -45,6 +48,17 @@ export default function PrayerTimesTable() {
         setError("Gagal mengambil data.");
       } finally {
         setLoading(false);
+      }
+    };
+
+     const getHijriYear = async () => {
+      try {
+        const response = await fetch(`https://api.aladhan.com/v1/gToH?date=${new Date().toLocaleDateString("en-GB").replace(/\//g, "-")}`);
+        const data = await response.json();
+        return data?.data?.hijri?.year || null;
+      } catch (err) {
+        console.error("Error fetching Hijri year:", err);
+        return null;
       }
     };
 
@@ -67,6 +81,8 @@ export default function PrayerTimesTable() {
       setLoading(false);
     }
   }, []);
+
+  
 
   useEffect(() => {
     // Update waktu setiap detik
@@ -104,6 +120,17 @@ export default function PrayerTimesTable() {
       {/* Jam Digital */}
       <div className="text-center text-2xl font-bold text-gray-700 mb-4">
         {currentTime.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
+      </div>
+
+<div className="flex justify-center mb-4">
+        <select
+          className="p-2 border rounded"
+          value={calendarType}
+          onChange={(e) => setCalendarType(e.target.value)}
+        >
+          <option value="masehi">Masehi</option>
+          <option value="hijriah">Hijriah</option>
+        </select>
       </div>
 
      {/* Kotak-kotak jam sholat */}
