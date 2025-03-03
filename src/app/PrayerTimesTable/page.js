@@ -1,5 +1,5 @@
 import PrayerTimesTable from "../components/PrayerTimesTable";
-import timehijr from "../components/timehijr";
+import TimeHijr from "../components/TimeHijr";
 
 export default function Home() {
   return (
@@ -8,7 +8,7 @@ export default function Home() {
       <PrayerTimesTable />
     </div>
     <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-      <timehijr />
+      <TimeHijr />
     </div>
     </>
   );
