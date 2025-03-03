@@ -61,7 +61,7 @@ const ChatPage = () => {
         status: "update_lastSeen",
         timestamp: serverTimestamp(),
       });
-    }, 20000);
+    }, 50000);
 
     window.addEventListener("beforeunload", handleDisconnect);
     return () => {
