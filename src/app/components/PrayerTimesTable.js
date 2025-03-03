@@ -33,7 +33,30 @@ export default function PrayerTimesTable() {
   //   fetchData();
   // }, []);
 
-   const getHijriYear = async () => {
+   
+
+  useEffect(() => {
+    const fetchData = async (latitude, longitude) => {
+      try {
+        const currentYear = new Date().getFullYear();
+        const apiUrl =
+          calendarType === "hijriah"
+            ? `https://api.aladhan.com/v1/hijriCalendar/${year}?latitude=${latitude}&longitude=${longitude}&method=20&shafaq=general&tune=5%2C3%2C5%2C7%2C9%2C-1%2C0%2C8%2C-6&timezonestring=UTC&calendarMethod=UAQ`
+            : `https://api.aladhan.com/v1/calendar/${year}/1?latitude=${latitude}&longitude=${longitude}&method=20&shafaq=general&tune=5%2C3%2C5%2C7%2C9%2C-1%2C0%2C8%2C-6&timezonestring=UTC&calendarMethod=UAQ`;
+
+        const response = await fetch(apiUrl);
+        const data = await response.json();
+        if (data && data.data) {
+          setPrayerTimes(data.data);
+        }
+      } catch (err) {
+        console.error("Error fetching data:", err);
+        setError("Gagal mengambil data.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    const getHijriYear = async () => {
       try {
         const response = await fetch(`https://api.aladhan.com/v1/gToH?date=${new Date().toLocaleDateString("en-GB").replace(/\//g, "-")}`);
         const data = await response.json();
@@ -63,28 +86,6 @@ export default function PrayerTimesTable() {
       setLoading(false);
     }
   }, []);
-
-  useEffect(() => {
-    const fetchData = async (latitude, longitude) => {
-      try {
-        const currentYear = new Date().getFullYear();
-        const apiUrl =
-          calendarType === "hijriah"
-            ? `https://api.aladhan.com/v1/hijriCalendar/${year}?latitude=${latitude}&longitude=${longitude}&method=20&shafaq=general&tune=5%2C3%2C5%2C7%2C9%2C-1%2C0%2C8%2C-6&timezonestring=UTC&calendarMethod=UAQ`
-            : `https://api.aladhan.com/v1/calendar/${year}/1?latitude=${latitude}&longitude=${longitude}&method=20&shafaq=general&tune=5%2C3%2C5%2C7%2C9%2C-1%2C0%2C8%2C-6&timezonestring=UTC&calendarMethod=UAQ`;
-
-        const response = await fetch(apiUrl);
-        const data = await response.json();
-        if (data && data.data) {
-          setPrayerTimes(data.data);
-        }
-      } catch (err) {
-        console.error("Error fetching data:", err);
-        setError("Gagal mengambil data.");
-      } finally {
-        setLoading(false);
-      }
-    };
 
     
   
