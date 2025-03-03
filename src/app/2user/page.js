@@ -109,14 +109,14 @@ const ChatPage = () => {
 
       {/* Bagian ChatList bisa di-scroll */}
       <div className="flex-1 overflow-y-auto p-4">
-        <ChatList user1={currentUser} user2={chatWith} setReplyMessage={setReplyMessage} />
+        <ChatList user1={chatWith} user2={currentUser} setReplyMessage={setReplyMessage} />
       </div>
 
       
 
       {/* Input tetap di bawah */}
       <div className="flex-none bg-white border-t border-gray-300">
-        <ChatInput pengirim={currentUser} penerima={chatWith} replyMessage={replyMessage} setReplyMessage={setReplyMessage} />
+        <ChatInput pengirim={chatWith} penerima={currentUser} replyMessage={replyMessage} setReplyMessage={setReplyMessage} />
       </div>
     </div>
   );
