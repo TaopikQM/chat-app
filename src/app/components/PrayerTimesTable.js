@@ -9,24 +9,63 @@ export default function PrayerTimesTable() {
   
   const [loading, setLoading] = useState(true);
 
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     try {
+  //       const response = await fetch(
+  //         "https://api.aladhan.com/v1/calendar/2025/1?latitude=-6.9667&longitude=110.4167&method=20&shafaq=general&tune=5%2C3%2C5%2C7%2C9%2C-1%2C0%2C8%2C-6&timezonestring=UTC&calendarMethod=UAQ"
+  //       );
+  //       const data = await response.json();
+  //       if (data && data.data) {
+  //         setPrayerTimes(data.data);
+  //         setLoading(false);
+  //       }
+  //     } catch (error) {
+  //       console.error("Error fetching data:", error);
+  //       setLoading(false);
+  //     }
+  //   };
+
+  //   fetchData();
+  // }, []);
+
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchData = async (latitude, longitude) => {
       try {
+        const currentYear = new Date().getFullYear();
         const response = await fetch(
-          "https://api.aladhan.com/v1/calendar/2025/1?latitude=-6.9667&longitude=110.4167&method=20&shafaq=general&tune=5%2C3%2C5%2C7%2C9%2C-1%2C0%2C8%2C-6&timezonestring=UTC&calendarMethod=UAQ"
+          `https://api.aladhan.com/v1/calendar/${currentYear}/1?latitude=${latitude}&longitude=${longitude}&method=20&shafaq=general&tune=5%2C3%2C5%2C7%2C9%2C-1%2C0%2C8%2C-6&timezonestring=UTC&calendarMethod=UAQ`
         );
         const data = await response.json();
         if (data && data.data) {
           setPrayerTimes(data.data);
-          setLoading(false);
         }
-      } catch (error) {
-        console.error("Error fetching data:", error);
+      } catch (err) {
+        console.error("Error fetching data:", err);
+        setError("Gagal mengambil data.");
+      } finally {
         setLoading(false);
       }
     };
 
-    fetchData();
+    // Mendapatkan lokasi dari Geolocation API
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          fetchData(latitude, longitude);
+        },
+        (err) => {
+          console.error("Error getting location:", err);
+          setError("Gagal mendapatkan lokasi.");
+          setLoading(false);
+        }
+      );
+    } else {
+      console.error("Geolocation tidak didukung di browser ini.");
+      setError("Geolocation tidak didukung.");
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => {
