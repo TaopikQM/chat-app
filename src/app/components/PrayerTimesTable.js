@@ -8,6 +8,8 @@ export default function PrayerTimesTable() {
   const [today, setToday] = useState('');
   
   const [loading, setLoading] = useState(true);
+  const [calendarType, setCalendarType] = useState("masehi"); // Pilihan kalender
+
 
   // useEffect(() => {
   //   const fetchData = async () => {
