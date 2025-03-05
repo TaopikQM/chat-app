@@ -46,6 +46,16 @@ const UsersChatTable = () => {
         }
     }
 };
+  const toggleOnlineStatus = async (userId, currentStatus) => {
+    const userRef = databaseRef(database, `pengguna/${userId}`);
+
+    try {
+        await update(userRef, { isOnline: !currentStatus }); // Hanya update isOnline
+        console.log(`Status ${userId} diubah menjadi ${!currentStatus}`);
+    } catch (error) {
+        console.error("Gagal mengubah status online:", error);
+    }
+};
 
   // Fungsi untuk mengurutkan berdasarkan nama
   const sortByName = () => {
@@ -186,22 +196,18 @@ const filteredData = users.filter(item =>
                   {/* <td className={`border px-4 py-2 ${msg.isOnline ? 'text-green-600' : 'text-red-600'}`}>
                     {msg.isOnline ? "Online" : "Offline"}
                 </td> */}
-                <td className="border border-gray-300 px-4 py-2">{msg.isOnline ? (
-                    <button
-                        type="button"
-                        className="focus:outline-none flex items-center  text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2"
-                      >
-                         <div className="h-2.5 w-2.5 rounded-full bg-green-500 me-2"></div>Online
-                      </button>
-                    ) : (
-                      <button
-                        type="button"
-                        className="focus:outline-none flex items-center text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2"
-                      >
-                        <div className="h-2.5 w-2.5 rounded-full bg-red-500 me-2 "></div>Offline
-                      </button>
-                    )}
-                </td>
+                <td className="border border-gray-300 px-4 py-2">
+    <button
+        type="button"
+        onClick={() => toggleOnlineStatus(msg.id, msg.isOnline)}
+        className={`focus:outline-none flex items-center text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 
+            ${msg.isOnline ? "bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300" : "bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300"}
+        `}
+    >
+        <div className={`h-2.5 w-2.5 rounded-full me-2 ${msg.isOnline ? "bg-green-500" : "bg-red-500"}`}></div>
+        {msg.isOnline ? "Online" : "Offline"}
+    </button>
+</td>
                 <td className="border px-4 py-2">
                                 {new Date(msg.lastSeen).toLocaleString()}
                             </td>
