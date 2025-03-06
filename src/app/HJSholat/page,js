@@ -2,15 +2,13 @@
 
 import JSholat from "../components/JSholat";
 
-export default function HJSholat() {
+export default function JSPage() {
   return (
     <>
    
-    <div className="min-h-screen bg-gray-100 flexitems-center justify-center">
-      
+    <div className="min-h-screen bg-gray-100 flex items-center justify-center">
       <JSholat />
     </div>
     </>
-    
   );
 }
