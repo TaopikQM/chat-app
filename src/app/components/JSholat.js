@@ -419,7 +419,7 @@ export default function LUsersChatTable() {
       return;
     }
 
-    const prayerType = newHour < 6 ? "Fajr" : "Normal"; 
+    const prayerType = newHour  >= 1 && currentHour < 6 ? "Fajr" : "Normal"; 
 
     setTriggers([...triggers, { hour: newHour, minute: newMinute }]);
     setTriggerHour("");
