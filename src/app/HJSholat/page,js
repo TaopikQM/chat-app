@@ -1,0 +1,16 @@
+"use client";
+
+import JSholat from "../components/JSholat";
+
+export default function HJSholat() {
+  return (
+    <>
+   
+    <div className="min-h-screen bg-gray-100 flexitems-center justify-center">
+      
+      <JSholat />
+    </div>
+    </>
+    
+  );
+}
