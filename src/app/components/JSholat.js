@@ -32,6 +32,7 @@ export default function LUsersChatTable() {
   const negativeCountdownRef = useRef(null);
   const sholawatAudioRef = useRef(null);
   const adzanAudioRef = useRef(null);
+  const adzanFajrRef = useRef(null);
 
   const [showDropdown, setShowDropdown] = useState(false);
 
