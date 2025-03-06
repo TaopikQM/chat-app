@@ -90,34 +90,7 @@ export default function LUsersChatTable() {
                 async (position) => {
                   const { latitude, longitude } = position.coords;
               
-              //     try {
-              //       const response = await fetch("/api/reverseGeocode", {
-              //         method: "POST", // Kirim pakai POST
-              //         headers: { "Content-Type": "application/json" },
-              //         body: JSON.stringify({ lat: latitude, lon: longitude })
-              //       });
-              
-              //       if (!response.ok) throw new Error("Gagal mendapatkan lokasi");
-              
-              //       const data = await response.json();
-              //       // ✅ Cek apakah data sudah pernah ditampilkan sebelumnya
-              //       if (!prevLocation || JSON.stringify(prevLocation) !== JSON.stringify(data)) {
-              //         console.log("Lokasi dari backend:", data);
-              //         setPrevLocation(data); // Simpan data yang sudah di-log
-              //       } else {
-              //         console.log("Data lokasi tidak berubah, tidak log ulang");
-              //       }
-
-              //       if (data && data.address) {
-              //         setLocation(`${data.address.city || data.address.town || "Tidak Diketahui"}, ${data.address.country}`);
-              //       }
-              //     } catch (error) {
-              //       console.error("Error:", error);
-              //     }
-              //   },
-              //   (error) => console.error("Gagal mendapatkan lokasi:", error),
-              //   { enableHighAccuracy: true }
-              // );
+                 
               
               // fetchLocation(latitude, longitude);
               // const lokasi = await fetch(
