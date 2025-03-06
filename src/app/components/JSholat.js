@@ -404,6 +404,7 @@ export default function LUsersChatTable() {
     return () => clearInterval(interval);
   }, [triggers, isRunning]);
 
+  let prayerType;
   const addTrigger = () => {
     if (triggerHour === "" || triggerMinute === "") return;
     const now = new Date();
