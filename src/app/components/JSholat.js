@@ -434,12 +434,17 @@ export default function LUsersChatTable() {
 
   const startCountdown = () => {
     if (isRunning) return;
+    
+    const now = new Date();
+    const newHour = now.getHours();
     setIsRunning(true);
     setCountdown(12 * 60);
     countdownRef.current = 12 * 60;
 
     const sholawatAudio = sholawatAudioRef.current;
     // const adzanAudio = adzanAudioRef.current;
+    const prayerType = newHour >= 1 && newHour < 6 ? "Fajr" : "Normal"; 
+
     const adzanAudio = prayerType === "Fajr" ? adzanFajrRef.current : adzanAudioRef.current; // Pilih audio yang sesuai
 
 
