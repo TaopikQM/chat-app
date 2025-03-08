@@ -30,16 +30,17 @@ const [previousPage, setPreviousPage] = useState(1);
         let messagesArray = Object.entries(data)
         .map(([id, msg]) => ({ id, ...msg })) // Menambahkan id ke objek pesan
         .filter((msg) =>
-        msg.status === "ACTIVE" &&
+        msg.status === "ACTIVE" && // Hanya ambil pesan yang aktif
         (
             (msg.pengirim === user1 && msg.penerima === user2) ||
             (msg.pengirim === user2 && msg.penerima === user1)
         ) &&
         (
-            msg.pengirim === user1 || msg.pengirim === user2 || msg.onUSer === "ON" // Pengirim tetap bisa lihat, penerima hanya lihat jika ON
+            msg.pengirim === user1 || msg.pengirim === user2 || msg.onUSer === "ON" // Pengirim tetap bisa lihat, penerima hanya kalau ON
         ) &&
         (
-            !(msg.onUSer === "OFF" && msg.penerima !== msg.pengirim) // Sembunyikan dari penerima kalau OFF
+            !(msg.onUSer === "OFF" && msg.penerima === user1) && // Sembunyikan untuk user1 jika dia penerima
+            !(msg.onUSer === "OFF" && msg.penerima === user2)    // Sembunyikan untuk user2 jika dia penerima
         )
         //   msg.status === "ACTIVE" && 
         //    // msg.onUser !== "OFF" && 
