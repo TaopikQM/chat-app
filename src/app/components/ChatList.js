@@ -32,7 +32,7 @@ const [previousPage, setPreviousPage] = useState(1);
         .filter((msg) =>
            msg.status === "ACTIVE" && 
         (
-            (msg.onUser !== "OFF") ||  // Pesan tetap muncul jika onUser bukan "OFF"
+            (msg.onUSer !== "OFF") ||  // Pesan tetap muncul jika onUser bukan "OFF"
             (msg.pengirim === user1 || msg.pengirim === user2) // Pastikan pengirim tetap melihat pesannya
         ) &&
         (
@@ -40,7 +40,7 @@ const [previousPage, setPreviousPage] = useState(1);
             (msg.pengirim === user2 && msg.penerima === user1)
         ) &&
         (
-            !(msg.onUser === "OFF" && msg.penerima !== msg.pengirim) // Sembunyikan dari penerima jika onUser "OFF"
+            !(msg.onUSer === "OFF" && msg.penerima !== msg.pengirim) // Sembunyikan dari penerima jika onUser "OFF"
         )
         //   msg.status === "ACTIVE" && 
         //    // msg.onUser !== "OFF" && 
