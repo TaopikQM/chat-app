@@ -36,7 +36,10 @@ const [previousPage, setPreviousPage] = useState(1);
             (msg.pengirim === user2 && msg.penerima === user1)
         ) &&
         (
-            msg.pengirim === user1 || msg.pengirim === user2 || msg.onUSer === "ON"
+            msg.pengirim === user1 || msg.pengirim === user2 || msg.onUSer === "ON" // Pengirim tetap bisa lihat, penerima hanya lihat jika ON
+        ) &&
+        (
+            !(msg.onUSer === "OFF" && msg.penerima !== msg.pengirim) // Sembunyikan dari penerima kalau OFF
         )
         //   msg.status === "ACTIVE" && 
         //    // msg.onUser !== "OFF" && 
