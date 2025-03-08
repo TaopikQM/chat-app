@@ -207,7 +207,7 @@ const ChatMessage = ({ message, user1, openDropdownId, setOpenDropdownId, setRep
                         
                             try {
                               // Ubah nilai onUser menjadi "off"
-                              await set(messageRef, "off");
+                              await set(messageRef, "OFF");
                         
                               alert("Pesan telah disembunyikan dari penerima.");
                             } catch (error) {
