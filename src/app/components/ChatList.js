@@ -30,23 +30,23 @@ const [previousPage, setPreviousPage] = useState(1);
         let messagesArray = Object.entries(data)
         .map(([id, msg]) => ({ id, ...msg })) // Menambahkan id ke objek pesan
         .filter((msg) =>
-      msg.status === "ACTIVE" && // Hanya ambil pesan yang aktif
-        (
-            (msg.pengirim === user1 && msg.penerima === user2) || 
-            (msg.pengirim === user2 && msg.penerima === user1)
-        ) &&
-        (
-            msg.onUSer === "ON" || // Kalau ON, tampil untuk semua
-            (msg.onUSer === "OFF" && msg.pengirim === user1) || // Kalau OFF, tampil hanya untuk pengirim
-            (msg.onUSer === "OFF" && msg.pengirim === user2)
-        )
-        //   msg.status === "ACTIVE" && 
+      // msg.status === "ACTIVE" && // Hanya ambil pesan yang aktif
+      //   (
+      //       (msg.pengirim === user1 && msg.penerima === user2) || 
+      //       (msg.pengirim === user2 && msg.penerima === user1)
+      //   ) &&
+      //   (
+      //       msg.onUSer === "ON" || // Kalau ON, tampil untuk semua
+      //       (msg.onUSer === "OFF" && msg.pengirim === user1) || // Kalau OFF, tampil hanya untuk pengirim
+      //       (msg.onUSer === "OFF" && msg.pengirim === user2)
+      //   )
+          msg.status === "ACTIVE" && 
         //    // msg.onUser !== "OFF" && 
         //   (msg.onUSer !== "OFF" || msg.pengirim === user1 || msg.pengirim === user2) && // Tetap tampilkan ke pengirim
          
-        //   (
-        //     (msg.pengirim === user1 && msg.penerima === user2) ||
-        //     (msg.pengirim === user2 && msg.penerima === user1))
+          (
+            (msg.pengirim === user1 && msg.penerima === user2) ||
+            (msg.pengirim === user2 && msg.penerima === user1))
 
         )
         .sort((a, b) => a.timestamp - b.timestamp);
