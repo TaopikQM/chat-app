@@ -197,6 +197,7 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage}) => {
       timestamp: Date.now(),
       read: false,
       status: "ACTIVE",
+      onUSer: "ON",
       timestampRead: null,
       replyTo: replyMessage || null,
       ip: ipInfo?.ip || "Tidak diketahui",
