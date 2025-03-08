@@ -31,7 +31,10 @@ const [previousPage, setPreviousPage] = useState(1);
         .map(([id, msg]) => ({ id, ...msg })) // Menambahkan id ke objek pesan
         .filter((msg) =>
           msg.status === "ACTIVE" && 
-           msg.onUser !== "OFF" &&(
+           // msg.onUser !== "OFF" && 
+          (msg.onUser !== "OFF" || msg.pengirim === user1 || msg.pengirim === user2) && // Tetap tampilkan ke pengirim
+         
+          (
             (msg.pengirim === user1 && msg.penerima === user2) ||
             (msg.pengirim === user2 && msg.penerima === user1))
 
