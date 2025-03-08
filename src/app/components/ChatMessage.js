@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { format } from "date-fns";
-import { database } from "../config/firebase";https://github.com/TaopikQM/chat-app/edit/main/src/app/components/ChatMessage.js
+import { database } from "../config/firebase";
 import { ref as databaseRef, onValue,update,remove,set } from "firebase/database";
  
 import Modal from "react-modal";
