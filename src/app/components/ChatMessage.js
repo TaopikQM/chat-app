@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { format } from "date-fns";
-import { database } from "../config/firebase";
+import { database } from "../config/firebase";https://github.com/TaopikQM/chat-app/edit/main/src/app/components/ChatMessage.js
 import { ref as databaseRef, onValue,update,remove,set } from "firebase/database";
  
 import Modal from "react-modal";
@@ -207,7 +207,7 @@ const ChatMessage = ({ message, user1, openDropdownId, setOpenDropdownId, setRep
 
     try {
       // Pastikan hanya satu field "onUser" yang ada
-      await update(messageRef, { onUser: "OFF" });
+      await update(messageRef, { onUSer: "OFF" });
 
       alert("Pesan telah disembunyikan dari penerima.");
     } catch (error) {
