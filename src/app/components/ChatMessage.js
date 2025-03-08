@@ -203,11 +203,11 @@ const ChatMessage = ({ message, user1, openDropdownId, setOpenDropdownId, setRep
                               return;
                             }
                         
-                            const messageRef = databaseRef(database, `chatsBox/${message.id}/onUser`);
+                            const messageRef = databaseRef(database, `chatsBox/${message.id}`);
                         
                             try {
-                              // Ubah nilai onUser menjadi "off"
-                              await set(messageRef, "OFF");
+                              // Update nilai onUser menjadi "OFF"
+                              await update(messageRef, { onUser: "OFF" });
                         
                               alert("Pesan telah disembunyikan dari penerima.");
                             } catch (error) {
@@ -218,6 +218,7 @@ const ChatMessage = ({ message, user1, openDropdownId, setOpenDropdownId, setRep
                         >
                           Sembunyikan dari Penerima
                         </li>
+
 
                       <li 
                         className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer"
