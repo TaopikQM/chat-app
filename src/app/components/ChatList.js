@@ -30,15 +30,27 @@ const [previousPage, setPreviousPage] = useState(1);
         let messagesArray = Object.entries(data)
         .map(([id, msg]) => ({ id, ...msg })) // Menambahkan id ke objek pesan
         .filter((msg) =>
-          msg.status === "ACTIVE" && 
-           // msg.onUser !== "OFF" && 
-          (msg.onUSer !== "OFF" || msg.pengirim === user1 || msg.pengirim === user2) && // Tetap tampilkan ke pengirim
-         
-          (
+           msg.status === "ACTIVE" && 
+        (
+            (msg.onUser !== "OFF") ||  // Pesan tetap muncul jika onUser bukan "OFF"
+            (msg.pengirim === user1 || msg.pengirim === user2) // Pastikan pengirim tetap melihat pesannya
+        ) &&
+        (
             (msg.pengirim === user1 && msg.penerima === user2) ||
-            (msg.pengirim === user2 && msg.penerima === user1))
+            (msg.pengirim === user2 && msg.penerima === user1)
+        ) &&
+        (
+            !(msg.onUser === "OFF" && msg.penerima !== msg.pengirim) // Sembunyikan dari penerima jika onUser "OFF"
+        // )
+        //   msg.status === "ACTIVE" && 
+        //    // msg.onUser !== "OFF" && 
+        //   (msg.onUSer !== "OFF" || msg.pengirim === user1 || msg.pengirim === user2) && // Tetap tampilkan ke pengirim
+         
+        //   (
+        //     (msg.pengirim === user1 && msg.penerima === user2) ||
+        //     (msg.pengirim === user2 && msg.penerima === user1))
 
-        )
+        // )
         .sort((a, b) => a.timestamp - b.timestamp);
         
         // **Ambil metadata untuk setiap file dalam pesan**
