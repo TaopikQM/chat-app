@@ -41,7 +41,7 @@ const [previousPage, setPreviousPage] = useState(1);
         ) &&
         (
             !(msg.onUser === "OFF" && msg.penerima !== msg.pengirim) // Sembunyikan dari penerima jika onUser "OFF"
-        // )
+        )
         //   msg.status === "ACTIVE" && 
         //    // msg.onUser !== "OFF" && 
         //   (msg.onUSer !== "OFF" || msg.pengirim === user1 || msg.pengirim === user2) && // Tetap tampilkan ke pengirim
