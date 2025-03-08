@@ -37,7 +37,7 @@ const [previousPage, setPreviousPage] = useState(1);
             (msg.pengirim === user2 && msg.penerima === user1)
         ) &&
         (
-            msg.onUser !== "OFF" || msg.pengirim === user1 || msg.pengirim === user2
+            msg.onUSer !== "OFF" || msg.pengirim === user1 || msg.pengirim === user2
         )
         //   msg.status === "ACTIVE" && 
         //    // msg.onUser !== "OFF" && 
