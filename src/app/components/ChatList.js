@@ -32,7 +32,7 @@ const [previousPage, setPreviousPage] = useState(1);
         .filter((msg) =>
           msg.status === "ACTIVE" && 
            // msg.onUser !== "OFF" && 
-          (msg.onUser !== "OFF" || msg.pengirim === user1 || msg.pengirim === user2) && // Tetap tampilkan ke pengirim
+          (msg.onUSer !== "OFF" || msg.pengirim === user1 || msg.pengirim === user2) && // Tetap tampilkan ke pengirim
          
           (
             (msg.pengirim === user1 && msg.penerima === user2) ||
