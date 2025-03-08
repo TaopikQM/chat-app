@@ -359,12 +359,12 @@ const AdminChatTable = () => {
                   </td>
                   <td className="border border-gray-300 px-4 py-2 text-center">
                       <button
-                          onClick={() => handleToggleStatus(msg.id, msg.onUser)}
+                          onClick={() => handleToggleStatus(msg.id, msg.onUSer)}
                           className={`px-4 py-2 rounded-lg text-white ${
-                              msg.onUser === "ON" ? "bg-green-600 hover:bg-green-700" : "bg-red-600 hover:bg-red-700"
+                              msg.onUSer === "ON" ? "bg-green-600 hover:bg-green-700" : "bg-red-600 hover:bg-red-700"
                           }`}
                       >
-                          {msg.onUser}
+                          {msg.onUSer}
                       </button>
                   </td>
 
