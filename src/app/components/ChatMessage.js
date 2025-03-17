@@ -191,33 +191,7 @@ const ChatMessage = ({ message, user1, openDropdownId, setOpenDropdownId, setRep
                       >
                         Hapus Pesan
                       </li>
-                        <li 
-  className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer"
-  onClick={async () => {
-    if (!message.id) return; // Pastikan ada ID pesan
-
-    // Konfirmasi sebelum menyembunyikan pesan
-    const isConfirmed = window.confirm("Apakah Anda yakin ingin menyembunyikan pesan ini dari penerima?");
-    if (!isConfirmed) {
-      alert("Aksi dibatalkan.");
-      return;
-    }
-
-    const messageRef = databaseRef(database, `chatsBox/${message.id}`);
-
-    try {
-      // Pastikan hanya satu field "onUser" yang ada
-      await update(messageRef, { onUSer: "OFF" });
-
-      alert("Pesan telah disembunyikan dari penerima.");
-    } catch (error) {
-      console.error("Gagal menyembunyikan pesan:", error);
-      alert("Terjadi kesalahan.");
-    }
-  }}
->
-  Sembunyikan dari Penerima
-</li>
+                        
 
 
 
@@ -613,6 +587,33 @@ const ChatMessage = ({ message, user1, openDropdownId, setOpenDropdownId, setRep
   };
   
   export default ChatMessage;
+// <li 
+//   className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer"
+//   onClick={async () => {
+//     if (!message.id) return; // Pastikan ada ID pesan
+
+//     // Konfirmasi sebelum menyembunyikan pesan
+//     const isConfirmed = window.confirm("Apakah Anda yakin ingin menyembunyikan pesan ini dari penerima?");
+//     if (!isConfirmed) {
+//       alert("Aksi dibatalkan.");
+//       return;
+//     }
+
+//     const messageRef = databaseRef(database, `chatsBox/${message.id}`);
+
+//     try {
+//       // Pastikan hanya satu field "onUser" yang ada
+//       await update(messageRef, { onUSer: "OFF" });
+
+//       alert("Pesan telah disembunyikan dari penerima.");
+//     } catch (error) {
+//       console.error("Gagal menyembunyikan pesan:", error);
+//       alert("Terjadi kesalahan.");
+//     }
+//   }}
+// >
+//   Sembunyikan dari Penerima
+// </li>
   
 
 
