@@ -107,7 +107,8 @@ const handleTypingRef = useRef(() => {});
 
       {/* Input tetap di bawah */}
       <div className="flex-none bg-white border-t border-gray-300">
-        <ChatInput pengirim={currentUser} penerima={chatWith} replyMessage={replyMessage} setReplyMessage={setReplyMessage} onTyping={() => handleTyping()}/>
+        <ChatInput pengirim={currentUser} penerima={chatWith} replyMessage={replyMessage} setReplyMessage={setReplyMessage} 
+          onTyping={handleTypingRef.current}/>
       </div>
     </div>
   );
