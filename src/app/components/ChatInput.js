@@ -30,7 +30,7 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage, onTypin
   }, []);
   
   const handleChange = (e) => {
-    setMessage(e.target.value);
+    setNewMessage(e.target.value);
     if (onTyping) {
       onTyping(); // Panggil fungsi mengetik
     }
