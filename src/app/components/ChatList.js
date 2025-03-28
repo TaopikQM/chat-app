@@ -269,7 +269,8 @@ const totalPages = Math.ceil(totalItemss / itemsPerPage);
           )}
         {currentUsers.map((msg, index) => (
           <>
-          {index === 0 || format(new Date(msg.timestamp), "dd-MM-yyyy") !== format(new Date(msg[index - 1].timestamp), "dd-MM-yyyy") ? (
+          {index === 0 ||  format(new Date(msg.timestamp), "dd-MM-yyyy") !== format(new Date(currentUsers[index - 1]?.timestamp || 0), "dd-MM-yyyy") ? (
+ 
             <div className="flex items-center my-4">
               <hr className="flex-grow border-t border-gray-300" />
               <span className="mx-4 text-gray-500 text-xs font-semibold">
