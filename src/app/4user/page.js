@@ -48,7 +48,18 @@ const ChatPage = () => {
     const userRef = databaseRef(database, `pengguna/${chatWith}`);
 
     const logsRef = databaseRef(database, `logs_pengguna/${chatWith}`);
+
+   const userTypingRef = databaseRef(database, `typingStatus/${chatWith}`);
+
+   const handleTyping = () => {
+      update(userTypingRef, { isTyping: true });
     
+      // Hapus status mengetik setelah 2 detik user tidak mengetik
+      setTimeout(() => {
+        update(userTypingRef, { isTyping: false });
+      }, 2000);
+    };
+
 
     // Set pengguna online saat masuk
     update(userRef, {
@@ -116,7 +127,7 @@ const ChatPage = () => {
 
       {/* Input tetap di bawah */}
       <div className="flex-none bg-white border-t border-gray-300">
-        <ChatInput pengirim={chatWith} penerima={currentUser} replyMessage={replyMessage} setReplyMessage={setReplyMessage} />
+        <ChatInput pengirim={chatWith} penerima={currentUser} replyMessage={replyMessage} setReplyMessage={setReplyMessage}  onTyping={handleTyping}/>
       </div>
     </div>
   );
