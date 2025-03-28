@@ -74,6 +74,9 @@ const ChatPage = () => {
       });
     }, 50000);
 
+    
+    window.addEventListener("beforeunload", handleDisconnect);
+
     window.addEventListener("beforeunload", handleDisconnect);
     return () => {
       clearInterval(interval);
