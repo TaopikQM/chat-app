@@ -14,9 +14,7 @@ const ChatPage = () => {
   const [chatWith] = useState("user4"); // ID pengguna tujuan
 
   const [replyMessage, setReplyMessage] = useState(null); // ✅ Reply Message
-
-  
-  const [handleTyping, setHandleTyping] = useState(() => () => {});
+const handleTypingRef = useRef(() => {});
   // const typingTimeoutRef = useRef(null);
 
   // useEffect(() => {
@@ -87,7 +85,8 @@ const ChatPage = () => {
       }, 2000);
     };
 
-    setHandleTyping(() => typingHandler); // ⬅️ Simpan ke state biar bisa dipanggil dari luar
+    
+    handleTypingRef.current = typingHandler;// ⬅️ Simpan ke state biar bisa dipanggil dari luar
 
 
     // Set pengguna offline saat keluar
@@ -145,7 +144,8 @@ const ChatPage = () => {
 
       {/* Input tetap di bawah */}
       <div className="flex-none bg-white border-t border-gray-300">
-        <ChatInput pengirim={chatWith} penerima={currentUser} replyMessage={replyMessage} setReplyMessage={setReplyMessage}  onTyping={() => handleTyping()}/>
+        <ChatInput pengirim={chatWith} penerima={currentUser} replyMessage={replyMessage} setReplyMessage={setReplyMessage}  
+          onTyping={handleTypingRef.current}/>
       </div>
     </div>
   );
