@@ -36,20 +36,20 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage}) => {
   //     console.error("Error mengambil IP:", error);
   //   }
   // };
-   useEffect(() => {
-    const getIPInfo = async () => {
-      try {
-        const response = await fetch("https://web-api.nordvpn.com/v1/ips/info");
-        if (!response.ok) throw new Error("Gagal mengambil data IP");
-        const data = await response.json();
-        setIpInfo(data);
-      } catch (error) {
-        console.error("Error mengambil IP:", error);
-      }
-    };
+  //  useEffect(() => {
+  //   const getIPInfo = async () => {
+  //     try {
+  //       const response = await fetch("https://web-api.nordvpn.com/v1/ips/info");
+  //       if (!response.ok) throw new Error("Gagal mengambil data IP");
+  //       const data = await response.json();
+  //       setIpInfo(data);
+  //     } catch (error) {
+  //       console.error("Error mengambil IP:", error);
+  //     }
+  //   };
 
-    getIPInfo();
-  }, []);
+  //   getIPInfo();
+  // }, []);
 
   // Ambil lokasi GPS pengguna
   const getLocation = () => {
