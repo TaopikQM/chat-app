@@ -16,7 +16,8 @@ const ChatPage = () => {
   const [replyMessage, setReplyMessage] = useState(null); // ✅ Reply Message
 
   
-  const typingTimeoutRef = useRef(null);
+  const [handleTyping, setHandleTyping] = useState(() => () => {});
+  // const typingTimeoutRef = useRef(null);
 
   // useEffect(() => {
   //   const userRef = databaseRef(database, `pengguna/${chatWith}`);
@@ -54,7 +55,8 @@ const ChatPage = () => {
 
     const logsRef = databaseRef(database, `logs_pengguna/${chatWith}`);
    
-    const typingRef = databaseRef(database, `typingStatus/${chatWith}`);
+    // const typingRef = databaseRef(database, `typingStatus/${chatWith}`);
+   
     // Set pengguna online saat masuk
     update(userRef, {
       user: chatWith,
@@ -69,9 +71,12 @@ const ChatPage = () => {
       timestamp: serverTimestamp(),
     });
 
-   // ✅ Event mengetik otomatis
-    const handleTyping = () => {
-     update(typingRef, { isTyping: true });
+   const typingTimeoutRef = useRef(null);
+
+    // ✅ Buat fungsi handleTyping di dalam useEffect
+    const typingHandler = () => {
+      const typingRef = databaseRef(database, `typingStatus/${chatWith}`);
+      update(typingRef, { isTyping: true });
 
       if (typingTimeoutRef.current) {
         clearTimeout(typingTimeoutRef.current);
@@ -81,6 +86,9 @@ const ChatPage = () => {
         update(typingRef, { isTyping: false });
       }, 2000);
     };
+
+    setHandleTyping(() => typingHandler); // ⬅️ Simpan ke state biar bisa dipanggil dari luar
+
 
     // Set pengguna offline saat keluar
     const handleDisconnect = () => {
