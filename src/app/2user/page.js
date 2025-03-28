@@ -14,6 +14,18 @@ const ChatPage = () => {
   const [chatWith] = useState("user2"); // ID pengguna tujuan
 
   const [replyMessage, setReplyMessage] = useState(null); // ✅ Reply Message
+  // ✅ Pindahkan handleTyping ke luar useEffect agar bisa diakses global
+  const handleTyping = () => {
+    if (!chatWith) return;
+    const userTypingRef = databaseRef(database, `typingStatus/${chatWith}`);
+
+    update(userTypingRef, { isTyping: true });
+
+    // Hapus status mengetik setelah 2 detik user tidak mengetik
+    setTimeout(() => {
+      update(userTypingRef, { isTyping: false });
+    }, 2000);
+  };
 
   // useEffect(() => {
   //   const userRef = databaseRef(database, `pengguna/${chatWith}`);
@@ -45,25 +57,11 @@ const ChatPage = () => {
   //   };
   // }, [chatWith]);  
  useEffect(() => {
-     if (typeof window === "undefined") return;
-
-    if (!chatWith) return; // Jika chatWith tidak ada, hentikan
+   
 
     const userRef = databaseRef(database, `pengguna/${chatWith}`);
 
     const logsRef = databaseRef(database, `logs_pengguna/${chatWith}`);
-
-   const userTypingRef = databaseRef(database, `typingStatus/${chatWith}`);
-
-   const handleTyping = () => {
-      update(userTypingRef, { isTyping: true });
-    
-      // Hapus status mengetik setelah 2 detik user tidak mengetik
-      setTimeout(() => {
-        update(userTypingRef, { isTyping: false });
-      }, 2000);
-    };
-    
 
     // Set pengguna online saat masuk
     update(userRef, {
