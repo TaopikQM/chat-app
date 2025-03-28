@@ -16,6 +16,10 @@ const ChatPage = () => {
   const [replyMessage, setReplyMessage] = useState(null); // ✅ Reply Message
 
   useEffect(() => {
+      if (typeof window === "undefined") return;
+
+    if (!currentUser) return; // Jika chatWith tidak ada, hentikan
+
     const userRef = databaseRef(database, `pengguna/${currentUser}`);
 
     const logsRef = databaseRef(database, `logs_pengguna/${currentUser}`);
@@ -79,6 +83,7 @@ const ChatPage = () => {
       clearInterval(interval);
       window.removeEventListener("beforeunload", handleDisconnect);
       handleDisconnect(); // Jika komponen di-unmount
+       clearTimeout(typingTimeout);
     };
   }, [currentUser]);
 
