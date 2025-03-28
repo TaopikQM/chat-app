@@ -2,7 +2,7 @@ import { useState, useRef,useEffect } from "react";
 import { database, storage } from "../config/firebase";
 import { ref as databaseRef, push, update,set ,onValue} from "firebase/database";
 import { ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
-const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage}) => {
+const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage, onTyping}) => {
   const [newMessage, setNewMessage] = useState("");
   const [files, setFiles] = useState([]);
   const [audioFile, setAudioFile] = useState(null);
@@ -19,8 +19,23 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage}) => {
   const [ipInfo, setIpInfo] = useState(null);
   const [gpsEnabled, setGpsEnabled] = useState(false);
 
+  const inputRef = useRef(null);
+
   const isSendDisabled = uploading || recording || audioPending || (!newMessage.trim() && !audioURL && files.length === 0);
 
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus(); // 🔹 Otomatis fokus ke textarea saat pertama kali render
+    }
+  }, []);
+  
+  const handleChange = (e) => {
+    setMessage(e.target.value);
+    if (onTyping) {
+      onTyping(); // Panggil fungsi mengetik
+    }
+  };
+  
   useEffect(() => {
     // getIPInfo();
     getLocation();
@@ -324,6 +339,8 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage}) => {
         placeholder="Ketik Pesan..."
         value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
+            onChange={handleChange}
+              ref={inputRef}
           ></textarea>
         
       )}
