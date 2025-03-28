@@ -1,6 +1,9 @@
 import { useEffect, useState, useRef  } from "react";
 import { database } from "../config/firebase";
 import { ref as databaseRef, onValue,update } from "firebase/database";
+import { format } from "date-fns";
+
+import { id } from "date-fns/locale";
 
 import { getStorage, ref as storageRef, getMetadata } from "firebase/storage";
 import ChatMessage from "./ChatMessage";
@@ -270,7 +273,7 @@ const totalPages = Math.ceil(totalItemss / itemsPerPage);
             <div className="flex items-center my-4">
               <hr className="flex-grow border-t border-gray-300" />
               <span className="mx-4 text-gray-500 text-xs font-semibold">
-                {format(new Date(message.timestamp), "dd MMMM yyyy")}
+                {format(new Date(message.timestamp), "dd MMMM yyyy", { locale: id })}
               </span>
               <hr className="flex-grow border-t border-gray-300" />
             </div>
