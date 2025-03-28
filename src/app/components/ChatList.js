@@ -265,8 +265,20 @@ const totalPages = Math.ceil(totalItemss / itemsPerPage);
             </nav>
           )}
         {currentUsers.map((msg, index) => (
+          <>
+          {index === 0 || format(new Date(message.timestamp), "dd-MM-yyyy") !== format(new Date(messages[index - 1].timestamp), "dd-MM-yyyy") ? (
+            <div className="flex items-center my-4">
+              <hr className="flex-grow border-t border-gray-300" />
+              <span className="mx-4 text-gray-500 text-xs font-semibold">
+                {format(new Date(message.timestamp), "dd MMMM yyyy")}
+              </span>
+              <hr className="flex-grow border-t border-gray-300" />
+            </div>
+          ) : null}
+
           <ChatMessage key={index} message={msg} user1={user1}  setReplyMessage={setReplyMessage} setSearchTerm={setSearchTerm} setCurrentPage={setCurrentPage} openDropdownId={openDropdownId}
           setOpenDropdownId={setOpenDropdownId}/>
+            </>
         ))}
         <div ref={messagesEndRef} />
         {showScrollButton && (
