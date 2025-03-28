@@ -14,6 +14,18 @@ const ChatPage = () => {
   const [chatWith] = useState("user2"); // ID pengguna tujuan
   
   const [replyMessage, setReplyMessage] = useState(null); // ✅ Reply Message
+  // ✅ Pindahkan handleTyping ke luar useEffect agar bisa diakses global
+  const handleTyping = () => {
+    if (!currentUser) return;
+    const userTypingRef = databaseRef(database, `typingStatus/${currentUser}`);
+
+    update(userTypingRef, { isTyping: true });
+
+    // Hapus status mengetik setelah 2 detik user tidak mengetik
+    setTimeout(() => {
+      update(userTypingRef, { isTyping: false });
+    }, 2000);
+  };
 
   useEffect(() => {
       if (typeof window === "undefined") return;
