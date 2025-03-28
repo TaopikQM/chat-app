@@ -28,25 +28,10 @@ const ChatPage = () => {
   };
 
   useEffect(() => {
-      if (typeof window === "undefined") return;
-
-    if (!currentUser) return; // Jika chatWith tidak ada, hentikan
-
+    
     const userRef = databaseRef(database, `pengguna/${currentUser}`);
 
     const logsRef = databaseRef(database, `logs_pengguna/${currentUser}`);
-
-    const userTypingRef = databaseRef(database, `typingStatus/${currentUser}`);
-
-   const handleTyping = () => {
-      update(userTypingRef, { isTyping: true });
-    
-      // Hapus status mengetik setelah 2 detik user tidak mengetik
-      setTimeout(() => {
-        update(userTypingRef, { isTyping: false });
-      }, 2000);
-    };
-    
 
     // Set pengguna online saat masuk
     update(userRef, {
