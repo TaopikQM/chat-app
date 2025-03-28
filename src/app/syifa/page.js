@@ -15,23 +15,15 @@ const ChatPage = () => {
   
   const [replyMessage, setReplyMessage] = useState(null); // ✅ Reply Message
 
-  // ✅ Pindahkan handleTyping ke luar useEffect agar bisa diakses global
-  const handleTyping = () => {
-    if (!currentUser) return;
-    const userTypingRef = databaseRef(database, `typingStatus/${currentUser}`);
-
-    update(userTypingRef, { isTyping: true });
-
-    // Hapus status mengetik setelah 2 detik user tidak mengetik
-    setTimeout(() => {
-      update(userTypingRef, { isTyping: false });
-    }, 2000);
-  };
+ 
+  let typingTimeout;
   useEffect(() => {
      
     const userRef = databaseRef(database, `pengguna/${currentUser}`);
 
     const logsRef = databaseRef(database, `logs_pengguna/${currentUser}`);
+    
+    const typingRef = databaseRef(database, `typingStatus/${currentUser}`);
 
     // Set pengguna online saat masuk
     update(userRef, {
@@ -46,6 +38,17 @@ const ChatPage = () => {
       status: "online",
       timestamp: serverTimestamp(),
     });
+
+    // ✅ Event mengetik otomatis
+    const handleTyping = () => {
+      if (!currentUser) return;
+      update(typingRef, { isTyping: true });
+
+      clearTimeout(typingTimeout);
+      typingTimeout = setTimeout(() => {
+        update(typingRef, { isTyping: false });
+      }, 2000);
+    };
 
     // Set pengguna offline saat keluar
     const handleDisconnect = () => {
