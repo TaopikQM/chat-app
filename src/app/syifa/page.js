@@ -69,9 +69,7 @@ const ChatPage = () => {
       clearInterval(interval);
       window.removeEventListener("beforeunload", handleDisconnect);
       handleDisconnect(); // Jika komponen di-unmount
-       if (typingTimeoutRef.current) {
-        clearTimeout(typingTimeoutRef.current);
-      }
+     
     };
   }, [currentUser]);
 
