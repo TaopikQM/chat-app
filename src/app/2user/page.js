@@ -14,8 +14,6 @@ const ChatPage = () => {
   const [chatWith] = useState("user2"); // ID pengguna tujuan
 
   const [replyMessage, setReplyMessage] = useState(null); // ✅ Reply Message
- 
-  const typingTimeoutRef = useRef(null);
   // useEffect(() => {
   //   const userRef = databaseRef(database, `pengguna/${chatWith}`);
 
@@ -51,8 +49,6 @@ const ChatPage = () => {
     const userRef = databaseRef(database, `pengguna/${chatWith}`);
 
     const logsRef = databaseRef(database, `logs_pengguna/${chatWith}`);
-   
-    const typingRef = databaseRef(database, `typingStatus/${chatWith}`);
 
     // Set pengguna online saat masuk
     update(userRef, {
@@ -68,18 +64,7 @@ const ChatPage = () => {
       timestamp: serverTimestamp(),
     });
 
-   // ✅ Event mengetik otomatis
-    const handleTyping = () => {
-     update(typingRef, { isTyping: true });
-
-      if (typingTimeoutRef.current) {
-        clearTimeout(typingTimeoutRef.current);
-      }
-
-      typingTimeoutRef.current = setTimeout(() => {
-        update(typingRef, { isTyping: false });
-      }, 2000);
-    };
+   
 
     // Set pengguna offline saat keluar
     const handleDisconnect = () => {
@@ -114,9 +99,7 @@ const ChatPage = () => {
       clearInterval(interval);
       window.removeEventListener("beforeunload", handleDisconnect);
       handleDisconnect(); // Jika komponen di-unmount
-        if (typingTimeoutRef.current) {
-        clearTimeout(typingTimeoutRef.current);
-      }
+        
     };
   }, [chatWith]);
   return (
@@ -136,7 +119,7 @@ const ChatPage = () => {
 
       {/* Input tetap di bawah */}
       <div className="flex-none bg-white border-t border-gray-300">
-        <ChatInput pengirim={chatWith} penerima={currentUser} replyMessage={replyMessage} setReplyMessage={setReplyMessage} onTyping={() => handleTyping()}/>
+        <ChatInput pengirim={chatWith} penerima={currentUser} replyMessage={replyMessage} setReplyMessage={setReplyMessage} />
       </div>
     </div>
   );
