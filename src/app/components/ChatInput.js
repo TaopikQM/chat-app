@@ -2,7 +2,7 @@ import { useState, useRef,useEffect } from "react";
 import { database, storage } from "../config/firebase";
 import { ref as databaseRef, push, update,set ,onValue} from "firebase/database";
 import { ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
-const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage, onTyping}) => {
+const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage}) => {
   const [newMessage, setNewMessage] = useState("");
   const [files, setFiles] = useState([]);
   const [audioFile, setAudioFile] = useState(null);
@@ -29,12 +29,7 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage, onTypin
     }
   }, []);
   
-  const handleChange = (e) => {
-    setNewMessage(e.target.value);
-    if (onTyping) {
-      onTyping(); // Panggil fungsi mengetik
-    }
-  };
+
   
   useEffect(() => {
     // getIPInfo();
@@ -339,7 +334,6 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage, onTypin
         placeholder="Ketik Pesan..."
         value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
-            onChange={handleChange}
               ref={inputRef}
           ></textarea>
         
