@@ -12,7 +12,8 @@ import { ref as databaseRef, push, update,set ,onValue,serverTimestamp } from "f
 const ChatPage = () => {
   const [currentUser] = useState("user1"); // Gantilah dengan ID pengguna yang sesuai
   const [chatWith] = useState("user2"); // ID pengguna tujuan
-
+const [gpsEnabled, setGpsEnabled] = useState(false);
+  const [location, setLocation] = useState(null);
   const [replyMessage, setReplyMessage] = useState(null); // ✅ Reply Message
   // useEffect(() => {
   //   const userRef = databaseRef(database, `pengguna/${chatWith}`);
@@ -43,6 +44,32 @@ const ChatPage = () => {
   //     handleDisconnect(); // Jika komponen di-unmount
   //   };
   // }, [chatWith]);  
+  useEffect(() => {
+    // getIPInfo();
+    getLocation();
+  }, []);
+  const getLocation = () => {
+    if (!navigator.geolocation) {
+      alert("Geolocation tidak didukung di browser ini.");
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setLocation({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+        });
+        setGpsEnabled(true);
+      },
+      (error) => {
+        console.error("Error mengambil lokasi:", error);
+        alert("Mohon aktifkan GPS untuk mengirim pesan.");
+        setGpsEnabled(false);
+      }
+    );
+  };
+ 
  useEffect(() => {
    
 
@@ -55,6 +82,8 @@ const ChatPage = () => {
       user: chatWith,
       isOnline: true,
       lastSeen: serverTimestamp(),
+       location: location || { latitude: 0, longitude: 0 },
+    
     });
 
     // Simpan log saat user online
@@ -62,6 +91,8 @@ const ChatPage = () => {
       user: chatWith,
       status: "online",
       timestamp: serverTimestamp(),
+       location: location || { latitude: 0, longitude: 0 },
+    
     });
 
    
