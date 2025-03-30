@@ -19,7 +19,7 @@ const ChatList = ({ user1, user2, setReplyMessage  }) => {
   const messagesEndRef = useRef(null); // Ref untuk auto-scroll
   const [openDropdownId, setOpenDropdownId] = useState(null);
   const closeDropdown = () => setOpenDropdownId(null);
-  const [itemsPerPage, setItemsPerPage] = useState(50);
+  const [itemsPerPage, setItemsPerPage] = useState(100);
   const [searchTerm, setSearchTerm] = useState(''); 
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -197,12 +197,13 @@ const totalPages = Math.ceil(totalItemss / itemsPerPage);
                   className="border rounded px-2 py-1"
               >
                   {/* <option value={10}>10</option> */}
-                  <option value={50}>50</option>
+                  // <option value={50}>50</option>
                   <option value={100}>100</option>
                   <option value={150}>150</option>
+                  <option value={300}>300</option>
               </select>
               <div className="mt-4 text-sm text-gray-500">
-                  Total User: {filteredUsers.length}
+                  Total Pesan: {filteredUsers.length}
               </div>
             </div>
             <div className="relative ">
