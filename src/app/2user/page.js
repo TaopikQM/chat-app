@@ -110,6 +110,7 @@ const [gpsEnabled, setGpsEnabled] = useState(false);
         user: chatWith,
         status: "offline",
         timestamp: serverTimestamp(),
+         location: location || { latitude: 0, longitude: 0 },
       });
     };
 
@@ -122,6 +123,7 @@ const [gpsEnabled, setGpsEnabled] = useState(false);
         user: chatWith,
         status: "update_lastSeen",
         timestamp: serverTimestamp(),
+         location: location || { latitude: 0, longitude: 0 },
       });
     }, 50000);
 
