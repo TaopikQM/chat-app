@@ -24,7 +24,16 @@ const ChatList = ({ user1, user2, setReplyMessage  }) => {
   const [currentPage, setCurrentPage] = useState(1);
 
 const [previousPage, setPreviousPage] = useState(1); 
-  
+  const [notifOn, setNotifOn] = useState(false);
+  useEffect(() => {
+    const userRef = databaseRef(database, `pengguna/${user1}/notifOn`);
+
+    get(userRef).then((snap) => {
+      if (snap.exists()) {
+        setNotifOn(snap.val());
+      }
+    });
+  }, [user1]);
   useEffect(() => {
     const chatRef = databaseRef(database, "chatsBox");
     onValue(chatRef, async (snapshot) => {
@@ -87,10 +96,20 @@ const [previousPage, setPreviousPage] = useState(1);
         const calculatedTotalPages = Math.ceil(messagesArray.length / itemsPerPage);
         // setTotalPages(calculatedTotalPages);
         setCurrentPage(calculatedTotalPages); // Auto-set ke halaman terakhir 
+         if (notifOn && messagesArray.length > 0) {
+          const lastMessage = messagesArray[messagesArray.length - 1];
+
+          if (!lastMessage.read && lastMessage.penerima === user1) {
+            new Notification(`Pesan Baru dari ${lastMessage.pengirim}`, {
+              body: lastMessage.message,
+              // icon: "/logo.png",
+            });
+          }
+        }
       }
     });
 
-  }, [user1, user2 ]);
+  }, [user1, user2, notifOn ]);
 
   // **🔹 Update status "read" jika user adalah penerima**
   useEffect(() => {
