@@ -14,7 +14,20 @@ const ChatPage = () => {
   const [chatWith] = useState("user4"); // ID pengguna tujuan
   
   const [replyMessage, setReplyMessage] = useState(null); // ✅ Reply Message
+  
+  const [notifAktif, setNotifAktif] = useState(true);
 
+  useEffect(() => {
+    const userRef = databaseRef(database, `pengguna/${currentUser}`);
+
+    onValue(userRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data?.notifAktif !== undefined) {
+        setNotifAktif(data.notifAktif);
+      }
+    });
+  }, [currentUser]);
+  
   useEffect(() => {
      
     const userRef = databaseRef(database, `pengguna/${currentUser}`);
@@ -78,6 +91,12 @@ const ChatPage = () => {
       <div className="flex-none p-4 bg-white border-b border-gray-300 shadow-md">
         <h2 className="text-xl font-semibold text-center">Chat dengan {chatWith}</h2>
         <UserStatus userId={chatWith} />
+         <button
+          onClick={toggleNotif}
+          className={`px-3 py-1 rounded ${notifAktif ? "bg-green-500 text-white" : "bg-gray-400 text-black"}`}
+        >
+          {notifAktif ? "Notifikasi ON" : "Notifikasi OFF"}
+        </button>
       </div>
 
       {/* Bagian ChatList bisa di-scroll */}
