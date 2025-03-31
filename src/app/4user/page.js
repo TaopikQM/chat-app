@@ -51,14 +51,17 @@ const ChatPage = () => {
     const userRef = databaseRef(database, `pengguna/${chatWith}`);
 
     const logsRef = databaseRef(database, `logs_pengguna/${chatWith}`);
+   const typingRef = databaseRef(database, `pengguna/${chatWith}/isTyping`);
    
     // const typingRef = databaseRef(database, `typingStatus/${chatWith}`);
+   
    
     // Set pengguna online saat masuk
     update(userRef, {
       user: chatWith,
       isOnline: true,
       lastSeen: serverTimestamp(),
+       isTyping: false,
     });
 
     // Simpan log saat user online
@@ -121,6 +124,7 @@ const ChatPage = () => {
       {/* Input tetap di bawah */}
       <div className="flex-none bg-white border-t border-gray-300">
         <ChatInput pengirim={chatWith} penerima={currentUser} replyMessage={replyMessage} setReplyMessage={setReplyMessage}  
+        setIsTyping={setIsTyping}
           />
       </div>
     </div>
