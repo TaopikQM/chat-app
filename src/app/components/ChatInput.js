@@ -2,7 +2,7 @@ import { useState, useRef,useEffect } from "react";
 import { database, storage } from "../config/firebase";
 import { ref as databaseRef, push, update,set ,onValue} from "firebase/database";
 import { ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
-const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage , setIsTyping}) => {
+const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage}) => {
   const [newMessage, setNewMessage] = useState("");
   const [files, setFiles] = useState([]);
   const [audioFile, setAudioFile] = useState(null);
@@ -20,6 +20,26 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage , setIsT
   const [gpsEnabled, setGpsEnabled] = useState(false);
 
   const inputRef = useRef(null);
+   const [isTyping, setIsTyping] = useState(false);
+   useEffect(() => {
+    const typingRef = databaseRef(database, `typingStatus/${pengirim}`);
+    
+    if (isTyping) {
+      update(typingRef, { typing: true });
+    } else {
+      update(typingRef, { typing: false });
+    }
+
+    return () => update(typingRef, { typing: false }); // Hapus status mengetik saat unmount
+  }, [isTyping, pengirim]);
+
+  const handleTyping = (e) => {
+    setNewMessage(e.target.value);
+    setIsTyping(true);
+
+    // Timer untuk menghapus status mengetik jika tidak ada input selama 3 detik
+    setTimeout(() => setIsTyping(false), 3000);
+  };
 
   const isSendDisabled = uploading || recording || audioPending || (!newMessage.trim() && !audioURL && files.length === 0);
 
@@ -29,27 +49,27 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage , setIsT
     }
   }, []);
 
-   const typingRef = databaseRef(database, `pengguna/${penerima}/isTyping`);
+  //  const typingRef = databaseRef(database, `pengguna/${penerima}/isTyping`);
 
-  // Fungsi untuk handle mengetik
-  const handleTyping = (e) => {
-    setNewMessage(e.target.value);
+  // // Fungsi untuk handle mengetik
+  // const handleTyping = (e) => {
+  //   setNewMessage(e.target.value);
 
-    if (e.target.value.length > 0) {
-      setIsTyping(true);
-      update(typingRef, { isTyping: true }); // Update Firebase
-    } else {
-      setIsTyping(false);
-      update(typingRef, { isTyping: false });
-    }
-  };
+  //   if (e.target.value.length > 0) {
+  //     setIsTyping(true);
+  //     update(typingRef, { isTyping: true }); // Update Firebase
+  //   } else {
+  //     setIsTyping(false);
+  //     update(typingRef, { isTyping: false });
+  //   }
+  // };
 
-  const handleSend = () => {
-    if (newMessage.trim() === "") return;
-    setNewMessage("");
-    setIsTyping(false);
-    update(typingRef, { isTyping: false }); // Reset mengetik setelah kirim pesan
-  };
+  // const handleSend = () => {
+  //   if (newMessage.trim() === "") return;
+  //   setNewMessage("");
+  //   setIsTyping(false);
+  //   update(typingRef, { isTyping: false }); // Reset mengetik setelah kirim pesan
+  // };
   
 
   
