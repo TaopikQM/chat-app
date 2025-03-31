@@ -14,19 +14,36 @@ const ChatPage = () => {
   const [chatWith] = useState("user4"); // ID pengguna tujuan
   
   const [replyMessage, setReplyMessage] = useState(null); // ✅ Reply Message
-  
-  const [notifAktif, setNotifAktif] = useState(true);
+  const [notifOn, setNotifOn] = useState(false); // Status Notifikasi
+
 
   useEffect(() => {
-    const userRef = databaseRef(database, `pengguna/${currentUser}`);
-
-    onValue(userRef, (snapshot) => {
-      const data = snapshot.val();
-      if (data?.notifAktif !== undefined) {
-        setNotifAktif(data.notifAktif);
+    const userRef = databaseRef(database, `pengguna/${currentUser}/notifOn`);
+    
+    // Ambil status notifikasi dari Firebase
+    get(userRef).then((snapshot) => {
+      if (snapshot.exists()) {
+        setNotifOn(snapshot.val());
       }
     });
   }, [currentUser]);
+
+   const requestNotificationPermission = async () => {
+    const permission = await Notification.requestPermission();
+    if (permission === "granted") {
+      setNotifOn(true);
+      update(databaseRef(database, `pengguna/${currentUser}`), { notifOn: true });
+    }
+  };
+
+  const toggleNotification = async () => {
+    if (!notifOn) {
+      requestNotificationPermission();
+    } else {
+      setNotifOn(false);
+      update(databaseRef(database, `pengguna/${currentUser}`), { notifOn: false });
+    }
+  };
   
   useEffect(() => {
      
@@ -88,14 +105,15 @@ const ChatPage = () => {
 
   return (
      <div className="max-w-full mx-auto h-screen flex flex-col bg-gray-100">
-      <div className="flex-none p-4 bg-white border-b border-gray-300 shadow-md">
+      <div className="flex-none p-4 bg-white border-b border-gray-300 shadow-md  fixed top-0 left-0 w-full z-50">
         <h2 className="text-xl font-semibold text-center">Chat dengan {chatWith}</h2>
         <UserStatus userId={chatWith} />
-         <button
-          onClick={toggleNotif}
-          className={`px-3 py-1 rounded ${notifAktif ? "bg-green-500 text-white" : "bg-gray-400 text-black"}`}
+         {/* Tombol Toggle Notifikasi */}
+        <button
+          className={`px-4 py-2 rounded ${notifOn ? "bg-green-500" : "bg-gray-500"} text-white`}
+          onClick={toggleNotification}
         >
-          {notifAktif ? "Notifikasi ON" : "Notifikasi OFF"}
+          {notifOn ? "Notifikasi ON" : "Notifikasi OFF"}
         </button>
       </div>
 
@@ -105,7 +123,7 @@ const ChatPage = () => {
       </div>
 
       {/* Input tetap di bawah */}
-      <div className="flex-none bg-white border-t border-gray-300">
+      <div className="flex-none bg-white border-t border-gray-300 fixed bottom-0 left-0 w-full">
         <ChatInput pengirim={currentUser} penerima={chatWith} replyMessage={replyMessage} setReplyMessage={setReplyMessage} 
          />
       </div>
