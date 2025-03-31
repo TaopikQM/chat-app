@@ -132,7 +132,7 @@ const ChatPage = () => {
         <h2 className="text-xl font-semibold text-center">Chat dengan {chatWith}</h2>
         <UserStatus userId={chatWith} />
    <div className="text-center text-gray-500 text-sm my-2">
-        {isTyping && <span>{chatWith} sedang mengetik...</span>}
+        {isTyping && <span>{currentUser} sedang mengetik...</span>}
       </div>
          {/* Tombol Toggle Notifikasi */}
         <button
