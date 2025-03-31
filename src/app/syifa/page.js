@@ -103,6 +103,24 @@ const ChatPage = () => {
     };
   }, [currentUser]);
 
+  const testNotification = () => {
+  if (Notification.permission === "granted") {
+    new Notification("Tes Notifikasi", {
+      body: "Ini hanya percobaan notifikasi!",
+      // icon: "/logo.png",
+    });
+  } else {
+    Notification.requestPermission().then((permission) => {
+      if (permission === "granted") {
+        new Notification("Tes Notifikasi", {
+          body: "Izin notifikasi diberikan!",
+          // icon: "/logo.png",
+        });
+      }
+    });
+  }
+};
+
   return (
      <div className="max-w-full mx-auto h-screen flex flex-col bg-gray-100">
       <div className="flex-none p-4 bg-white border-b border-gray-300 shadow-md  fixed top-0 left-0 w-full z-50">
@@ -115,6 +133,10 @@ const ChatPage = () => {
         >
           {notifOn ? "Notifikasi ON" : "Notifikasi OFF"}
         </button>
+          <button onClick={testNotification} className="bg-blue-500 text-white p-2 rounded">
+  Tes Notifikasi
+</button>
+
       </div>
 
       {/* Bagian ChatList bisa di-scroll */}
