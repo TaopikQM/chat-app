@@ -29,7 +29,7 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage , setIsT
     }
   }, []);
 
-   const typingRef = databaseRef(database, `pengguna/${pengirim}/isTyping`);
+   const typingRef = databaseRef(database, `pengguna/${penerima}/isTyping`);
 
   // Fungsi untuk handle mengetik
   const handleTyping = (e) => {
