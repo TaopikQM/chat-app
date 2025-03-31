@@ -14,6 +14,8 @@ const ChatPage = () => {
   const [chatWith] = useState("user4"); // ID pengguna tujuan
 
   const [replyMessage, setReplyMessage] = useState(null); // ✅ Reply Message
+  
+  const [isTyping, setIsTyping] = useState(false); 
   // const typingTimeoutRef = useRef(null);
 
   // useEffect(() => {
