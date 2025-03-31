@@ -14,6 +14,17 @@ const ChatPage = () => {
   const [chatWith] = useState("user2"); // ID pengguna tujuan
   
   const [replyMessage, setReplyMessage] = useState(null); // ✅ Reply Message
+  const [isTyping, setIsTyping] = useState(false); 
+  useEffect(() => {
+    const typingRef = databaseRef(database, `typingStatus/${currentUser}`);
+
+    // Pantau perubahan status mengetik dari lawan chat
+    onValue(typingRef, (snapshot) => {
+      const data = snapshot.val();
+      setIsTyping(data?.typing || false);
+    });
+
+  }, [currentUser]);
 
   useEffect(() => {
     
@@ -79,6 +90,9 @@ const ChatPage = () => {
       <div className="flex-none p-4 bg-white border-b border-gray-300 shadow-md  fixed top-0 left-0 w-full z-50">
         <h2 className="text-xl font-semibold text-center">Chat dengan {chatWith}</h2>
         <UserStatus userId={chatWith} />
+        <div className="text-center text-gray-500 text-sm my-2">
+          {isTyping && <span>{chatWith} sedang mengetik...</span>}
+        </div>
       </div>
 
       {/* Bagian ChatList bisa di-scroll */}
