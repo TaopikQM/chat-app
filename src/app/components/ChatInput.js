@@ -2,7 +2,7 @@ import { useState, useRef,useEffect } from "react";
 import { database, storage } from "../config/firebase";
 import { ref as databaseRef, push, update,set ,onValue} from "firebase/database";
 import { ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
-const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage}) => {
+const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage , setIsTyping}) => {
   const [newMessage, setNewMessage] = useState("");
   const [files, setFiles] = useState([]);
   const [audioFile, setAudioFile] = useState(null);
@@ -28,6 +28,28 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage}) => {
       inputRef.current.focus(); // 🔹 Otomatis fokus ke textarea saat pertama kali render
     }
   }, []);
+
+   const typingRef = databaseRef(database, `pengguna/${pengirim}/isTyping`);
+
+  // Fungsi untuk handle mengetik
+  const handleTyping = (e) => {
+    setNewMessage(e.target.value);
+
+    if (e.target.value.length > 0) {
+      setIsTyping(true);
+      update(typingRef, { isTyping: true }); // Update Firebase
+    } else {
+      setIsTyping(false);
+      update(typingRef, { isTyping: false });
+    }
+  };
+
+  const handleSend = () => {
+    if (newMessage.trim() === "") return;
+    setNewMessage("");
+    setIsTyping(false);
+    update(typingRef, { isTyping: false }); // Reset mengetik setelah kirim pesan
+  };
   
 
   
@@ -333,8 +355,9 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage}) => {
         <textarea id="chat" rows="1" className="block mx-4 p-2.5 w-full text-sm text-gray-900 bg-white rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-200 dark:border-gray-600 dark:placeholder-gray-900 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500" 
         placeholder="Ketik Pesan..."
         value={newMessage}
-          onChange={(e) => setNewMessage(e.target.value)}
+          // onChange={(e) => setNewMessage(e.target.value)}
               ref={inputRef}
+                onChange={handleTyping}
           ></textarea>
         
       )}
