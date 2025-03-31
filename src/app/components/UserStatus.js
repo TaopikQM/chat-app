@@ -23,25 +23,25 @@ const UserStatus = ({ userId }) => {
 
   return (
     <div className="text-center text-gray-600 text-sm">
-      {isOnline ? (
-        <span className="text-green-500 font-semibold">Online</span>
-      ) : lastSeen ? (
+     
+     <span className={`font-semibold ${isOnline ? "text-green-500" : ""}`}>
+    {isOnline ? "Online" : lastSeen ? "" : "Tidak tersedia"}
+  </span>
+
+  {/* Jika user online, tetap tampilkan "Terakhir dilihat" di bawahnya */}
+  {lastSeen && (
+    <div className="text-gray-500 text-xs">
+      {isMoreThan5MinutesAgo ? (
         <>
-          <span>
-            {isMoreThan5MinutesAgo ? (
-              <>
-                {/* Jika lebih dari 5 menit, tampilkan tanggal dan waktu lengkap */}
-                Terakhir dilihat: {format(new Date(lastSeen), "dd-MM-yyyy HH:mm:ss")}
-              </>
-            ) : (
-              // Jika kurang dari 5 menit, tampilkan waktu relatif
-              `Terakhir dilihat ${formatDistanceToNow(new Date(lastSeen), { addSuffix: true })}`
-            )}
-          </span>
+          {/* Jika lebih dari 5 menit, tampilkan tanggal lengkap */}
+          Terakhir dilihat: {format(new Date(lastSeen), "dd-MM-yyyy HH:mm:ss")}
         </>
       ) : (
-        "Tidak tersedia"
+        // Jika kurang dari 5 menit, tampilkan waktu relatif
+        `Terakhir dilihat ${formatDistanceToNow(new Date(lastSeen), { addSuffix: true })}`
       )}
+    </div>
+  )}
     </div>
   );
   // return (
@@ -82,3 +82,22 @@ const UserStatus = ({ userId }) => {
 // };
 
 export default UserStatus;
+ // {isOnline ? (
+      //   <span className="text-green-500 font-semibold">Online</span>
+      // ) : lastSeen ? (
+      //   <>
+      //     <span>
+      //       {isMoreThan5MinutesAgo ? (
+      //         <>
+      //           {/* Jika lebih dari 5 menit, tampilkan tanggal dan waktu lengkap */}
+      //           Terakhir dilihat: {format(new Date(lastSeen), "dd-MM-yyyy HH:mm:ss")}
+      //         </>
+      //       ) : (
+      //         // Jika kurang dari 5 menit, tampilkan waktu relatif
+      //         `Terakhir dilihat ${formatDistanceToNow(new Date(lastSeen), { addSuffix: true })}`
+      //       )}
+      //     </span>
+      //   </>
+      // ) : (
+      //   "Tidak tersedia"
+      // )}
