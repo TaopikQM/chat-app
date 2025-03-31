@@ -18,6 +18,16 @@ const ChatPage = () => {
   
   const [isTyping, setIsTyping] = useState(false); 
 
+  useEffect(() => {
+    const typingRef = databaseRef(database, `typingStatus/${currentUser}`);
+
+    // Pantau perubahan status mengetik dari lawan chat
+    onValue(typingRef, (snapshot) => {
+      const data = snapshot.val();
+      setIsTyping(data?.typing || false);
+    });
+
+  }, [currentUser]);
 
   useEffect(() => {
     const userRef = databaseRef(database, `pengguna/${currentUser}/notifOn`);
@@ -53,14 +63,14 @@ const ChatPage = () => {
 
     const logsRef = databaseRef(database, `logs_pengguna/${currentUser}`);
     
-   const typingRef = databaseRef(database, `pengguna/${currentUser}/isTyping`);
+   // const typingRef = databaseRef(database, `pengguna/${currentUser}/isTyping`);
    
     // Set pengguna online saat masuk
     update(userRef, {
       user: currentUser,
       isOnline: true,
       lastSeen: serverTimestamp(),
-       isTyping: false,
+       // isTyping: false,
     });
 
     // Simpan log saat user online
@@ -132,7 +142,7 @@ const ChatPage = () => {
         <h2 className="text-xl font-semibold text-center">Chat dengan {chatWith}</h2>
         <UserStatus userId={chatWith} />
    <div className="text-center text-gray-500 text-sm my-2">
-        {isTyping && <span>{currentUser} sedang mengetik...</span>}
+        {isTyping && <span>{chatWith} sedang mengetik...</span>}
       </div>
          {/* Tombol Toggle Notifikasi */}
         <button
@@ -155,7 +165,7 @@ const ChatPage = () => {
       {/* Input tetap di bawah */}
       <div className="flex-none bg-white border-t border-gray-300 fixed bottom-0 left-0 w-full">
         <ChatInput pengirim={currentUser} penerima={chatWith} replyMessage={replyMessage} setReplyMessage={setReplyMessage} 
-        setIsTyping={setIsTyping}
+       
          />
       </div>
     </div>
