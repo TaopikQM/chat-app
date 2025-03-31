@@ -131,6 +131,9 @@ const ChatPage = () => {
       <div className="flex-none p-4 bg-white border-b border-gray-300 shadow-md  fixed top-0 left-0 w-full z-50">
         <h2 className="text-xl font-semibold text-center">Chat dengan {chatWith}</h2>
         <UserStatus userId={chatWith} />
+   <div className="text-center text-gray-500 text-sm my-2">
+        {isTyping && <span>{chatWith} sedang mengetik...</span>}
+      </div>
          {/* Tombol Toggle Notifikasi */}
         <button
           className={`px-4 py-2 rounded ${notifOn ? "bg-green-500" : "bg-gray-500"} text-white`}
