@@ -114,7 +114,7 @@ const ChatPage = () => {
         <h2 className="text-xl font-semibold text-center">Chat dengan {currentUser}</h2>
         <UserStatus userId={currentUser} />
    <div className="text-center text-gray-500 text-sm my-2">
-        {isTyping && <span>{currentUser} sedang mengetik...</span>}
+        {isTyping && <span>{chatWith} sedang mengetik...</span>}
       </div>
         
       </div>
