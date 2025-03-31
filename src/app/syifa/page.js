@@ -8,7 +8,7 @@ import {useEffect, useState,useRef  } from "react";
 // import { rtdb, ref, update, serverTimestamp } from "../../config/firebase";
 
 import { database, storage } from "../config/firebase";
-import { ref as databaseRef, push, update,set ,onValue,serverTimestamp } from "firebase/database";
+import { ref as databaseRef, push, update,set ,onValue,serverTimestamp,get } from "firebase/database";
 const ChatPage = () => {
   const [currentUser] = useState("user3"); // Gantilah dengan ID pengguna yang sesuai
   const [chatWith] = useState("user4"); // ID pengguna tujuan
