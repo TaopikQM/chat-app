@@ -137,7 +137,7 @@ const [gpsEnabled, setGpsEnabled] = useState(false);
   }, [chatWith]);
   return (
      <div className="max-w-full mx-auto h-screen flex flex-col bg-gray-100">
-      <div className="flex-none p-4 bg-white border-b border-gray-300 shadow-md">
+      <div className="flex-none p-4 bg-white border-b border-gray-300 shadow-md  fixed top-0 left-0 w-full z-50">
         <h2 className="text-xl font-semibold text-center">Chat dengan {currentUser}</h2>
         <UserStatus userId={currentUser} />
         
@@ -151,7 +151,7 @@ const [gpsEnabled, setGpsEnabled] = useState(false);
       
 
       {/* Input tetap di bawah */}
-      <div className="flex-none bg-white border-t border-gray-300">
+      <div className="flex-none bg-white border-t border-gray-300 fixed bottom-0 left-0 w-full">
         <ChatInput pengirim={chatWith} penerima={currentUser} replyMessage={replyMessage} setReplyMessage={setReplyMessage} />
       </div>
     </div>
