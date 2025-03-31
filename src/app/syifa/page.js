@@ -15,6 +15,8 @@ const ChatPage = () => {
   
   const [replyMessage, setReplyMessage] = useState(null); // ✅ Reply Message
   const [notifOn, setNotifOn] = useState(false); // Status Notifikasi
+  
+  const [isTyping, setIsTyping] = useState(false); 
 
 
   useEffect(() => {
@@ -51,12 +53,14 @@ const ChatPage = () => {
 
     const logsRef = databaseRef(database, `logs_pengguna/${currentUser}`);
     
+   const typingRef = databaseRef(database, `pengguna/${currentUser}/isTyping`);
    
     // Set pengguna online saat masuk
     update(userRef, {
       user: currentUser,
       isOnline: true,
       lastSeen: serverTimestamp(),
+       isTyping: false,
     });
 
     // Simpan log saat user online
@@ -79,6 +83,7 @@ const ChatPage = () => {
         user: currentUser,
         status: "offline",
         timestamp: serverTimestamp(),
+         
       });
     };
 
@@ -147,6 +152,7 @@ const ChatPage = () => {
       {/* Input tetap di bawah */}
       <div className="flex-none bg-white border-t border-gray-300 fixed bottom-0 left-0 w-full">
         <ChatInput pengirim={currentUser} penerima={chatWith} replyMessage={replyMessage} setReplyMessage={setReplyMessage} 
+        setIsTyping={setIsTyping}
          />
       </div>
     </div>
