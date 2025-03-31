@@ -22,7 +22,7 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage}) => {
   const inputRef = useRef(null);
    const [isTyping, setIsTyping] = useState(false);
    useEffect(() => {
-    const typingRef = databaseRef(database, `typingStatus/${pengirim}`);
+    const typingRef = databaseRef(database, `typingStatus/${penerima}`);
     
     if (isTyping) {
       update(typingRef, { typing: true });
