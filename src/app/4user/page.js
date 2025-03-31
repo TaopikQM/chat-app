@@ -16,6 +16,16 @@ const ChatPage = () => {
   const [replyMessage, setReplyMessage] = useState(null); // ✅ Reply Message
   
   const [isTyping, setIsTyping] = useState(false); 
+  useEffect(() => {
+    const typingRef = databaseRef(database, `typingStatus/${chatWith}`);
+
+    // Pantau perubahan status mengetik dari lawan chat
+    onValue(typingRef, (snapshot) => {
+      const data = snapshot.val();
+      setIsTyping(data?.typing || false);
+    });
+
+  }, [chatWith]);
   // const typingTimeoutRef = useRef(null);
 
   // useEffect(() => {
@@ -53,7 +63,7 @@ const ChatPage = () => {
     const userRef = databaseRef(database, `pengguna/${chatWith}`);
 
     const logsRef = databaseRef(database, `logs_pengguna/${chatWith}`);
-   const typingRef = databaseRef(database, `pengguna/${chatWith}/isTyping`);
+   // const typingRef = databaseRef(database, `pengguna/${chatWith}/isTyping`);
    
     // const typingRef = databaseRef(database, `typingStatus/${chatWith}`);
    
@@ -63,7 +73,7 @@ const ChatPage = () => {
       user: chatWith,
       isOnline: true,
       lastSeen: serverTimestamp(),
-       isTyping: false,
+       // isTyping: false,
     });
 
     // Simpan log saat user online
@@ -114,7 +124,7 @@ const ChatPage = () => {
         <h2 className="text-xl font-semibold text-center">Chat dengan {currentUser}</h2>
         <UserStatus userId={currentUser} />
    <div className="text-center text-gray-500 text-sm my-2">
-        {isTyping && <span>{chatWith} sedang mengetik...</span>}
+        {isTyping && <span>{currentUser} sedang mengetik...</span>}
       </div>
         
       </div>
@@ -129,7 +139,7 @@ const ChatPage = () => {
       {/* Input tetap di bawah */}
       <div className="flex-none bg-white border-t border-gray-300 fixed bottom-0 left-0 w-full">
         <ChatInput pengirim={chatWith} penerima={currentUser} replyMessage={replyMessage} setReplyMessage={setReplyMessage}  
-        setIsTyping={setIsTyping}
+        
           />
       </div>
     </div>
