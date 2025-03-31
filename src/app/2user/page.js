@@ -144,7 +144,7 @@ const [gpsEnabled, setGpsEnabled] = useState(false);
       </div>
 
       {/* Bagian ChatList bisa di-scroll */}
-      <div className="flex-1 overflow-y-auto p-4">
+      <div className="flex-1 overflow-y-auto p-4 mb-16">
         <ChatList user1={chatWith} user2={currentUser} setReplyMessage={setReplyMessage} />
       </div>
 
