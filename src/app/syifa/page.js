@@ -145,15 +145,15 @@ const ChatPage = () => {
         {isTyping && <span>{chatWith} sedang mengetik...</span>}
       </div>
          {/* Tombol Toggle Notifikasi */}
-        <button
-          className={`px-4 py-2 rounded ${notifOn ? "bg-green-500" : "bg-gray-500"} text-white`}
-          onClick={toggleNotification}
-        >
-          {notifOn ? "Notifikasi ON" : "Notifikasi OFF"}
-        </button>
-          <button onClick={testNotification} className="bg-blue-500 text-white p-2 rounded">
-  Tes Notifikasi
-</button>
+//         <button
+//           className={`px-4 py-2 rounded ${notifOn ? "bg-green-500" : "bg-gray-500"} text-white`}
+//           onClick={toggleNotification}
+//         >
+//           {notifOn ? "Notifikasi ON" : "Notifikasi OFF"}
+//         </button>
+//           <button onClick={testNotification} className="bg-blue-500 text-white p-2 rounded">
+//   Tes Notifikasi
+// </button>
 
       </div>
 
