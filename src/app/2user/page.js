@@ -157,14 +157,15 @@ const [gpsEnabled, setGpsEnabled] = useState(false);
       {/* Bagian ChatList bisa di-scroll */}
       <div className="flex-1 overflow-y-auto p-4 mb-16 mt-16">
         <ChatList user1={chatWith} user2={currentUser} setReplyMessage={setReplyMessage} />
+        <div className="text-center text-gray-500 text-sm my-2">
+          {isTyping && <span>{currentUser} sedang mengetik...</span>}
+        </div>
+        
       </div>
 
       
 
-      {/* Input tetap di bawah */}<div className="text-center text-gray-500 text-sm my-2">
-          {isTyping && <span>{currentUser} sedang mengetik...</span>}
-        </div>
-        
+      {/* Input tetap di bawah */}
       <div className="flex-none bg-white border-t border-gray-300 fixed bottom-0 left-0 w-full">
         <ChatInput pengirim={chatWith} penerima={currentUser} replyMessage={replyMessage} setReplyMessage={setReplyMessage} />
       </div>
