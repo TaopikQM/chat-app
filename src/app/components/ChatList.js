@@ -180,8 +180,24 @@ const totalPages = Math.ceil(totalItemss / itemsPerPage);
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
+const getPagination = () => {
+    let pages = [];
+    
+    if (totalPages <= 2) {
+        pages = Array.from({ length: totalPages }, (_, i) => i + 1);
+    } else {
+        if (currentPage <= 2) {
+            pages = [1, 2, '...', totalPages];
+        } else if (currentPage >= totalPages - 1) {
+            pages = [1, '...', totalPages - 1, totalPages];
+        } else {
+            pages = [1, '...', currentPage, '...', totalPages];
+        }
+    }
+    return pages;
+};
 
-  const getPagination = () => {
+  const getPaginationa = () => {
     let pages = [];
     
     if (totalPages <= 5) {
@@ -248,7 +264,10 @@ const totalPages = Math.ceil(totalItemss / itemsPerPage);
                     className="py-2 px-4 border border-gray-300 rounded-l-lg"
                     disabled={currentPage === 1}
                   >
-                    Previous
+                    <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                      <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m15 19-7-7 7-7"/>
+                    </svg>
+
                   </button>
                 </li>
                 {/* {[...Array(totalPages)].map((_, i) => (
@@ -281,7 +300,10 @@ const totalPages = Math.ceil(totalItemss / itemsPerPage);
                     className="py-2 px-4 border border-gray-300 rounded-r-lg"
                     disabled={currentPage === totalPages}
                   >
-                    Next
+                    <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                      <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m9 5 7 7-7 7"/>
+                    </svg>
+
                   </button>
                 </li>
               </ul>
