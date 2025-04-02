@@ -19,7 +19,7 @@ const ChatList = ({ user1, user2, setReplyMessage  }) => {
   const messagesEndRef = useRef(null); // Ref untuk auto-scroll
   const [openDropdownId, setOpenDropdownId] = useState(null);
   const closeDropdown = () => setOpenDropdownId(null);
-  const [itemsPerPage, setItemsPerPage] = useState(100);
+  const [itemsPerPage, setItemsPerPage] = useState(500);
   const [searchTerm, setSearchTerm] = useState(''); 
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -233,9 +233,11 @@ const getPagination = () => {
               >
                   {/* <option value={10}>10</option> */}
                   // <option value={50}>50</option>
-                  <option value={100}>100</option>
-                  <option value={150}>150</option>
-                  <option value={300}>300</option>
+                  // <option value={100}>100</option>
+                  // <option value={150}>150</option>
+                  <option value={500}>500</option>
+                  <option value={1300}>1300</option>
+                  <option value={1300}>2300</option>
               </select>
               <div className="mt-4 text-sm text-gray-500">
                   Total Pesan: {filteredUsers.length}
