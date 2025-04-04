@@ -87,7 +87,7 @@ const ChatPage = () => {
 
   return (
      <div className="max-w-full mx-auto h-screen flex flex-col bg-gray-100">
-      <div className="flex-none bg-white border-b border-gray-300 shadow-md  fixed top-0 left-0 w-full ">
+      <div className="flex-none bg-white border-b border-gray-300 shadow-md  fixed top-0 left-0 w-full z-10">
         <h2 className="text-xl font-semibold text-center">Chat dengan {chatWith}</h2>
         <UserStatus userId={chatWith} />
         <div className="text-center text-gray-500 text-sm my-2">
