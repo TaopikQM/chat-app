@@ -375,7 +375,22 @@ console.log("isSendDisabled:", isSendDisabled);
           <span className="text-red-400">{recordTime}s</span>
           {/* <button onClick={stopRecording} className="bg-red-500 p-2 rounded-lg">🛑 Stop</button> */}
         </div>
-      ):(
+      ): audioURL && (
+         <div className="relative flex items-center gap-2">
+          <audio controls src={audioURL} className="flex-1"></audio>
+          <button
+            className="absolute -top-2 -right-2 bg-red-500 text-white p-1 rounded-full text-xs"
+            onClick={() => {
+              if (!uploading) { // Hanya bisa diklik jika tidak sedang upload
+                setAudioURL(null);
+                setAudioFile(null);
+              }
+            }}
+          >
+            ❌
+          </button>
+        </div>
+      ) :(
         /* Jika tidak sedang merekam, tampilkan input teks */
         // <input
         //   type="text"
