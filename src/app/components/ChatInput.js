@@ -41,11 +41,11 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage}) => {
     setTimeout(() => setIsTyping(false), 3000);
   };
 
-  const isSendDisabledd = uploading || recording || audioPending || (!newMessage.trim() && !audioURL && files.length === 0);
-const isTextMessageEmpty = !newMessage.trim() && files.length === 0; 
-const isAudioMessageEmpty = !audioURL; // Harusnya false jika ada audio
+  const isSendDisabled = uploading || recording || audioPending || (!newMessage.trim() && !audioURL && files.length === 0);
+// const isTextMessageEmpty = !newMessage.trim() && files.length === 0; 
+// const isAudioMessageEmpty = !audioURL; // Harusnya false jika ada audio
 
-const isSendDisabled = uploading || recording || audioPending || (isTextMessageEmpty && isAudioMessageEmpty);
+// const isSendDisabled = uploading || recording || audioPending || (isTextMessageEmpty && isAudioMessageEmpty);
 
   useEffect(() => {
     if (inputRef.current) {
@@ -284,6 +284,13 @@ const isSendDisabled = uploading || recording || audioPending || (isTextMessageE
     setReplyMessage(null);
     setAudioPending(false);
   };
+  console.log("uploading:", uploading);
+console.log("recording:", recording);
+console.log("audioURL:", audioURL);
+console.log("newMessage:", newMessage);
+console.log("files:", files);
+console.log("isSendDisabled:", isSendDisabled);
+
 
   return (
     <div className="bg-white p-4 shadow-md sticky bottom-0 w-full">
