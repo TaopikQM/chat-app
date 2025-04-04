@@ -155,7 +155,6 @@ const [gpsEnabled, setGpsEnabled] = useState(false);
           {isTyping && <span>{currentUser} sedang mengetik...</span>}
         </div>
   <hr/>
-  <br/>
         
       </div>
 
