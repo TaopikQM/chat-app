@@ -551,7 +551,7 @@ const ChatMessage = ({ message, user1, openDropdownId, setOpenDropdownId, setRep
           <Modal isOpen={isOpen} onClick={closeModal}  className="fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center p-4 z-100">
             <div className=" inset-0 cursor-pointer "  onTouchStart={handleTouchStart}
               onTouchMove={handleTouchMove}
-              onTouchEnd={handleTouchEnd} >
+              onTouchEnd={handleTouchEnd} z-50 >
             <button onClick={closeModal} className="absolute top-2 right-2 text-red text-2xl  z-50 cursor-pointer">❌</button>
 
             {/* Nomor Urut di Tengah Atas */}
