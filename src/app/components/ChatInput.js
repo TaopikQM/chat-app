@@ -41,7 +41,11 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage}) => {
     setTimeout(() => setIsTyping(false), 3000);
   };
 
-  const isSendDisabled = uploading || recording || audioPending || (!newMessage.trim() && !audioURL && files.length === 0);
+  const isSendDisabledd = uploading || recording || audioPending || (!newMessage.trim() && !audioURL && files.length === 0);
+const isTextMessageEmpty = !newMessage.trim() && files.length === 0; 
+const isAudioMessageEmpty = !audioURL; // Harusnya false jika ada audio
+
+const isSendDisabled = uploading || recording || audioPending || (isTextMessageEmpty && isAudioMessageEmpty);
 
   useEffect(() => {
     if (inputRef.current) {
@@ -382,7 +386,7 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage}) => {
           ></textarea>
         
       )}
-      {!recording&& !uploading &&(
+      {!recording&& (
         
           <button
             onClick={sendMessage}
