@@ -239,7 +239,7 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage}) => {
     if (audioFile) {
       const fileRef = storageRef(storage, `chatFiles/${newMessageRef.key}.wav`);
       await uploadBytes(fileRef, audioFile);
-      uploadedAudio = await getDownloadURL(fileRef);
+      const fileUrl = await getDownloadURL(fileRef);
       uploadedAudio = fileUrl;
 
       // Tambahkan audio ke dalam array files
