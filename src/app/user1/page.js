@@ -94,7 +94,6 @@ const ChatPage = () => {
           {isTyping && <span>{chatWith} sedang mengetik...</span>}
         </div>
   <hr/>
-      <br/>
         
       </div>
 
