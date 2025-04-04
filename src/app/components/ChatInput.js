@@ -375,7 +375,7 @@ console.log("isSendDisabled:", isSendDisabled);
           <span className="text-red-400">{recordTime}s</span>
           {/* <button onClick={stopRecording} className="bg-red-500 p-2 rounded-lg">🛑 Stop</button> */}
         </div>
-      ): audioURL && (
+      ): audioURL (
          <div className="relative flex items-center gap-2">
           <audio controls src={audioURL} className="flex-1"></audio>
           <button
