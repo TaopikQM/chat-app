@@ -14,6 +14,17 @@ const ChatPage = () => {
   const [chatWith] = useState("user6"); // ID pengguna tujuan
   
   const [replyMessage, setReplyMessage] = useState(null); // ✅ Reply Message
+   const [isTyping, setIsTyping] = useState(false); 
+  useEffect(() => {
+    const typingRef = databaseRef(database, `typingStatus/${currentUser}`);
+
+    // Pantau perubahan status mengetik dari lawan chat
+    onValue(typingRef, (snapshot) => {
+      const data = snapshot.val();
+      setIsTyping(data?.typing || false);
+    });
+
+  }, [currentUser]);
 
   useEffect(() => {
     const userRef = databaseRef(database, `pengguna/${currentUser}`);
@@ -73,18 +84,26 @@ const ChatPage = () => {
 
   return (
      <div className="max-w-full mx-auto h-screen flex flex-col bg-gray-100">
-      
+      <div className="flex-none p-4 bg-white border-b border-gray-300 shadow-md fixed top-0 left-0 w-full">
+        <h2 className="text-xl font-semibold text-center">Chat dengan {chatWith}</h2>
+        <UserStatus userId={chatWith} />
+        <div className="text-center text-gray-500 text-sm my-2"> 
+          {isTyping && <span>{chatWith} sedang mengetik...</span>}
+        </div>
+      </div>
 
       {/* Bagian ChatList bisa di-scroll */}
-      <div className="flex-1 overflow-y-auto p-4">
+      <div className="flex-1 overflow-y-auto p-4 mb-18 mt-18">
         <ChatList user1={currentUser} user2={chatWith} setReplyMessage={setReplyMessage} />
       </div>
 
       {/* Input tetap di bawah */}
-      <div className="flex-none bg-white border-t border-gray-300">
+      <div className="flex-none bg-white border-t border-gray-300 fixed bottom-0 left-0 w-full">
         <ChatInput pengirim={currentUser} penerima={chatWith} replyMessage={replyMessage} setReplyMessage={setReplyMessage} />
       </div>
     </div>
+         
+      
   );
 };
 
