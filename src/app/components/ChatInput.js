@@ -382,7 +382,7 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage}) => {
           ></textarea>
         
       )}
-
+      {!recording&&(
         
           <button
             onClick={sendMessage}
@@ -410,7 +410,7 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage}) => {
               "Kirim"
             )}
           </button>
-        
+        )}
       </div>
     </div>
   );
