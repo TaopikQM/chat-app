@@ -292,12 +292,12 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage}) => {
     setReplyMessage(null);
     setAudioPending(false);
   };
-  console.log("uploading:", uploading);
-console.log("recording:", recording);
-console.log("audioURL:", audioURL);
-console.log("newMessage:", newMessage);
-console.log("files:", files);
-console.log("isSendDisabled:", isSendDisabled);
+//   console.log("uploading:", uploading);
+// console.log("recording:", recording);
+// console.log("audioURL:", audioURL);
+// console.log("newMessage:", newMessage);
+// console.log("files:", files);
+// console.log("isSendDisabled:", isSendDisabled);
 
 
   return (
@@ -336,6 +336,22 @@ console.log("isSendDisabled:", isSendDisabled);
           ))}
         </div>
       )}
+{ audioURL && (
+         <div className="relative flex items-center gap-2">
+          <audio controls src={audioURL} className="flex-1"></audio>
+          <button
+            className="absolute -top-2 -right-2 bg-red-500 text-white p-1 rounded-full text-xs"
+            onClick={() => {
+              if (!uploading) { // Hanya bisa diklik jika tidak sedang upload
+                setAudioURL(null);
+                setAudioFile(null);
+              }
+            }}
+          >
+            ❌
+          </button>
+        </div>
+      ) }
        {replyMessage && (
         <div className="bg-gray-200 p-2 rounded mb-2">
           <p className="text-sm text-gray-700">Membalas: <strong>{replyMessage.pengirim} - {replyMessage.text}</strong></p>
@@ -368,21 +384,6 @@ console.log("isSendDisabled:", isSendDisabled);
           <span className="text-red-400">{recordTime}s</span>
           {/* <button onClick={stopRecording} className="bg-red-500 p-2 rounded-lg">🛑 Stop</button> */}
         </div>
-      ) : audioURL ? (
-         <div className="relative flex items-center gap-2">
-          <audio controls src={audioURL} className="flex-1"></audio>
-          <button
-            className="absolute -top-2 -right-2 bg-red-500 text-white p-1 rounded-full text-xs"
-            onClick={() => {
-              if (!uploading) { // Hanya bisa diklik jika tidak sedang upload
-                setAudioURL(null);
-                setAudioFile(null);
-              }
-            }}
-          >
-            ❌
-          </button>
-        </div>
       ) : (
         /* Jika tidak sedang merekam, tampilkan input teks */
         // <input
@@ -406,9 +407,9 @@ console.log("isSendDisabled:", isSendDisabled);
           <button
             onClick={sendMessage}
             className={`text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 inline-flex items-center 
-        ${isSendDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
+       `}
             // disabled={uploading || recording}
-            disabled={isSendDisabled}
+            disabled={!isSendDisabled}
           >
             {uploading ? (
               <>
