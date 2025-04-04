@@ -382,7 +382,7 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage}) => {
           ></textarea>
         
       )}
-      {!recording&&(
+      {!recording&& !uploading &&(
         
           <button
             onClick={sendMessage}
