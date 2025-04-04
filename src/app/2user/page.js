@@ -148,7 +148,7 @@ const [gpsEnabled, setGpsEnabled] = useState(false);
   }, [chatWith]);
   return (
      <div className="max-w-full mx-auto h-screen flex flex-col bg-gray-100">
-      <div className="flex-none p-4 bg-white border-b border-gray-300 shadow-md  fixed top-0 left-0 w-full z-50">
+      <div className="flex-none p-4 bg-white border-b border-gray-300 shadow-md  fixed top-0 left-0 w-full ">
         <h2 className="text-xl font-semibold text-center">Chat dengan {currentUser}</h2>
         <UserStatus userId={currentUser} />
          <div className="text-center text-gray-500 text-sm my-2">
