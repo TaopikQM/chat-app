@@ -145,7 +145,7 @@ const ChatMessage = ({ message, user1, openDropdownId, setOpenDropdownId, setRep
                   </svg>
                 </button>
                 {isDropdownOpen && (
-                  <div className="absolute bottom-full right-0 mb-2 bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-40 dark:bg-gray-500 dark:divide-gray-600 z-10">
+                  <div className="absolute bottom-full mb-2 bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-40 dark:bg-gray-500 dark:divide-gray-600 z-10">
                     <ul className="py-2 text-sm text-gray-700 dark:text-gray-200">
                       <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer">
                         Pesan Dibaca: {message.timestampRead 
@@ -162,7 +162,7 @@ const ChatMessage = ({ message, user1, openDropdownId, setOpenDropdownId, setRep
                       <li 
                         className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer"
                         onClick={async () => {
-                          if (!message.id) return; // Pastikan ada ID pesan
+                          if (!message.id) return; // Pastikan ada ID pesan right-0 
                           
                           // Konfirmasi sebelum menghapus
                           const isConfirmed = window.confirm("Apakah Anda yakin ingin menghapus pesan ini?");
@@ -414,9 +414,9 @@ const ChatMessage = ({ message, user1, openDropdownId, setOpenDropdownId, setRep
                   </svg>
                 </button>
 
-                {/* Dropdown muncul di sebelah kanan tombol */}
+                {/* Dropdown muncul di sebelah kanan tombol  left-0 */}
                 {isDropdownOpen && (
-                  <div className="absolute bottom-full left-0 mb-2 bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-40 dark:bg-gray-500 dark:divide-gray-600 z-10">
+                  <div className="absolute bottom-full mb-2 bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-40 dark:bg-gray-500 dark:divide-gray-600 z-10">
                     <ul className="py-2 text-sm text-gray-200 dark:text-gray-200">
                       {/* <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-400 cursor-pointer">
                         Pesan Dibaca: {message.timestampRead 
