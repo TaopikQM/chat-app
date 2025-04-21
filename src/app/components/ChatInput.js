@@ -209,7 +209,7 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage}) => {
       return;
     }
     setUploading(true);
-    const newMessageRef = push(databaseRef(database, "chatsBox"));
+    const newMessageRef = push(databaseRef(database, "chatsBox1"));
     let uploadedFiles = [];
    // 🔹 Tambahkan deklarasi uploadPromises sebelum digunakan
   //  let uploadPromises = [];
