@@ -11,7 +11,7 @@ const AdminChatTable = () => {
   const [logsChats, setLogsChats] = useState([]);
   const [logsUsers, setLogsUsers] = useState([]);
 
-  
+   
   const [searchTerm, setSearchTerm] = useState(''); 
     
   // const [totalItems, setTotalItems] = useState(0);
