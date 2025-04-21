@@ -35,7 +35,7 @@ const [previousPage, setPreviousPage] = useState(1);
     });
   }, [user1]);
   useEffect(() => {
-    const chatRef = databaseRef(database, "chatsBox");
+    const chatRef = databaseRef(database, "chatsBox1");
     onValue(chatRef, async (snapshot) => {
       const data = snapshot.val();
       if (data) {
