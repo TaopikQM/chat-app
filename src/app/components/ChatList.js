@@ -115,7 +115,7 @@ const [previousPage, setPreviousPage] = useState(1);
   useEffect(() => {
     messages.forEach((msg) => {
       if (msg.penerima === user1 && !msg.read && msg.id) {
-        update(databaseRef(database, `chatsBox/${msg.id}`), {
+        update(databaseRef(database, `chatsBox1/${msg.id}`), {
           read: true,
           timestampRead: Date.now(),
         });
