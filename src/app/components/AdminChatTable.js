@@ -23,7 +23,7 @@ const AdminChatTable = () => {
   //ambil buat nampilin data
   useEffect(() => {
     const messagesRef = databaseRef(database, "chatsBox");
-    const messagesRef = databaseRef(database, "chatsBox1");
+    const messagesRef1 = databaseRef(database, "chatsBox1");
      const usersRef = databaseRef(database, "pengguna");
     const logsChatsRef = databaseRef(database, "log_chatsBox");
     const logsUsersRef = databaseRef(database, "logs_pengguna");
@@ -44,25 +44,52 @@ const AdminChatTable = () => {
         }
     });
 
-    onValue(messagesRef, (snapshot) => {
-      const data = snapshot.val();
-      // const messages = [];
-    //   const messages =data? Object.keys(data).map(key => ({ id: key, ...data[key] })) : [];
-    //   // });
-    //   setMessages(messages);
-        const messages = Object.keys(data)
-            .map(key => ({
-                id: key,
-                ...data[key]
-            }))
-            .sort((a, b) => b.timestamp - a.timestamp); // 🔹 Urutkan dari terbaru ke terlama
+    // onValue(messagesRef, (snapshot) => {
+    //   const data = snapshot.val();
+    //   // const messages = [];
+    // //   const messages =data? Object.keys(data).map(key => ({ id: key, ...data[key] })) : [];
+    // //   // });
+    // //   setMessages(messages);
+    //     const messages = Object.keys(data)
+    //         .map(key => ({
+    //             id: key,
+    //             ...data[key]
+    //         }))
+    //         .sort((a, b) => b.timestamp - a.timestamp); // 🔹 Urutkan dari terbaru ke terlama
 
-        setMessages(messages);
-    //   console.log(messages);
+    //     setMessages(messages);
+    // //   console.log(messages);
       
-      // setTotalItems(data.length);
-    }
-    );
+    //   // setTotalItems(data.length);
+    // }
+    // );
+    // Ambil Data dari Dua Pesan dan Gabungkan
+  const fetchMessages = () => {
+    let messages1 = [];
+    let messages2 = [];
+
+    onValue(messagesRef, (snapshot1) => {
+      const data1 = snapshot1.val();
+      messages1 = data1
+        ? Object.keys(data1).map(key => ({ id: key, ...data1[key] }))
+        : [];
+
+      onValue(messagesRef1, (snapshot2) => {
+        const data2 = snapshot2.val();
+        messages2 = data2
+          ? Object.keys(data2).map(key => ({ id: key, ...data2[key] }))
+          : [];
+
+        const combinedMessages = [...messages1, ...messages2].sort(
+          (a, b) => b.timestamp - a.timestamp
+        );
+
+        setMessages(combinedMessages); // 🔹 Set gabungan semua pesan
+      });
+    });
+  };
+
+  fetchMessages();
     //  // Ambil data pengguna
     //  onValue(usersRef, (snapshot) => {
     //     const data = snapshot.val();
