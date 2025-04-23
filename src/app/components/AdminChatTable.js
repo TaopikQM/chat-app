@@ -114,22 +114,9 @@ const AdminChatTable = () => {
     unsubscribe1();
     unsubscribe2();
   };
-}, []);
+// }, []);
 
-const updateCombinedMessages = (() => {
-  let cache1 = [];
-  let cache2 = [];
 
-  return (newMessages1, newMessages2) => {
-    if (newMessages1 !== null) cache1 = newMessages1;
-    if (newMessages2 !== null) cache2 = newMessages2;
-
-    const combined = [...cache1, ...cache2].sort(
-      (a, b) => b.timestamp - a.timestamp
-    );
-    setAllMessages(combined);
-  };
-})();
     //  // Ambil data pengguna
     //  onValue(usersRef, (snapshot) => {
     //     const data = snapshot.val();
@@ -168,6 +155,20 @@ const updateCombinedMessages = (() => {
 
     // fetchData();
   }, []);
+  const updateCombinedMessages = (() => {
+  let cache1 = [];
+  let cache2 = [];
+
+  return (newMessages1, newMessages2) => {
+    if (newMessages1 !== null) cache1 = newMessages1;
+    if (newMessages2 !== null) cache2 = newMessages2;
+
+    const combined = [...cache1, ...cache2].sort(
+      (a, b) => b.timestamp - a.timestamp
+    );
+    setAllMessages(combined);
+  };
+})();
 
   //hapus data dan nampilin konfirmasi
   const handleDelete = async (Id) => {
