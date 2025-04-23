@@ -22,8 +22,8 @@ const AdminChatTable = () => {
 
   //ambil buat nampilin data
   useEffect(() => {
-    const messagesRef = databaseRef(database, "chatsBox");
-    const messagesRef1 = databaseRef(database, "chatsBox1");
+    // const messagesRef = databaseRef(database, "chatsBox");
+    const messagesRef = databaseRef(database, "chatsBox1");
      const usersRef = databaseRef(database, "pengguna");
     const logsChatsRef = databaseRef(database, "log_chatsBox");
     const logsUsersRef = databaseRef(database, "logs_pengguna");
@@ -44,25 +44,25 @@ const AdminChatTable = () => {
         }
     });
 
-    // onValue(messagesRef, (snapshot) => {
-    //   const data = snapshot.val();
-    //   // const messages = [];
-    // //   const messages =data? Object.keys(data).map(key => ({ id: key, ...data[key] })) : [];
-    // //   // });
-    // //   setMessages(messages);
-    //     const messages = Object.keys(data)
-    //         .map(key => ({
-    //             id: key,
-    //             ...data[key]
-    //         }))
-    //         .sort((a, b) => b.timestamp - a.timestamp); // 🔹 Urutkan dari terbaru ke terlama
+    onValue(messagesRef, (snapshot) => {
+      const data = snapshot.val();
+      // const messages = [];
+    //   const messages =data? Object.keys(data).map(key => ({ id: key, ...data[key] })) : [];
+    //   // });
+    //   setMessages(messages);
+        const messages = Object.keys(data)
+            .map(key => ({
+                id: key,
+                ...data[key]
+            }))
+            .sort((a, b) => b.timestamp - a.timestamp); // 🔹 Urutkan dari terbaru ke terlama
 
-    //     setMessages(messages);
-    // //   console.log(messages);
+        setMessages(messages);
+    //   console.log(messages);
       
-    //   // setTotalItems(data.length);
-    // }
-    // );
+      // setTotalItems(data.length);
+    }
+    );
     // Ambil Data dari Dua Pesan dan Gabungkan
   // const fetchMessages = () => {
   //   let messages1 = [];
@@ -92,28 +92,28 @@ const AdminChatTable = () => {
   // fetchMessages();
 
      // Listener dari messagesRef
-  const unsubscribe1 = onValue(messagesRef, (snapshot) => {
-    const data = snapshot.val();
-    const messages = data
-      ? Object.keys(data).map(key => ({ id: key, ...data[key] }))
-      : [];
-    updateCombinedMessages(messages, null); // 👈 update bagian pertama
-  });
+  // const unsubscribe1 = onValue(messagesRef, (snapshot) => {
+  //   const data = snapshot.val();
+  //   const messages = data
+  //     ? Object.keys(data).map(key => ({ id: key, ...data[key] }))
+  //     : [];
+  //   updateCombinedMessages(messages, null); // 👈 update bagian pertama
+  // });
 
-  // Listener dari messagesRef1
-  const unsubscribe2 = onValue(messagesRef1, (snapshot) => {
-    const data = snapshot.val();
-    const messages = data
-      ? Object.keys(data).map(key => ({ id: key, ...data[key] }))
-      : [];
-    updateCombinedMessages(null, messages); // 👈 update bagian kedua
-  });
+  // // Listener dari messagesRef1
+  // const unsubscribe2 = onValue(messagesRef1, (snapshot) => {
+  //   const data = snapshot.val();
+  //   const messages = data
+  //     ? Object.keys(data).map(key => ({ id: key, ...data[key] }))
+  //     : [];
+  //   updateCombinedMessages(null, messages); // 👈 update bagian kedua
+  // });
 
-  // Cleanup
-  return () => {
-    unsubscribe1();
-    unsubscribe2();
-  };
+  // // Cleanup
+  // return () => {
+  //   unsubscribe1();
+  //   unsubscribe2();
+  // };
 // }, []);
 
 
@@ -155,20 +155,20 @@ const AdminChatTable = () => {
 
     // fetchData();
   }, []);
-  const updateCombinedMessages = (() => {
-  let cache1 = [];
-  let cache2 = [];
+//   const updateCombinedMessages = (() => {
+//   let cache1 = [];
+//   let cache2 = [];
 
-  return (newMessages1, newMessages2) => {
-    if (newMessages1 !== null) cache1 = newMessages1;
-    if (newMessages2 !== null) cache2 = newMessages2;
+//   return (newMessages1, newMessages2) => {
+//     if (newMessages1 !== null) cache1 = newMessages1;
+//     if (newMessages2 !== null) cache2 = newMessages2;
 
-    const combined = [...cache1, ...cache2].sort(
-      (a, b) => b.timestamp - a.timestamp
-    );
-    setAllMessages(combined);
-  };
-})();
+//     const combined = [...cache1, ...cache2].sort(
+//       (a, b) => b.timestamp - a.timestamp
+//     );
+//     setAllMessages(combined);
+//   };
+// })();
 
   //hapus data dan nampilin konfirmasi
   const handleDelete = async (Id) => {
