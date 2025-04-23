@@ -64,32 +64,72 @@ const AdminChatTable = () => {
     // }
     // );
     // Ambil Data dari Dua Pesan dan Gabungkan
-  const fetchMessages = () => {
-    let messages1 = [];
-    let messages2 = [];
+  // const fetchMessages = () => {
+  //   let messages1 = [];
+  //   let messages2 = [];
 
-    onValue(messagesRef, (snapshot1) => {
-      const data1 = snapshot1.val();
-      messages1 = data1
-        ? Object.keys(data1).map(key => ({ id: key, ...data1[key] }))
-        : [];
+  //   onValue(messagesRef, (snapshot1) => {
+  //     const data1 = snapshot1.val();
+  //     messages1 = data1
+  //       ? Object.keys(data1).map(key => ({ id: key, ...data1[key] }))
+  //       : [];
 
-      onValue(messagesRef1, (snapshot2) => {
-        const data2 = snapshot2.val();
-        messages2 = data2
-          ? Object.keys(data2).map(key => ({ id: key, ...data2[key] }))
-          : [];
+  //     onValue(messagesRef1, (snapshot2) => {
+  //       const data2 = snapshot2.val();
+  //       messages2 = data2
+  //         ? Object.keys(data2).map(key => ({ id: key, ...data2[key] }))
+  //         : [];
 
-        const combinedMessages = [...messages1, ...messages2].sort(
-          (a, b) => b.timestamp - a.timestamp
-        );
+  //       const combinedMessages = [...messages1, ...messages2].sort(
+  //         (a, b) => b.timestamp - a.timestamp
+  //       );
 
-        setMessages(combinedMessages); // 🔹 Set gabungan semua pesan
-      });
-    });
+  //       setMessages(combinedMessages); // 🔹 Set gabungan semua pesan
+  //     });
+  //   });
+  // };
+
+  // fetchMessages();
+
+     // Listener dari messagesRef
+  const unsubscribe1 = onValue(messagesRef, (snapshot) => {
+    const data = snapshot.val();
+    const messages = data
+      ? Object.keys(data).map(key => ({ id: key, ...data[key] }))
+      : [];
+    updateCombinedMessages(messages, null); // 👈 update bagian pertama
+  });
+
+  // Listener dari messagesRef1
+  const unsubscribe2 = onValue(messagesRef1, (snapshot) => {
+    const data = snapshot.val();
+    const messages = data
+      ? Object.keys(data).map(key => ({ id: key, ...data[key] }))
+      : [];
+    updateCombinedMessages(null, messages); // 👈 update bagian kedua
+  });
+
+  // Cleanup
+  return () => {
+    unsubscribe1();
+    unsubscribe2();
   };
+}, []);
 
-  fetchMessages();
+const updateCombinedMessages = (() => {
+  let cache1 = [];
+  let cache2 = [];
+
+  return (newMessages1, newMessages2) => {
+    if (newMessages1 !== null) cache1 = newMessages1;
+    if (newMessages2 !== null) cache2 = newMessages2;
+
+    const combined = [...cache1, ...cache2].sort(
+      (a, b) => b.timestamp - a.timestamp
+    );
+    setAllMessages(combined);
+  };
+})();
     //  // Ambil data pengguna
     //  onValue(usersRef, (snapshot) => {
     //     const data = snapshot.val();
