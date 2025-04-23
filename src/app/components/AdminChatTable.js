@@ -22,6 +22,7 @@ const AdminChatTable = () => {
 
   //ambil buat nampilin data
   useEffect(() => {
+    const messagesRef = databaseRef(database, "chatsBox");
     const messagesRef = databaseRef(database, "chatsBox1");
      const usersRef = databaseRef(database, "pengguna");
     const logsChatsRef = databaseRef(database, "log_chatsBox");
