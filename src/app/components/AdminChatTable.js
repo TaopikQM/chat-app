@@ -22,7 +22,7 @@ const AdminChatTable = () => {
 
   //ambil buat nampilin data
   useEffect(() => {
-    // const messagesRef = databaseRef(database, "chatsBox");
+    const messagesRef1 = databaseRef(database, "chatsBox");
     const messagesRef = databaseRef(database, "chatsBox1");
      const usersRef = databaseRef(database, "pengguna");
     const logsChatsRef = databaseRef(database, "log_chatsBox");
@@ -44,25 +44,57 @@ const AdminChatTable = () => {
         }
     });
 
-    onValue(messagesRef, (snapshot) => {
-      const data = snapshot.val();
-      // const messages = [];
-    //   const messages =data? Object.keys(data).map(key => ({ id: key, ...data[key] })) : [];
-    //   // });
-    //   setMessages(messages);
-        const messages = Object.keys(data)
-            .map(key => ({
-                id: key,
-                ...data[key]
-            }))
-            .sort((a, b) => b.timestamp - a.timestamp); // 🔹 Urutkan dari terbaru ke terlama
+    let messages1 = [];
+  let messages2 = [];
 
-        setMessages(messages);
-    //   console.log(messages);
-      
-      // setTotalItems(data.length);
-    }
+  const combineAndSetMessages = () => {
+    const allMessages = [...messages1, ...messages2].sort(
+      (a, b) => b.timestamp - a.timestamp
     );
+    setMessages(allMessages);
+  };
+
+  const unsub1 = onValue(messagesRef, (snapshot) => {
+    const data = snapshot.val();
+    messages1 = data
+      ? Object.keys(data).map(key => ({ id: key, ...data[key] }))
+      : [];
+    combineAndSetMessages();
+  });
+
+  const unsub2 = onValue(messagesRef1, (snapshot) => {
+    const data = snapshot.val();
+    messages2 = data
+      ? Object.keys(data).map(key => ({ id: key, ...data[key] }))
+      : [];
+    combineAndSetMessages();
+  });
+
+  // Bersihkan listener saat komponen unmount
+  return () => {
+    unsub1();
+    unsub2();
+  };
+
+    // onValue(messagesRef, (snapshot) => {
+    //   const data = snapshot.val();
+    //   // const messages = [];
+    // //   const messages =data? Object.keys(data).map(key => ({ id: key, ...data[key] })) : [];
+    // //   // });
+    // //   setMessages(messages);
+    //     const messages = Object.keys(data)
+    //         .map(key => ({
+    //             id: key,
+    //             ...data[key]
+    //         }))
+    //         .sort((a, b) => b.timestamp - a.timestamp); // 🔹 Urutkan dari terbaru ke terlama
+
+    //     setMessages(messages);
+    // //   console.log(messages);
+      
+    //   // setTotalItems(data.length);
+    // }
+    // );
     // Ambil Data dari Dua Pesan dan Gabungkan
   // const fetchMessages = () => {
   //   let messages1 = [];
