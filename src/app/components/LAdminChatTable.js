@@ -263,7 +263,7 @@ const LAdminChatTable = () => {
                   <th className="border border-gray-300 px-4 py-2">File
 
                   </th>
-                  <th className="border border-gray-300 px-4 py-2">Waktu
+                  <th className="border border-gray-300 px-4 py-2">Waktu Del
                   </th>
                   <th className="border border-gray-300 px-4 py-2">Status</th>
                   <th className="border border-gray-300 px-4 py-2">Read</th>
@@ -299,7 +299,7 @@ const LAdminChatTable = () => {
                      "-"
                      )}
                    </td>
-                  <td className="border border-gray-300 px-4 py-2 text-center">{msg.timestamp && format(msg.timestamp, "dd/MM/yyyy HH:mm:ss")}</td>
+                  <td className="border border-gray-300 px-4 py-2 text-center">{msg.deleteTime && format(msg.deleteTime, "dd/MM/yyyy HH:mm:ss")}</td>
                   <td className="border border-gray-300 px-4 py-2 text-center">
                       <button
                           onClick={() => handleToggleStatus(msg.id, msg.status)}
