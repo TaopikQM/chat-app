@@ -230,8 +230,12 @@ const AdminChatTable = () => {
     console.log("Data dari chatsBox:", userData);
     console.log("Data dari chatsBox1:", userData1);
             // console.log(userData);
-            const { pengirim, penerima, pesan } = userData; // Ambil nama dan NIM dari data
-            const { pengirim, penerima, pesan } = userData1; // Ambil nama dan NIM dari data
+            // const { pengirim, penerima, pesan } = userData; // Ambil nama dan NIM dari data
+            // const { pengirim, penerima, pesan } = userData1; // Ambil nama dan NIM dari data
+
+          const pengirim = userData.pengirim || userData1.pengirim || "-";
+          const penerima = userData.penerima || userData1.penerima || "-";
+          const pesan = userData.pesan || userData1.pesan || "-";
 
             // Konfirmasi penghapusan dengan informasi pengguna
             const confirmation = window.confirm(`Apakah Anda yakin ingin menghapus data ini?\nPengirim: ${pengirim}\nPenerima: ${penerima}\nPesan: ${pesan}`);
@@ -405,11 +409,11 @@ const AdminChatTable = () => {
                   </th>
                   <th className="border border-gray-300 px-4 py-2">Waktu
                   </th>
-                  <th className="border border-gray-300 px-4 py-2">Status</th>
+                  // <th className="border border-gray-300 px-4 py-2">Status</th>
                   <th className="border border-gray-300 px-4 py-2">OnUser</th>
                   <th className="border border-gray-300 px-4 py-2">Read</th>
                   <th className="border border-gray-300 px-4 py-2">DiBaca</th>
-                  <th className="border border-gray-300 px-4 py-2">Action</th>
+                  // <th className="border border-gray-300 px-4 py-2">Action</th>
                 </tr>
             </thead>
             <tbody>
@@ -470,16 +474,16 @@ const AdminChatTable = () => {
                      )}
                    </td>
                   <td className="border border-gray-300 px-4 py-2 text-center">{msg.timestamp && format(msg.timestamp, "dd/MM/yyyy HH:mm:ss")}</td>
-                  <td className="border border-gray-300 px-4 py-2 text-center">
-                      <button
-                          onClick={() => handleToggleStatus(msg.id, msg.status)}
-                          className={`px-4 py-2 rounded-lg text-white ${
-                              msg.status === "ACTIVE" ? "bg-green-600 hover:bg-green-700" : "bg-red-600 hover:bg-red-700"
-                          }`}
-                      >
-                          {msg.status}
-                      </button>
-                  </td>
+                  // <td className="border border-gray-300 px-4 py-2 text-center">
+                  //     <button
+                  //         onClick={() => handleToggleStatus(msg.id, msg.status)}
+                  //         className={`px-4 py-2 rounded-lg text-white ${
+                  //             msg.status === "ACTIVE" ? "bg-green-600 hover:bg-green-700" : "bg-red-600 hover:bg-red-700"
+                  //         }`}
+                  //     >
+                  //         {msg.status}
+                  //     </button>
+                  // </td>
                   <td className="border border-gray-300 px-4 py-2 text-center">
                       <button
                           onClick={() => handleToggleStatus(msg.id, msg.onUSer)}
@@ -508,17 +512,17 @@ const AdminChatTable = () => {
                     )}
                   </td>
                   <td className="border border-gray-300 px-4 py-2 text-center">{msg.timestampRead && format(msg.timestampRead, "dd/MM/yyyy HH:mm:ss")}</td>
-                  <td className="border border-gray-300 py-2 px-4  text-center">
-                    <>
-                        <button
-                            onClick={() => handleDelete(msg.id)}
-                            // className="bg-red-500 text-white px-4 py-2 rounded-md"
-                            type="button" className="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-md text-sm px-4 py-2  dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900"
-                        >
-                            Hapus
-                        </button>
-                    </>
-                  </td>
+                  // <td className="border border-gray-300 py-2 px-4  text-center">
+                  //   <>
+                  //       <button
+                  //           onClick={() => handleDelete(msg.id)}
+                  //           // className="bg-red-500 text-white px-4 py-2 rounded-md"
+                  //           type="button" className="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-md text-sm px-4 py-2  dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900"
+                  //       >
+                  //           Hapus
+                  //       </button>
+                  //   </>
+                  // </td>
                 </tr>
               )): (
                 <tr>
