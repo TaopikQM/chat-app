@@ -239,7 +239,7 @@ const LAdminChatTable = () => {
               </div>
             </div>
           <br />
-          <table className="w-full text-sm bg-white border border-gray-300 rounded-lg">
+          <table className="w-full text-xs bg-white border border-gray-300 rounded-lg">
             <thead>
                 <tr className="bg-gray-200">
                   <th className="border border-gray-300 px-4 py-2">No 
@@ -265,10 +265,7 @@ const LAdminChatTable = () => {
                   </th>
                   <th className="border border-gray-300 px-4 py-2">Waktu Del
                   </th>
-                  <th className="border border-gray-300 px-4 py-2">Status</th>
                   <th className="border border-gray-300 px-4 py-2">Read</th>
-                  <th className="border border-gray-300 px-4 py-2">Status</th>
-                  <th className="border border-gray-300 px-4 py-2">Action</th>
                 </tr>
             </thead>
             <tbody>
@@ -300,16 +297,7 @@ const LAdminChatTable = () => {
                      )}
                    </td>
                   <td className="border border-gray-300 px-4 py-2 text-center">{msg.deleteTime && format(msg.deleteTime, "dd/MM/yyyy HH:mm:ss")}</td>
-                  <td className="border border-gray-300 px-4 py-2 text-center">
-                      <button
-                          onClick={() => handleToggleStatus(msg.id, msg.status)}
-                          className={`px-4 py-2 rounded-lg text-white ${
-                              msg.status === "ACTIVE" ? "bg-green-600 hover:bg-green-700" : "bg-red-600 hover:bg-red-700"
-                          }`}
-                      >
-                          {msg.status}
-                      </button>
-                  </td>
+                 
 
                   <td className="border border-gray-300 px-4 py-2">{msg.read ? (
                     <button
@@ -327,18 +315,7 @@ const LAdminChatTable = () => {
                       </button>
                     )}
                   </td>
-                  <td className="border border-gray-300 px-4 py-2 text-center">{msg.timestampRead && format(msg.timestampRead, "dd/MM/yyyy HH:mm:ss")}</td>
-                  <td className="border border-gray-300 py-2 px-4  text-center">
-                    <>
-                        <button
-                            onClick={() => handleDelete(msg.id)}
-                            // className="bg-red-500 text-white px-4 py-2 rounded-md"
-                            type="button" className="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-md text-sm px-4 py-2  dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900"
-                        >
-                            Hapus
-                        </button>
-                    </>
-                  </td>
+                 
                 </tr>
               )): (
                 <tr>
@@ -405,6 +382,33 @@ const LAdminChatTable = () => {
 };
 
 export default LAdminChatTable;
+
+                  // <th className="border border-gray-300 px-4 py-2">Status</th>
+                            
+                  // <th className="border border-gray-300 px-4 py-2">Status</th>
+                  // <th className="border border-gray-300 px-4 py-2">Action</th>
+ // <td className="border border-gray-300 px-4 py-2 text-center">
+ //                      <button
+ //                          onClick={() => handleToggleStatus(msg.id, msg.status)}
+ //                          className={`px-4 py-2 rounded-lg text-white ${
+ //                              msg.status === "ACTIVE" ? "bg-green-600 hover:bg-green-700" : "bg-red-600 hover:bg-red-700"
+ //                          }`}
+ //                      >
+ //                          {msg.status}
+ //                      </button>
+ //                  </td>
+ //                         <td className="border border-gray-300 px-4 py-2 text-center">{msg.timestampRead && format(msg.timestampRead, "dd/MM/yyyy HH:mm:ss")}</td>
+ //                  <td className="border border-gray-300 py-2 px-4  text-center">
+ //                    <>
+ //                        <button
+ //                            onClick={() => handleDelete(msg.id)}
+ //                            // className="bg-red-500 text-white px-4 py-2 rounded-md"
+ //                            type="button" className="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-md text-sm px-4 py-2  dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900"
+ //                        >
+ //                            Hapus
+ //                        </button>
+ //                    </>
+ //                  </td>
 // "use client";
 
 // import { useEffect, useState } from "react";
