@@ -225,6 +225,10 @@ const AdminChatTable = () => {
           
             const userData = snapshot.exists() ? snapshot.val() : {};
             const userData1 = snapshot1.exists() ? snapshot1.val() : {};
+
+          // Log data yang mau dihapus
+    console.log("Data dari chatsBox:", userData);
+    console.log("Data dari chatsBox1:", userData1);
             // console.log(userData);
             const { pengirim, penerima, pesan } = userData; // Ambil nama dan NIM dari data
 
