@@ -211,6 +211,8 @@ const AdminChatTable = () => {
     //     alert("Data berhasil dihapus.");
     // }
     const userRef = databaseRef(database, `chatsBox/${Id}`);
+    const userRef1 = databaseRef(database, `chatsBox1/${Id}`);
+     const logMessageRef = databaseRef(database, `log_chatsBox/${message.id}`);
 
     try {
         // Ambil data user berdasarkan userId
@@ -224,7 +226,12 @@ const AdminChatTable = () => {
             const confirmation = window.confirm(`Apakah Anda yakin ingin menghapus data ini?\nPengirim: ${pengirim}\nPenerima: ${penerima}\nPesan: ${pesan}`);
             
             if (confirmation) {
+              await update(logMessageRef, {
+                ...message, 
+                deleteTime: Date.now() // Menyimpan waktu penghapusan
+              });
                 await remove(userRef);
+                await remove(userRef1);
                 alert(`Data ${pengirim} ke ${penerima} dengan pesan (${pesan}) berhasil dihapus.`);
             }
         } else {
