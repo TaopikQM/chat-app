@@ -212,13 +212,19 @@ const AdminChatTable = () => {
     // }
     const userRef = databaseRef(database, `chatsBox/${Id}`);
     const userRef1 = databaseRef(database, `chatsBox1/${Id}`);
-     const logMessageRef = databaseRef(database, `log_chatsBox/${message.id}`);
+     const logMessageRef = databaseRef(database, `log_chatsBox/${Id}`);
 
     try {
         // Ambil data user berdasarkan userId
         const snapshot = await get(userRef);
-        if (snapshot.exists()) {
-            const userData = snapshot.val();
+      
+        const snapshot1 = await get(userRef1);
+      
+        if (snapshot.exists() || snapshot1.exists()) {
+            // const userData = snapshot.val();
+          
+            const userData = snapshot.exists() ? snapshot.val() : {};
+            const userData1 = snapshot1.exists() ? snapshot1.val() : {};
             // console.log(userData);
             const { pengirim, penerima, pesan } = userData; // Ambil nama dan NIM dari data
 
@@ -226,10 +232,14 @@ const AdminChatTable = () => {
             const confirmation = window.confirm(`Apakah Anda yakin ingin menghapus data ini?\nPengirim: ${pengirim}\nPenerima: ${penerima}\nPesan: ${pesan}`);
             
             if (confirmation) {
-              await update(logMessageRef, {
-                ...message, 
-                deleteTime: Date.now() // Menyimpan waktu penghapusan
-              });
+              const logData = {
+                  ...userData,
+                  ...userData1,
+                  deleteTime: Date.now()
+                };
+          
+                // Simpan ke log
+                await update(logMessageRef, logData);
                 await remove(userRef);
                 await remove(userRef1);
                 alert(`Data ${pengirim} ke ${penerima} dengan pesan (${pesan}) berhasil dihapus.`);
