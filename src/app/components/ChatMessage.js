@@ -171,7 +171,7 @@ const ChatMessage = ({ message, user1, openDropdownId, setOpenDropdownId, setRep
                             return;
                           }
 
-                          const messageRef = databaseRef(database, `chatsBox/${message.id}`);
+                          const messageRef = databaseRef(database, `chatsBox1/${message.id}`);
                           const logMessageRef = databaseRef(database, `log_chatsBox/${message.id}`);
 
                           try {
