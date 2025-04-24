@@ -231,6 +231,7 @@ const AdminChatTable = () => {
     console.log("Data dari chatsBox1:", userData1);
             // console.log(userData);
             const { pengirim, penerima, pesan } = userData; // Ambil nama dan NIM dari data
+            const { pengirim, penerima, pesan } = userData1; // Ambil nama dan NIM dari data
 
             // Konfirmasi penghapusan dengan informasi pengguna
             const confirmation = window.confirm(`Apakah Anda yakin ingin menghapus data ini?\nPengirim: ${pengirim}\nPenerima: ${penerima}\nPesan: ${pesan}`);
