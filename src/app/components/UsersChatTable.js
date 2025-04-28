@@ -184,7 +184,7 @@ const filteredData = users.filter(item =>
                   </th>
                   <th className="border border-gray-300 px-4 py-2">Status</th>
                   <th className="border border-gray-300 px-4 py-2">Time Logs Online</th>
-                  <th className="border border-gray-300 px-4 py-2">Action</th>
+{/*<th className="border border-gray-300 px-4 py-2">Action</th>*/}
                 </tr>
             </thead>
             <tbody>
@@ -215,7 +215,7 @@ const filteredData = users.filter(item =>
                   {/* <td className="border border-gray-300 px-4 py-2 text-center">{msg.timestamp && format(msg.timestamp, "dd/MM/yyyy HH:mm:ss")}</td> */}
                   
                   
-                  <td className="border border-gray-300 py-2 px-4  text-center">
+{/* <td className="border border-gray-300 py-2 px-4  text-center">
                     <>
                         <button
                             onClick={() => handleDelete(msg.id)}
@@ -225,7 +225,7 @@ const filteredData = users.filter(item =>
                             Hapus
                         </button>
                     </>
-                  </td>
+                  </td>*/}
                 </tr>
               )): (
                 <tr>
