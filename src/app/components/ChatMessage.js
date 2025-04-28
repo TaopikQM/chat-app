@@ -266,7 +266,7 @@ const ChatMessage = ({ message, user1, openDropdownId, setOpenDropdownId, setRep
       }
 
       const messageData = snapshot.val();
-      const isHidden = messageData.penerima === null;
+      const isHidden = messageData.penerima === "-";
 
       const confirmText = isHidden
         ? "Pesan ini sudah disembunyikan. Aktifkan kembali untuk penerima?"
@@ -282,14 +282,14 @@ const ChatMessage = ({ message, user1, openDropdownId, setOpenDropdownId, setRep
         // === AKTIFKAN KEMBALI ===
         await update(messageRef, {
           penerima: messageData.logpenerima,
-          logpenerima: null
+          logpenerima: "-"
         });
         alert("Pesan berhasil diaktifkan kembali.");
       } else {
         // === SEMBUNYIKAN PESAN ===
         await update(messageRef, {
           logpenerima: messageData.penerima,
-          penerima: null
+          penerima: "-"
         });
         alert("Pesan berhasil disembunyikan dari penerima.");
       }
