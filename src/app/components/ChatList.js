@@ -58,10 +58,13 @@ const [previousPage, setPreviousPage] = useState(1);
         //   (msg.onUSer !== "OFF" || msg.pengirim === user1 || msg.pengirim === user2) && // Tetap tampilkan ke pengirim
          
           (
-            (msg.pengirim === user1 && msg.penerima === user2) ||
-            (msg.pengirim === user2 && msg.penerima === user1))
+        //     (msg.pengirim === user1 && msg.penerima === user2) ||
+        //     (msg.pengirim === user2 && msg.penerima === user1))
 
-        )
+        // )
+            (msg.pengirim === user1 && (msg.penerima === user2 || msg.penerima === null)) ||
+    (msg.pengirim === user2 && (msg.penerima === user1 || msg.penerima === null))
+  )
         .sort((a, b) => a.timestamp - b.timestamp);
         
         // **Ambil metadata untuk setiap file dalam pesan**
