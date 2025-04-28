@@ -193,7 +193,63 @@ const ChatMessage = ({ message, user1, openDropdownId, setOpenDropdownId, setRep
                       >
                         Hapus Pesan
                       </li>
+                        <li 
+                          className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer"
+                          onClick={async () => {
+                            if (!message.id) return; // Pastikan ada ID pesan
                         
+                            const messageRef = databaseRef(database, `chatsBox1/${message.id}`);
+                        
+                            try {
+                              const snapshot = await get(messageRef);
+                        
+                              if (!snapshot.exists()) {
+                                alert("Pesan tidak ditemukan.");
+                                return;
+                              }
+                        
+                              const messageData = snapshot.val();
+                        
+                              if (!messageData.penerima && messageData.logpenerima) {
+                                // === AKTIFKAN KEMBALI ===
+                                const isConfirmed = window.confirm("Pesan ini sudah disembunyikan. Aktifkan kembali untuk penerima?");
+                                if (!isConfirmed) {
+                                  alert("Aksi dibatalkan.");
+                                  return;
+                                }
+                        
+                                await update(messageRef, {
+                                  penerima: messageData.logpenerima,
+                                  logpenerima: null
+                                });
+                        
+                                alert("Pesan berhasil diaktifkan kembali.");
+                              } else {
+                                // === SEMBUNYIKAN PESAN ===
+                                const isConfirmed = window.confirm("Apakah Anda yakin ingin menyembunyikan pesan ini dari penerima?");
+                                if (!isConfirmed) {
+                                  alert("Aksi dibatalkan.");
+                                  return;
+                                }
+                        
+                                await update(messageRef, {
+                                  logpenerima: messageData.penerima,
+                                  penerima: null
+                                });
+                        
+                                alert("Pesan berhasil disembunyikan dari penerima.");
+                              }
+                        
+                            } catch (error) {
+                              console.error(error);
+                              alert("Terjadi kesalahan saat memperbarui pesan.");
+                            }
+                          }}
+                        >
+                          {message.penerima ? "Sembunyikan Pesan" : "Aktifkan Pesan"}
+                        </li>
+
+
 
 
 
