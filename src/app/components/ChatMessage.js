@@ -193,7 +193,7 @@ const ChatMessage = ({ message, user1, openDropdownId, setOpenDropdownId, setRep
                       >
                         Hapus Pesan
                       </li>
-                        <li 
+                 {/* <li 
                           className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer"
                           onClick={async () => {
                             if (!message.id) return; // Pastikan ada ID pesan
@@ -247,61 +247,61 @@ const ChatMessage = ({ message, user1, openDropdownId, setOpenDropdownId, setRep
                           }}
                         >
                           {message.penerima ? "Sembunyikan Pesan" : "Aktifkan Pesan"}
-                        </li>
+                        </li>*/}
 
 
                          <li 
-  className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer"
-  onClick={async () => {
-    if (!message?.id) return; // Pastikan ada ID pesan
-
-    const messageRef = databaseRef(database, `chatsBox1/${message.id}`);
-
-    try {
-      const snapshot = await get(messageRef);
-
-      if (!snapshot.exists()) {
-        alert("Pesan tidak ditemukan.");
-        return;
-      }
-
-      const messageData = snapshot.val();
-      const isHidden = messageData.penerima === "-";
-
-      const confirmText = isHidden
-        ? "Pesan ini sudah disembunyikan. Aktifkan kembali untuk penerima?"
-        : "Apakah Anda yakin ingin menyembunyikan pesan ini dari penerima?";
-
-      const isConfirmed = window.confirm(confirmText);
-      if (!isConfirmed) {
-        alert("Aksi dibatalkan.");
-        return;
-      }
-
-      if (isHidden && messageData.logpenerima) {
-        // === AKTIFKAN KEMBALI ===
-        await update(messageRef, {
-          penerima: messageData.logpenerima,
-          logpenerima: "-"
-        });
-        alert("Pesan berhasil diaktifkan kembali.");
-      } else {
-        // === SEMBUNYIKAN PESAN ===
-        await update(messageRef, {
-          logpenerima: messageData.penerima,
-          penerima: "-"
-        });
-        alert("Pesan berhasil disembunyikan dari penerima.");
-      }
-
-    } catch (error) {
-      console.error("Error memperbarui pesan:", error);
-      alert("Terjadi kesalahan saat memperbarui pesan.");
-    }
-  }}
->
-  {message?.penerima ? "Sembunyikan Pesana" : "Aktifkan Pesana"}
-</li>
+                           className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer"
+                           onClick={async () => {
+                             if (!message?.id) return; // Pastikan ada ID pesan
+                         
+                             const messageRef = databaseRef(database, `chatsBox1/${message.id}`);
+                         
+                             try {
+                               const snapshot = await get(messageRef);
+                         
+                               if (!snapshot.exists()) {
+                                 alert("Pesan tidak ditemukan.");
+                                 return;
+                               }
+                         
+                               const messageData = snapshot.val();
+                               const isHidden = messageData.penerima === "-";
+                         
+                               const confirmText = isHidden
+                                 ? "Pesan ini sudah disembunyikan. Aktifkan kembali untuk penerima?"
+                                 : "Apakah Anda yakin ingin menyembunyikan pesan ini dari penerima?";
+                         
+                               const isConfirmed = window.confirm(confirmText);
+                               if (!isConfirmed) {
+                                 alert("Aksi dibatalkan.");
+                                 return;
+                               }
+                         
+                               if (isHidden && messageData.logpenerima) {
+                                 // === AKTIFKAN KEMBALI ===
+                                 await update(messageRef, {
+                                   penerima: messageData.logpenerima,
+                                   logpenerima: "-"
+                                 });
+                                 alert("Pesan berhasil diaktifkan kembali.");
+                               } else {
+                                 // === SEMBUNYIKAN PESAN ===
+                                 await update(messageRef, {
+                                   logpenerima: messageData.penerima,
+                                   penerima: "-"
+                                 });
+                                 alert("Pesan berhasil disembunyikan dari penerima.");
+                               }
+                         
+                             } catch (error) {
+                               console.error("Error memperbarui pesan:", error);
+                               alert("Terjadi kesalahan saat memperbarui pesan.");
+                             }
+                           }}
+                         >
+                           {message?.penerima ? "Sembunyikan Pesana" : "Aktifkan Pesana"}
+                         </li>
 
 
 
@@ -480,11 +480,10 @@ const ChatMessage = ({ message, user1, openDropdownId, setOpenDropdownId, setRep
                 )
               ))}
 
-              <small className={`block text-xs mt-1 flex ${isSender ? "justify-end" : "justify-start"} items-center`}>
+{/*<small className={`block text-xs mt-1 flex ${isSender ? "justify-end" : "justify-start"} items-center`}>
                 {!isSender && (
                   <>
                     {format(message.timestamp, "HH:mm:ss, dd-MM-yy")}
-                    {/* Check if updateTime exists and format it */}
                     {message.updateTime && (
                       <>
                       <br />
@@ -498,7 +497,6 @@ const ChatMessage = ({ message, user1, openDropdownId, setOpenDropdownId, setRep
                   <>
                     {format(message.timestamp, "HH:mm:ss, dd-MM-yy")}{" "}
                     {message.read ? <span className="text-green-600"> ✔✔</span> : <span> ✔</span>}
-                    {/* Check if updateTime exists and format it */}
                     {message.updateTime && (
                       <>
                       <br />
@@ -507,7 +505,41 @@ const ChatMessage = ({ message, user1, openDropdownId, setOpenDropdownId, setRep
                     )}
                   </>
                 )}
-              </small>
+              </small>*/}
+<small className={`block text-xs mt-1 flex ${isSender ? "justify-end" : "justify-start"} items-center`}>
+  {(message.penerima === null || message.penerima === "-") ? (
+    <span className="italic text-gray-400">Pesan disembunyikan dari penerima</span>
+  ) : (
+    <>
+      {!isSender && (
+        <>
+          {format(message.timestamp, "HH:mm:ss, dd-MM-yy")}
+          {message.updateTime && (
+            <>
+              <br />
+              (Edit {format(message.updateTime, "HH:mm:ss, dd-MM-yy")})
+            </>
+          )}
+        </>
+      )}
+
+      {isSender && (
+        <>
+          {format(message.timestamp, "HH:mm:ss, dd-MM-yy")}{" "}
+          {message.read ? <span className="text-green-600">✔✔</span> : <span>✔</span>}
+          {message.updateTime && (
+            <>
+              <br />
+              (Edit {format(message.updateTime, "HH:mm:ss, dd-MM-yy")})
+            </>
+          )}
+        </>
+      )}
+    </>
+  )}
+</small>
+
+               
 
             </div>
 
