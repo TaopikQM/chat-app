@@ -300,7 +300,9 @@ const ChatMessage = ({ message, user1, openDropdownId, setOpenDropdownId, setRep
                              }
                            }}
                          >
-                           {message?.penerima ? "Sembunyikan Pesana" : "Aktifkan Pesana"}
+                           // {message?.penerima ? "Sembunyikan Pesana" : "Aktifkan Pesana"}
+                            {(message?.penerima !== null && message?.penerima !== "-") ? "Sembunyikan Pesan" : "Aktifkan Pesan"}
+
                          </li>
 
 
@@ -506,38 +508,38 @@ const ChatMessage = ({ message, user1, openDropdownId, setOpenDropdownId, setRep
                   </>
                 )}
               </small>*/}
-<small className={`block text-xs mt-1 flex ${isSender ? "justify-end" : "justify-start"} items-center`}>
-  {(message.penerima === null || message.penerima === "-") ? (
-    <span className="italic text-gray-400">Pesan disembunyikan dari penerima</span>
-  ) : (
-    <>
-      {!isSender && (
-        <>
-          {format(message.timestamp, "HH:mm:ss, dd-MM-yy")}
-          {message.updateTime && (
-            <>
-              <br />
-              (Edit {format(message.updateTime, "HH:mm:ss, dd-MM-yy")})
-            </>
-          )}
-        </>
-      )}
-
-      {isSender && (
-        <>
-          {format(message.timestamp, "HH:mm:ss, dd-MM-yy")}{" "}
-          {message.read ? <span className="text-green-600">✔✔</span> : <span>✔</span>}
-          {message.updateTime && (
-            <>
-              <br />
-              (Edit {format(message.updateTime, "HH:mm:ss, dd-MM-yy")})
-            </>
-          )}
-        </>
-      )}
-    </>
-  )}
-</small>
+           <small className={`block text-xs mt-1 flex ${isSender ? "justify-end" : "justify-start"} items-center`}>
+             {(message.penerima === null || message.penerima === "-") ? (
+               <span className="italic text-gray-400">Pesan disembunyikan dari penerima</span>
+             ) : (
+               <>
+                 {!isSender && (
+                   <>
+                     {format(message.timestamp, "HH:mm:ss, dd-MM-yy")}
+                     {message.updateTime && (
+                       <>
+                         <br />
+                         (Edit {format(message.updateTime, "HH:mm:ss, dd-MM-yy")})
+                       </>
+                     )}
+                   </>
+                 )}
+           
+                 {isSender && (
+                   <>
+                     {format(message.timestamp, "HH:mm:ss, dd-MM-yy")}{" "}
+                     {message.read ? <span className="text-green-600">✔✔</span> : <span>✔</span>}
+                     {message.updateTime && (
+                       <>
+                         <br />
+                         (Edit {format(message.updateTime, "HH:mm:ss, dd-MM-yy")})
+                       </>
+                     )}
+                   </>
+                 )}
+               </>
+             )}
+           </small>
 
                
 
