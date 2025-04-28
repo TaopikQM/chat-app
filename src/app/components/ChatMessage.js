@@ -300,7 +300,6 @@ const ChatMessage = ({ message, user1, openDropdownId, setOpenDropdownId, setRep
                              }
                            }}
                          >
-                           // {message?.penerima ? "Sembunyikan Pesana" : "Aktifkan Pesana"}
                             {(message?.penerima !== null && message?.penerima !== "-") ? "Sembunyikan Pesan" : "Aktifkan Pesan"}
 
                          </li>
