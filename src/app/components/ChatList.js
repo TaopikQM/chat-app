@@ -78,7 +78,6 @@ const [previousPage, setPreviousPage] = useState(1);
     (msg.pengirim === user2 && (msg.penerima === user1 || msg.penerima === null))
   );
 })
-.sort((a, b) => a.timestamp - b.timestamp);
 
         .sort((a, b) => a.timestamp - b.timestamp);
         
