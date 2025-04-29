@@ -72,7 +72,7 @@ const [previousPage, setPreviousPage] = useState(1);
   if (msg.status !== "ACTIVE") return false;
 
   // Kalau user sekarang adalah penerima dan msg.penerima === "-", maka sembunyikan
-  if (msg.penerima === "-" && msg.penerima === user2) {
+  if (msg.penerima === "-" && msg.penerima !== user1) {
     return false;
   }
 
