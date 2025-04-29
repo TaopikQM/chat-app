@@ -42,32 +42,44 @@ const [previousPage, setPreviousPage] = useState(1);
       if (data) {
         let messagesArray = Object.entries(data)
         .map(([id, msg]) => ({ id, ...msg })) // Menambahkan id ke objek pesan
-        .filter((msg) =>
-      // msg.status === "ACTIVE" && // Hanya ambil pesan yang aktif
-      //   (
-      //       (msg.pengirim === user1 && msg.penerima === user2) || 
-      //       (msg.pengirim === user2 && msg.penerima === user1)
-      //   ) &&
-      //   (
-      //       msg.onUSer === "ON" || // Kalau ON, tampil untuk semua
-      //       (msg.onUSer === "OFF" && msg.pengirim === user1) || // Kalau OFF, tampil hanya untuk pengirim
-      //       (msg.onUSer === "OFF" && msg.pengirim === user2)
-      //   )
-          msg.status === "ACTIVE" && 
-        //    // msg.onUser !== "OFF" && 
-        //   (msg.onUSer !== "OFF" || msg.pengirim === user1 || msg.pengirim === user2) && // Tetap tampilkan ke pengirim
+  //       .filter((msg) =>
+  //     // msg.status === "ACTIVE" && // Hanya ambil pesan yang aktif
+  //     //   (
+  //     //       (msg.pengirim === user1 && msg.penerima === user2) || 
+  //     //       (msg.pengirim === user2 && msg.penerima === user1)
+  //     //   ) &&
+  //     //   (
+  //     //       msg.onUSer === "ON" || // Kalau ON, tampil untuk semua
+  //     //       (msg.onUSer === "OFF" && msg.pengirim === user1) || // Kalau OFF, tampil hanya untuk pengirim
+  //     //       (msg.onUSer === "OFF" && msg.pengirim === user2)
+  //     //   )
+  //         msg.status === "ACTIVE" && 
+  //       //    // msg.onUser !== "OFF" && 
+  //       //   (msg.onUSer !== "OFF" || msg.pengirim === user1 || msg.pengirim === user2) && // Tetap tampilkan ke pengirim
          
-          (
-        //     (msg.pengirim === user1 && msg.penerima === user2) ||
-        //     (msg.pengirim === user2 && msg.penerima === user1))
+  //         (
+  //       //     (msg.pengirim === user1 && msg.penerima === user2) ||
+  //       //     (msg.pengirim === user2 && msg.penerima === user1))
 
-        // )
-    //         (msg.pengirim === user1 && (msg.penerima === user2 || msg.penerima === null)) ||
-    // (msg.pengirim === user2 && (msg.penerima === user1 || msg.penerima === null))
-            (msg.pengirim === user1 && (msg.penerima === user2 || msg.penerima === null || msg.penerima === "-")) ||
-    (msg.pengirim === user2 && (msg.penerima === user1 || msg.penerima === null || msg.penerima === "-"))
+  //       // )
+  //   //         (msg.pengirim === user1 && (msg.penerima === user2 || msg.penerima === null)) ||
+  //   // (msg.pengirim === user2 && (msg.penerima === user1 || msg.penerima === null))
+  //           (msg.pengirim === user1 && (msg.penerima === user2 || msg.penerima === null )) ||
+  //   (msg.pengirim === user2 && (msg.penerima === user1 || msg.penerima === null ))
  
-  ))
+  // ))
+        .filter((msg) => {
+  if (msg.status !== "ACTIVE") return false;
+
+  if (msg.penerima === "-") return false; // Pesan disembunyikan, skip
+  
+  return (
+    (msg.pengirim === user1 && (msg.penerima === user2 || msg.penerima === null)) ||
+    (msg.pengirim === user2 && (msg.penerima === user1 || msg.penerima === null))
+  );
+})
+.sort((a, b) => a.timestamp - b.timestamp);
+
         .sort((a, b) => a.timestamp - b.timestamp);
         
         // **Ambil metadata untuk setiap file dalam pesan**
