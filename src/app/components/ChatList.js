@@ -68,16 +68,21 @@ const [previousPage, setPreviousPage] = useState(1);
   //   (msg.pengirim === user2 && (msg.penerima === user1 || msg.penerima === null ))
  
   // ))
-        .filter((msg) => {
+      .filter((msg) => {
   if (msg.status !== "ACTIVE") return false;
 
-  if (msg.penerima === "-") return false; // Pesan disembunyikan, skip
-  
+  // Kalau user sekarang adalah penerima dan msg.penerima === "-", maka sembunyikan
+  if (msg.penerima === "-" && msg.penerima === currentUser) {
+    return false;
+  }
+
+  // Sisanya cek normal
   return (
-    (msg.pengirim === user1 && (msg.penerima === user2 || msg.penerima === null)) ||
-    (msg.pengirim === user2 && (msg.penerima === user1 || msg.penerima === null))
+    (msg.pengirim === user1 && (msg.penerima === user2 || msg.penerima === null || msg.penerima === "-")) ||
+    (msg.pengirim === user2 && (msg.penerima === user1 || msg.penerima === null || msg.penerima === "-"))
   );
 })
+
 
         .sort((a, b) => a.timestamp - b.timestamp);
         
