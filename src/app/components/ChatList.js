@@ -68,20 +68,38 @@ const [previousPage, setPreviousPage] = useState(1);
   //   (msg.pengirim === user2 && (msg.penerima === user1 || msg.penerima === null ))
  
   // ))
-      .filter((msg) => {
+//       .filter((msg) => {
+//   if (msg.status !== "ACTIVE") return false;
+
+//   // Kalau user sekarang adalah penerima dan msg.penerima === "-", maka sembunyikan
+//   if (msg.penerima === "-" && msg.penerima !== user1) {
+//     return false;
+//   }
+
+//   // Sisanya cek normal
+//   return (
+//     (msg.pengirim === user1 && (msg.penerima === user2 || msg.penerima === null || msg.penerima === "-")) ||
+//     (msg.pengirim === user2 && (msg.penerima === user1 || msg.penerima === null || msg.penerima === "-"))
+//   );
+// })
+          .filter((msg) => {
   if (msg.status !== "ACTIVE") return false;
 
-  // Kalau user sekarang adalah penerima dan msg.penerima === "-", maka sembunyikan
-  if (msg.penerima === "-" && msg.penerima !== user1) {
+  const isPengirim = msg.pengirim === user1;
+  const isPenerima = msg.penerima === user1;
+
+  // Kalau user ini sebagai penerima, DAN penerima = "-", sembunyikan
+  if (isPenerima && msg.penerima === "-") {
     return false;
   }
 
-  // Sisanya cek normal
+  // Sisanya normal: antara pengirim atau penerima adalah user ini
   return (
-    (msg.pengirim === user1 && (msg.penerima === user2 || msg.penerima === null || msg.penerima === "-")) ||
+    (isPengirim && (msg.penerima === user2 || msg.penerima === null || msg.penerima === "-")) ||
     (msg.pengirim === user2 && (msg.penerima === user1 || msg.penerima === null || msg.penerima === "-"))
   );
 })
+
 
 
         .sort((a, b) => a.timestamp - b.timestamp);
