@@ -411,15 +411,24 @@ const AdminChatTable = () => {
             </div>
           <br />
          <div>
-          <button
+                            {/* <button
             onClick={handleBulkDelete}
             className="bg-red-500 text-white px-4 py-2 rounded disabled:opacity-50"
             disabled={selectedIds.length === 0}
           >
             Hapus {selectedIds.length > 0 ? `(${selectedIds.length})` : ''}
-          </button>
-        </div>
-        <div>
+          </button>*/}
+                            {selectedIds.length > 0 && (
+  <button
+    onClick={handleBulkDelete}
+    className="bg-red-500 text-white px-4 py-2 rounded"
+  >
+    Hapus ({selectedIds.length})
+  </button>
+)}
+
+</div>
+{/*<div>
           Filter pengirim:
           {[...new Set(messages.map(msg => msg.pengirim))].map(p => (
             <button
@@ -430,7 +439,25 @@ const AdminChatTable = () => {
               {p}
             </button>
           ))}
-        </div>
+        </div>*/}
+<div className="flex items-center gap-2">
+  <label htmlFor="filterPengirim">Filter pengirim:</label>
+  <select
+    id="filterPengirim"
+    onChange={(e) => {
+      const value = e.target.value;
+      if (value !== "") selectByPengirim(value);
+    }}
+    className="border rounded px-2 py-1"
+  >
+    <option value="">Pilih Pengirim</option>
+    {[...new Set(messages.map(msg => msg.pengirim))].map(p => (
+      <option key={p} value={p}>
+        {p}
+      </option>
+    ))}
+  </select>
+</div>
           <br />
                             
           <table className="w-full text-sm bg-white border border-gray-300 rounded-lg">
