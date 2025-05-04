@@ -18,6 +18,29 @@ const AdminChatTable = () => {
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
   const [sortOrderName, setSortOrderName] = useState('asc');
+
+  const [selectedIds, setSelectedIds] = useState([]);
+
+  const isSelected = (id) => selectedIds.includes(id);
+
+  const toggleSelectAll = () => {
+    if (selectedIds.length === messages.length) {
+      setSelectedIds([]);
+    } else {
+      setSelectedIds(messages.map(msg => msg.id));
+    }
+  };
+
+  const toggleSelect = (id) => {
+    setSelectedIds(prev =>
+      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+    );
+  };
+
+  const selectByPengirim = (pengirim) => {
+    const filtered = messages.filter(msg => msg.pengirim === pengirim).map(msg => msg.id);
+    setSelectedIds(filtered);
+  };
   
 
   //ambil buat nampilin data
@@ -202,6 +225,10 @@ const AdminChatTable = () => {
 //   };
 // })();
 
+  const handleBulkDelete = () => {
+    selectedIds.forEach(id => handleDelete(id));
+    setSelectedIds([]); // Kosongkan setelah hapus
+  };
   //hapus data dan nampilin konfirmasi
   const handleDelete = async (Id) => {
     // const confirmation = window.confirm("Apakah Anda yakin ingin menghapus data ini?");
@@ -383,9 +410,39 @@ const AdminChatTable = () => {
               </div>
             </div>
           <br />
+         <div>
+          <button
+            onClick={handleBulkDelete}
+            className="bg-red-500 text-white px-4 py-2 rounded disabled:opacity-50"
+            disabled={selectedIds.length === 0}
+          >
+            Hapus {selectedIds.length > 0 ? `(${selectedIds.length})` : ''}
+          </button>
+        </div>
+        <div>
+          Filter pengirim:
+          {[...new Set(messages.map(msg => msg.pengirim))].map(p => (
+            <button
+              key={p}
+              onClick={() => selectByPengirim(p)}
+              className="ml-2 bg-blue-500 text-white px-2 py-1 rounded"
+            >
+              {p}
+            </button>
+          ))}
+        </div>
+          <br />
+                            
           <table className="w-full text-sm bg-white border border-gray-300 rounded-lg">
             <thead>
                 <tr className="bg-gray-200">
+                  <th>
+                    <input
+                      type="checkbox"
+                      onChange={toggleSelectAll}
+                      checked={selectedIds.length === messages.length}
+                    />
+                  </th>
                   <th className="border border-gray-300 px-4 py-2">No 
                    
                   </th>
@@ -410,7 +467,7 @@ const AdminChatTable = () => {
                   <th className="border border-gray-300 px-4 py-2">Waktu
                   </th>
 <th className="border border-gray-300 px-4 py-2">Status</th>
-                  <th className="border border-gray-300 px-4 py-2">OnUser</th>
+{/*<th className="border border-gray-300 px-4 py-2">OnUser</th>*/}
                   <th className="border border-gray-300 px-4 py-2">Read</th>
                   <th className="border border-gray-300 px-4 py-2">DiBaca</th>
 <th className="border border-gray-300 px-4 py-2">Action</th>
@@ -419,9 +476,17 @@ const AdminChatTable = () => {
             <tbody>
               {displayedData.length>0?
                 displayedData.map((msg, index) => (
-                <tr key={index} className="hover:bg-gray-100">
+                <tr key={index}  className={isSelected(msg.id) ? 'bg-yellow-100' : 'hover:bg-gray-100'}>
+                  <td>
+                    <input
+                      type="checkbox"
+                      checked={isSelected(msg.id)}
+                      onChange={() => toggleSelect(msg.id)}
+                    />
+                  </td>
                   <td className="border border-gray-300 px-4 py-2 text-center">{(currentPage - 1) * itemsPerPage + index + 1}</td>
-                  {/* <td className="border border-gray-300 px-4 py-2 text-center">{msg.pengirim}</td>
+                  {/* className="hover:bg-gray-100"
+                  <td className="border border-gray-300 px-4 py-2 text-center">{msg.pengirim}</td>
                   <td className="border border-gray-300 px-4 py-2 text-center">{msg.penerima}</td> */}
                   {/* <td className="border border-gray-300 px-4 py-2 text-center flex items-center justify-center">
                 <div className={`h-2.5 w-2.5 rounded-full me-2 ${users.find(user => user.user === msg.pengirim)?.isOnline ? 'bg-green-500' : 'bg-red-500'}`}></div>
@@ -484,7 +549,7 @@ const AdminChatTable = () => {
                           {msg.status}
                       </button>
                   </td>
-                  <td className="border border-gray-300 px-4 py-2 text-center">
+                        {/* <td className="border border-gray-300 px-4 py-2 text-center">
                       <button
                           onClick={() => handleToggleStatus(msg.id, msg.onUSer)}
                           className={`px-4 py-2 rounded-lg text-white ${
@@ -493,7 +558,7 @@ const AdminChatTable = () => {
                       >
                           {msg.onUSer}
                       </button>
-                  </td>
+                  </td>*/}
 
                   <td className="border border-gray-300 px-4 py-2">{msg.read ? (
                     <button
