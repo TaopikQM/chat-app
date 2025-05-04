@@ -446,7 +446,12 @@ const AdminChatTable = () => {
     id="filterPengirim"
     onChange={(e) => {
       const value = e.target.value;
-      if (value !== "") selectByPengirim(value);
+      if (value !== "") {selectByPengirim(value);
+                        }
+      else {
+        // Reset pilihan jika "Pilih Pengirim" dipilih lagi
+        setSelectedIds([]);
+      }
     }}
     className="border rounded px-2 py-1"
   >
