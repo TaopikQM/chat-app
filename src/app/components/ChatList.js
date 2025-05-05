@@ -281,7 +281,7 @@ const getPagination = () => {
                   <option value={1300}>2300</option>
               </select>
               <div className="mt-4 text-sm text-gray-500">
-                  Total Pesan: {filteredUsers.length}
+                  T.Pesan: {filteredUsers.length}
               </div>
             </div>
             <div className="relative ">
