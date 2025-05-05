@@ -75,7 +75,7 @@ const LAdminChatTable = () => {
         const sortedData = data
             ? Object.entries(data)
                   .map(([id, value]) => ({ id, ...value }))
-                  .sort((a, b) => b.timestamp - a.timestamp) // Urutkan dari terbaru ke lama
+                  .sort((a, b) => b.deleteTime - a.deleteTime) // Urutkan dari terbaru ke lama
             : [];
         setLogsChats(sortedData);
     });
