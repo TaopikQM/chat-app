@@ -94,7 +94,7 @@ const ChatPage = () => {
           {isTyping && <span>{chatWith} sedang mengetik...</span>}
         </div>
   <hr/>
-        </br></br>
+        <br/><br/>
       </div>
 
       {/* Bagian ChatList bisa di-scroll */}
@@ -102,7 +102,7 @@ const ChatPage = () => {
         <ChatList user1={currentUser} user2={chatWith} setReplyMessage={setReplyMessage} />
         
       </div>
- </br></br></br></br>
+ <br/><br/> <br/><br/>
 
       {/* Input tetap di bawah */}
 
