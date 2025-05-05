@@ -49,7 +49,7 @@ const LAdminChatTable = () => {
                   id: key,
                   ...data[key]
               }))
-              .sort((a, b) => b.timestamp - a.timestamp); // 🔹 Urutkan dari terbaru ke terlama
+              .sort((a, b) => b.deleteTime - a.deleteTime); // 🔹 Urutkan dari terbaru ke terlama
   
           setMessages(messages);
         // console.log(messages);
