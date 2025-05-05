@@ -11,6 +11,7 @@ const ChatMessage = ({ message, user1, openDropdownId, setOpenDropdownId, setRep
     const isSender = message.pengirim === user1;
 
     const isDropdownOpen = openDropdownId === message.id;
+ 
 
     
     
@@ -691,7 +692,7 @@ const ChatMessage = ({ message, user1, openDropdownId, setOpenDropdownId, setRep
           </div>
 
           {/* Modal Lightbox */}
-          <Modal isOpen={isOpen} onClick={closeModal}  className="fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center p-4 z-100" overlayClassName="ReactModal__Overlay ReactModal__Overlay--after-open z-50">
+          <Modal isOpen={isOpen} onClick={closeModal}  className="fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center p-4 z-[100]" overlayClassName="ReactModal__Overlay ReactModal__Overlay--after-open z-[100]">
             <div className=" inset-0 cursor-pointer "  onTouchStart={handleTouchStart}
               onTouchMove={handleTouchMove}
               onTouchEnd={handleTouchEnd} >
