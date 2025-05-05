@@ -128,11 +128,12 @@ const ChatPage = () => {
       </div>
         
       </div>
-
+  <br/><br/>
       {/* Bagian ChatList bisa di-scroll */}
       <div className="flex-1 overflow-y-auto mt-16">
         <ChatList user1={chatWith} user2={currentUser} setReplyMessage={setReplyMessage} />
       </div>
+  <br/><br/>  <br/><br/>
 
       
 
