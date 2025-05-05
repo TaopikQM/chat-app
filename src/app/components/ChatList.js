@@ -259,7 +259,7 @@ const getPagination = () => {
     <>
     
       <div onClick={closeDropdown}
-        className=" relative p-4 space-y-3 min-h-[400px] max-h-full rounded-lg overflow-auto"
+        className=" relative p-2 mt-4 space-y-3 min-h-[400px] max-h-full rounded-lg overflow-auto"
         ref={chatContainerRef}
         onScroll={handleScroll}
         >
