@@ -101,14 +101,14 @@ const ChatPage = () => {
   }, [chatWith]);
   return (
      <div className="max-w-full mx-auto h-screen flex flex-col bg-gray-100">
-      <div className="flex-none p-4 bg-white border-b border-gray-300 shadow-md">
+      <div className="flex-none p-4 bg-white border-b border-gray-300 shadow-md fixed top-0 left-0 w-full z-50">
         <h2 className="text-xl font-semibold text-center">Chat dengan {currentUser}</h2>
         <UserStatus userId={currentUser} />
         
       </div>
 
       {/* Bagian ChatList bisa di-scroll */}
-      <div className="flex-1 overflow-y-auto ">
+      <div className="flex-1 overflow-y-auto mt-16">
         <ChatList user1={chatWith} user2={currentUser} setReplyMessage={setReplyMessage} />
       </div>
 
