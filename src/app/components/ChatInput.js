@@ -374,7 +374,7 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage}) => {
         </label>
         <button
           onClick={recording ? stopRecording : startRecording}
-          className={`p-2 rounded-lg ${recording ? "bg-red-500" : "bg-blue-500"}`}
+          className={`p-2 rounded-full ${recording ? "bg-red-500" : "bg-blue-500"}`}
           disabled={uploading}
         >
           {recording ? "⏸️" : "🎙️"}
