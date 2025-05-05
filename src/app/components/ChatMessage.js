@@ -250,7 +250,7 @@ const ChatMessage = ({ message, user1, openDropdownId, setOpenDropdownId, setRep
                         </li>*/}
 
 
-                         <li 
+               {/* <li 
                            className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer"
                            onClick={async () => {
                              if (!message?.id) return; // Pastikan ada ID pesan
@@ -302,7 +302,7 @@ const ChatMessage = ({ message, user1, openDropdownId, setOpenDropdownId, setRep
                          >
                             {(message?.penerima !== null && message?.penerima !== "-") ? "Sembunyikan Pesan" : "Aktifkan Pesan"}
 
-                         </li>
+                         </li>*/}
 
 
 
