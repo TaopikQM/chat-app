@@ -157,7 +157,7 @@ const [gpsEnabled, setGpsEnabled] = useState(false);
   <hr/>
         
       </div>
-</br></br>
+  <br/><br/>
 
       {/* Bagian ChatList bisa di-scroll */}
       <div className="flex-1 overflow-y-auto ">
@@ -165,7 +165,8 @@ const [gpsEnabled, setGpsEnabled] = useState(false);
        
        
       </div>
- </br></br></br></br>
+  <br/><br/>
+  <br/><br/>
       
 
       {/* Input tetap di bawah */}
