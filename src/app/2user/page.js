@@ -148,7 +148,7 @@ const [gpsEnabled, setGpsEnabled] = useState(false);
   }, [chatWith]);
   return (
      <div className="max-w-full mx-auto h-screen flex flex-col bg-gray-100">
-      <div className="flex-none bg-white border-b border-gray-300 shadow-md  fixed top-0 left-0 w-full sticky">
+      <div className="flex-none bg-white border-b border-gray-300 shadow-md  fixed top-0 left-0 w-full z-50">
         <h2 className="text-xl font-semibold text-center">Chat dengan {currentUser}</h2>
         <UserStatus userId={currentUser} />
          <div className="text-center text-gray-500 text-sm my-2">
@@ -159,7 +159,7 @@ const [gpsEnabled, setGpsEnabled] = useState(false);
       </div>
 
       {/* Bagian ChatList bisa di-scroll */}
-      <div className="flex-1 overflow-y-auto ">
+      <div className="flex-1 overflow-y-auto mt-6">
         <ChatList user1={chatWith} user2={currentUser} setReplyMessage={setReplyMessage} />
        
         
