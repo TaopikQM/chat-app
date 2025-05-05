@@ -516,11 +516,11 @@ const ChatMessage = ({ message, user1, openDropdownId, setOpenDropdownId, setRep
                <>
                  {!isSender && (
                    <>
-                     {format(message.timestamp, "HH:mm:ss, dd-MM-yy")}
+                     {format(message.timestamp, "dd-MM-yy HH:mm:ss")}
                      {message.updateTime && (
                        <>
                          <br />
-                         (Edit {format(message.updateTime, "HH:mm:ss, dd-MM-yy")})
+                         (Edit {format(message.updateTime, "dd-MM-yy HH:mm:ss")})
                        </>
                      )}
                    </>
@@ -528,12 +528,12 @@ const ChatMessage = ({ message, user1, openDropdownId, setOpenDropdownId, setRep
            
                  {isSender && (
                    <>
-                     {format(message.timestamp, "HH:mm:ss, dd-MM-yy")}{" "}
+                     {format(message.timestamp, "dd-MM-yy HH:mm:ss")}{" "}
                      {message.read ? <span className="text-green-600">✔✔</span> : <span>✔</span>}
                      {message.updateTime && (
                        <>
                          <br />
-                         (Edit {format(message.updateTime, "HH:mm:ss, dd-MM-yy")})
+                         (Edit {format(message.updateTime, "dd-MM-yy HH:mm:ss")})
                        </>
                      )}
                    </>
