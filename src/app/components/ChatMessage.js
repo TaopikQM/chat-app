@@ -327,6 +327,7 @@ const ChatMessage = ({ message, user1, openDropdownId, setOpenDropdownId, setRep
                         >
                           Reply
                       </li>
+                           {Date.now() - message.timestamp <= 5 * 60 * 60 * 1000 && (
                       <li 
                         className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer"
                         onClick={async () => {
@@ -376,7 +377,7 @@ const ChatMessage = ({ message, user1, openDropdownId, setOpenDropdownId, setRep
                         }}
                       >
                         Update Pesan
-                      </li>
+                      </li>)}
 
                       
 
