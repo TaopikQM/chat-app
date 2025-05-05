@@ -427,7 +427,10 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage}) => {
                 Loading...
               </>
             ) : (
-              "Kirim"
+              <svg class="w-6 h-6 text-inherit" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v13m0-13 4 4m-4-4-4 4"/>
+              </svg>
+
             )}
           </button>
               </div>
@@ -438,7 +441,8 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage}) => {
 };
 
 export default ChatInput;
-// import { useState, useRef } from "react";
+// import { useState, useRef } from "react"; 
+              // "Kirim"
 // import { rtdb, storage } from "../config/firebase";
 // import { ref as databaseRef, push, update } from "firebase/database";
 // import { ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
