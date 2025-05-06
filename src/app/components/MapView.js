@@ -32,7 +32,7 @@ const MapView = () => {
   const [selectedDate, setSelectedDate] = useState("");
 
   useEffect(() => {
-    const messagesRef = ref(database, "chatsBox/");
+    const messagesRef = ref(database, "chatsBox1/");
 
     onValue(messagesRef, (snapshot) => {
       if (snapshot.exists()) {
