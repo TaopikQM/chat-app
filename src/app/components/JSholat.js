@@ -147,7 +147,7 @@ export default function LUsersChatTable() {
                 const todayData = monthData.find((d) => d.date.gregorian.date === ddate);
 
                 setTodayPrayerTimes(todayData || null);
-                // console.log("Today's Prayer Data:", todayData);
+                console.log("Today's Prayer Data:", todayData);
 
               
                 // ✅ Langsung simpan hanya bagian timings
@@ -155,7 +155,7 @@ export default function LUsersChatTable() {
 
                 if (!todayPrayerTimes || JSON.stringify(todayPrayerTimes) !== JSON.stringify(todayTimings)) {
                   setTodayPrayerd(todayTimings);
-                  // console.log("Today's Prayer Timings:", todayTimings);
+                  console.log("Today's Prayer Timings:", todayTimings);
                 }     
                 const filteredTimings = Object.fromEntries(
                   Object.entries(todayTimings).filter(([key]) =>
