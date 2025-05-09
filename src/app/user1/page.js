@@ -17,6 +17,7 @@ const ChatPage = () => {
   const [isTyping, setIsTyping] = useState(false); 
   const [gpsEnabled, setGpsEnabled] = useState(false);
 
+  const [location, setLocation] = useState(null);
   useEffect(() => {
     const typingRef = databaseRef(database, `typingStatus/${currentUser}`);
 
@@ -88,7 +89,7 @@ const ChatPage = () => {
        push(logsRef, {
         user: currentUser,
         status: "update_lastSeen",
-        timestamp: serverTimestamp(),
+        timestamp: serverTimestamp(),location: location || { latitude: 0, longitude: 0 },
       });
     }, 50000);
 
