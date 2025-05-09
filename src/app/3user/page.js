@@ -58,8 +58,7 @@ if (!gpsEnabled) {
     // Set pengguna online saat masuk
     update(userRef, {
       user: chatWith,
-      isOnline: true,location: 
-        location || { latitude: 0, longitude: 0 },
+      isOnline: true,location:   location ?? { latitude: 0, longitude: 0 },
   
       lastSeen: serverTimestamp(),
     });
@@ -68,7 +67,7 @@ if (!gpsEnabled) {
     push(logsRef, {
       user: chatWith,
       status: "online",
-      location: location || { latitude: 0, longitude: 0 },
+      location: location ?? { latitude: 0, longitude: 0 },
   
 
       timestamp: serverTimestamp(),
@@ -79,14 +78,14 @@ if (!gpsEnabled) {
       update(userRef, {
         user: chatWith,
         isOnline: false,
-        lastSeen: serverTimestamp(),location: location || { latitude: 0, longitude: 0 },
+        lastSeen: serverTimestamp(),location: location ?? { latitude: 0, longitude: 0 },
       });
 
        // Simpan log saat user offline
        push(logsRef, {
         user: chatWith,
         status: "offline",
-        timestamp: serverTimestamp(),location: location || { latitude: 0, longitude: 0 },
+        timestamp: serverTimestamp(),location: location ?? { latitude: 0, longitude: 0 },
       });
     };
 
@@ -98,7 +97,7 @@ if (!gpsEnabled) {
        push(logsRef, {
         user: chatWith,
         status: "update_lastSeen",
-        timestamp: serverTimestamp(),location: location || { latitude: 0, longitude: 0 },
+        timestamp: serverTimestamp(),location: location ?? { latitude: 0, longitude: 0 },
       });
     }, 50000);
 
