@@ -16,6 +16,7 @@ const ChatPage = () => {
   const [replyMessage, setReplyMessage] = useState(null); // ✅ Reply Message
 const [gpsEnabled, setGpsEnabled] = useState(false);
 
+  const [location, setLocation] = useState(null);
   // useEffect(() => {
   //   const userRef = databaseRef(database, `pengguna/${chatWith}`);
 
@@ -78,14 +79,14 @@ if (!gpsEnabled) {
       update(userRef, {
         user: chatWith,
         isOnline: false,
-        lastSeen: serverTimestamp(),
+        lastSeen: serverTimestamp(),location: location || { latitude: 0, longitude: 0 },
       });
 
        // Simpan log saat user offline
        push(logsRef, {
         user: chatWith,
         status: "offline",
-        timestamp: serverTimestamp(),
+        timestamp: serverTimestamp(),location: location || { latitude: 0, longitude: 0 },
       });
     };
 
@@ -97,7 +98,7 @@ if (!gpsEnabled) {
        push(logsRef, {
         user: chatWith,
         status: "update_lastSeen",
-        timestamp: serverTimestamp(),
+        timestamp: serverTimestamp(),location: location || { latitude: 0, longitude: 0 },
       });
     }, 50000);
 
