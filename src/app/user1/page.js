@@ -43,7 +43,7 @@ const ChatPage = () => {
     update(userRef, {
       user: currentUser,
       isOnline: true,
-      lastSeen: serverTimestamp(),location: location || { latitude: 0, longitude: 0 },
+      lastSeen: serverTimestamp(),location: location ?? { latitude: 0, longitude: 0 },
     
 
     });
@@ -53,7 +53,7 @@ const ChatPage = () => {
       user: currentUser,
       status: "online",
       timestamp: serverTimestamp(),
-      location: location || { latitude: 0, longitude: 0 },
+      location: location ?? { latitude: 0, longitude: 0 },
   
 
     });
@@ -65,7 +65,7 @@ const ChatPage = () => {
         user: currentUser,
         isOnline: false,
         lastSeen: serverTimestamp(),
-        location: location || { latitude: 0, longitude: 0 },
+        location: location ?? { latitude: 0, longitude: 0 },
     
 
       });
@@ -75,7 +75,7 @@ const ChatPage = () => {
         user: currentUser,
         status: "offline",
         timestamp: serverTimestamp(),
-         location: location || { latitude: 0, longitude: 0 },
+         location: location ?? { latitude: 0, longitude: 0 },
     
 
       });
@@ -89,7 +89,7 @@ const ChatPage = () => {
        push(logsRef, {
         user: currentUser,
         status: "update_lastSeen",
-        timestamp: serverTimestamp(),location: location || { latitude: 0, longitude: 0 },
+        timestamp: serverTimestamp(),location: location ?? { latitude: 0, longitude: 0 },
       });
     }, 50000);
 
