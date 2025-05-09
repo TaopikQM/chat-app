@@ -15,7 +15,7 @@ const ChatPage = () => {
   
   const [location, setLocation] = useState(null);
 const [gpsEnabled, setGpsEnabled] = useState(false);
-  const [location, setLocation] = useState(null);
+  
   const [replyMessage, setReplyMessage] = useState(null); // ✅ Reply Message
   const [isTyping, setIsTyping] = useState(false); 
   useEffect(() => {
