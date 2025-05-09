@@ -12,6 +12,8 @@ import { ref as databaseRef, push, update,set ,onValue,serverTimestamp } from "f
 const ChatPage = () => {
   const [currentUser] = useState("user1"); // Gantilah dengan ID pengguna yang sesuai
   const [chatWith] = useState("user2"); // ID pengguna tujuan
+  
+  const [location, setLocation] = useState(null);
 const [gpsEnabled, setGpsEnabled] = useState(false);
   const [location, setLocation] = useState(null);
   const [replyMessage, setReplyMessage] = useState(null); // ✅ Reply Message
@@ -26,6 +28,7 @@ const [gpsEnabled, setGpsEnabled] = useState(false);
     });
 
   }, [chatWith]);
+  
   // useEffect(() => {
   //   const userRef = databaseRef(database, `pengguna/${chatWith}`);
 
