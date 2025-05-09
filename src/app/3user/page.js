@@ -14,6 +14,7 @@ const ChatPage = () => {
   const [chatWith] = useState("user4"); // ID pengguna tujuan
 
   const [replyMessage, setReplyMessage] = useState(null); // ✅ Reply Message
+const [gpsEnabled, setGpsEnabled] = useState(false);
 
   // useEffect(() => {
   //   const userRef = databaseRef(database, `pengguna/${chatWith}`);
@@ -49,11 +50,16 @@ const ChatPage = () => {
 
     const logsRef = databaseRef(database, `logs_pengguna/${chatWith}`);
     
-
+if (!gpsEnabled) {
+      alert("Anda harus mengaktifkan GPS untuk mengirim pesan!");
+      return;
+}
     // Set pengguna online saat masuk
     update(userRef, {
       user: chatWith,
-      isOnline: true,
+      isOnline: true,location: 
+        location || { latitude: 0, longitude: 0 },
+  
       lastSeen: serverTimestamp(),
     });
 
@@ -61,6 +67,9 @@ const ChatPage = () => {
     push(logsRef, {
       user: chatWith,
       status: "online",
+      location: location || { latitude: 0, longitude: 0 },
+  
+
       timestamp: serverTimestamp(),
     });
 
@@ -99,6 +108,31 @@ const ChatPage = () => {
       handleDisconnect(); // Jika komponen di-unmount
     };
   }, [chatWith]);
+  useEffect(() => {
+    // getIPInfo();
+    getLocation();
+  }, []);
+  const getLocation = () => {
+    if (!navigator.geolocation) {
+      alert("Geolocation tidak didukung di browser ini.");
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setLocation({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+        });
+        setGpsEnabled(true);
+      },
+      (error) => {
+        console.error("Error mengambil lokasi:", error);
+        alert("Mohon aktifkan GPS untuk mengirim pesan.");
+        setGpsEnabled(false);
+      }
+    );
+  };
   return (
      <div className="max-w-full mx-auto h-screen flex flex-col bg-gray-100">
       <div className="flex-none p-4 bg-white border-b border-gray-300 shadow-md fixed top-0 left-0 w-full z-50">
