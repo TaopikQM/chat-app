@@ -15,6 +15,8 @@ const ChatPage = () => {
   
   const [replyMessage, setReplyMessage] = useState(null); // ✅ Reply Message
   const [isTyping, setIsTyping] = useState(false); 
+  const [gpsEnabled, setGpsEnabled] = useState(false);
+
   useEffect(() => {
     const typingRef = databaseRef(database, `typingStatus/${currentUser}`);
 
@@ -32,12 +34,17 @@ const ChatPage = () => {
 
     const logsRef = databaseRef(database, `logs_pengguna/${currentUser}`);
     
- 
+ if (!gpsEnabled) {
+      alert("Anda harus mengaktifkan GPS untuk mengirim pesan!");
+      return;
+ }
     // Set pengguna online saat masuk
     update(userRef, {
       user: currentUser,
       isOnline: true,
-      lastSeen: serverTimestamp(),
+      lastSeen: serverTimestamp(),location: location || { latitude: 0, longitude: 0 },
+    
+
     });
 
     // Simpan log saat user online
@@ -45,6 +52,9 @@ const ChatPage = () => {
       user: currentUser,
       status: "online",
       timestamp: serverTimestamp(),
+      location: location || { latitude: 0, longitude: 0 },
+  
+
     });
 
 
@@ -54,6 +64,9 @@ const ChatPage = () => {
         user: currentUser,
         isOnline: false,
         lastSeen: serverTimestamp(),
+        location: location || { latitude: 0, longitude: 0 },
+    
+
       });
 
        // Simpan log saat user offline
@@ -61,6 +74,9 @@ const ChatPage = () => {
         user: currentUser,
         status: "offline",
         timestamp: serverTimestamp(),
+         location: location || { latitude: 0, longitude: 0 },
+    
+
       });
     };
 
@@ -84,6 +100,30 @@ const ChatPage = () => {
      
     };
   }, [currentUser]);
+  useEffect(() => {
+    // getIPInfo();
+    getLocation();
+  }, []);const getLocation = () => {
+    if (!navigator.geolocation) {
+      alert("Geolocation tidak didukung di browser ini.");
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setLocation({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+        });
+        setGpsEnabled(true);
+      },
+      (error) => {
+        console.error("Error mengambil lokasi:", error);
+        alert("Mohon aktifkan GPS untuk mengirim pesan.");
+        setGpsEnabled(false);
+      }
+    );
+  };
 
   return (
      <div className="max-w-full mx-auto h-screen flex flex-col bg-gray-100">
