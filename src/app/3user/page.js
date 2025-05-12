@@ -46,69 +46,7 @@ const [gpsEnabled, setGpsEnabled] = useState(false);
   //     handleDisconnect(); // Jika komponen di-unmount
   //   };
   // }, [chatWith]);  
- useEffect(() => {
-    const userRef = databaseRef(database, `pengguna/${chatWith}`);
-
-    const logsRef = databaseRef(database, `logs_pengguna/${chatWith}`);
-    
-if (!gpsEnabled) {
-      alert("Anda harus mengaktifkan GPS untuk mengirim pesan!");
-      return;
-}
-    // Set pengguna online saat masuk
-    update(userRef, {
-      user: chatWith,
-      isOnline: true,location:   location ?? { latitude: 0, longitude: 0 },
-  
-      lastSeen: serverTimestamp(),
-    });
-
-    // Simpan log saat user online
-    push(logsRef, {
-      user: chatWith,
-      status: "online",
-      location: location ?? { latitude: 0, longitude: 0 },
-  
-
-      timestamp: serverTimestamp(),
-    });
-
-    // Set pengguna offline saat keluar
-    const handleDisconnect = () => {
-      update(userRef, {
-        user: chatWith,
-        isOnline: false,
-        lastSeen: serverTimestamp(),location: location ?? { latitude: 0, longitude: 0 },
-      });
-
-       // Simpan log saat user offline
-       push(logsRef, {
-        user: chatWith,
-        status: "offline",
-        timestamp: serverTimestamp(),location: location ?? { latitude: 0, longitude: 0 },
-      });
-    };
-
-    // Update setiap 20 detik
-    const interval = setInterval(() => {
-      update(userRef, { lastSeen: serverTimestamp() });
-
-       // Simpan log waktu terakhir dilihat
-       push(logsRef, {
-        user: chatWith,
-        status: "update_lastSeen",
-        timestamp: serverTimestamp(),location: location ?? { latitude: 0, longitude: 0 },
-      });
-    }, 50000);
-
-    window.addEventListener("beforeunload", handleDisconnect);
-    return () => {
-      clearInterval(interval);
-      window.removeEventListener("beforeunload", handleDisconnect);
-      handleDisconnect(); // Jika komponen di-unmount
-    };
-  }, [chatWith]);
-  useEffect(() => {
+   useEffect(() => {
     // getIPInfo();
     getLocation();
   }, []);
@@ -133,6 +71,72 @@ if (!gpsEnabled) {
       }
     );
   };
+ useEffect(() => {
+   
+  if (!location || !gpsEnabled) return;
+    const userRef = databaseRef(database, `pengguna/${chatWith}`);
+
+    const logsRef = databaseRef(database, `logs_pengguna/${chatWith}`);
+    
+// if (!gpsEnabled) {
+//       alert("Anda harus mengaktifkan GPS untuk mengirim pesan!");
+//       return;
+// }
+    // Set pengguna online saat masuk
+    update(userRef, {
+      user: chatWith,
+      isOnline: true,
+      location:   location ,
+  
+      lastSeen: serverTimestamp(),
+    });
+
+    // Simpan log saat user online
+    push(logsRef, {
+      user: chatWith,
+      status: "online",
+      location: location,
+  
+
+      timestamp: serverTimestamp(),
+    });
+
+    // Set pengguna offline saat keluar
+    const handleDisconnect = () => {
+      update(userRef, {
+        user: chatWith,
+        isOnline: false,
+        lastSeen: serverTimestamp(),location: location,
+      });
+
+       // Simpan log saat user offline
+       push(logsRef, {
+        user: chatWith,
+        status: "offline",
+        timestamp: serverTimestamp(),location: location,
+      });
+    };
+
+    // Update setiap 20 detik
+    const interval = setInterval(() => {
+      update(userRef, { lastSeen: serverTimestamp() });
+
+       // Simpan log waktu terakhir dilihat
+       push(logsRef, {
+        user: chatWith,
+        status: "update_lastSeen",
+        timestamp: serverTimestamp(),location: location,
+      });
+    }, 50000);
+
+    window.addEventListener("beforeunload", handleDisconnect);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener("beforeunload", handleDisconnect);
+      handleDisconnect(); // Jika komponen di-unmount
+    };
+  }, [chatWith]);
+ 
   return (
      <div className="max-w-full mx-auto h-screen flex flex-col bg-gray-100">
       <div className="flex-none p-4 bg-white border-b border-gray-300 shadow-md fixed top-0 left-0 w-full z-50">
