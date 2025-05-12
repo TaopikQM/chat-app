@@ -212,7 +212,7 @@ const filteredData = users.filter(item =>
                 <td className="border px-4 py-2">
                                 {new Date(msg.lastSeen).toLocaleString()}
                             </td>
-                  <td className="border border-gray-300 px-4 py-2 text-center">{msg.location}</td> 
+                  <td className="border border-gray-300 px-4 py-2 text-center">{msg.location.latitide},{msg.location.longitude)</td> 
                   {/* <td className="border border-gray-300 px-4 py-2 text-center">{msg.timestamp && format(msg.timestamp, "dd/MM/yyyy HH:mm:ss")}</td> */}
                   
                   
