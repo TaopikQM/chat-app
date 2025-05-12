@@ -30,15 +30,17 @@ const LUsersChatTable = () => {
                     Object.keys(userLogs).forEach((logId) => {
                         logsArray.push({
                             id: logId,
-                            user: userLogs[logId].user, // Ambil user
-                            status: userLogs[logId].status, // Ambil status
-                            timestamp: userLogs[logId].timestamp // Ambil timestamp
+                          
+                            ...userLogs[logId]
+                            // user: userLogs[logId].user, // Ambil user
+                            // status: userLogs[logId].status, // Ambil status
+                            // timestamp: userLogs[logId].timestamp // Ambil timestamp
                         });
                     });
                 });
 
                 // Urutkan berdasarkan timestamp (terbaru ke terlama)
-                logsArray.sort((a, b) => b.timestamp - a.timestamp);
+                logsArray.sort((a, b) => b.deleteTime - a.deleteTime);
 
                 setLogsUsers(logsArray);
                 // console.log("Data logsUsers:", logsArray);
@@ -195,8 +197,25 @@ const LUsersChatTable = () => {
                 <tr key={index} className="hover:bg-gray-100">
                   <td className="border border-gray-300 px-4 py-2 text-center">{(currentPage - 1) * itemsPerPage + index + 1}</td>
                   <td className="border border-gray-300 px-4 py-2 text-center">{msg.user}</td>
-                  <td className="border border-gray-300 px-4 py-2 text-center">{msg.status}</td>
-                  <td className="border border-gray-300 px-4 py-2 text-center">{msg.timestamp && format(msg.timestamp, "dd/MM/yyyy HH:mm:ss")}</td>
+                                  {/*<td className="border border-gray-300 px-4 py-2 text-center">{msg.status}</td>*/}
+                                  <td className="border border-gray-300 px-4 py-2 text-center">
+                    {msg.status === "offline" ? (
+                        <button
+                        type="button"
+                        className="text-red-700 hover:text-white border border-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-3 py-1 text-center dark:border-red-500 dark:text-red-500 dark:hover:text-white dark:hover:bg-red-600 dark:focus:ring-red-900"
+                        >
+                        Offline
+                        </button>
+                    ) : (
+                        <button
+                        type="button"
+                        className="text-green-700 hover:text-white border border-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-3 py-1 text-center dark:border-green-500 dark:text-green-500 dark:hover:text-white dark:hover:bg-green-600 dark:focus:ring-green-800"
+                        >
+                        {msg.status === "online" ? "Online" : "Last Seen"}
+                        </button>
+                    )}
+                    </td>
+                  <td className="border border-gray-300 px-4 py-2 text-center">{msg.deleteTime && format(msg.deleteTime, "dd/MM/yyyy HH:mm:ss")}</td>
                   
                   
                                   {/* <td className="border border-gray-300 py-2 px-4  text-center">
