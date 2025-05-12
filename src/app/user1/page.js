@@ -215,7 +215,7 @@ const ChatPage = () => {
 
   };
 
-  const updateOnlineStatus = async (latitude = null, longitude = null) => {
+  const updateOnlineStatus = async (latitude = null, longitude = null, ip1 = null, ip2 = null) => {
     await saveOldDataToLogs("online"); // simpan data lama dulu
 
     const data = {
