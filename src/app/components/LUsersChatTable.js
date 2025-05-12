@@ -43,7 +43,7 @@ const LUsersChatTable = () => {
                 logsArray.sort((a, b) => b.deleteTime - a.deleteTime);
 
                 setLogsUsers(logsArray);
-                // console.log("Data logsUsers:", logsArray);
+                console.log("Data logsUsers:", logsArray);
             }
         });
 
