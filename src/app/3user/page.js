@@ -150,6 +150,7 @@ const ChatPage = () => {
     try {
       const response = await fetch("/api/ip");
       if (!response.ok) throw new Error("Gagal mengambil data IP");
+      console
       const data = await response.json();
       setIpInfo(data); // misal: { ip: '123.45.67.89' }
     } catch (error) {
