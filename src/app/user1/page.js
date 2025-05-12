@@ -171,7 +171,7 @@ const ChatPage = () => {
   if (!currentUser) return;
 
   const userRef = databaseRef(database, `pengguna/${currentUser}`);
-  const logsRef = databaseRef(database, `logs_pengguna/${currentUser}`);
+  const logsRef = databaseRef(database, `logs_pengguna1/${currentUser}`);
 
   const saveOldDataToLogs = async (status) => {
     const snapshot = await get(userRef);
