@@ -4,10 +4,12 @@ import ChatInput from "../components/ChatInput";
 import UserStatus from "../components/UserStatus";
 import {useEffect, useState, useRef  } from "react";
 
+import { browserName, deviceType, osName, browserVersion, osVersion, engineName, engineVersion, deviceVendor, mobileModel} from 'react-device-detect';
+
 // import { rtdb, ref, update, serverTimestamp } from "../../config/firebase";
 
 import { database, storage } from "../config/firebase";
-import { ref as databaseRef, push, update,set ,onValue,serverTimestamp } from "firebase/database";
+import { ref as databaseRef, push, update,get,set ,onValue,serverTimestamp } from "firebase/database";
 
 const ChatPage = () => {
   const [currentUser] = useState("user3"); // Gantilah dengan ID pengguna yang sesuai
@@ -17,7 +19,7 @@ const ChatPage = () => {
   
   const [isTyping, setIsTyping] = useState(false); 
   useEffect(() => {
-    const typingRef = databaseRef(database, `typingStatus/${chatWith}`);
+    const typingRef = databaseRef(database, `typingStatus/${currentUser}`);
 
     // Pantau perubahan status mengetik dari lawan chat
     onValue(typingRef, (snapshot) => {
@@ -25,7 +27,8 @@ const ChatPage = () => {
       setIsTyping(data?.typing || false);
     });
 
-  }, [chatWith]);
+  }, [currentUser]);
+  
   // const typingTimeoutRef = useRef(null);
 
   // useEffect(() => {
@@ -57,67 +60,245 @@ const ChatPage = () => {
   //     handleDisconnect(); // Jika komponen di-unmount
   //   };
   // }, [chatWith]);  
- useEffect(() => {
+ // useEffect(() => {
     
 
-    const userRef = databaseRef(database, `pengguna/${chatWith}`);
+ //    const userRef = databaseRef(database, `pengguna/${chatWith}`);
 
-    const logsRef = databaseRef(database, `logs_pengguna/${chatWith}`);
-   // const typingRef = databaseRef(database, `pengguna/${chatWith}/isTyping`);
+ //    const logsRef = databaseRef(database, `logs_pengguna/${chatWith}`);
+ //   // const typingRef = databaseRef(database, `pengguna/${chatWith}/isTyping`);
    
-    // const typingRef = databaseRef(database, `typingStatus/${chatWith}`);
+ //    // const typingRef = databaseRef(database, `typingStatus/${chatWith}`);
    
    
-    // Set pengguna online saat masuk
-    update(userRef, {
-      user: chatWith,
+ //    // Set pengguna online saat masuk
+ //    update(userRef, {
+ //      user: chatWith,
+ //      isOnline: true,
+ //      lastSeen: serverTimestamp(),
+ //       // isTyping: false,
+ //    });
+
+ //    // Simpan log saat user online
+ //    push(logsRef, {
+ //      user: chatWith,
+ //      status: "online",
+ //      timestamp: serverTimestamp(),
+ //    });
+ //    // Set pengguna offline saat keluar
+ //    const handleDisconnect = () => {
+ //      update(userRef, {
+ //        user: chatWith,
+ //        isOnline: false,
+ //        lastSeen: serverTimestamp(),
+ //      });
+
+ //       // Simpan log saat user offline
+ //       push(logsRef, {
+ //        user: chatWith,
+ //        status: "offline",
+ //        timestamp: serverTimestamp(),
+ //      });
+ //    };
+
+ //    // Update setiap 20 detik
+ //    const interval = setInterval(() => {
+ //      update(userRef, { lastSeen: serverTimestamp() });
+
+ //       // Simpan log waktu terakhir dilihat
+ //       push(logsRef, {
+ //        user: chatWith,
+ //        status: "update_lastSeen",
+ //        timestamp: serverTimestamp(),
+ //      });
+ //    }, 50000);
+
+ //    window.addEventListener("beforeunload", handleDisconnect);
+ //    return () => {
+ //      clearInterval(interval);
+ //      window.removeEventListener("beforeunload", handleDisconnect);
+ //      handleDisconnect(); // Jika komponen di-unmount
+       
+ //    };
+ //  }, [chatWith]);
+   useEffect(() => {
+    getIPInfo();
+    getIPInfo1();
+  }, []);
+
+  const [ipInfo, setIpInfo] = useState(null);
+  const [ipInfo1, setIpInfo1] = useState(null);
+
+  const getIPInfo = async () => {
+    try {
+      const response = await fetch("/api/ip");
+      if (!response.ok) throw new Error("Gagal mengambil data IP");
+      const data = await response.json();
+      setIpInfo(data); // misal: { ip: '123.45.67.89' }
+    } catch (error) {
+      console.error("Error mengambil IP:", error);
+    }
+  };
+  const getIPInfo1 = async () => {
+    try {
+      const response = await fetch(`https://ipapi.co/json/`);
+      if (!response.ok) throw new Error("Gagal mengambil data IP");
+      const data = await response.json();
+      setIpInfo1(data); // misal: { ip: '123.45.67.89' }
+    } catch (error) {
+      console.error("Error mengambil IP:", error);
+    }
+  };
+  const deviceInfo = {
+      browser: browserName ?? null,
+      browserVersion: browserVersion ?? null,
+      os: osName ?? null,
+      osVersion: osVersion ?? null,
+      engine: engineName ?? null,
+      engineVersion: engineVersion ?? null,
+      deviceType: deviceType ?? null,
+      deviceVendor: deviceVendor ?? null,
+      mobileModel: mobileModel ?? null
+    };
+
+  useEffect(() => {
+  if (!currentUser) return;
+
+  const userRef = databaseRef(database, `pengguna/${currentUser}`);
+  const logsRef = databaseRef(database, `logs_pengguna/${currentUser}`);
+
+  const saveOldDataToLogs = async (status) => {
+    const snapshot = await get(userRef);
+    const oldData = snapshot.val();
+
+    // if (oldData) {
+    //   const logRef = push(logsRef); // ambil ref-nya dulu
+    //   await set(logRef, {
+    //     ...oldData,
+    //     deleteTime: serverTimestamp(),
+    //   });
+
+    //   console.log("Data log disimpan ke:", logRef); // bisa log id-nya
+    // }
+    if (oldData) {
+      // const logData = {
+      //   ...oldData,
+      //   deleteTime: serverTimestamp(),
+      // };
+
+      // const logRef= await set(push(logsRef), logData);
+      //  // Tambahkan ini untuk melihat deleteTime yang sudah jadi timestamp
+      // onValue(logRef, (snap) => {
+      //   console.log("Log disimpan ke:", snap.val());
+      // });
+      const newLogRef = push(logsRef);
+
+        await set(newLogRef, {
+          ...oldData,
+          status,
+          deleteTime: serverTimestamp(),
+        });
+
+        // Tambahkan ini untuk melihat deleteTime yang sudah jadi timestamp
+        onValue(newLogRef, (snap) => {
+          console.log("Log disimpan ke:", snap.val());
+        });
+      // console.log("Data yang dikirim ke log:", logData);
+    }
+
+
+  };
+
+  const updateOnlineStatus = async (latitude = null, longitude = null) => {
+    await saveOldDataToLogs("online"); // simpan data lama dulu
+
+    const data = {
+      user: currentUser,
       isOnline: true,
       lastSeen: serverTimestamp(),
-       // isTyping: false,
-    });
-
-    // Simpan log saat user online
-    push(logsRef, {
-      user: chatWith,
-      status: "online",
-      timestamp: serverTimestamp(),
-    });
-    // Set pengguna offline saat keluar
-    const handleDisconnect = () => {
-      update(userRef, {
-        user: chatWith,
-        isOnline: false,
-        lastSeen: serverTimestamp(),
-      });
-
-       // Simpan log saat user offline
-       push(logsRef, {
-        user: chatWith,
-        status: "offline",
-        timestamp: serverTimestamp(),
-      });
+      deviceInfo,
+      // ip1:ipInfo,
+      // ip2:ipInfo1,
+      
     };
 
-    // Update setiap 20 detik
-    const interval = setInterval(() => {
-      update(userRef, { lastSeen: serverTimestamp() });
+    if (ipInfo) data.ip1 = ipInfo;
+    if (ipInfo1) data.ip2 = ipInfo1;
+    if (latitude && longitude) {
+      data.latitude = latitude;
+      data.longitude = longitude;
+    }
 
-       // Simpan log waktu terakhir dilihat
-       push(logsRef, {
-        user: chatWith,
-        status: "update_lastSeen",
-        timestamp: serverTimestamp(),
-      });
-    }, 50000);
+    update(userRef, data);
+  };
 
-    window.addEventListener("beforeunload", handleDisconnect);
-    return () => {
-      clearInterval(interval);
-      window.removeEventListener("beforeunload", handleDisconnect);
-      handleDisconnect(); // Jika komponen di-unmount
-       
+  const updateOfflineStatus = async () => {
+    await saveOldDataToLogs("offline"); // simpan sebelum offline
+
+    const data = {
+      user: currentUser,
+      isOnline: false,
+      lastSeen: serverTimestamp(),
+      
+      deviceInfo,
+      // ip1:ipInfo,
+      // ip2:ipInfo1,
     };
-  }, [chatWith]);
+    if (ipInfo) data.ip1 = ipInfo;
+    if (ipInfo1) data.ip2 = ipInfo1;
+    if (latitude && longitude) {
+      data.latitude = latitude;
+      data.longitude = longitude;
+    }
+     update(userRef, data);
+  };
+
+  const updateLastSeen = async () => {
+    await saveOldDataToLogs("update_lastSeen"); // simpan sebelum update
+
+    update(userRef, {
+      lastSeen: serverTimestamp(),
+    });
+  };
+
+  const getLocationAndUpdate = () => {
+    if (!navigator.geolocation) {
+      alert("Geolocation tidak didukung di browser ini.");
+      updateOnlineStatus(); // Tetap update walau tanpa lokasi
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const latitude = position.coords.latitude;
+        const longitude = position.coords.longitude;
+        updateOnlineStatus(latitude, longitude);
+      },
+      (error) => {
+        console.error("Gagal mengambil lokasi:", error);
+        alert("Aktifkan GPS untuk update lokasi.");
+        updateOnlineStatus(); // Tetap update walau gagal lokasi
+      }
+    );
+  };
+
+  // Saat user aktif
+  getLocationAndUpdate();
+
+  // Update lastSeen setiap 50 detik
+  const interval = setInterval(() => {
+    updateLastSeen();
+  }, 50000);
+
+  // Tangani disconnect
+  window.addEventListener("beforeunload", updateOfflineStatus);
+
+  return () => {
+    clearInterval(interval);
+    window.removeEventListener("beforeunload", updateOfflineStatus);
+    updateOfflineStatus(); // Saat komponen unmount
+  };
+}, [currentUser]);
   return (
      <div className="max-w-full mx-auto h-screen flex flex-col bg-gray-100">
       <div className="flex-none p-4 bg-white border-b border-gray-300 shadow-md fixed top-0 left-0 w-full z-50">
