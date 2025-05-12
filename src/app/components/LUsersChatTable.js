@@ -17,7 +17,7 @@ const LUsersChatTable = () => {
   const [sortOrderName, setSortOrderName] = useState('asc');
   
     useEffect(() => {
-        const logsRef = databaseRef(database, "logs_penggunaa"); // 🔹 Ambil semua log pengguna
+        const logsRef = databaseRef(database, "logs_pengguna1"); // 🔹 Ambil semua log pengguna
 
         const unsubscribe = onValue(logsRef, (snapshot) => {
             const data = snapshot.val();
