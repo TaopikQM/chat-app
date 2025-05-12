@@ -184,6 +184,7 @@ const filteredData = users.filter(item =>
                   </th>
                   <th className="border border-gray-300 px-4 py-2">Status</th>
                   <th className="border border-gray-300 px-4 py-2">Time Logs Online</th>
+                  <th className="border border-gray-300 px-4 py-2">Location</th>
 {/*<th className="border border-gray-300 px-4 py-2">Action</th>*/}
                 </tr>
             </thead>
@@ -211,7 +212,7 @@ const filteredData = users.filter(item =>
                 <td className="border px-4 py-2">
                                 {new Date(msg.lastSeen).toLocaleString()}
                             </td>
-                  {/* <td className="border border-gray-300 px-4 py-2 text-center">{msg.status}</td> */}
+                  <td className="border border-gray-300 px-4 py-2 text-center">{msg.location}</td> 
                   {/* <td className="border border-gray-300 px-4 py-2 text-center">{msg.timestamp && format(msg.timestamp, "dd/MM/yyyy HH:mm:ss")}</td> */}
                   
                   
