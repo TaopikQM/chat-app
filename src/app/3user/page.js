@@ -230,7 +230,7 @@ const ChatPage = () => {
     await saveOldDataToLogs("online"); // simpan data lama dulu
 
     const data = {
-      user: currentUser,
+      user: chatWith,
       isOnline: true,
       lastSeen: serverTimestamp(),
       deviceInfo,
@@ -253,7 +253,7 @@ const ChatPage = () => {
     await saveOldDataToLogs("offline"); // simpan sebelum offline
 
     const data = {
-      user: currentUser,
+      user: chatWith,
       isOnline: false,
       lastSeen: serverTimestamp(),
       
@@ -315,7 +315,7 @@ const ChatPage = () => {
     window.removeEventListener("beforeunload", updateOfflineStatus);
     updateOfflineStatus(); // Saat komponen unmount
   };
-}, [currentUser]);
+}, [chatWith]);
  
   return (
      <div className="max-w-full mx-auto h-screen flex flex-col bg-gray-100">
