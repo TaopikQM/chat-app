@@ -4,17 +4,20 @@ import ChatInput from "../components/ChatInput";
 import UserStatus from "../components/UserStatus";
 import {useEffect, useState, useRef  } from "react";
 
+import { browserName, deviceType, osName, browserVersion, osVersion, engineName, engineVersion, deviceVendor, mobileModel} from 'react-device-detect';
+
+
 // import { rtdb, ref, update, serverTimestamp } from "../../config/firebase";
 
 import { database, storage } from "../config/firebase";
-import { ref as databaseRef, push, update,set ,onValue,serverTimestamp } from "firebase/database";
+import { ref as databaseRef, push, update,get,set ,onValue,serverTimestamp } from "firebase/database";
 
 const ChatPage = () => {
   const [currentUser] = useState("user1"); // Gantilah dengan ID pengguna yang sesuai
   const [chatWith] = useState("user2"); // ID pengguna tujuan
   
-  const [location, setLocation] = useState(null);
-const [gpsEnabled, setGpsEnabled] = useState(false);
+//   const [location, setLocation] = useState(null);
+// const [gpsEnabled, setGpsEnabled] = useState(false);
   
   const [replyMessage, setReplyMessage] = useState(null); // ✅ Reply Message
   const [isTyping, setIsTyping] = useState(false); 
@@ -58,97 +61,276 @@ const [gpsEnabled, setGpsEnabled] = useState(false);
   //     handleDisconnect(); // Jika komponen di-unmount
   //   };
   // }, [chatWith]);  
-  useEffect(() => {
-    // getIPInfo();
-    getLocation();
+  
+ //  useEffect(() => {
+ //    // getIPInfo();
+ //    getLocation();
+ //  }, []);
+ //  const getLocation = () => {
+ //    if (!navigator.geolocation) {
+ //      alert("Geolocation tidak didukung di browser ini.");
+ //      return;
+ //    }
+
+ //    navigator.geolocation.getCurrentPosition(
+ //      (position) => {
+ //        setLocation({
+ //          latitude: position.coords.latitude,
+ //          longitude: position.coords.longitude,
+ //        });
+ //        setGpsEnabled(true);
+ //      },
+ //      (error) => {
+ //        console.error("Error mengambil lokasi:", error);
+ //        alert("Mohon aktifkan GPS untuk mengirim pesan.");
+ //        setGpsEnabled(false);
+ //      }
+ //    );
+ //  };
+ 
+ // useEffect(() => {
+   
+
+ //    const userRef = databaseRef(database, `pengguna/${chatWith}`);
+
+ //    const logsRef = databaseRef(database, `logs_pengguna/${chatWith}`);
+
+ //    // Set pengguna online saat masuk
+ //    update(userRef, {
+ //      user: chatWith,
+ //      isOnline: true,
+ //      lastSeen: serverTimestamp(),
+ //       location: location ?? { latitude: 0, longitude: 0 },
+    
+ //    });
+
+ //    // Simpan log saat user online
+ //    push(logsRef, {
+ //      user: chatWith,
+ //      status: "online",
+ //      timestamp: serverTimestamp(),
+ //       location: location ?? { latitude: 0, longitude: 0 },
+    
+ //    });
+
+   
+
+ //    // Set pengguna offline saat keluar
+ //    const handleDisconnect = () => {
+ //      update(userRef, {
+ //        user: chatWith,
+ //        isOnline: false,
+ //        lastSeen: serverTimestamp(),
+ //      });
+
+ //       // Simpan log saat user offline
+ //       push(logsRef, {
+ //        user: chatWith,
+ //        status: "offline",
+ //        timestamp: serverTimestamp(),
+ //         location: location ?? { latitude: 0, longitude: 0 },
+ //      });
+ //    };
+
+ //    // Update setiap 20 detik
+ //    const interval = setInterval(() => {
+ //      update(userRef, { lastSeen: serverTimestamp() });
+
+ //       // Simpan log waktu terakhir dilihat
+ //       push(logsRef, {
+ //        user: chatWith,
+ //        status: "update_lastSeen",
+ //        timestamp: serverTimestamp(),
+ //         location: location ?? { latitude: 0, longitude: 0 },
+ //      });
+ //    }, 50000);
+
+ //    window.addEventListener("beforeunload", handleDisconnect);
+ //    return () => {
+ //      clearInterval(interval);
+ //      window.removeEventListener("beforeunload", handleDisconnect);
+ //      handleDisconnect(); // Jika komponen di-unmount
+        
+ //    };
+ //  }, [chatWith]);
+   useEffect(() => {
+    getIPInfo();
+    getIPInfo1();
   }, []);
-  const getLocation = () => {
+
+  const [ipInfo, setIpInfo] = useState(null);
+  const [ipInfo1, setIpInfo1] = useState(null);
+
+  const getIPInfo = async () => {
+    try {
+      const response = await fetch("/api/ip");
+      if (!response.ok) throw new Error("Gagal mengambil data IP");
+      const data = await response.json();
+      setIpInfo(data); // misal: { ip: '123.45.67.89' }
+    } catch (error) {
+      console.error("Error mengambil IP:", error);
+    }
+  };
+  const getIPInfo1 = async () => {
+    try {
+      const response = await fetch(`https://ipapi.co/json/`);
+      if (!response.ok) throw new Error("Gagal mengambil data IP");
+      const data = await response.json();
+      setIpInfo1(data); // misal: { ip: '123.45.67.89' }
+    } catch (error) {
+      console.error("Error mengambil IP:", error);
+    }
+  };
+  const deviceInfo = {
+      browser: browserName ?? null,
+      browserVersion: browserVersion ?? null,
+      os: osName ?? null,
+      osVersion: osVersion ?? null,
+      engine: engineName ?? null,
+      engineVersion: engineVersion ?? null,
+      deviceType: deviceType ?? null,
+      deviceVendor: deviceVendor ?? null,
+      mobileModel: mobileModel ?? null
+    };
+
+  useEffect(() => {
+  if (!chatWith) return;
+
+  const userRef = databaseRef(database, `pengguna/${chatWith}`);
+  const logsRef = databaseRef(database, `logs_pengguna/${chatWith}`);
+
+  const saveOldDataToLogs = async (status) => {
+    const snapshot = await get(userRef);
+    const oldData = snapshot.val();
+
+    // if (oldData) {
+    //   const logRef = push(logsRef); // ambil ref-nya dulu
+    //   await set(logRef, {
+    //     ...oldData,
+    //     deleteTime: serverTimestamp(),
+    //   });
+
+    //   console.log("Data log disimpan ke:", logRef); // bisa log id-nya
+    // }
+    if (oldData) {
+      // const logData = {
+      //   ...oldData,
+      //   deleteTime: serverTimestamp(),
+      // };
+
+      // const logRef= await set(push(logsRef), logData);
+      //  // Tambahkan ini untuk melihat deleteTime yang sudah jadi timestamp
+      // onValue(logRef, (snap) => {
+      //   console.log("Log disimpan ke:", snap.val());
+      // });
+      const newLogRef = push(logsRef);
+
+        await set(newLogRef, {
+          ...oldData,
+          status,
+          deleteTime: serverTimestamp(),
+        });
+
+        // Tambahkan ini untuk melihat deleteTime yang sudah jadi timestamp
+        onValue(newLogRef, (snap) => {
+          console.log("Log disimpan ke:", snap.val());
+        });
+      // console.log("Data yang dikirim ke log:", logData);
+    }
+
+
+  };
+
+  const updateOnlineStatus = async (latitude = null, longitude = null) => {
+    await saveOldDataToLogs("online"); // simpan data lama dulu
+
+    const data = {
+      user: chatWith,
+      isOnline: true,
+      lastSeen: serverTimestamp(),
+      deviceInfo,
+      // ip1:ipInfo,
+      // ip2:ipInfo1,
+      
+    };
+
+    if (ipInfo) data.ip1 = ipInfo;
+    if (ipInfo1) data.ip2 = ipInfo1;
+    if (latitude && longitude) {
+      data.latitude = latitude;
+      data.longitude = longitude;
+    }
+
+    update(userRef, data);
+  };
+
+  const updateOfflineStatus = async () => {
+    await saveOldDataToLogs("offline"); // simpan sebelum offline
+
+    const data = {
+      user: chatWith,
+      isOnline: false,
+      lastSeen: serverTimestamp(),
+      
+      deviceInfo,
+      // ip1:ipInfo,
+      // ip2:ipInfo1,
+    };
+    if (ipInfo) data.ip1 = ipInfo;
+    if (ipInfo1) data.ip2 = ipInfo1;
+    if (latitude && longitude) {
+      data.latitude = latitude;
+      data.longitude = longitude;
+    }
+     update(userRef, data);
+  };
+
+  const updateLastSeen = async () => {
+    await saveOldDataToLogs("update_lastSeen"); // simpan sebelum update
+
+    update(userRef, {
+      lastSeen: serverTimestamp(),
+    });
+  };
+
+  const getLocationAndUpdate = () => {
     if (!navigator.geolocation) {
       alert("Geolocation tidak didukung di browser ini.");
+      updateOnlineStatus(); // Tetap update walau tanpa lokasi
       return;
     }
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        setLocation({
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-        });
-        setGpsEnabled(true);
+        const latitude = position.coords.latitude;
+        const longitude = position.coords.longitude;
+        updateOnlineStatus(latitude, longitude);
       },
       (error) => {
-        console.error("Error mengambil lokasi:", error);
-        alert("Mohon aktifkan GPS untuk mengirim pesan.");
-        setGpsEnabled(false);
+        console.error("Gagal mengambil lokasi:", error);
+        alert("Aktifkan GPS untuk update lokasi.");
+        updateOnlineStatus(); // Tetap update walau gagal lokasi
       }
     );
   };
- 
- useEffect(() => {
-   
 
-    const userRef = databaseRef(database, `pengguna/${chatWith}`);
+  // Saat user aktif
+  getLocationAndUpdate();
 
-    const logsRef = databaseRef(database, `logs_pengguna/${chatWith}`);
+  // Update lastSeen setiap 50 detik
+  const interval = setInterval(() => {
+    updateLastSeen();
+  }, 50000);
 
-    // Set pengguna online saat masuk
-    update(userRef, {
-      user: chatWith,
-      isOnline: true,
-      lastSeen: serverTimestamp(),
-       location: location ?? { latitude: 0, longitude: 0 },
-    
-    });
+  // Tangani disconnect
+  window.addEventListener("beforeunload", updateOfflineStatus);
 
-    // Simpan log saat user online
-    push(logsRef, {
-      user: chatWith,
-      status: "online",
-      timestamp: serverTimestamp(),
-       location: location ?? { latitude: 0, longitude: 0 },
-    
-    });
-
-   
-
-    // Set pengguna offline saat keluar
-    const handleDisconnect = () => {
-      update(userRef, {
-        user: chatWith,
-        isOnline: false,
-        lastSeen: serverTimestamp(),
-      });
-
-       // Simpan log saat user offline
-       push(logsRef, {
-        user: chatWith,
-        status: "offline",
-        timestamp: serverTimestamp(),
-         location: location ?? { latitude: 0, longitude: 0 },
-      });
-    };
-
-    // Update setiap 20 detik
-    const interval = setInterval(() => {
-      update(userRef, { lastSeen: serverTimestamp() });
-
-       // Simpan log waktu terakhir dilihat
-       push(logsRef, {
-        user: chatWith,
-        status: "update_lastSeen",
-        timestamp: serverTimestamp(),
-         location: location ?? { latitude: 0, longitude: 0 },
-      });
-    }, 50000);
-
-    window.addEventListener("beforeunload", handleDisconnect);
-    return () => {
-      clearInterval(interval);
-      window.removeEventListener("beforeunload", handleDisconnect);
-      handleDisconnect(); // Jika komponen di-unmount
-        
-    };
-  }, [chatWith]);
+  return () => {
+    clearInterval(interval);
+    window.removeEventListener("beforeunload", updateOfflineStatus);
+    updateOfflineStatus(); // Saat komponen unmount
+  };
+}, [chatWith]);
   return (
      <div className="max-w-full mx-auto h-screen flex flex-col bg-gray-100">
       <div className="flex-none bg-white border-b border-gray-300 shadow-md  fixed top-0 left-0 w-full z-50">
