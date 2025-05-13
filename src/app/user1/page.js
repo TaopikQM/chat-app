@@ -134,6 +134,8 @@ const ChatPage = () => {
 
   const [ipInfo, setIpInfo] = useState(null);
   const [ipInfo1, setIpInfo1] = useState(null);
+  
+const [ipReady, setIpReady] = useState(false); 
 
   const getIPInfo = async () => {
     try {
@@ -155,6 +157,13 @@ const ChatPage = () => {
       console.error("Error mengambil IP:", error);
     }
   };
+
+  // Tunggu sampai ipInfo dan ipInfo1 keduanya ada
+useEffect(() => {
+  if (ipInfo && ipInfo1) {
+    setIpReady(true); // trigger bahwa IP sudah siap
+  }
+}, [ipInfo, ipInfo1]);
   const deviceInfo = {
       browser: browserName ?? null,
       browserVersion: browserVersion ?? null,
@@ -168,7 +177,8 @@ const ChatPage = () => {
     };
 
   useEffect(() => {
-  if (!currentUser) return;
+  // if (!currentUser) return;
+     if (!currentUser || !ipReady) return;
 
   const userRef = databaseRef(database, `pengguna/${currentUser}`);
   const logsRef = databaseRef(database, `logs_pengguna1/${currentUser}`);
@@ -223,13 +233,13 @@ const ChatPage = () => {
       isOnline: true,
       lastSeen: serverTimestamp(),
       deviceInfo,
-      // ip1:ipInfo,
-      // ip2:ipInfo1,
+      ip1:ipInfo,
+      ip2:ipInfo1,
       
     };
 
-    if (ipInfo) data.ip1 = ipInfo;
-    if (ipInfo1) data.ip2 = ipInfo1;
+    // if (ipInfo) data.ip1 = ipInfo;
+    // if (ipInfo1) data.ip2 = ipInfo1;
     if (latitude && longitude) {
       data.latitude = latitude;
       data.longitude = longitude;
@@ -247,11 +257,11 @@ const ChatPage = () => {
       lastSeen: serverTimestamp(),
       
       deviceInfo,
-      // ip1:ipInfo,
-      // ip2:ipInfo1,
+      ip1:ipInfo,
+      ip2:ipInfo1,
     };
-    if (ipInfo) data.ip1 = ipInfo;
-    if (ipInfo1) data.ip2 = ipInfo1;
+    // if (ipInfo) data.ip1 = ipInfo;
+    // if (ipInfo1) data.ip2 = ipInfo1;
     if (latitude && longitude) {
       data.latitude = latitude;
       data.longitude = longitude;
@@ -304,7 +314,7 @@ const ChatPage = () => {
     window.removeEventListener("beforeunload", updateOfflineStatus);
     updateOfflineStatus(); // Saat komponen unmount
   };
-}, [currentUser]);
+}, [currentUser, ipReady]);
 
   return (
      <div className="max-w-full mx-auto h-screen flex flex-col bg-gray-100">
