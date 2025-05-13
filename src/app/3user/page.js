@@ -145,6 +145,8 @@ const ChatPage = () => {
 
   const [ipInfo, setIpInfo] = useState(null);
   const [ipInfo1, setIpInfo1] = useState(null);
+  
+const [ipReady, setIpReady] = useState(false); 
 
   const getIPInfo = async () => {
     try {
@@ -167,6 +169,12 @@ const ChatPage = () => {
       console.error("Error mengambil IP:", error);
     }
   };
+  // Tunggu sampai ipInfo dan ipInfo1 keduanya ada
+useEffect(() => {
+  if (ipInfo && ipInfo1) {
+    setIpReady(true); // trigger bahwa IP sudah siap
+  }
+}, [ipInfo, ipInfo1]);
   const deviceInfo = {
       browser: browserName ?? null,
       browserVersion: browserVersion ?? null,
@@ -240,8 +248,8 @@ const ChatPage = () => {
       
     };
 
-    if (ipInfo) data.ip1 = ipInfo;
-    if (ipInfo1) data.ip2 = ipInfo1;
+    // if (ipInfo) data.ip1 = ipInfo;
+    // if (ipInfo1) data.ip2 = ipInfo1;
     if (latitude && longitude) {
       data.latitude = latitude;
       data.longitude = longitude;
@@ -262,8 +270,8 @@ const ChatPage = () => {
       ip1:ipInfo,
       ip2:ipInfo1,
     };
-    if (ipInfo) data.ip1 = ipInfo;
-    if (ipInfo1) data.ip2 = ipInfo1;
+    // if (ipInfo) data.ip1 = ipInfo;
+    // if (ipInfo1) data.ip2 = ipInfo1;
     if (latitude && longitude) {
       data.latitude = latitude;
       data.longitude = longitude;
@@ -316,7 +324,7 @@ const ChatPage = () => {
     window.removeEventListener("beforeunload", updateOfflineStatus);
     updateOfflineStatus(); // Saat komponen unmount
   };
-}, [chatWith]);
+}, [chatWith, ipReady]);
  
   return (
      <div className="max-w-full mx-auto h-screen flex flex-col bg-gray-100">
