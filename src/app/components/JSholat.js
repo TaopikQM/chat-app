@@ -135,12 +135,40 @@ export default function LUsersChatTable() {
               );
               const tm = await response.json();
               const monthData = tm.data[hijriMonth];
+              function getJavaneseDay(dateString) {
+                // Konversi tanggal string ke Date object
+                const [day, month, year] = dateString.split('-').map(Number);
+                const date = new Date(year, month - 1, day);
+
+                // Referensi hari Jawa: 1 Muharram 1446 H = 7 Juli 2024 = Ahad Legi
+                const referenceDate = new Date(2024, 6, 7); // bulan 5 = Juni karena index 0
+
+                const pancawara = ["Legi", "Pahing", "Pon", "Wage", "Kliwon"];
+                const daysDiff = Math.floor((date - referenceDate) / (1000 * 60 * 60 * 24));
+                const index = (4+daysDiff % 5 + 5) % 5; // pastikan positif
+
+                return pancawara[index];
+              }
+              const updatedMonthData = monthData.map(item => {
+                const dateString = item.date.gregorian.date; // format "DD-MM-YYYY"
+                const javaneseDay = getJavaneseDay(dateString);
+                return {
+                  ...item,
+                  date: {
+                    ...item.date,
+                    javaneseDay
+                  }
+                };
+              });
+
+              console.log("bulan dengan hari jawa", updatedMonthData);
+              
 
               if (!prevMonthData || prevMonthData.length !== monthData.length || 
                 !prevMonthData.every((item, index) => item.date.gregorian.date === monthData[index].date.gregorian.date)) {
 
-                setPrayerTimes(monthData);
-                setPrevMonthData(monthData); // Simpan sebagai data sebelumnya
+                setPrayerTimes(updatedMonthData);
+                setPrevMonthData(updatedMonthData); // Simpan sebagai data sebelumnya
 
                 // Ambil data hari ini dari monthData
                 const ddate = `${day.toString().padStart(2, "0")}-${month.toString().padStart(2, "0")}-${year}`;
@@ -171,7 +199,7 @@ export default function LUsersChatTable() {
                 const tdate = `${tomorrow.getDate().toString().padStart(2, "0")}-${(tomorrow.getMonth() + 1).toString().padStart(2, "0")}-${tomorrow.getFullYear()}`;
 
                 // Cari data untuk besok di monthData
-                const tomorrowData = monthData.find((d) => d.date.gregorian.date === tdate);
+                const tomorrowData = updatedMonthData.find((d) => d.date.gregorian.date === tdate);
 
                 // Simpan ke state
                 setTomorrowPrayerTimes(tomorrowData || null);
@@ -633,7 +661,8 @@ export default function LUsersChatTable() {
             {todayPrayerTimes?.date?.hijri?.day} {todayPrayerTimes?.date?.hijri?.month?.en} {todayPrayerTimes?.date?.hijri?.year} H
           </p>
           <p className="text-center text-gray-500 mt-2">
-            {todayPrayerTimes?.date?.gregorian?.day} {todayPrayerTimes?.date?.gregorian?.month?.en} {todayPrayerTimes?.date?.gregorian?.year}
+            ({translateDayToIndo(todayPrayerTimes?.date?.gregorian?.weekday?.en)} {todayPrayerTimes?.date?.javaneseDay || "-"})
+              { }{todayPrayerTimes?.date?.gregorian?.day} {todayPrayerTimes?.date?.gregorian?.month?.en} {todayPrayerTimes?.date?.gregorian?.year}
           </p>
         </div>
         <div className="p-4 flex flex-wrap gap-2 justify-center bg-white bg-opacity-20 p-3 rounded-lg">
@@ -724,7 +753,8 @@ export default function LUsersChatTable() {
             {tomorrowPrayerdTimes?.date?.hijri?.day} {tomorrowPrayerdTimes?.date?.hijri?.month?.en} {tomorrowPrayerdTimes?.date?.hijri?.year} H
           </p>
           <p className="text-center text-gray-500 mt-2">
-            {tomorrowPrayerdTimes?.date?.gregorian?.day} {tomorrowPrayerdTimes?.date?.gregorian?.month?.en} {tomorrowPrayerdTimes?.date?.gregorian?.year}
+            ({translateDayToIndo(tomorrowPrayerdTimes?.date?.gregorian?.weekday?.en)} {tomorrowPrayerdTimes?.date?.javaneseDay || "-"})
+              { } {tomorrowPrayerdTimes?.date?.gregorian?.day} {tomorrowPrayerdTimes?.date?.gregorian?.month?.en} {tomorrowPrayerdTimes?.date?.gregorian?.year}
           </p>
         </div>
         <div className="p-4 flex flex-wrap gap-2 justify-center bg-white bg-opacity-20 p-3 rounded-lg">
@@ -822,9 +852,11 @@ export default function LUsersChatTable() {
 
                 return (
                   <tr key={index} className={`text-center ${isTodayRow ? "bg-yellow-200 font-bold" : ""}`}>
-                     <td className="border border-gray-300 p-2">{dayNameIndo}</td> 
+                     <td className="border border-gray-300 p-2">{dayNameIndo} <br/>{day?.date?.javaneseDay || "-"}</td> 
+                     <td className="border border-gray-300 p-2">{day?.date?.gregorian?.day || "-"} {day?.date?.gregorian?.month?.en || "-"} {day?.date?.gregorian?.year || "-"} M<br/> {day?.date?.hijri?.day || "-"} {day?.date?.hijri?.month?.en || "-"} {day?.date?.hijri?.year || "-"} H </td>
+                     {/*<td className="border border-gray-300 p-2">{dayNameIndo}</td> 
                      <td className="border border-gray-300 p-2">{day?.date?.gregorian?.date || "-"}</td>
-                    {/* {["Imsak", "Fajr", "Sunrise", "Dhuhr", "Asr", "Maghrib", "Isha", "Midnight"].map((key, idx) => (
+                     {["Imsak", "Fajr", "Sunrise", "Dhuhr", "Asr", "Maghrib", "Isha", "Midnight"].map((key, idx) => (
                      <td key={idx} className="border border-gray-300 p-2">{(day?.timings?.[key])}</td>
                     ))} */}
                     {["Imsak", "Fajr", "Sunrise", "Dhuhr", "Asr", "Maghrib", "Isha", "Midnight"].map((key, idx) => {
