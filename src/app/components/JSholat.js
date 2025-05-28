@@ -161,7 +161,7 @@ export default function LUsersChatTable() {
                 };
               });
 
-              console.log("bulan dengan hari jawa", updatedMonthData);
+              // console.log("bulan dengan hari jawa", updatedMonthData);
               
 
               if (!prevMonthData || prevMonthData.length !== monthData.length || 
@@ -175,7 +175,7 @@ export default function LUsersChatTable() {
                 const todayData = monthData.find((d) => d.date.gregorian.date === ddate);
 
                 setTodayPrayerTimes(todayData || null);
-                console.log("Today's Prayer Data:", todayData);
+                // console.log("Today's Prayer Data:", todayData);
 
               
                 // ✅ Langsung simpan hanya bagian timings
@@ -183,7 +183,7 @@ export default function LUsersChatTable() {
 
                 if (!todayPrayerTimes || JSON.stringify(todayPrayerTimes) !== JSON.stringify(todayTimings)) {
                   setTodayPrayerd(todayTimings);
-                  console.log("Today's Prayer Timings:", todayTimings);
+                  // console.log("Today's Prayer Timings:", todayTimings);
                 }     
                 const filteredTimings = Object.fromEntries(
                   Object.entries(todayTimings).filter(([key]) =>
@@ -467,8 +467,8 @@ export default function LUsersChatTable() {
     const now = new Date();
     const newHour = now.getHours();
     
-  const newMinute = now.getMinutes();
-  const totalMinutes = newHour * 60 + newMinute;
+    const newMinute = now.getMinutes();
+    const totalMinutes = newHour * 60 + newMinute;
     
     setIsRunning(true);
     setCountdown(12 * 60);
