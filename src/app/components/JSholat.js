@@ -162,7 +162,7 @@ export default function LUsersChatTable() {
                 };
               });
 
-              // console.log("bulan dengan hari jawa", updatedMonthData);
+              console.log("bulan dengan hari jawa", updatedMonthData);
               
 
               if (!prevMonthData || prevMonthData.length !== monthData.length || 
@@ -176,7 +176,7 @@ export default function LUsersChatTable() {
                 const todayData = monthData.find((d) => d.date.gregorian.date === ddate);
 
                 setTodayPrayerTimes(todayData || null);
-                // console.log("Today's Prayer Data:", todayData);
+                console.log("Today's Prayer Data:", todayData);
 
               
                 // ✅ Langsung simpan hanya bagian timings
@@ -184,7 +184,7 @@ export default function LUsersChatTable() {
 
                 if (!todayPrayerTimes || JSON.stringify(todayPrayerTimes) !== JSON.stringify(todayTimings)) {
                   setTodayPrayerd(todayTimings);
-                  // console.log("Today's Prayer Timings:", todayTimings);
+                  console.log("Today's Prayer Timings:", todayTimings);
                 }     
                 const filteredTimings = Object.fromEntries(
                   Object.entries(todayTimings).filter(([key]) =>
@@ -192,7 +192,7 @@ export default function LUsersChatTable() {
                   )
                 );
                 setFive(filteredTimings);
-                // console.log(filteredTimings);
+                console.log(filteredTimings);
                 const tomorrow = new Date();
                 tomorrow.setDate(tomorrow.getDate() + 1); // Tambah 1 hari
 
@@ -205,7 +205,7 @@ export default function LUsersChatTable() {
                 // Simpan ke state
                 setTomorrowPrayerTimes(tomorrowData || null);
 
-                // console.log("Tomorrow's Prayer Data:", tomorrowData);
+                console.log("Tomorrow's Prayer Data:", tomorrowData);
                 
                 // ✅ Langsung simpan hanya bagian timings
                 const tomorrowTimings = tomorrowData ? tomorrowData.timings : null;
@@ -222,7 +222,7 @@ export default function LUsersChatTable() {
                   )
                 );
                 setFive2(filtomorrTimings);
-                // console.log("filter besok",filtomorrTimings);
+                console.log("filter besok",filtomorrTimings);
                 
               }
               
@@ -241,8 +241,30 @@ export default function LUsersChatTable() {
   }, [currentTime,prevMonthData]);
  // Debugging perubahan Five
   useEffect(() => {
-    // console.log("Updated Five:", Five);
+    console.log("Updated Five:", Five);
   }, [Five]);
+   useEffect(() => {
+    const fetchLocKota = async () => {
+      if (!loc) return;
+      const { latitude, longitude } = loc;
+      try {
+        const res = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
+        );
+        if (!res.ok) throw new Error("Gagal fetch alamat");
+
+        const data = await res.json();
+        setLocKota(data);
+        console.log("Alamat:", data);
+      } catch (error) {
+        console.error("Error fetch alamat:", error);
+      }
+    };
+    // Jika sudah ada lokasi, ambil alamatnya
+    if (loc) {
+      fetchLocKota();
+    }
+  }, [loc]);
 
   // Fungsi untuk mengurangi 12 menit dari waktu sholat
   const adjustTimings = (Five) => {
@@ -274,12 +296,12 @@ export default function LUsersChatTable() {
     if (Five) {
         const newTimings = adjustTimings(Five);
         setAdjustedTimings(newTimings);
-        // console.log("Adjusted Timings:", newTimings);
+        console.log("Adjusted Timings:", newTimings);
     }
   }, [Five]); // Trigger update saat Five berubah
 
   useEffect(() => {
-    // console.log("Updated Five:", Five2);
+    console.log("Updated Five:", Five2);
   }, [Five2]);
 
   // Fungsi untuk mengurangi 12 menit dari waktu sholat
@@ -312,7 +334,7 @@ export default function LUsersChatTable() {
     if (Five2) {
         const newTimings = adjustTomorrowTimings(Five2);
         setAdjustedToTimings(newTimings);
-        // console.log("Adjusted Timings:", newTimings);
+        console.log("Adjusted Timings:", newTimings);
     }
   }, [Five2]); // Trigger update saat Five berubah
 
