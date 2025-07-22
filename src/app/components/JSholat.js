@@ -243,28 +243,28 @@ export default function LUsersChatTable() {
   useEffect(() => {
     console.log("Updated Five:", Five);
   }, [Five]);
-   useEffect(() => {
-    const fetchLocKota = async () => {
-      if (!loc) return;
-      const { latitude, longitude } = loc;
-      try {
-        const res = await fetch(
-          `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
-        );
-        if (!res.ok) throw new Error("Gagal fetch alamat");
+  //  useEffect(() => {
+  //   const fetchLocKota = async () => {
+  //     if (!loc) return;
+  //     const { latitude, longitude } = loc;
+  //     try {
+  //       const res = await fetch(
+  //         `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
+  //       );
+  //       if (!res.ok) throw new Error("Gagal fetch alamat");
 
-        const data = await res.json();
-        setLocKota(data);
-        console.log("Alamat:", data);
-      } catch (error) {
-        console.error("Error fetch alamat:", error);
-      }
-    };
-    // Jika sudah ada lokasi, ambil alamatnya
-    if (loc) {
-      fetchLocKota();
-    }
-  }, [loc]);
+  //       const data = await res.json();
+  //       setLocKota(data);
+  //       console.log("Alamat:", data);
+  //     } catch (error) {
+  //       console.error("Error fetch alamat:", error);
+  //     }
+  //   };
+  //   // Jika sudah ada lokasi, ambil alamatnya
+  //   if (loc) {
+  //     fetchLocKota();
+  //   }
+  // }, [loc]);
 
   // Fungsi untuk mengurangi 12 menit dari waktu sholat
   const adjustTimings = (Five) => {
