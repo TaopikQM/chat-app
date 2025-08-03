@@ -344,7 +344,7 @@ const AdminChatTable = () => {
   };
 
   
-const handleToggleStatus = async (Id, currentStatus) => {
+const handleToggleStatu11s = async (Id, currentStatus) => {
     const newStatus = currentStatus === "ACTIVE" ? "NOT ACTIVE" : "ACTIVE";
     const confirmation = window.confirm(`Apakah Anda yakin ingin mengubah status ke ${newStatus}?`);
     if (!confirmation) return;
@@ -381,7 +381,7 @@ const handleToggleStatus = async (Id, currentStatus) => {
         alert("Terjadi kesalahan saat memperbarui status.");
     }
 };
-  const handleToggleStatus1 = async (Id, currentStatus) => {
+  const handleToggleStatus = async (Id, currentStatus) => {
     const userRef = databaseRef(database, `chatsBox/${Id}`);
 
     try {
