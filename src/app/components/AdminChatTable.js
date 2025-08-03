@@ -344,8 +344,44 @@ const AdminChatTable = () => {
   };
 
   
+const handleToggleStatus = async (Id, currentStatus) => {
+    const newStatus = currentStatus === "ACTIVE" ? "NOT ACTIVE" : "ACTIVE";
+    const confirmation = window.confirm(`Apakah Anda yakin ingin mengubah status ke ${newStatus}?`);
+    if (!confirmation) return;
 
-  const handleToggleStatus = async (Id, currentStatus) => {
+    try {
+        // Langsung refer ke chatsBox
+        let userRef = databaseRef(database, `chatsBox/${Id}`);
+        let snapshot = await get(userRef);
+
+        // Jika tidak ada di chatsBox, coba di chatsBox1
+        if (!snapshot.exists()) {
+            userRef = databaseRef(database, `chatsBox1/${Id}`);
+            snapshot = await get(userRef);
+
+            if (!snapshot.exists()) {
+                alert("Data tidak ditemukan di chatsBox maupun chatsBox1.");
+                return;
+            }
+        }
+
+        // Update status
+        await update(userRef, { status: newStatus });
+
+        // Update state lokal
+        setMessages(prevMessages =>
+            prevMessages.map(msg =>
+                msg.id === Id ? { ...msg, status: newStatus } : msg
+            )
+        );
+
+        alert(`Status berhasil diubah menjadi ${newStatus}.`);
+    } catch (error) {
+        console.error("Error memperbarui status:", error);
+        alert("Terjadi kesalahan saat memperbarui status.");
+    }
+};
+  const handleToggleStatus1 = async (Id, currentStatus) => {
     const userRef = databaseRef(database, `chatsBox/${Id}`);
 
     try {
