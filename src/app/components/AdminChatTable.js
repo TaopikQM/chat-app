@@ -265,7 +265,7 @@ const AdminChatTable = () => {
           const pesan = userData.pesan || userData1.pesan || "-";
 
             // Konfirmasi penghapusan dengan informasi pengguna
-            const confirmation = window.confirm(`Apakah Anda yakin ingin menghapus data ini?\nPengirim: ${pengirim}\nPenerima: ${penerima}\nPesan: ${pesan}`);
+           // const confirmation = window.confirm(`Apakah Anda yakin ingin menghapus data ini?\nPengirim: ${pengirim}\nPenerima: ${penerima}\nPesan: ${pesan}`);
             
             if (confirmation) {
               const logData = {
@@ -278,7 +278,7 @@ const AdminChatTable = () => {
                 await update(logMessageRef, logData);
                 await remove(userRef);
                 await remove(userRef1);
-                alert(`Data ${pengirim} ke ${penerima} dengan pesan (${pesan}) berhasil dihapus.`);
+                //alert(`Data ${pengirim} ke ${penerima} dengan pesan (${pesan}) berhasil dihapus.`);
             }
         } else {
             alert("Data Pesan tidak ditemukan.");
