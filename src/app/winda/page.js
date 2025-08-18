@@ -3,6 +3,8 @@ import ChatList from "../components/ChatList";
 import ChatInput from "../components/ChatInput";
 import UserStatus from "../components/UserStatus";
 import {useEffect, useState, useRef  } from "react";
+import { Moon, Sun } from "lucide-react"; // ikon lucide-react
+
 
 import { browserName, deviceType, osName, browserVersion, osVersion, engineName, engineVersion, deviceVendor, mobileModel} from 'react-device-detect';
 
@@ -13,8 +15,30 @@ import { database, storage } from "../config/firebase";
 import { ref as databaseRef, push, update,get,set ,onValue,serverTimestamp } from "firebase/database";
 
 const ChatPage = () => {
+  
   const [currentUser] = useState("Topik"); // Gantilah dengan ID pengguna yang sesuai
   const [chatWith] = useState("Winda"); // ID pengguna tujuan
+
+  const [isDark, setIsDark] = useState(false);
+
+  useEffect(() => {
+    // cek preferensi user sebelumnya
+    if (localStorage.getItem("theme") === "dark") {
+      document.documentElement.classList.add("dark");
+      setIsDark(true);
+    }
+  }, []);
+  const toggleTheme = () => {
+    if (isDark) {
+      document.documentElement.classList.remove("dark");
+      localStorage.setItem("theme", "light");
+      setIsDark(false);
+    } else {
+      document.documentElement.classList.add("dark");
+      localStorage.setItem("theme", "dark");
+      setIsDark(true);
+    }
+  };
   
 //   const [location, setLocation] = useState(null);
 // const [gpsEnabled, setGpsEnabled] = useState(false);
@@ -332,37 +356,87 @@ const ChatPage = () => {
   };
 }, [chatWith]);
   return (
-     <div className="max-w-full mx-auto h-screen flex flex-col bg-gray-100">
-      <div className="flex-none bg-white border-b border-gray-300 shadow-md  fixed top-0 left-0 w-full z-50">
-        <h2 className="text-xl font-semibold text-center">Chat dengan {currentUser}</h2>
-        <UserStatus userId={currentUser} />
-         <div className="text-center text-gray-500 text-sm my-2">
+
+     <div className="max-w-full mx-auto h-screen flex flex-col bg-gradient-to-b from-gray-100 to-gray-200 dark:from-gray-900 dark:to-gray-800">
+      {/* Header */}
+      <div className="flex-none bg-white dark:bg-gray-900 border-b border-gray-300 dark:border-gray-700 shadow-md fixed top-0 left-0 w-full z-50">
+        <div className="flex items-center justify-between px-4 py-3">
+          {/* Judul */}
+          <h2 className="text-lg md:text-xl font-semibold text-gray-800 dark:text-gray-100">
+            Chat dengan {currentUser}
+          </h2>
+
+          {/* Toggle Dark/Light */}
+          <button
+            onClick={toggleTheme}
+            className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition"
+          >
+            {isDark ? <Sun className="w-5 h-5 text-yellow-400" /> : <Moon className="w-5 h-5 text-gray-700" />}
+          </button>
+        </div>
+
+        {/* Status */}
+        <div className="flex justify-center items-center gap-2 mt-1">
+          <UserStatus userId={currentUser} />
+        </div>
+        <div className="text-center text-gray-500 dark:text-gray-400 text-sm mt-1">
           {isTyping && <span>{currentUser} sedang mengetik...</span>}
         </div>
-  <hr/>
-        
       </div>
-  <br/><br/>
 
-      {/* Bagian ChatList bisa di-scroll */}
-      <div className="flex-1 overflow-y-auto ">
-        <ChatList user1={chatWith} user2={currentUser} setReplyMessage={setReplyMessage} />
-       
-       
+      {/* Chat List */}
+      <div className="flex-1 overflow-y-auto px-2 sm:px-4 pt-24 pb-24">
+        <ChatList
+          user1={chatWith}
+          user2={currentUser}
+          setReplyMessage={setReplyMessage}
+        />
       </div>
-  <br/><br/>
-  <br/><br/>
-      
 
-      {/* Input tetap di bawah */}
-      <div className="flex-none bg-white border-t border-gray-300 fixed bottom-0 left-0 w-full">
-        <ChatInput pengirim={chatWith} penerima={currentUser} replyMessage={replyMessage} setReplyMessage={setReplyMessage} />
+      {/* Input Chat */}
+      <div className="flex-none bg-white dark:bg-gray-900 border-t border-gray-300 dark:border-gray-700 shadow-md fixed bottom-0 left-0 w-full">
+        <div className="px-2 sm:px-4 py-2">
+          <ChatInput
+            pengirim={chatWith}
+            penerima={currentUser}
+            replyMessage={replyMessage}
+            setReplyMessage={setReplyMessage}
+          />
+        </div>
       </div>
     </div>
   );
 };
 
 export default ChatPage;
+
+  //    <div className="max-w-full mx-auto h-screen flex flex-col bg-gray-100">
+  //     <div className="flex-none bg-white border-b border-gray-300 shadow-md  fixed top-0 left-0 w-full z-50">
+  //       <h2 className="text-xl font-semibold text-center">Chat dengan {currentUser}</h2>
+  //       <UserStatus userId={currentUser} />
+  //        <div className="text-center text-gray-500 text-sm my-2">
+  //         {isTyping && <span>{currentUser} sedang mengetik...</span>}
+  //       </div>
+  // <hr/>
+        
+  //     </div>
+  // <br/><br/>
+
+  //     {/* Bagian ChatList bisa di-scroll */}
+  //     <div className="flex-1 overflow-y-auto ">
+  //       <ChatList user1={chatWith} user2={currentUser} setReplyMessage={setReplyMessage} />
+       
+       
+  //     </div>
+  // <br/><br/>
+  // <br/><br/>
+      
+
+  //     {/* Input tetap di bawah */}
+  //     <div className="flex-none bg-white border-t border-gray-300 fixed bottom-0 left-0 w-full">
+  //       <ChatInput pengirim={chatWith} penerima={currentUser} replyMessage={replyMessage} setReplyMessage={setReplyMessage} />
+  //     </div>
+  //   </div>
 
 // // import { useState } from "react";
 // // import ChatList from "../../components/ChatList";
