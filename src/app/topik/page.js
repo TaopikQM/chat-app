@@ -325,9 +325,9 @@ useEffect(() => {
           {isTyping && <span>{chatWith} sedang mengetik...</span>}
         </div>
   <hr/>
-        <br/><br/>
       </div>
 
+        <br/><br/>
       {/* Bagian ChatList bisa di-scroll */}
       <div className="flex-1 overflow-y-auto">
         <ChatList user1={currentUser} user2={chatWith} setReplyMessage={setReplyMessage} />
