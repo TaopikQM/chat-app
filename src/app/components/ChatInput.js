@@ -2,7 +2,7 @@ import { useState, useRef,useEffect } from "react";
 import { database, storage } from "../config/firebase";
 import { ref as databaseRef, push, update,set ,onValue} from "firebase/database";
 import { ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
-const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage}) => {
+const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage, isDark}) => {
   const [newMessage, setNewMessage] = useState("");
   const [files, setFiles] = useState([]);
   const [audioFile, setAudioFile] = useState(null);
@@ -803,5 +803,6 @@ export default ChatInput;
 // // // };
 
 // // // export default ChatInput;
+
 
 
