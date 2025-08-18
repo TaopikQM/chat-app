@@ -411,6 +411,7 @@ const ChatPage = () => {
             penerima={currentUser}
             replyMessage={replyMessage}
             setReplyMessage={setReplyMessage}
+              isDark={isDark}
           />
         </div>
       </div>
