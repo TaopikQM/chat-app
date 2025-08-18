@@ -356,8 +356,8 @@ const ChatPage = () => {
   };
 }, [chatWith]);
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-b from-gray-100 to-gray-200 dark:from-gray-900 dark:to-gray-800 border border-gray-900 dark:border-gray-100">
-     <div className="max-w-7xl mx-auto w-full flex flex-col flex-1">
+    <div className="min-h-screen flex flex-col bg-gradient-to-b from-gray-100 to-gray-200 dark:from-gray-900 dark:to-gray-800 ">
+     <div className="max-w-7xl mx-auto w-full flex flex-col flex-1 border border-gray-900 dark:border-gray-100">
    
      {/*<div className="max-w-full mx-auto h-screen flex flex-col bg-gradient-to-b from-gray-100 to-gray-200 dark:from-gray-900 dark:to-gray-800">
        Header fixed top-0 left-0 w-full */}
@@ -406,8 +406,7 @@ const ChatPage = () => {
       </div>
 
       {/* Input Chat fixed bottom-0 left-0 w-full*/}
-      <div className="flex-none bg-white dark:bg-gray-900 border-t border-gray-300 dark:border-gray-700 shadow-md ">
-        <div className="px-2 sm:px-4 py-2">
+      <div className="flex-none border border-gray-900 dark:border-gray-100 shadow-md ">
           <ChatInput
             pengirim={chatWith}
             penerima={currentUser}
@@ -415,7 +414,6 @@ const ChatPage = () => {
             setReplyMessage={setReplyMessage}
               isDark={isDark}
           />
-        </div>
       </div>
     </div>
   </div>
