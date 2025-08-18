@@ -365,9 +365,9 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage, isDark}
         </div>
       )}
       
-      <div className="flex-none gap-3 flex items-center p-4 border-t border-gray-300 sticky bottom-0 bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
+      <div className="flex-none gap-3 flex items-center p-4  sticky bottom-0 bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
       
-          {/* Jika sedang merekam, tampilkan timer */}
+          {/* Jika sedang merekam, tampilkan timer border-t border-gray-300*/}
           <input type="file" multiple onChange={handleFileChange} disabled={uploading|| recording || audioPending} className="hidden" id="fileInput" />
              <label htmlFor="fileInput"  className={`cursor-pointer ${uploading || recording || audioPending ? "opacity-50 cursor-not-allowed" : ""}`}>
                 <span className="material-icons">📎</span>
@@ -801,6 +801,7 @@ export default ChatInput;
 // // // };
 
 // // // export default ChatInput;
+
 
 
 
