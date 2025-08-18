@@ -360,7 +360,7 @@ const ChatPage = () => {
      <div className="max-w-full mx-auto h-screen flex flex-col bg-gradient-to-b from-gray-100 to-gray-200 dark:from-gray-900 dark:to-gray-800">
       {/* Header */}
       <div className="flex-none bg-white dark:bg-gray-900 border-b border-gray-300 dark:border-gray-700 shadow-md fixed top-0 left-0 w-full z-50">
-        <div className="relative flex items-center justify-center px-4 py-3">
+        <div className="relative flex items-center justify-center p-2">
           {/* Judul */}
           <h2 className=" text-lg md:text-xl font-semibold text-gray-800 dark:text-gray-100">
             Chat dengan {currentUser}
@@ -369,7 +369,7 @@ const ChatPage = () => {
           {/* Toggle Dark/Light */}
           <button
             onClick={toggleTheme}
-            className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition"
+            className=" absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition"
           >
             {isDark ? <Sun className="w-5 h-5 text-yellow-400" /> : <Moon className="w-5 h-5 text-gray-700" />}
           </button>
