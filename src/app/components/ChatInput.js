@@ -301,9 +301,7 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage, isDark}
 
 
   return (
-    <div className={`${
-        isDark ? "bg-gray-800 text-white" : "bg-gray-100 text-gray-900"
-      } shadow-md sticky bottom-0 w-full`}>
+    <div className="bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white shadow-md sticky bottom-0 w-full">
       {files.length > 0 && (
         <div className="flex gap-2 flex-wrap mb-2">
           {files.map((file, index) => (
@@ -803,6 +801,7 @@ export default ChatInput;
 // // // };
 
 // // // export default ChatInput;
+
 
 
 
