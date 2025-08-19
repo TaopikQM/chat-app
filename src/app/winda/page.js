@@ -369,7 +369,7 @@ const ChatPage = () => {
           </h2>
             <button 
               onClick={toggleTheme} 
-              className="absolute right-4 top-1/2 -translate-y-1/2 p-2 text-white bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-2 focus:ring-gray-100 font-medium rounded-full text-sm px-3 py-3 m-2 dark:bg-gray-500 dark:text-gray-600 dark:border-gray-600 dark:hover:bg-gray-400 dark:hover:border-gray-400 dark:focus:ring-gray-500"
+              className="absolute right-4 top-1/2 -translate-y-1/2 p-2 text-white bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-2 focus:ring-gray-100 font-medium rounded-full text-sm px-2 py-2 m-2 dark:bg-gray-500 dark:text-gray-600 dark:border-gray-600 dark:hover:bg-gray-400 dark:hover:border-gray-400 dark:focus:ring-gray-500"
               aria-label="Toggle Theme" 
             >
               {isDark ? (
@@ -395,6 +395,87 @@ const ChatPage = () => {
           {isTyping && <span>{currentUser} sedang mengetik...</span>}
         </div>
       </div>
+{/* 🔥 Filter & Pagination Bar (nongkrong di bawah header) */}
+    <div className="flex-none bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-2 sticky top-[72px] z-40">
+      <div className="flex justify-between items-center">
+        {/* Left: Select & Info */}
+        <div className="flex items-center gap-4">
+          <select
+            id="itemsPerPage"
+            value={itemsPerPage}
+            onChange={handleItemsPerPageChange}
+            className="border rounded px-2 py-1 dark:bg-gray-700 dark:text-gray-200"
+          >
+            <option value={500}>500</option>
+            <option value={1300}>1300</option>
+            <option value={2300}>2300</option>
+          </select>
+          <span className="text-sm text-gray-600 dark:text-gray-300">
+            T.Pesan: {filteredUsers.length}
+          </span>
+        </div>
+
+        {/* Right: Search */}
+        <form className="relative max-w-xs w-full">
+          <input 
+            onChange={handleSearch} 
+            value={searchTerm} 
+            type="search" 
+            className="block w-full p-2 pl-8 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 
+              focus:ring-blue-500 focus:border-blue-500 
+              dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
+            placeholder="Search..." 
+          />
+          <svg className="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M17 10a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+        </form>
+      </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <nav className="mt-2 flex items-center justify-between" aria-label="Table navigation">
+          <span className="text-sm text-gray-500 dark:text-gray-400">
+            Page {currentPage} of {totalPages}
+          </span>
+          <ul className="inline-flex items-center -space-x-px">
+            <li>
+              <button
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                className="py-1 px-3 border border-gray-300 rounded-l-lg dark:border-gray-600"
+                disabled={currentPage === 1}
+              >
+                ◀
+              </button>
+            </li>
+            {getPagination().map((page, index) => (
+              <li key={index}>
+                {page === '...' ? (
+                  <span className="py-1 px-3">...</span>
+                ) : (
+                  <button
+                    onClick={() => setCurrentPage(page)}
+                    className={`py-1 px-3 border border-gray-300 dark:border-gray-600 ${
+                      currentPage === page ? 'bg-gray-300 dark:bg-gray-600' : ''
+                    }`}
+                  >
+                    {page}
+                  </button>
+                )}
+              </li>
+            ))}
+            <li>
+              <button
+                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                className="py-1 px-3 border border-gray-300 rounded-r-lg dark:border-gray-600"
+                disabled={currentPage === totalPages}
+              >
+                ▶
+              </button>
+            </li>
+          </ul>
+        </nav>
+      )}
 
       {/* Chat List */}
       <div className="flex-1 overflow-y-auto px-2 sm:px-4">
