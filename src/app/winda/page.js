@@ -361,7 +361,7 @@ const ChatPage = () => {
    
      {/*<div className="max-w-full mx-auto h-screen flex flex-col bg-gradient-to-b from-gray-100 to-gray-200 dark:from-gray-900 dark:to-gray-800">
        Header fixed top-0 left-0 w-full */}
-      <div className="flex-none bg-white dark:bg-gray-900 border-b border-gray-300 dark:border-gray-700 shadow-md z-50">
+      <div className="flex-none bg-white dark:bg-gray-900 border border-gray-900 dark:border-gray-100 shadow-md z-50">
         <div className="relative flex items-center justify-center p-2">
           {/* Judul */}
           <h2 className=" text-lg md:text-xl font-semibold text-gray-800 dark:text-gray-100">
@@ -397,7 +397,7 @@ const ChatPage = () => {
       </div>
 
       {/* Chat List */}
-      <div className="flex-1 overflow-y-auto px-2 sm:px-4 pt-24 pb-24">
+      <div className="flex-1 overflow-y-auto px-2 sm:px-4">
         <ChatList
           user1={chatWith}
           user2={currentUser}
