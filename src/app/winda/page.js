@@ -395,7 +395,7 @@ const ChatPage = () => {
           {isTyping && <span>{currentUser} sedang mengetik...</span>}
         </div>
       </div>
-{/* 🔥 Filter & Pagination Bar (nongkrong di bawah header) */}
+  {/* 🔥 Filter & Pagination Bar (nongkrong di bawah header) */}
     <div className="flex-none bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-2 sticky top-[72px] z-40">
       <div className="flex justify-between items-center">
         {/* Left: Select & Info */}
@@ -476,8 +476,7 @@ const ChatPage = () => {
           </ul>
         </nav>
       )}
-
-      </div>
+    </div>
 
       {/* Chat List */}
       <div className="flex-1 overflow-y-auto px-2 sm:px-4">
