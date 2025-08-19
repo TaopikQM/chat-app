@@ -477,6 +477,8 @@ const ChatPage = () => {
         </nav>
       )}
 
+      </div>
+
       {/* Chat List */}
       <div className="flex-1 overflow-y-auto px-2 sm:px-4">
         <ChatList
