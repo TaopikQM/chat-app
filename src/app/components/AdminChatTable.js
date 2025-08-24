@@ -10,8 +10,8 @@ const AdminChatTable = () => {
   const [users, setUsers] = useState([]);
 
   const [notifications, setNotifications] = useState({}); // 🔔 notif per user
- const [popupMessages, setPopupMessages] = useState([]); // pesan baru utk popup
-  const [currentPopupIndex, setCurrentPopupIndex] = useState(0);
+const [popupQueue, setPopupQueue] = useState([]); // antrian notif
+  const [currentPopup, setCurrentPopup] = useState(null);
 
   
   const [logsChats, setLogsChats] = useState([]);
@@ -234,7 +234,7 @@ const AdminChatTable = () => {
   // 🔔 Hitung notif setiap kali messages update
   useEffect(() => {
     const notifMap = {};
-    const unreadMessages = [];
+    // const unreadMessages = [];
     messages.forEach((msg) => {
       if (!msg.read && msg.penerima) {
         if (!notifMap[msg.penerima]) {
@@ -244,20 +244,36 @@ const AdminChatTable = () => {
       }
     });
     setNotifications(notifMap);
-    setPopupMessages(unreadMessages); // simpan pesan utk popup
-    setCurrentPopupIndex(0);
+    // setPopupMessages(unreadMessages); // simpan pesan utk popup
+    // setCurrentPopupIndex(0);
   }, [messages]);
 
    // Rotasi popup setiap 30 detik
+  // kalau ada pesan baru masuk → push ke queue popup
   useEffect(() => {
-    if (popupMessages.length === 0) return;
+    if (messages.length > 0) {
+      const unread = messages.filter((m) => !m.read); // filter pesan belum dibaca
+      if (unread.length > 0) {
+        setPopupQueue((prev) => [...prev, ...unread]);
+      }
+    }
+  }, [messages]);
 
-    const interval = setInterval(() => {
-      setCurrentPopupIndex((prev) => (prev + 1) % popupMessages.length);
-    }, 30000); // 30 detik
+  // jalankan popup antrian satu-satu tiap 30 detik
+  useEffect(() => {
+    if (!currentPopup && popupQueue.length > 0) {
+      // ambil pesan pertama dari queue
+      setCurrentPopup(popupQueue[0]);
 
-    return () => clearInterval(interval);
-  }, [popupMessages]);
+      // hapus pesan itu dari queue setelah 30 detik
+      const timer = setTimeout(() => {
+        setPopupQueue((prev) => prev.slice(1));
+        setCurrentPopup(null);
+      }, 30000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [popupQueue, currentPopup]);
 
   const handleBulkDelete = () => {
     selectedIds.forEach(id => handleDelete(id));
