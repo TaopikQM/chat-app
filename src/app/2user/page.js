@@ -10,7 +10,16 @@ import { browserName, deviceType, osName, browserVersion, osVersion, engineName,
 // import { rtdb, ref, update, serverTimestamp } from "../../config/firebase";
 
 import { database, storage } from "../config/firebase";
-import { ref as databaseRef, push, update,get,set ,onValue,serverTimestamp } from "firebase/database";
+//import { ref as databaseRef, push, update,get,set ,onValue,serverTimestamp } from "firebase/database";
+import { 
+  browserName, 
+  deviceType, 
+  osName, 
+  browserVersion, 
+  osVersion, 
+  engineName, 
+  engineVersion 
+} from 'react-device-detect';
 
 const ChatPage = () => {
   const [currentUser] = useState("user1"); // Gantilah dengan ID pengguna yang sesuai
@@ -189,8 +198,8 @@ const ChatPage = () => {
       engine: engineName ?? null,
       engineVersion: engineVersion ?? null,
       deviceType: deviceType ?? null,
-      deviceVendor: deviceVendor ?? null,
-      mobileModel: mobileModel ?? null
+   //   deviceVendor: deviceVendor ?? null,
+   //   mobileModel: mobileModel ?? null
     };
 
   useEffect(() => {
