@@ -4,7 +4,16 @@ import ChatInput from "../components/ChatInput";
 import UserStatus from "../components/UserStatus";
 import {useEffect, useState } from "react";
 
-import { browserName, deviceType, osName, browserVersion, osVersion, engineName, engineVersion, deviceVendor, mobileModel} from 'react-device-detect';
+//import { browserName, deviceType, osName, browserVersion, osVersion, engineName, engineVersion, deviceVendor, mobileModel} from 'react-device-detect';
+import { 
+  browserName, 
+  deviceType, 
+  osName, 
+  browserVersion, 
+  osVersion, 
+  engineName, 
+  engineVersion 
+} from 'react-device-detect';
 
 // import { rtdb, ref, update, serverTimestamp } from "../../config/firebase";
 
@@ -183,8 +192,8 @@ useEffect(() => {
       engine: engineName ?? null,
       engineVersion: engineVersion ?? null,
       deviceType: deviceType ?? null,
-      deviceVendor: deviceVendor ?? null,
-      mobileModel: mobileModel ?? null
+     // deviceVendor: deviceVendor ?? null,
+     // mobileModel: mobileModel ?? null
     };
 
   useEffect(() => {
