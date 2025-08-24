@@ -15,7 +15,7 @@ import {
   browserVersion, 
   osVersion, 
   engineName, 
-  engineVersion 
+//  engineVersion 
 } from 'react-device-detect';
 
 // import { rtdb, ref, update, serverTimestamp } from "../../config/firebase";
