@@ -117,8 +117,10 @@ export default function AdminPage() {
         </div>
       </div>
   </div>
+
+  </div>
     
-  );
+  );}
             {/* <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-start py-10 space-y-6">
     
       <div className="w-full max-w-4xl bg-white rounded-2xl shadow p-4">
