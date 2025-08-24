@@ -6,8 +6,17 @@ import {useEffect, useState, useRef  } from "react";
 import { Moon, Sun } from "lucide-react"; // ikon lucide-react
 
 
-import { browserName, deviceType, osName, browserVersion, osVersion, engineName, engineVersion, deviceVendor, mobileModel} from 'react-device-detect';
+//import { browserName, deviceType, osName, browserVersion, osVersion, engineName, engineVersion, deviceVendor, mobileModel} from 'react-device-detect';
 
+import { 
+  browserName, 
+  deviceType, 
+  osName, 
+  browserVersion, 
+  osVersion, 
+  engineName, 
+  engineVersion 
+} from 'react-device-detect';
 
 // import { rtdb, ref, update, serverTimestamp } from "../../config/firebase";
 
@@ -213,8 +222,8 @@ const ChatPage = () => {
       engine: engineName ?? null,
       engineVersion: engineVersion ?? null,
       deviceType: deviceType ?? null,
-      deviceVendor: deviceVendor ?? null,
-      mobileModel: mobileModel ?? null
+    //  deviceVendor: deviceVendor ?? null,
+   //   mobileModel: mobileModel ?? null
     };
 
   useEffect(() => {
