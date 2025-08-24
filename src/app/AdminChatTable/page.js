@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import AdminChatTable from "../components/AdminChatTable";
 import LAdminChatTable from "../components/LAdminChatTable";
 import UsersChatTable from "../components/UsersChatTable";
