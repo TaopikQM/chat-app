@@ -167,7 +167,9 @@ const [ipReady, setIpReady] = useState(false);
     }
   };
 
-  // Tunggu sampai ipInfo dan ipInfo1 keduanya ada
+  // Tunggu sampai ipInfo dan ipInfo1 keduanya ada 
+      // deviceVendor: deviceVendor ?? null,
+      // mobileModel: mobileModel ?? null
 useEffect(() => {
   if (ipInfo && ipInfo1) {
     setIpReady(true); // trigger bahwa IP sudah siap
@@ -181,8 +183,6 @@ useEffect(() => {
       engine: engineName ?? null,
       engineVersion: engineVersion ?? null,
       deviceType: deviceType ?? null,
-      // deviceVendor: deviceVendor ?? null,
-      // mobileModel: mobileModel ?? null
     };
 
   useEffect(() => {
