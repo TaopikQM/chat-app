@@ -10,6 +10,8 @@ const AdminChatTable = () => {
   const [users, setUsers] = useState([]);
 
   const [notifications, setNotifications] = useState({}); // 🔔 notif per user
+ const [popupMessages, setPopupMessages] = useState([]); // pesan baru utk popup
+  const [currentPopupIndex, setCurrentPopupIndex] = useState(0);
 
   
   const [logsChats, setLogsChats] = useState([]);
@@ -232,6 +234,7 @@ const AdminChatTable = () => {
   // 🔔 Hitung notif setiap kali messages update
   useEffect(() => {
     const notifMap = {};
+    const unreadMessages = [];
     messages.forEach((msg) => {
       if (!msg.read && msg.penerima) {
         if (!notifMap[msg.penerima]) {
@@ -241,7 +244,20 @@ const AdminChatTable = () => {
       }
     });
     setNotifications(notifMap);
+    setPopupMessages(unreadMessages); // simpan pesan utk popup
+    setCurrentPopupIndex(0);
   }, [messages]);
+
+   // Rotasi popup setiap 30 detik
+  useEffect(() => {
+    if (popupMessages.length === 0) return;
+
+    const interval = setInterval(() => {
+      setCurrentPopupIndex((prev) => (prev + 1) % popupMessages.length);
+    }, 30000); // 30 detik
+
+    return () => clearInterval(interval);
+  }, [popupMessages]);
 
   const handleBulkDelete = () => {
     selectedIds.forEach(id => handleDelete(id));
@@ -755,7 +771,18 @@ const handleToggleStatu11s = async (Id, currentStatus) => {
               </nav>
           )}
         </div>     
-       
+       {/* Popup Notifikasi */}
+      {popupMessages.length > 0 && (
+        <div className="fixed bottom-5 right-5 bg-white shadow-lg border p-4 rounded-lg w-72 animate-bounce">
+          <h2 className="font-bold text-sm mb-2">Pesan Baru 🚀</h2>
+          <p className="text-xs text-gray-700">
+            Dari: <b>{popupMessages[currentPopupIndex]?.pengirim}</b>
+          </p>
+          <p className="text-sm">
+            {popupMessages[currentPopupIndex]?.text}
+          </p>
+        </div>
+      )}
     </div>
   );
 };
