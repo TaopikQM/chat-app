@@ -8,6 +8,10 @@ import { format } from "date-fns";
 const AdminChatTable = () => {
   const [messages, setMessages] = useState([]);
   const [users, setUsers] = useState([]);
+
+  const [notifications, setNotifications] = useState({}); // 🔔 notif per user
+
+  
   const [logsChats, setLogsChats] = useState([]);
   const [logsUsers, setLogsUsers] = useState([]);
 
@@ -225,6 +229,19 @@ const AdminChatTable = () => {
 //     setAllMessages(combined);
 //   };
 // })();
+  // 🔔 Hitung notif setiap kali messages update
+  useEffect(() => {
+    const notifMap = {};
+    messages.forEach((msg) => {
+      if (!msg.read && msg.penerima) {
+        if (!notifMap[msg.penerima]) {
+          notifMap[msg.penerima] = 0;
+        }
+        notifMap[msg.penerima] += 1;
+      }
+    });
+    setNotifications(notifMap);
+  }, [messages]);
 
   const handleBulkDelete = () => {
     selectedIds.forEach(id => handleDelete(id));
@@ -412,6 +429,27 @@ const handleToggleStatu11s = async (Id, currentStatus) => {
 
   return (
     <div>
+         {/* 🔔 Bagian Notifikasi */}
+      <div className="mb-6 bg-white dark:bg-gray-800 p-4 rounded-xl shadow">
+        <h2 className="text-lg font-bold mb-3">🔔 Notifikasi Pesan Belum Dibaca</h2>
+        {Object.keys(notifications).length === 0 ? (
+          <p className="text-gray-500">Tidak ada notif baru ✅</p>
+        ) : (
+          <ul className="space-y-2">
+            {Object.entries(notifications).map(([user, count]) => (
+              <li
+                key={user}
+                className="flex justify-between items-center bg-gray-100 dark:bg-gray-700 px-3 py-2 rounded-lg"
+              >
+                <span className="font-medium">{user}</span>
+                <span className="bg-red-600 text-white px-3 py-1 rounded-full text-sm">
+                  {count} pesan belum dibaca
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
         <div className="relative overflow-x-auto shadow-md sm:rounded-lg ">
             {/* //title */}
             <div className="flex justify-between items-center px-4 py-3 ">
