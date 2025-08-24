@@ -9,9 +9,18 @@ import LUsersChatTable from "../components/LUsersChatTable";
 export default function AdminPage() {
   const [open, setOpen] = useState(null); // null = semua tertutup
 
+ // const toggle = (key) => {
+   // setOpen(open === key ? null : key); // kalau klik yang sama, tutup
+  //};
   const toggle = (key) => {
-    setOpen(open === key ? null : key); // kalau klik yang sama, tutup
-  };
+  if (open.includes(key)) {
+    // kalau sudah ada → tutup (hapus dari array)
+    setOpen(open.filter((item) => item !== key));
+  } else {
+    // kalau belum ada → buka (tambah ke array)
+    setOpen([...open, key]);
+  }
+};
   const [isDark, setIsDark] = useState(false);
 
   useEffect(() => {
@@ -71,7 +80,7 @@ export default function AdminPage() {
             >
               Admin Chat Table
             </button>
-            <div className={`${open === "Chat User" ? "block" : "hidden"} mt-4`}>
+            <div className={`${open.includes === "Chat User" ? "block" : "hidden"} mt-4`}>
               <AdminChatTable />
             </div>
           </div>
@@ -84,7 +93,7 @@ export default function AdminPage() {
             >
               LAdmin Chat Table
             </button>
-            <div className={`${open === "Sampah Chat" ? "block" : "hidden"} mt-4`}>
+            <div className={`${open.includes === "Sampah Chat" ? "block" : "hidden"} mt-4`}>
               <LAdminChatTable />
             </div>
           </div>
@@ -97,7 +106,7 @@ export default function AdminPage() {
             >
               Users Chat Table
             </button>
-            <div className={`${open === "Users" ? "block" : "hidden"} mt-4`}>
+            <div className={`${open.includes === "Users" ? "block" : "hidden"} mt-4`}>
               <UsersChatTable />
             </div>
           </div>
@@ -110,7 +119,7 @@ export default function AdminPage() {
             >
               LUsers Chat Table
             </button>
-            <div className={`${open === "Log Users" ? "block" : "hidden"} mt-4`}>
+            <div className={`${open.includes === "Log Users" ? "block" : "hidden"} mt-4`}>
               <LUsersChatTable />
             </div>
           </div>
