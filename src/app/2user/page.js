@@ -10,7 +10,7 @@ import {useEffect, useState, useRef  } from "react";
 // import { rtdb, ref, update, serverTimestamp } from "../../config/firebase";
 
 import { database, storage } from "../config/firebase";
-//import { ref as databaseRef, push, update,get,set ,onValue,serverTimestamp } from "firebase/database";
+import { ref as databaseRef, push, update,get,set ,onValue,serverTimestamp } from "firebase/database";
 import { 
   browserName, 
   deviceType, 
