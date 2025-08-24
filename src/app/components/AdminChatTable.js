@@ -461,16 +461,16 @@ const handleToggleStatu11s = async (Id, currentStatus) => {
 
   return (
     <div>
-         {/* 🔔 Bagian Notifikasi */}
-      <div className="mb-6 bg-white dark:bg-gray-800 p-4 rounded-xl shadow">
-    {selectedIds.length > 0 && (
+         {/* 🔔 Bagian Notifikasi  {selectedIds.length > 0 && (
   <button
     onClick={handleBulkDelete}
     className="bg-red-500 text-white px-4 py-2 rounded"
   >
     Hapus ({selectedIds.length})
   </button>
-)}
+)} */}
+      <div className="mb-6 bg-white dark:bg-gray-800 p-4 rounded-xl shadow">
+   
         <h2 className="text-lg font-bold mb-3">🔔 Notifikasi Pesan Belum Dibaca</h2>
         {Object.keys(notifications).length === 0 ? (
           <p className="text-gray-500">Tidak ada notif baru ✅</p>
