@@ -452,7 +452,7 @@ export default ChatPage;
   //     <div className="flex-none bg-white border-t border-gray-300 fixed bottom-0 left-0 w-full">
   //       <ChatInput pengirim={chatWith} penerima={currentUser} replyMessage={replyMessage} setReplyMessage={setReplyMessage} />
   //     </div>
-    </div>
+    // </div>
 
 // // import { useState } from "react";
 // // import ChatList from "../../components/ChatList";
