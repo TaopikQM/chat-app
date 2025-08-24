@@ -75,6 +75,7 @@ const AdminChatTable = () => {
       (a, b) => b.timestamp - a.timestamp
     );
     setMessages(allMessages);
+    console.log("data:",allMessages);
   };
 
   const unsub1 = onValue(messagesRef, (snapshot) => {
