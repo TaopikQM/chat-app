@@ -7,7 +7,7 @@ import UsersChatTable from "../components/UsersChatTable";
 import LUsersChatTable from "../components/LUsersChatTable";
 
 export default function AdminPage() {
-  const [open, setOpen] = useState(null); // null = semua tertutup
+  const [open, setOpen] = useState([]); // null = semua tertutup
 
  // const toggle = (key) => {
    // setOpen(open === key ? null : key); // kalau klik yang sama, tutup
