@@ -192,8 +192,8 @@ const ChatPage = () => {
       isOnline: true,
       lastSeen: serverTimestamp(),
       deviceInfo,
-      // ip1:ipInfo,
-      // ip2:ipInfo1,
+      ip1:ipInfo,
+      ip2:ipInfo1,
       
     };
 
@@ -216,8 +216,8 @@ const ChatPage = () => {
       lastSeen: serverTimestamp(),
       
       deviceInfo,
-      // ip1:ipInfo,
-      // ip2:ipInfo1,
+      ip1:ipInfo,
+      ip2:ipInfo1,
     };
     if (ipInfo) data.ip1 = ipInfo;
     if (ipInfo1) data.ip2 = ipInfo1;
