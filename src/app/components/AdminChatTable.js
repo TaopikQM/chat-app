@@ -788,15 +788,13 @@ const handleToggleStatu11s = async (Id, currentStatus) => {
           )}
         </div>     
        {/* Popup Notifikasi */}
-      {popupMessages.length > 0 && (
-        <div className="fixed bottom-5 right-5 bg-white shadow-lg border p-4 rounded-lg w-72 animate-bounce">
-          <h2 className="font-bold text-sm mb-2">Pesan Baru 🚀</h2>
-          <p className="text-xs text-gray-700">
-            Dari: <b>{popupMessages[currentPopupIndex]?.pengirim}</b>
+     {/* Popup notif */}
+      {currentPopup && (
+        <div className="fixed bottom-4 right-4 bg-blue-500 text-white p-4 rounded-lg shadow-lg animate-bounce">
+          <p>
+            📩 Pesan baru dari <b>{currentPopup.pengirim}</b>
           </p>
-          <p className="text-sm">
-            {popupMessages[currentPopupIndex]?.text}
-          </p>
+          <p>{currentPopup.text}</p>
         </div>
       )}
     </div>
@@ -805,7 +803,17 @@ const handleToggleStatu11s = async (Id, currentStatus) => {
 
 export default AdminChatTable;
 // "use client";
-
+ // {popupMessages.length > 0 && (
+ //        <div className="fixed bottom-5 right-5 bg-white shadow-lg border p-4 rounded-lg w-72 animate-bounce">
+ //          <h2 className="font-bold text-sm mb-2">Pesan Baru 🚀</h2>
+ //          <p className="text-xs text-gray-700">
+ //            Dari: <b>{popupMessages[currentPopupIndex]?.pengirim}</b>
+ //          </p>
+ //          <p className="text-sm">
+ //            {popupMessages[currentPopupIndex]?.text}
+ //          </p>
+ //        </div>
+ //      )}
 // import { useEffect, useState } from "react";
 // import { rtdb } from "../config/firebase";
 // import { ref as databaseRef, onValue } from "firebase/database";
