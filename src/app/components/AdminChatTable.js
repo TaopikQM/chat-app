@@ -678,6 +678,60 @@ const handleToggleStatu11s = async (Id, currentStatus) => {
                      "-"
                      )}
                    </td>
+                      <td className="border border-gray-300 px-4 py-2">
+  {msg.files && msg.files.length > 0 ? (
+    <div className="flex flex-col gap-2">
+      {msg.files.map((file, fileIndex) => {
+        const ext = file.name.split('.').pop().toLowerCase();
+        const isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext);
+        const isVideo = ['mp4', 'avi', 'mov', 'webm'].includes(ext);
+
+        const copyToClipboard = () => {
+          navigator.clipboard.writeText(file.url);
+          alert('Link copied to clipboard!');
+        };
+
+        return (
+          <div key={fileIndex} className="flex flex-col gap-1">
+            {isImage ? (
+              <>
+                <img src={file.url} alt={file.name} className="max-w-xs max-h-40 object-contain border rounded" />
+                <button
+                  onClick={copyToClipboard}
+                  className="text-sm text-blue-600 underline w-fit"
+                >
+                  Copy Link
+                </button>
+              </>
+            ) : isVideo ? (
+              <>
+                <video controls src={file.url} className="max-w-xs max-h-40 border rounded" />
+                <button
+                  onClick={copyToClipboard}
+                  className="text-sm text-blue-600 underline w-fit"
+                >
+                  Copy Link
+                </button>
+              </>
+            ) : (
+              <a
+                href={file.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-500 underline"
+              >
+                📄 {file.name}
+              </a>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  ) : (
+    "-"
+  )}
+</td>
+
                   <td className="border border-gray-300 px-4 py-2 text-center">{msg.timestamp && format(msg.timestamp, "dd/MM/yyyy HH:mm:ss")}</td>
 <td className="border border-gray-300 px-4 py-2 text-center">
                       <button
