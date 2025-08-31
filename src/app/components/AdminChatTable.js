@@ -28,6 +28,18 @@ const [popupQueue, setPopupQueue] = useState([]); // antrian notif
   const [selectedIds, setSelectedIds] = useState([]);
 
   const isSelected = (id) => selectedIds.includes(id);
+   const [modalFile, setModalFile] = useState(null);
+  const [modalType, setModalType] = useState(null); 
+    const openModal = (file, type) => {
+    setModalFile(file);
+    setModalType(type);
+  };
+
+  const closeModal = () => {
+    setModalFile(null);
+    setModalType(null);
+  };
+
 
   const toggleSelectAll = () => {
     if (selectedIds.length === messages.length) {
@@ -696,7 +708,7 @@ const handleToggleStatu11s = async (Id, currentStatus) => {
           <div key={fileIndex} className="flex flex-col gap-1">
             {isImage ? (
               <>
-                <img src={file.url} alt={file.name} className="max-w-xs max-h-40 object-contain border rounded" />
+                <img src={file.url} alt={file.name}  onClick={() => openModal(file, 'image')} className="max-w-xs max-h-40 object-contain border rounded" />
                 <button
                 onClick={() => copyToClipboard(file.url)}
 
@@ -707,7 +719,7 @@ const handleToggleStatu11s = async (Id, currentStatus) => {
               </>
             ) : isVideo ? (
               <>
-                <video controls src={file.url} className="max-w-xs max-h-40 border rounded" />
+                <video controls src={file.url}  onClick={() => openModal(file, 'video')} className="max-w-xs max-h-40 border rounded" />
                 <button
                   onClick={copyToClipboard}
                   className="text-sm text-blue-600 underline w-fit"
@@ -854,6 +866,35 @@ const handleToggleStatu11s = async (Id, currentStatus) => {
           <p>{currentPopup.text}</p>
         </div>
       )}
+{modalFile && (
+  <div className="fixed inset-0 z-50 bg-black bg-opacity-80 flex items-center justify-center">
+    <div className="relative max-w-full max-h-full p-4">
+      {/* Tombol Close */}
+      <button
+        onClick={closeModal}
+        className="absolute top-2 right-2 text-white text-3xl font-bold hover:text-red-400"
+      >
+        &times;
+      </button>
+
+      {/* Konten Gambar atau Video */}
+      {modalType === "image" ? (
+        <img
+          src={modalFile.url}
+          alt={modalFile.name}
+          className="max-h-[90vh] max-w-[90vw] object-contain rounded"
+        />
+      ) : (
+        <video
+          controls
+          src={modalFile.url}
+          className="max-h-[90vh] max-w-[90vw] rounded"
+        />
+      )}
+    </div>
+  </div>
+)}
+
     </div>
   );
 };
