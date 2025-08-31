@@ -705,7 +705,7 @@ const handleToggleStatu11s = async (Id, currentStatus) => {
   
 };
         const copyToClipboard1 = () => { navigator.clipboard.writeText(file.url);  };
-        const copyToClipboard2 = (url) => { formula=`=HYPERLINK("${url}", "⬇️")`)
+        const copyToClipboard2 = (url) => { formula=`=HYPERLINK("${url}", "⬇️")`;
           navigator.clipboard.writeText(formula);  };
         return (
           <div key={fileIndex} className="flex flex-col gap-1">
