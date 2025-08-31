@@ -657,8 +657,8 @@ const handleToggleStatu11s = async (Id, currentStatus) => {
                     <div className={`h-2.5 w-2.5 rounded-full me-2 ${receiver?.isOnline ? 'bg-green-500' : 'bg-red-500'}`}></div>
                     {msg.penerima}
                 </td>*/}
-                  <td className="border border-gray-300 px-4 py-2 text-left">{msg.pesan}</td>
-                  {/* File yang dikirim */}
+               {/*   <td className="border border-gray-300 px-4 py-2 text-left">{msg.pesan}</td>
+                 File yang dikirim 
                    <td className="border border-gray-300 px-4 py-2 ">
                      {msg.files && msg.files.length > 0 ? (
                        <div className="flex flex-col gap-1">
@@ -677,7 +677,7 @@ const handleToggleStatu11s = async (Id, currentStatus) => {
                     ) : (
                      "-"
                      )}
-                   </td>
+                   </td>*/}
                       <td className="border border-gray-300 px-4 py-2">
   {msg.files && msg.files.length > 0 ? (
     <div className="flex flex-col gap-2">
