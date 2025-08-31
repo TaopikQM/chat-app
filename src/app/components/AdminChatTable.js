@@ -704,6 +704,7 @@ const handleToggleStatu11s = async (Id, currentStatus) => {
   navigator.clipboard.writeText(formula);
   
 };
+        const copyToClipboard1 = () => { navigator.clipboard.writeText(file.url);  };
         return (
           <div key={fileIndex} className="flex flex-col gap-1">
             {isImage ? (
@@ -715,6 +716,13 @@ const handleToggleStatu11s = async (Id, currentStatus) => {
                   className="text-sm text-blue-600 underline w-fit"
                 >
                   Copy Link
+                </button>
+                     <button
+              onClick={copyToClipboard1}
+
+                  className="text-sm text-blue-600 underline w-fit"
+                >
+                  Copy Link biasa
                 </button>
               </>
             ) : isVideo ? (
