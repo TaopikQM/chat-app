@@ -708,7 +708,7 @@ const handleToggleStatu11s = async (Id, currentStatus) => {
           <div key={fileIndex} className="flex flex-col gap-1">
             {isImage ? (
               <>
-                <img src={file.url} alt={file.name}  onClick={() => openModal(file, 'image')} className="max-w-xs max-h-40 object-contain border rounded" />
+                <img src={file.url} alt={file.name}  onClick={() => openModal(file, 'image')} className="max-w-xs max-h-40 object-contain border rounded cursor-pointer" />
                 <button
                 onClick={() => copyToClipboard(file.url)}
 
@@ -719,7 +719,7 @@ const handleToggleStatu11s = async (Id, currentStatus) => {
               </>
             ) : isVideo ? (
               <>
-                <video controls src={file.url}  onClick={() => openModal(file, 'video')} className="max-w-xs max-h-40 border rounded" />
+                <video controls src={file.url}  onClick={() => openModal(file, 'video')} className="max-w-xs max-h-40 border rounded cursor-pointer" />
                 <button
                   onClick={copyToClipboard}
                   className="text-sm text-blue-600 underline w-fit"
