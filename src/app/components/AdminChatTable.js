@@ -455,11 +455,7 @@ const handleToggleStatu11s = async (Id, currentStatus) => {
     }
 };
 
-const copyToClipboard = (url) => {
-  const formula = `=IMAGE("${url}",4,100,50)`;
-  navigator.clipboard.writeText(formula);
-  alert('Link formula copied for Google Sheets!');
-};
+
 
   
   
@@ -682,7 +678,7 @@ const copyToClipboard = (url) => {
                     ) : (
                      "-"
                      )}
-                   </td> alert('Link copied to clipboard!');  onClick={copyToClipboard}*/}
+                   </td> alert('Link copied to clipboard!');  onClick={copyToClipboard} alert('Link formula copied for Google Sheets!');*/}
                       <td className="border border-gray-300 px-4 py-2">
   {msg.files && msg.files.length > 0 ? (
     <div className="flex flex-col gap-2">
@@ -691,11 +687,11 @@ const copyToClipboard = (url) => {
         const isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext);
         const isVideo = ['mp4', 'avi', 'mov', 'webm'].includes(ext);
 
-        const copyToClipboard = () => {
-          navigator.clipboard.writeText(file.url);
-         
-        };
-
+        const copyToClipboard = (url) => {
+  const formula = `=IMAGE("${url}",4,100,50)`;
+  navigator.clipboard.writeText(formula);
+  
+};
         return (
           <div key={fileIndex} className="flex flex-col gap-1">
             {isImage ? (
