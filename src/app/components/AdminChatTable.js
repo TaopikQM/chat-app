@@ -30,6 +30,7 @@ const [popupQueue, setPopupQueue] = useState([]); // antrian notif
   const isSelected = (id) => selectedIds.includes(id);
    const [modalFile, setModalFile] = useState(null);
   const [modalType, setModalType] = useState(null); 
+  const [openMedia, setOpenMedia] = useState({});
     const openModal = (file, type) => {
     setModalFile(file);
     setModalType(type);
@@ -39,6 +40,13 @@ const [popupQueue, setPopupQueue] = useState([]); // antrian notif
     setModalFile(null);
     setModalType(null);
   };
+    const toggleMedia = (index) => {
+    setOpenMedia((prev) => ({
+      ...prev,
+      [index]: !prev[index],
+    }));
+  };
+
 
 
   const toggleSelectAll = () => {
@@ -694,6 +702,93 @@ const handleToggleStatu11s = async (Id, currentStatus) => {
                       <td className="border border-gray-300 px-4 py-2">
   {msg.files && msg.files.length > 0 ? (
     <div className="flex flex-col gap-2">
+                      {msg.files.map((file, fileIndex) => {
+  const ext = file.name.split('.').pop().toLowerCase();
+  const isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext);
+  const isVideo = ['mp4', 'avi', 'mov', 'webm'].includes(ext);
+
+  const copyToClipboard = (url) => {
+    const formula = `=IMAGE("${url}",4,100,50)`;
+    navigator.clipboard.writeText(formula);
+  };
+
+  const copyToClipboard1 = () => {
+    navigator.clipboard.writeText(file.url);
+  };
+
+  const copyToClipboard2 = (url) => {
+    const formula = `=HYPERLINK("${url}", "⬇️")`;
+    navigator.clipboard.writeText(formula);
+  };
+
+  return (
+    <div key={fileIndex} className="flex flex-col gap-1">
+      {/* Tombol toggle media */}
+      {(isImage || isVideo) && (
+        <button
+          onClick={() => toggleMedia(fileIndex)}
+          className="text-lg w-fit"
+          title="Tampilkan/sembunyikan media"
+        >
+          {isImage ? '🖼️' : '🎞️'} {openMedia[fileIndex] ? 'Hide' : 'Show'}
+        </button>
+      )}
+
+      {/* Media */}
+      {openMedia[fileIndex] && (
+        <>
+          {isImage ? (
+            <img
+              src={file.url}
+              alt={file.name}
+              onClick={() => openModal(file, 'image')}
+              className="max-w-xs max-h-40 object-contain border rounded cursor-pointer"
+            />
+          ) : isVideo ? (
+            <video
+              controls
+              src={file.url}
+              onClick={() => openModal(file, 'video')}
+              className="max-w-xs max-h-40 border rounded cursor-pointer"
+            />
+          ) : null}
+        </>
+      )}
+
+      {/* Tombol Copy */}
+      <div className="flex gap-2 flex-wrap">
+        {isImage && (
+          <button
+            onClick={() => copyToClipboard(file.url)}
+            className="text-sm text-blue-600 underline w-fit"
+          >
+            Copy IMAGE()
+          </button>
+        )}
+        <button
+          onClick={copyToClipboard1}
+          className="text-sm text-blue-600 underline w-fit"
+        >
+          Copy URL
+        </button>
+        <button
+          onClick={() => copyToClipboard2(file.url)}
+          className="text-sm text-blue-600 underline w-fit"
+        >
+          Copy HYPERLINK()
+        </button>
+      </div>
+    </div>
+  );
+})} </div>
+  ) : (
+    "-"
+  )}
+</td>
+
+<td className="border border-gray-300 px-4 py-2">
+  {msg.files && msg.files.length > 0 ? (
+    <div className="flex flex-col gap-2">
       {msg.files.map((file, fileIndex) => {
         const ext = file.name.split('.').pop().toLowerCase();
         const isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext);
@@ -748,6 +843,20 @@ const handleToggleStatu11s = async (Id, currentStatus) => {
                   className="text-sm text-blue-600 underline w-fit"
                 >
                   Copy Link
+                </button>
+                     <button
+              onClick={copyToClipboard1}
+
+                  className="text-sm text-blue-600 underline w-fit"
+                >
+                  Copy Link biasa
+                </button>
+                     <button
+             onClick={() => copyToClipboard2(file.url)}
+
+                  className="text-sm text-blue-600 underline w-fit"
+                >
+                  Copy Link hyperlink
                 </button>
               </>
             ) : (
