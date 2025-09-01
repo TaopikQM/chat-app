@@ -710,7 +710,7 @@ const handleToggleStatu11s = async (Id, currentStatus) => {
         const copyToClipboard2 = (url) => {
   const formula = `=HYPERLINK("${url}", "⬇️")`;
   navigator.clipboard.writeText(formula);
-  alert("Link formula copied to clipboard!");
+  
 };
 
         return (
