@@ -785,7 +785,7 @@ const handleToggleStatu11s = async (Id, currentStatus) => {
     "-"
   )}
 </td>
-
+{/* 
 <td className="border border-gray-300 px-4 py-2">
   {msg.files && msg.files.length > 0 ? (
     <div className="flex flex-col gap-2">
@@ -876,7 +876,7 @@ const handleToggleStatu11s = async (Id, currentStatus) => {
   ) : (
     "-"
   )}
-</td>
+</td>*/}
 
                   <td className="border border-gray-300 px-4 py-2 text-center">{msg.timestamp && format(msg.timestamp, "dd/MM/yyyy HH:mm:ss")}</td>
 <td className="border border-gray-300 px-4 py-2 text-center">
