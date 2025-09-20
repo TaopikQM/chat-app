@@ -213,7 +213,7 @@ export default function Tablegallery() {
           {selectedFiles.length > 0 ? (
             <>
               <a
-                href={`/api/download?urls=${encodeURIComponent(
+                href={`/api/downloada?urls=${encodeURIComponent(
                   JSON.stringify(
                     selectedFiles.map((f) => ({ url: f.url, filename: f.name }))
                   )
@@ -275,7 +275,7 @@ export default function Tablegallery() {
                 <td className="border px-4 py-2 text-center">{renderPreview(file)}</td>
                 <td className="border px-4 py-2 text-center">{formatBytes(file.size)}</td>
                 <td className="border px-4 py-2 text-center">
-                 <a href={`/api/downloadsatu?url=${encodeURIComponent(file.url)}&filename=${encodeURIComponent(file.name)}`}
+                 <a href={`/api/downloadsatuaa?url=${encodeURIComponent(file.url)}&filename=${encodeURIComponent(file.name)}`}
   className="px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700"
 >
   Unduh
