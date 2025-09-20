@@ -190,7 +190,7 @@ export default function Tablegallery() {
         <h2 className="text-xl font-semibold mb-4">📁 Folder: {currentFolder}</h2>
       )}
 
-      {/* File table */}
+      {/* File table 
       {files.length > 0 && (
         <div className="mb-4 flex items-center gap-4">
           <button
@@ -204,6 +204,36 @@ export default function Tablegallery() {
           </button>
           {selectedFiles.length > 0 && (
             <span className="text-gray-700">Total Size: {formatBytes(totalSelectedSize)}</span>
+          )}
+        </div>
+      )}*/}
+
+        {files.length > 0 && (
+        <div className="mb-4 flex items-center gap-4">
+          {selectedFiles.length > 0 ? (
+            <>
+              <a
+                href={`/api/download?urls=${encodeURIComponent(
+                  JSON.stringify(
+                    selectedFiles.map((f) => ({ url: f.url, filename: f.name }))
+                  )
+                )}`}
+                className="px-4 py-2 rounded bg-blue-500 text-white hover:bg-blue-600"
+              >
+                Downloadaja {selectedFiles.length} file
+                {selectedFiles.length > 1 ? "s" : ""}
+              </a>
+              <span className="text-gray-700">
+                Total Size: {formatBytes(totalSelectedSize)}
+              </span>
+            </>
+          ) : (
+            <button
+              disabled
+              className="px-4 py-2 rounded text-white bg-gray-300 cursor-not-allowed"
+            >
+              Download
+            </button>
           )}
         </div>
       )}
@@ -245,13 +275,11 @@ export default function Tablegallery() {
                 <td className="border px-4 py-2 text-center">{renderPreview(file)}</td>
                 <td className="border px-4 py-2 text-center">{formatBytes(file.size)}</td>
                 <td className="border px-4 py-2 text-center">
-                  <a
-                    href={file.url}
-                    download={file.name}
-                    className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
-                  >
-                    Download
-                  </a>
+                 <a href={`/api/downloadsatu?url=${encodeURIComponent(file.url)}&filename=${encodeURIComponent(file.name)}`}
+  className="px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700"
+>
+  Unduh
+</a>
                 </td>
               </tr>
             ))}
