@@ -213,7 +213,7 @@ export default function Tablegallery() {
           {selectedFiles.length > 0 ? (
             <>
               <a
-                href={`/api/downloada?urls=${encodeURIComponent(
+                href={`/api/downloadaja?urls=${encodeURIComponent(
                   JSON.stringify(
                     selectedFiles.map((f) => ({ url: f.url, filename: f.name }))
                   )
