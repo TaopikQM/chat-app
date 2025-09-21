@@ -78,6 +78,8 @@ const LAdminChatTable = () => {
                   .sort((a, b) => b.deleteTime - a.deleteTime) // Urutkan dari terbaru ke lama
             : [];
         setLogsChats(sortedData);
+      
+        console.log("logs data pesan1",sortedData);
     });
     
     // Ambil data log pengguna
@@ -2054,4 +2056,5 @@ export default LAdminChatTable;
 // // // // // // // // };
 
 // // // // // // // // export default AdminChatTable;
+
 
