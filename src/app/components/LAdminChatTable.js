@@ -52,7 +52,7 @@ const LAdminChatTable = () => {
               .sort((a, b) => b.deleteTime - a.deleteTime); // 🔹 Urutkan dari terbaru ke terlama
   
           setMessages(messages);
-        // console.log(messages);
+        console.log("logs data pesan",messages);
         
         // setTotalItems(data.length);
       }
@@ -2054,3 +2054,4 @@ export default LAdminChatTable;
 // // // // // // // // };
 
 // // // // // // // // export default AdminChatTable;
+
