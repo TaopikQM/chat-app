@@ -302,6 +302,8 @@
 // src/app/api/download/route.js
 import archiver from "archiver";
 import fetch from "node-fetch";
+
+export const runtime = "nodejs";
 import { NextResponse } from "next/server";
 
 export async function GET(req) {
