@@ -179,7 +179,8 @@ const ChatMessage = ({ message, user1, openDropdownId, setOpenDropdownId, setRep
                             // Tambahkan pesan ke log_chatsBox dengan deleteTime
                             await update(logMessageRef, {
                               ...message, 
-                              deleteTime: Date.now() // Menyimpan waktu penghapusan
+                              deleteTime: Date.now(), // Menyimpan waktu penghapusan
+                              deleteBy: message.pengirim
                             });
 
                             // Hapus pesan dari chatsBox (gunakan remove, bukan update)
@@ -328,8 +329,8 @@ const ChatMessage = ({ message, user1, openDropdownId, setOpenDropdownId, setRep
                         >
                           Reply
                       </li>
-                           {Date.now() - message.timestamp <= 5 * 60 * 60 * 1000 && (
-                      <li 
+                           {/*{Date.now() - message.timestamp <= 5 * 60 * 60 * 1000 && (
+                             <li 
                         className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer"
                         onClick={async () => {
                           if (!message.id) return; // Pastikan ada ID pesan
@@ -378,7 +379,63 @@ const ChatMessage = ({ message, user1, openDropdownId, setOpenDropdownId, setRep
                         }}
                       >
                         Update Pesan
-                      </li>)}
+                      </li>)}*/}
+                            {Date.now() - message.timestamp <= 5 * 60 * 60 * 1000 && (
+                         <li 
+                           className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer"
+                           onClick={async () => {
+                             if (!message.id) return; 
+                             
+                             if (message.pesan === "" || message.pesan.trim() === "") {
+                               alert("Pesan tidak valid atau kosong dan tidak bisa diubah!");
+                               return;
+                             }
+                         
+                             if (message.files?.length > 0 || message.audio) {
+                               alert("Pesan media tidak bisa diedit!");
+                               return;
+                             }
+                         
+                             const isConfirmed = window.confirm("Apakah Anda yakin ingin mengupdate pesan ini?");
+                             if (!isConfirmed) {
+                               alert("Update dibatalkan.");
+                               return;
+                             }
+                         
+                             const updatedMessage = prompt("Masukkan pesan baru:", message.pesan);
+                             if (!updatedMessage || updatedMessage.trim() === "") {
+                               alert("Pesan tidak bisa kosong!");
+                               return;
+                             }
+                         
+                             const messageRef = databaseRef(database, `chatsBox/${message.id}`);
+                             
+                             try {
+                               const oldData = {
+                                 pesan: message.pesan,
+                                 updateTime: message.updateTime || message.timestamp || Date.now(),
+                               };
+                         
+                               await update(messageRef, {
+                                 ...message,
+                                 pesan: updatedMessage,
+                                 updateTime: Date.now(),
+                                 history: [
+                                   ...(message.history || []), 
+                                   oldData
+                                 ]
+                               });
+                         
+                               alert("Pesan berhasil diupdate!");
+                             } catch (error) {
+                               console.error("Gagal mengupdate pesan:", error);
+                               alert("Terjadi kesalahan saat mengupdate pesan.");
+                             }
+                           }}
+                         >
+                           Update Pesan
+                         </li>)}
+
 
                       
 
@@ -1303,3 +1360,4 @@ const ChatMessage = ({ message, user1, openDropdownId, setOpenDropdownId, setRep
   
 //   export default ChatMessage;
   
+
