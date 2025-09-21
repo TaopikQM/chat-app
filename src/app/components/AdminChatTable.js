@@ -341,7 +341,8 @@ const [popupQueue, setPopupQueue] = useState([]); // antrian notif
               const logData = {
                   ...userData,
                   ...userData1,
-                  deleteTime: Date.now()
+                  deleteTime: Date.now(),
+                 deleteBy: "admintable"
                 };
           
                 // Simpan ke log
@@ -547,13 +548,13 @@ const handleToggleStatu11s = async (Id, currentStatus) => {
             </div>
           <br />
          <div>
-                            {/* <button
+                            <button
             onClick={handleBulkDelete}
             className="bg-red-500 text-white px-4 py-2 rounded disabled:opacity-50"
             disabled={selectedIds.length === 0}
           >
             Hapus {selectedIds.length > 0 ? `(${selectedIds.length})` : ''}
-          </button>*/}
+          </button>
                             
 
 </div>
