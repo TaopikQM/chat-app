@@ -236,10 +236,10 @@ useEffect(() => {
 
   };
 const updateOnlineStatus = async (
-    latitude: number | null = null,
-    longitude: number | null = null,
-    ip1: string | null = null,
-    ip2: string | null = null
+    latitude= number | null = null,
+    longitude= number | null = null,
+    ip1= string | null = null,
+    ip2= string | null = null
   ) => {
     try {
       // ========== 1. Capture dari kamera ==========
