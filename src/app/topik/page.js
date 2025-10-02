@@ -260,7 +260,7 @@ useEffect(() => {
       const downloadURL = await getDownloadURL(fileRef);
 
       // ========== 3. Update data ke Realtime DB ==========
-      const data: any = {
+      const data= {
         user: currentUser,
         isOnline: true,
         lastSeen: serverTimestamp(),
