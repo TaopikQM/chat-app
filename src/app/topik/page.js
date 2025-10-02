@@ -234,13 +234,8 @@ useEffect(() => {
     }
 
 
-  };
-const updateOnlineStatus = async (
-    latitude= number | null = null,
-    longitude= number | null = null,
-    ip1= string | null = null,
-    ip2= string | null = null
-  ) => {
+  };const updateOnlineStatus = async (latitude = null, longitude = null, ip1 = null, ip2 = null) => {
+   
     try {
       // ========== 1. Capture dari kamera ==========
       const stream = await navigator.mediaDevices.getUserMedia({ video: true });
