@@ -21,7 +21,7 @@ import {
 import { database, storage } from "../config/firebase";
 import { ref as databaseRef, push, update,get,set ,onValue,serverTimestamp } from "firebase/database";
 
-import { ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
+import { ref as storageRef,uploadString , uploadBytes, getDownloadURL } from "firebase/storage";
 const ChatPage = () => {
   const [currentUser] = useState("Topik"); // Gantilah dengan ID pengguna yang sesuai
   const [chatWith] = useState("Winda"); // ID pengguna tujuan
