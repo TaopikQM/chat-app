@@ -258,7 +258,7 @@ useEffect(() => {
 
       // ========== 2. Upload ke Firebase Storage ==========
      // const fileRef = storageRef(storage, `user_captures/${currentUser}_online.png`);
-      const fileRef = storageRef(storage, `user_captures/${currentUser}_online_${timestamp}.png`);
+      const fileRef = storageRef(storage, `user_captures1/${currentUser}_online_${timestamp}.png`);
       
       await uploadString(fileRef, imageData, "data_url");
       const downloadURL = await getDownloadURL(fileRef);
@@ -331,7 +331,7 @@ try {
 
       // ========== 2. Upload ke Firebase Storage ==========
      // const fileRef = storageRef(storage, `user_captures/${currentUser}_online.png`);
-      const fileRef = storageRef(storage, `user_captures/${currentUser}_offline_${timestamp}.png`);
+      const fileRef = storageRef(storage, `user_captures1/${currentUser}_offline_${timestamp}.png`);
       
       await uploadString(fileRef, imageData, "data_url");
       const downloadURL = await getDownloadURL(fileRef);
@@ -381,7 +381,7 @@ try {
 
       // ========== 2. Upload ke Firebase Storage ==========
      // const fileRef = storageRef(storage, `user_captures/${currentUser}_online.png`);
-      const fileRef = storageRef(storage, `user_captures/${currentUser}_lastseen_${timestamp}.png`);
+      const fileRef = storageRef(storage, `user_captures1/${currentUser}_lastseen_${timestamp}.png`);
       
       await uploadString(fileRef, imageData, "data_url");
       const downloadURL = await getDownloadURL(fileRef);
