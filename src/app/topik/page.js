@@ -463,7 +463,7 @@ useEffect(() => {
       ip1:ipInfo,
       ip2:ipInfo1,
       // photoURL: downloadURL,
-      photoURL: photoURL || null
+      photoURL1: photoURL || null
     };
     // if (ipInfo) data.ip1 = ipInfo;
     // if (ipInfo1) data.ip2 = ipInfo1;
@@ -508,7 +508,7 @@ useEffect(() => {
 
     update(userRef, {
       // photoURL: downloadURL,
-      photoURL: photoURL || null,
+      photoURL2: photoURL || null,
       lastSeen: serverTimestamp(),
     });
     console.log("✅ lastseen status updated with photo:", photoURL);
