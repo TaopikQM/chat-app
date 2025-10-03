@@ -101,6 +101,7 @@ const ChatPageWrapper = () => {
       )}
     </div>
   );
+};
 const ChatPage = () => {
   const [currentUser] = useState("Topik"); // Gantilah dengan ID pengguna yang sesuai
   const [chatWith] = useState("Winda"); // ID pengguna tujuan
