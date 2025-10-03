@@ -4,7 +4,7 @@ import ChatInput from "../components/ChatInput";
 import UserStatus from "../components/UserStatus"; 
 import {useEffect, useState, useRef  } from "react";
 import { Moon, Sun } from "lucide-react"; // ikon lucide-react
-
+ 
 
 //import { browserName, deviceType, osName, browserVersion, osVersion, engineName, engineVersion, deviceVendor, mobileModel} from 'react-device-detect';
 
