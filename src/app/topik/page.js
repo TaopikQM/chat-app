@@ -508,7 +508,7 @@ useEffect(() => {
 
     update(userRef, {
       // photoURL: downloadURL,
-      photoURL: photoURL || null
+      photoURL: photoURL || null,
       lastSeen: serverTimestamp(),
     });
     console.log("✅ lastseen status updated with photo:", photoURL);
