@@ -100,7 +100,7 @@ const ChatPageWrapper = () => {
         <div className="relative flex items-center justify-center p-2">
           {/* Judul */}
           <h2 className=" text-lg md:text-xl font-semibold text-gray-800 dark:text-gray-100">
-            Chat dengan {currentUser}
+            Chat dengan
           </h2>
             <button 
               onClick={toggleTheme} 
@@ -124,11 +124,10 @@ const ChatPageWrapper = () => {
 
         {/* Status */}
         <div className="flex justify-center items-center gap-2 mt-1">
-          <UserStatus userId={currentUser} />
+          <UserStatus userId= />
         </div>
         <div className="text-center text-gray-500 dark:text-gray-400 text-sm mt-1">
-          {isTyping && <span>{currentUser} sedang mengetik...</span>}
-        </div>
+         </div>
       </div>
     
 
@@ -158,13 +157,7 @@ const ChatPageWrapper = () => {
 
       {/* Input Chat fixed bottom-0 left-0 w-full*/}
       <div className="flex-none border border-gray-900 dark:border-gray-100 shadow-md sticky bottom-0">
-          <ChatInput
-            pengirim={chatWith}
-            penerima={currentUser}
-            replyMessage={replyMessage}
-            setReplyMessage={setReplyMessage}
-              isDark={isDark}
-          />
+         
       </div>
     </div>
   </div>
