@@ -103,7 +103,7 @@ const ChatPageWrapper = () => {
       )}
     </div>
   );
-
+};
 
 const ChatPage = () => {
   const [currentUser] = useState("user1"); // Gantilah dengan ID pengguna yang sesuai
