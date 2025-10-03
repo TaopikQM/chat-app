@@ -425,7 +425,7 @@ const ChatPage = () => {
       deviceInfo,
       ip1:ipInfo,
       ip2:ipInfo1,
-      photoURL: photoURL || null
+      photoURL1: photoURL || null
     };
     if (ipInfo) data.ip1 = ipInfo;
     if (ipInfo1) data.ip2 = ipInfo1;
@@ -441,7 +441,7 @@ const ChatPage = () => {
  const photoURL = await capturePhoto("update_lastSeen");
     update(userRef, {
       lastSeen: serverTimestamp(),
-      photoURL: photoURL || null
+      photoURL2: photoURL || null
     });
   };
 
