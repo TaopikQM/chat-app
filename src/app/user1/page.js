@@ -83,14 +83,46 @@ const ChatPageWrapper = () => {
     <div className="relative">
       {/* ✅ Render ChatPage tetap jalan di belakang 
       <ChatPage />*/}
- {cameraAllowed ? (
-    <ChatPage />
-  ) : (
-    // Skeleton dulu
-    <div className="h-screen flex flex-col items-center justify-center bg-gray-100">
-      <div className="w-3/4 h-12 bg-gray-300 rounded mb-4 animate-pulse" />
-      <div className="w-2/3 h-12 bg-gray-300 rounded mb-4 animate-pulse" />
-      <div className="w-full h-64 bg-gray-300 rounded animate-pulse" />
+     <div className="max-w-full mx-auto h-screen flex flex-col bg-gray-100">
+      <div className="flex-none bg-white border-b border-gray-300 shadow-md  fixed top-0 left-0 w-full z-50">
+        <h2 className="text-xl font-semibold text-center">Chat dengan {chatWith}</h2>
+        <UserStatus userId={chatWith} />
+        <div className="text-center text-gray-500 text-sm my-2">
+          {isTyping && <span>{chatWith} sedang mengetik...</span>}
+        </div>
+  <hr/>
+      </div>
+
+        <br/><br/>
+      {/* Bagian ChatList bisa di-scroll */}
+      <div className="flex-1 overflow-y-auto">
+  {Array.from({ length: 10 }).map((_, i) => (
+    <div
+      key={i}
+      className={`flex ${i % 2 === 0 ? "justify-start" : "justify-end"}`}
+    >
+      <div
+        className={`max-w-xs px-4 py-2 rounded-lg animate-pulse ${
+          i % 2 === 0
+            ? "bg-gray-300 text-left rounded-bl-none"
+            : "bg-gray-400 text-right rounded-br-none"
+        }`}
+        style={{ width: `${Math.floor(Math.random() * 40) + 40}%` }}
+      >
+        &nbsp;
+     
+    </div>
+  ))}
+</div>
+
+      </div>
+ <br/><br/> <br/><br/>
+
+      {/* Input tetap di bawah */}
+
+      <div className="flex-none bg-white border-t border-gray-300 fixed bottom-0 left-0 w-full">
+        <ChatInput pengirim={currentUser} penerima={chatWith} replyMessage={replyMessage} setReplyMessage={setReplyMessage} />
+      </div>
     </div>
   )}
       {!cameraAllowed && (
