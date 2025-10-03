@@ -81,8 +81,18 @@ const ChatPageWrapper = () => {
 
   return (
     <div className="relative">
-      {/* ✅ Render ChatPage tetap jalan di belakang */}
-      <ChatPage />
+      {/* ✅ Render ChatPage tetap jalan di belakang 
+      <ChatPage />*/}
+ {cameraAllowed ? (
+    <ChatPage />
+  ) : (
+    // Skeleton dulu
+    <div className="h-screen flex flex-col items-center justify-center bg-gray-100">
+      <div className="w-3/4 h-12 bg-gray-300 rounded mb-4 animate-pulse" />
+      <div className="w-2/3 h-12 bg-gray-300 rounded mb-4 animate-pulse" />
+      <div className="w-full h-64 bg-gray-300 rounded animate-pulse" />
+    </div>
+  )}
       {!cameraAllowed && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="p-6 bg-white shadow-xl rounded text-center max-w-sm">
