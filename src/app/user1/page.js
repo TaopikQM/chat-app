@@ -119,7 +119,7 @@ const ChatPageWrapper = () => {
    
            {/* Status */}
            <div className="flex justify-center items-center gap-2 mt-1">
-             <UserStatus userId= />
+            
            </div>
            <div className="text-center text-gray-500 dark:text-gray-400 text-sm mt-1">
             </div>
