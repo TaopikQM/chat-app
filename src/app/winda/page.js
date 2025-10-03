@@ -1,7 +1,7 @@
 "use client";
 import ChatList from "../components/ChatList";
 import ChatInput from "../components/ChatInput";
-import UserStatus from "../components/UserStatus";
+import UserStatus from "../components/UserStatus"; 
 import {useEffect, useState, useRef  } from "react";
 import { Moon, Sun } from "lucide-react"; // ikon lucide-react
 
