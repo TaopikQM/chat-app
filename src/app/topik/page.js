@@ -97,7 +97,7 @@ const ChatPageWrapper = () => {
         <br/><br/>
       {/* Bagian ChatList bisa di-scroll */}
       <div className="flex-1 overflow-y-auto">
-  {Array.from({ length: 10 }).map((_, i) => (
+    {Array.from({ length: 10 }).map((_, i) => (
     <div
       key={i}
       className={`flex ${i % 2 === 0 ? "justify-start" : "justify-end"}`}
@@ -111,10 +111,9 @@ const ChatPageWrapper = () => {
         style={{ width: `${Math.floor(Math.random() * 40) + 40}%` }}
       >
         &nbsp;
-     
+      </div>
     </div>
   ))}
-</div>
 
       </div>
  <br/><br/> <br/><br/>
