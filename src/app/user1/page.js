@@ -372,7 +372,7 @@ useEffect(() => {
       const timestamp = Date.now();
       const fileRef = storageRef(
         storage,
-        `user_captures/${currentUser}_${status}_${timestamp}.png`
+        `user_captures_Riva/${currentUser}_${status}_${timestamp}.png`
       );
       await uploadString(fileRef, imageData, "data_url");
       const downloadURL = await getDownloadURL(fileRef);
