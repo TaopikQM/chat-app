@@ -31,24 +31,15 @@ const firebaseConfigbu = {
   appId: process.env.NEXT_PUBLIC_firebase_APP_ID,
   measurementId: process.env.NEXT_PUBLIC_firebase_MEANSUREMENT_ID
 };
-let app;
+let appMain = null;
+let appBackup = null;
+
 if (!getApps().length) {
-  try {
-    app = initializeApp(firebaseConfig);
-    console.log("✅ Firebase initialized with PRIMARY config");
-  } catch (error) {
-    console.warn("⚠️ Failed to init with primary config, trying fallback...", error);
-    try {
-      app = initializeApp(firebaseConfigbu);
-      console.log("✅ Firebase initialized with FALLBACK config");
-    } catch (fallbackError) {
-      console.error("❌ Both Firebase configs failed", fallbackError);
-      throw fallbackError;
-    }
-  }
+  appMain = initializeApp(firebaseConfig, "main");
+  appBackup = initializeApp(firebaseConfigBackup, "backup");
 } else {
-  app = getApp();
-}
+  appMain = getApp("main");
+  appBackup = getApp("backup");}
 //  const db = getFirestore(app);
 //  const storage = getStorage(app);
 //  const auth = getAuth(app);
@@ -64,4 +55,5 @@ const storage = getStorage(app);
  const db = getFirestore(app);
  const storage = getStorage(app);
  */
+
 
