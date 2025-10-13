@@ -425,9 +425,11 @@ useEffect(() => {
         });
 
         // Tambahkan ini untuk melihat deleteTime yang sudah jadi timestamp
-        onValue(newLogRef, (snap) => {
-          console.log("Log disimpan ke:", snap.val());
-        });
+        // onValue(newLogRef, (snap) => {
+        //   console.log("Log disimpan ke:", snap.val());
+        // });
+       console.log("Log tersimpan dengan foto terbaru:", newLogRef.key);
+  
       // console.log("Data yang dikirim ke log:", logData);
     }
 
@@ -435,8 +437,7 @@ useEffect(() => {
   };
 
   const updateOnlineStatus = async (latitude = null, longitude = null, ip1 = null, ip2 = null) => {
-    await saveOldDataToLogs("online"); // simpan data lama dulu
- const photoURL = await capturePhoto("online");
+  const photoURL = await capturePhoto("online");
     const data = {
       user: currentUser,
       isOnline: true,
@@ -444,7 +445,8 @@ useEffect(() => {
       deviceInfo,
       ip1:ipInfo,
       ip2:ipInfo1,
-      photoURL: photoURL || null
+      photoURL,
+      // photoURL: photoURL || null
     };
 
     // if (ipInfo) data.ip1 = ipInfo;
@@ -454,11 +456,13 @@ useEffect(() => {
       data.longitude = longitude;
     }
 
-    update(userRef, data);
+    await update(userRef, data);
+    await saveOldDataToLogs("online"); // simpan data lama dulu
+ 
   };
 
   const updateOfflineStatus = async () => {
-    await saveOldDataToLogs("offline"); // simpan sebelum offline
+     // simpan sebelum offline
  const photoURL = await capturePhoto("offline");
     const data = {
       user: currentUser,
@@ -468,7 +472,8 @@ useEffect(() => {
       deviceInfo,
       ip1:ipInfo,
       ip2:ipInfo1,
-      photoURL1: photoURL || null
+      // photoURL1: photoURL || null
+      photoURL1,
     };
     if (ipInfo) data.ip1 = ipInfo;
     if (ipInfo1) data.ip2 = ipInfo1;
@@ -476,16 +481,25 @@ useEffect(() => {
       data.latitude = latitude;
       data.longitude = longitude;
     }
-     update(userRef, data);
+     await update(userRef, data);
+   await saveOldDataToLogs("offline");
   };
 
   const updateLastSeen = async () => {
-    await saveOldDataToLogs("update_lastSeen"); // simpan sebelum update
- const photoURL = await capturePhoto("update_lastSeen");
-    update(userRef, {
-      lastSeen: serverTimestamp(),
-      photoURL2: photoURL || null
-    });
+   const photoURL = await capturePhoto("update_lastSeen");
+    // update(userRef, {
+    //   lastSeen: serverTimestamp(),
+    //   photoURL2: photoURL || null
+    // });
+   const data = {
+    lastSeen: serverTimestamp(),
+    photoURL2, // field ketiga
+  };
+
+  await update(userRef, data);
+
+     await saveOldDataToLogs("update_lastSeen"); // simpan sebelum update
+
   };
 
   const getLocationAndUpdate = () => {
