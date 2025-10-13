@@ -163,7 +163,7 @@ useEffect(() => {
     if (!currentFolder) return;
     const folderPath = currentFolder ? currentFolder + "/" : "";
     const folderRef = ref(storage, folderPath);
-    const res = await list(folderRef, { maxResults: 50 });
+    const res = await list(folderRef, { maxResults: 1000 });
     const urls = await Promise.all(
       res.items.map(async (itemRef) => {
         const url = await getDownloadURL(itemRef);
