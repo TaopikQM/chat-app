@@ -55,8 +55,8 @@ const storageBackup = getStorage(appBackup);
 const databaseMain = getDatabase(appMain);
 const databaseBackup = getDatabase(appBackup); // opsional kalau pakai RTDB backup juga
 
-const authMain = getAuth(appMain);
-const firestoreMain = getFirestore(appMain);
+// const authMain = getAuth(appMain);
+// const firestoreMain = getFirestore(appMain);
  const database = getDatabase(app); // Add this line to initialize Realtime Database
  
 const storage = getStorage(app);
@@ -65,8 +65,6 @@ export {
   // Main app
   storageMain,
   databaseMain,
-  authMain,
-  firestoreMain,
 
   // Backup app
  database, storage,
@@ -97,6 +95,7 @@ export {
  // const db = getFirestore(app);
  // const storage = getStorage(app);
  // */
+
 
 
 
