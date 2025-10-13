@@ -305,7 +305,7 @@ useEffect(() => {
                 </td>
                 <td className="border px-4 py-2 text-center">{idx + 1}</td>
                 <td className="border px-4 py-2">{file.name}</td>
-                <td className="border px-4 py-2 text-center"onClick={() => setSelectedFile(file)}
+                <td className="border px-4 py-2 text-center cursor-pointer"onClick={() => setSelectedFile(file)}
         data-modal-target="preview-modal"
         data-modal-toggle="preview-modal"
       >{renderPreview(file)}</td>
