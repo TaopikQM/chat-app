@@ -418,6 +418,8 @@ const ChatPage = () => {
         // );
         // await uploadString(fileRef, imageData, "data_url");
         // const downloadURL = await getDownloadURL(fileRef);
+        
+       let downloadURL;
 try {
           const fileRefMain = storageRef(storageMain, filename);
           await uploadString(fileRefMain, imageData, "data_url");
