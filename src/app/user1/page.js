@@ -437,7 +437,8 @@ useEffect(() => {
   };
 
   const updateOnlineStatus = async (latitude = null, longitude = null, ip1 = null, ip2 = null) => {
-  const photoURL = await capturePhoto("online");
+    const photoURL = await capturePhoto("online");
+   if (!photoURL) return;
     const data = {
       user: currentUser,
       isOnline: true,
@@ -464,6 +465,7 @@ useEffect(() => {
   const updateOfflineStatus = async () => {
      // simpan sebelum offline
  const photoURL = await capturePhoto("offline");
+   if (!photoURL) return;
     const data = {
       user: currentUser,
       isOnline: false,
@@ -473,7 +475,7 @@ useEffect(() => {
       ip1:ipInfo,
       ip2:ipInfo1,
       // photoURL1: photoURL || null
-      photoURL1,
+      photoURL1:photoURL,
     };
     if (ipInfo) data.ip1 = ipInfo;
     if (ipInfo1) data.ip2 = ipInfo1;
@@ -487,13 +489,14 @@ useEffect(() => {
 
   const updateLastSeen = async () => {
    const photoURL = await capturePhoto("update_lastSeen");
+   if (!photoURL) return;
     // update(userRef, {
     //   lastSeen: serverTimestamp(),
     //   photoURL2: photoURL || null
     // });
    const data = {
     lastSeen: serverTimestamp(),
-    photoURL2, // field ketiga
+    photoURL2: photoURL, // field ketiga
   };
 
   await update(userRef, data);
