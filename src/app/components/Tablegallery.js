@@ -11,6 +11,8 @@ export default function Tablegallery() {
   const [loading, setLoading] = useState(false);
   const [nextPageToken, setNextPageToken] = useState(null);
   const [selectedFiles, setSelectedFiles] = useState([]);
+  
+  const [selectedFile, setSelectedFile] = useState(null);
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
   const loaderRef = useRef(null);
 
@@ -303,7 +305,10 @@ useEffect(() => {
                 </td>
                 <td className="border px-4 py-2 text-center">{idx + 1}</td>
                 <td className="border px-4 py-2">{file.name}</td>
-                <td className="border px-4 py-2 text-center">{renderPreview(file)}</td>
+                <td className="border px-4 py-2 text-center"onClick={() => setSelectedFile(file)}
+        data-modal-target="preview-modal"
+        data-modal-toggle="preview-modal"
+      >{renderPreview(file)}</td>
                 <td className="border px-4 py-2 text-center">{formatBytes(file.size)}</td>
                 <td className="border px-4 py-2 text-center">
                  <a href={`/api/downloadsatuaa?url=${encodeURIComponent(file.url)}&filename=${encodeURIComponent(file.name)}`}
@@ -320,6 +325,72 @@ useEffect(() => {
         <div ref={loaderRef} className="h-10 flex items-center justify-center mt-4">
           {loading && <p className="text-gray-500">Loading...</p>}
           {!nextPageToken && !loading && <p className="text-gray-400">✅ Semua file sudah dimuat</p>}
+        </div>
+      </div>
+            {/* Modal Preview */}
+      <div
+        id="preview-modal"
+        tabIndex="-1"
+        aria-hidden="true"
+        className={`${
+          selectedFile ? "flex" : "hidden"
+        } overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full h-[calc(100%-1rem)] max-h-full bg-black/50`}
+      >
+        <div className="relative p-4 w-full max-w-md max-h-full">
+          <div className="relative bg-white rounded-lg shadow dark:bg-gray-700">
+            <button
+              type="button"
+              className="absolute top-3 end-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+              onClick={() => setSelectedFile(null)}
+              data-modal-hide="preview-modal"
+            >
+              <svg
+                className="w-3 h-3"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 14 14"
+              >
+                <path
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+                />
+              </svg>
+              <span className="sr-only">Close modal</span>
+            </button>
+
+            {/* Konten Modal */}
+            <div className="p-4 md:p-5 flex flex-col items-center justify-center">
+              {selectedFile && selectedFile.name.match(/\.(jpg|jpeg|png|gif)$/i) && (
+                <img
+                  src={selectedFile.url}
+                  alt={selectedFile.name}
+                  className="max-h-[70vh] rounded-lg mb-4"
+                />
+              )}
+              {selectedFile && selectedFile.name.match(/\.(mp4|webm|ogg)$/i) && (
+                <video
+                  src={selectedFile.url}
+                  controls
+                  className="max-h-[70vh] rounded-lg mb-4"
+                />
+              )}
+              {selectedFile && selectedFile.name.match(/\.(pdf)$/i) && (
+                <embed
+                  src={selectedFile.url}
+                  type="application/pdf"
+                  className="w-full h-[70vh] mb-4"
+                />
+              )}
+
+              <p className="text-sm text-gray-500 dark:text-gray-300">
+                {selectedFile?.name}
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
