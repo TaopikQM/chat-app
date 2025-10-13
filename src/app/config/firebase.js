@@ -34,6 +34,13 @@ const firebaseConfigbu = {
 // ✅ Inisialisasi dua Firebase App: "main" dan "backup"
 let appMain, appBackup;
 
+ let app;
+ if (!getApps().length) {
+   app = initializeApp(firebaseConfig);
+ } else {
+   app = getApp();
+ }
+
 const existingApps = getApps();
 
 if (!existingApps.find(app => app.name === "main")) {
@@ -95,6 +102,7 @@ export {
  // const db = getFirestore(app);
  // const storage = getStorage(app);
  // */
+
 
 
 
