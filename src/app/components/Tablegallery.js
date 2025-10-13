@@ -20,7 +20,7 @@ export default function Tablegallery() {
       setLoading(true);
       const folderPath = folder ? folder + "/" : ""; // root atau subfolder
       const folderRef = ref(storage, folderPath);
-      const res = await list(folderRef, { maxResults: 10000, pageToken });
+      const res = await list(folderRef, { maxResults: 1000, pageToken });
 
       // subfolder
       const subFolders = res.prefixes.map((p) => {
