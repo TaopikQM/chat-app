@@ -157,6 +157,37 @@ export default function Tablegallery() {
     });
   }
 
+// Auto-refresh isi folder setiap 7 detik (cek pembaruan file)
+useEffect(() => {
+  const interval = setInterval(async () => {
+    if (!currentFolder) return;
+    const folderPath = currentFolder ? currentFolder + "/" : "";
+    const folderRef = ref(storage, folderPath);
+    const res = await list(folderRef, { maxResults: 50 });
+    const urls = await Promise.all(
+      res.items.map(async (itemRef) => {
+        const url = await getDownloadURL(itemRef);
+        const metadata = await getMetadata(itemRef);
+        return { name: itemRef.name, url, size: metadata.size };
+      })
+    );
+
+    // Urutkan terbaru dulu (berdasarkan nama, bisa juga timestamp kalau ada)
+    urls.sort((a, b) => b.name.localeCompare(a.name));
+
+    // Bandingkan dengan state lama, kalau beda → update
+    setFiles((prevFiles) => {
+      if (JSON.stringify(urls) !== JSON.stringify(prevFiles)) {
+        return urls;
+      }
+      return prevFiles;
+    });
+  }, 7000); // setiap 7 detik cek
+
+  return () => clearInterval(interval);
+}, [currentFolder]);
+
+
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-6 text-center">📂 Gallery Files</h1>
