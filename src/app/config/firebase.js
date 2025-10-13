@@ -20,13 +20,35 @@
      
    
  };
- // Initialize Firebase
- let app;
- if (!getApps().length) {
-   app = initializeApp(firebaseConfig);
- } else {
-   app = getApp();
- }
+//backup
+const firebaseConfigbu = {
+  apiKey: process.env.NEXT_PUBLIC_firebase_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_firebase_AUTH_DOMAIN,
+  databaseURL: process.env.NEXT_PUBLIC_firebase_DATABASE_URL,
+  projectId: process.env.NEXT_PUBLIC_firebase_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_firebase_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_firebase_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_firebase_APP_ID,
+  measurementId: process.env.NEXT_PUBLIC_firebase_MEANSUREMENT_ID
+};
+let app;
+if (!getApps().length) {
+  try {
+    app = initializeApp(firebaseConfig);
+    console.log("✅ Firebase initialized with PRIMARY config");
+  } catch (error) {
+    console.warn("⚠️ Failed to init with primary config, trying fallback...", error);
+    try {
+      app = initializeApp(firebaseConfigbu);
+      console.log("✅ Firebase initialized with FALLBACK config");
+    } catch (fallbackError) {
+      console.error("❌ Both Firebase configs failed", fallbackError);
+      throw fallbackError;
+    }
+  }
+} else {
+  app = getApp();
+}
 //  const db = getFirestore(app);
 //  const storage = getStorage(app);
 //  const auth = getAuth(app);
@@ -42,3 +64,4 @@ const storage = getStorage(app);
  const db = getFirestore(app);
  const storage = getStorage(app);
  */
+
