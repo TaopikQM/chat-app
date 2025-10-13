@@ -22,7 +22,7 @@ export default function Tablegallery() {
       setLoading(true);
       const folderPath = folder ? folder + "/" : ""; // root atau subfolder
       const folderRef = ref(storage, folderPath);
-      const res = await list(folderRef, { maxResults: 1000, pageToken });
+      const res = await list(folderRef, { pageToken });
 
       // subfolder
       const subFolders = res.prefixes.map((p) => {
@@ -37,9 +37,12 @@ export default function Tablegallery() {
         res.items.map(async (itemRef) => {
           const url = await getDownloadURL(itemRef);
           const metadata = await getMetadata(itemRef);
-          return { name: itemRef.name, url, size: metadata.size };
+          return { name: itemRef.name, url, size: metadata.size, 
+          timeCreated: new Date(metadata.timeCreated), };
         })
       );
+
+      urls.sort((a, b) => b.timeCreated - a.timeCreated);
 
       if (pageToken) {
         setFiles((prev) => [...prev, ...urls]);
@@ -165,17 +168,20 @@ useEffect(() => {
     if (!currentFolder) return;
     const folderPath = currentFolder ? currentFolder + "/" : "";
     const folderRef = ref(storage, folderPath);
-    const res = await list(folderRef, { maxResults: 1000 });
+    const res = await list(folderRef);
     const urls = await Promise.all(
       res.items.map(async (itemRef) => {
         const url = await getDownloadURL(itemRef);
         const metadata = await getMetadata(itemRef);
-        return { name: itemRef.name, url, size: metadata.size };
+        return { name: itemRef.name, url, size: metadata.size,
+          timeCreated: new Date(metadata.timeCreated), };
       })
     );
 
     // Urutkan terbaru dulu (berdasarkan nama, bisa juga timestamp kalau ada)
-    urls.sort((a, b) => b.name.localeCompare(a.name));
+    // urls.sort((a, b) => b.name.localeCompare(a.name));
+    
+    urls.sort((a, b) => b.timeCreated - a.timeCreated);
 
     // Bandingkan dengan state lama, kalau beda → update
     setFiles((prevFiles) => {
