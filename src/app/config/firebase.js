@@ -31,29 +31,72 @@ const firebaseConfigbu = {
   appId: process.env.NEXT_PUBLIC_firebase_APP_ID,
   measurementId: process.env.NEXT_PUBLIC_firebase_MEANSUREMENT_ID
 };
-let appMain = null;
-let appBackup = null;
+// ✅ Inisialisasi dua Firebase App: "main" dan "backup"
+let appMain, appBackup;
 
-if (!getApps().length) {
+const existingApps = getApps();
+
+if (!existingApps.find(app => app.name === "main")) {
   appMain = initializeApp(firebaseConfig, "main");
-  appBackup = initializeApp(firebaseConfigBackup, "backup");
 } else {
   appMain = getApp("main");
-  appBackup = getApp("backup");}
-//  const db = getFirestore(app);
-//  const storage = getStorage(app);
-//  const auth = getAuth(app);
- 
- // Initialize Realtime Database
+}
+
+if (!existingApps.find(app => app.name === "backup")) {
+  appBackup = initializeApp(firebaseConfigbu, "backup");
+} else {
+  appBackup = getApp("backup");
+}
+
+// ✅ Inisialisasi layanan dari masing-masing app
+const storageMain = getStorage(appMain);
+const storageBackup = getStorage(appBackup);
+
+const databaseMain = getDatabase(appMain);
+const databaseBackup = getDatabase(appBackup); // opsional kalau pakai RTDB backup juga
+
+const authMain = getAuth(appMain);
+const firestoreMain = getFirestore(appMain);
  const database = getDatabase(app); // Add this line to initialize Realtime Database
  
 const storage = getStorage(app);
 
- export { database, storage};//,db, storage,   auth, signInWithEmailAndPassword, signInWithPopup,  createUserWithEmailAndPassword, GoogleAuthProvider
- /*
- const app = initializeApp(firebaseConfig);
- const db = getFirestore(app);
- const storage = getStorage(app);
- */
+export {
+  // Main app
+  storageMain,
+  databaseMain,
+  authMain,
+  firestoreMain,
+
+  // Backup app
+ database, storage,
+  storageBackup,
+  databaseBackup,
+};
+// let appMain = null;
+// let appBackup = null;
+
+// if (!getApps().length) {
+//   appMain = initializeApp(firebaseConfig, "main");
+//   appBackup = initializeApp(firebaseConfigBackup, "backup");
+// } else {
+//   appMain = getApp("main");
+//   appBackup = getApp("backup");}
+// //  const db = getFirestore(app);
+// //  const storage = getStorage(app);
+// //  const auth = getAuth(app);
+ 
+//  // Initialize Realtime Database
+//  const database = getDatabase(app); // Add this line to initialize Realtime Database
+ 
+// const storage = getStorage(app);
+
+//  export { database, storage};//,db, storage,   auth, signInWithEmailAndPassword, signInWithPopup,  createUserWithEmailAndPassword, GoogleAuthProvider
+//  /*
+ // const app = initializeApp(firebaseConfig);
+ // const db = getFirestore(app);
+ // const storage = getStorage(app);
+ // */
+
 
 
