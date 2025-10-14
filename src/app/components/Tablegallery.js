@@ -163,37 +163,79 @@ export default function Tablegallery() {
   }
 
 // Auto-refresh isi folder setiap 7 detik (cek pembaruan file)
+// useEffect(() => {
+//   const interval = setInterval(async () => {
+//     if (!currentFolder) return;
+//     const folderPath = currentFolder ? currentFolder + "/" : "";
+//     const folderRef = ref(storage, folderPath);
+//     const res = await list(folderRef);
+//     const urls = await Promise.all(
+//       res.items.map(async (itemRef) => {
+//         const url = await getDownloadURL(itemRef);
+//         const metadata = await getMetadata(itemRef);
+//         return { name: itemRef.name, url, size: metadata.size,
+//           timeCreated: new Date(metadata.timeCreated), };
+//       })
+//     );
+
+//     // Urutkan terbaru dulu (berdasarkan nama, bisa juga timestamp kalau ada)
+//     // urls.sort((a, b) => b.name.localeCompare(a.name));
+    
+//     urls.sort((a, b) => b.timeCreated - a.timeCreated);
+
+//     // Bandingkan dengan state lama, kalau beda → update
+//     setFiles((prevFiles) => {
+//       if (JSON.stringify(urls) !== JSON.stringify(prevFiles)) {
+//         return urls;
+//       }
+//       return prevFiles;
+//     });
+//   }, 60000); // setiap 7 detik cek
+
+//   return () => clearInterval(interval);
+// }, [currentFolder]);
 useEffect(() => {
+  if (!currentFolder) return;
+  let prevNames = [];
+
   const interval = setInterval(async () => {
-    if (!currentFolder) return;
-    const folderPath = currentFolder ? currentFolder + "/" : "";
+    const folderPath = currentFolder + "/";
     const folderRef = ref(storage, folderPath);
     const res = await list(folderRef);
+
+    const currentNames = res.items.map((item) => item.name);
+
+    // Hanya update jika jumlah atau nama file berubah
+    const changed =
+      currentNames.length !== prevNames.length ||
+      !currentNames.every((n, i) => n === prevNames[i]);
+
+    if (!changed) return; // Tidak ada yang berubah, skip
+
+    prevNames = currentNames;
+
     const urls = await Promise.all(
       res.items.map(async (itemRef) => {
-        const url = await getDownloadURL(itemRef);
-        const metadata = await getMetadata(itemRef);
-        return { name: itemRef.name, url, size: metadata.size,
-          timeCreated: new Date(metadata.timeCreated), };
+        const [url, metadata] = await Promise.all([
+          getDownloadURL(itemRef),
+          getMetadata(itemRef),
+        ]);
+        return {
+          name: itemRef.name,
+          url,
+          size: metadata.size,
+          timeCreated: new Date(metadata.timeCreated),
+        };
       })
     );
 
-    // Urutkan terbaru dulu (berdasarkan nama, bisa juga timestamp kalau ada)
-    // urls.sort((a, b) => b.name.localeCompare(a.name));
-    
     urls.sort((a, b) => b.timeCreated - a.timeCreated);
-
-    // Bandingkan dengan state lama, kalau beda → update
-    setFiles((prevFiles) => {
-      if (JSON.stringify(urls) !== JSON.stringify(prevFiles)) {
-        return urls;
-      }
-      return prevFiles;
-    });
-  }, 7000); // setiap 7 detik cek
+    setFiles(urls);
+  }, 60000); // 1 menit sekali
 
   return () => clearInterval(interval);
 }, [currentFolder]);
+
 
 
   return (
