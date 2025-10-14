@@ -226,81 +226,81 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage, isDark}
 
     // helper convert file to base64
     // helper convert file to base64
-const toBase64 = (file) => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = (error) => reject(error);
-  });
-};
+// const toBase64 = (file) => {
+//   return new Promise((resolve, reject) => {
+//     const reader = new FileReader();
+//     reader.readAsDataURL(file);
+//     reader.onload = () => resolve(reader.result);
+//     reader.onerror = (error) => reject(error);
+//   });
+// };
 
 // 🔹 Konversi semua file jadi base64 dulu
-const filesBase64 = await Promise.all(
-  files.map(async (file) => ({
-    name: file.name,
-    type: file.type,
-    data: await toBase64(file),
-  }))
-);
+// const filesBase64 = await Promise.all(
+//   files.map(async (file) => ({
+//     name: file.name,
+//     type: file.type,
+//     data: await toBase64(file),
+//   }))
+// );
 
-// 🔹 Konversi audio (kalau ada)
-let audioBase64 = null;
-if (audioFile) {
-  audioBase64 = {
-    name: audioFile.name || "record.wav",
-    data: await toBase64(audioFile),
-  };
-}
+// // 🔹 Konversi audio (kalau ada)
+// let audioBase64 = null;
+// if (audioFile) {
+//   audioBase64 = {
+//     name: audioFile.name || "record.wav",
+//     data: await toBase64(audioFile),
+//   };
+// }
 
-
-    
-    const res = await fetch("/api/chat/upload", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({
-    files: filesBase64,     // [{ name, type, data }]
-    audioFile: audioBase64, // { name, data }
-    messageKey: newMessageRef.key,
-  }),
-});
-
-const uploadResult = await res.json();
-if (uploadResult.status === "success") {
-  const { uploadedFiles, audio } = uploadResult.data;
-  console.log("📦 Uploaded files:", uploadedFiles);
-}
 
     
-    
-    
-    // for (let file of files) {
-    //   const ext = file.name.split(".").pop();
-    //   const fileRef = storageRef(storage, `chatFiles/${newMessageRef.key}_${file.name}`);
-    //   await uploadBytes(fileRef, file);
-    //   const fileUrl = await getDownloadURL(fileRef);
-    //   uploadedFiles.push({
-    //     url: fileUrl,
-    //     type: file.type.split("/")[0], // "image", "video", "application"
-    //     name: file.name,
-    //   });
-    // }
-    
-    // let uploadedAudio = null;
+//     const res = await fetch("/api/chat/upload", {
+//   method: "POST",
+//   headers: { "Content-Type": "application/json" },
+//   body: JSON.stringify({
+//     files: filesBase64,     // [{ name, type, data }]
+//     audioFile: audioBase64, // { name, data }
+//     messageKey: newMessageRef.key,
+//   }),
+// });
 
-    // if (audioFile) {
-    //   const fileRef = storageRef(storage, `chatFiles/${newMessageRef.key}.wav`);
-    //   await uploadBytes(fileRef, audioFile);
-    //   const fileUrl = await getDownloadURL(fileRef);
-    //   uploadedAudio = fileUrl;
+// const uploadResult = await res.json();
+// if (uploadResult.status === "success") {
+//   const { uploadedFiles, audio } = uploadResult.data;
+//   console.log("📦 Uploaded files:", uploadedFiles);
+// }
 
-    //   // Tambahkan audio ke dalam array files
-    //   uploadedFiles.push({
-    //     url: fileUrl,
-    //     type: "audio",
-    //     name: `${newMessageRef.key}.wav`,
-    //   });
-    // }
+    
+    
+    
+    for (let file of files) {
+      const ext = file.name.split(".").pop();
+      const fileRef = storageRef(storage, `chatFiles/${newMessageRef.key}_${file.name}`);
+      await uploadBytes(fileRef, file);
+      const fileUrl = await getDownloadURL(fileRef);
+      uploadedFiles.push({
+        url: fileUrl,
+        type: file.type.split("/")[0], // "image", "video", "application"
+        name: file.name,
+      });
+    }
+    
+    let uploadedAudio = null;
+
+    if (audioFile) {
+      const fileRef = storageRef(storage, `chatFiles/${newMessageRef.key}.wav`);
+      await uploadBytes(fileRef, audioFile);
+      const fileUrl = await getDownloadURL(fileRef);
+      uploadedAudio = fileUrl;
+
+      // Tambahkan audio ke dalam array files
+      uploadedFiles.push({
+        url: fileUrl,
+        type: "audio",
+        name: `${newMessageRef.key}.wav`,
+      });
+    }
     // Upload audio (jika ada)
   // let uploadedAudio = null;
   // if (audioFile) {
@@ -322,10 +322,10 @@ if (uploadResult.status === "success") {
       pengirim,
       penerima,
       pesan: newMessage,
-      // files: uploadedFiles,
-      // audio: uploadedAudio,
-      files1: uploadedFiles,
-    audio1: audio,
+      files: uploadedFiles,
+      audio: uploadedAudio,
+    //   files1: uploadedFiles,
+    // audio1: audio,
       timestamp: Date.now(),
       read: false,
       status: "ACTIVE",
@@ -855,6 +855,7 @@ export default ChatInput;
 // // // };
 
 // // // export default ChatInput;
+
 
 
 
