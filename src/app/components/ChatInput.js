@@ -222,33 +222,53 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage, isDark}
   //   uploadedFiles.push({ url: fileUrl, type: file.type.split("/")[0], name: file.name });
   // }
     // Upload files (images, videos, etc.)
-    for (let file of files) {
-      const ext = file.name.split(".").pop();
-      const fileRef = storageRef(storage, `chatFiles/${newMessageRef.key}_${file.name}`);
-      await uploadBytes(fileRef, file);
-      const fileUrl = await getDownloadURL(fileRef);
-      uploadedFiles.push({
-        url: fileUrl,
-        type: file.type.split("/")[0], // "image", "video", "application"
-        name: file.name,
-      });
-    }
     
-    let uploadedAudio = null;
+    const res = await fetch("/api/chat/upload", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    files: filesBase64,     // [{ name, type, data }]
+    audioFile: audioBase64, // { name, data }
+    messageKey: newMessageRef.key,
+  }),
+});
 
-    if (audioFile) {
-      const fileRef = storageRef(storage, `chatFiles/${newMessageRef.key}.wav`);
-      await uploadBytes(fileRef, audioFile);
-      const fileUrl = await getDownloadURL(fileRef);
-      uploadedAudio = fileUrl;
+const uploadResult = await res.json();
+if (uploadResult.status === "success") {
+  const { uploadedFiles, audio } = uploadResult.data;
+  console.log("📦 Uploaded files:", uploadedFiles);
+}
 
-      // Tambahkan audio ke dalam array files
-      uploadedFiles.push({
-        url: fileUrl,
-        type: "audio",
-        name: `${newMessageRef.key}.wav`,
-      });
-    }
+    
+    
+    
+    // for (let file of files) {
+    //   const ext = file.name.split(".").pop();
+    //   const fileRef = storageRef(storage, `chatFiles/${newMessageRef.key}_${file.name}`);
+    //   await uploadBytes(fileRef, file);
+    //   const fileUrl = await getDownloadURL(fileRef);
+    //   uploadedFiles.push({
+    //     url: fileUrl,
+    //     type: file.type.split("/")[0], // "image", "video", "application"
+    //     name: file.name,
+    //   });
+    // }
+    
+    // let uploadedAudio = null;
+
+    // if (audioFile) {
+    //   const fileRef = storageRef(storage, `chatFiles/${newMessageRef.key}.wav`);
+    //   await uploadBytes(fileRef, audioFile);
+    //   const fileUrl = await getDownloadURL(fileRef);
+    //   uploadedAudio = fileUrl;
+
+    //   // Tambahkan audio ke dalam array files
+    //   uploadedFiles.push({
+    //     url: fileUrl,
+    //     type: "audio",
+    //     name: `${newMessageRef.key}.wav`,
+    //   });
+    // }
     // Upload audio (jika ada)
   // let uploadedAudio = null;
   // if (audioFile) {
@@ -272,6 +292,8 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage, isDark}
       pesan: newMessage,
       files: uploadedFiles,
       audio: uploadedAudio,
+      files1: uploadedFiles,
+    audio1: audio,
       timestamp: Date.now(),
       read: false,
       status: "ACTIVE",
@@ -801,6 +823,7 @@ export default ChatInput;
 // // // };
 
 // // // export default ChatInput;
+
 
 
 
