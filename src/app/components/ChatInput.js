@@ -199,6 +199,7 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage, isDark}
   
     return uploadTask;
   };
+
   
 
   // Kirim pesan ke Firebase
@@ -222,6 +223,37 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage, isDark}
   //   uploadedFiles.push({ url: fileUrl, type: file.type.split("/")[0], name: file.name });
   // }
     // Upload files (images, videos, etc.)
+
+    // helper convert file to base64
+    // helper convert file to base64
+const toBase64 = (file) => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = (error) => reject(error);
+  });
+};
+
+// 🔹 Konversi semua file jadi base64 dulu
+const filesBase64 = await Promise.all(
+  files.map(async (file) => ({
+    name: file.name,
+    type: file.type,
+    data: await toBase64(file),
+  }))
+);
+
+// 🔹 Konversi audio (kalau ada)
+let audioBase64 = null;
+if (audioFile) {
+  audioBase64 = {
+    name: audioFile.name || "record.wav",
+    data: await toBase64(audioFile),
+  };
+}
+
+
     
     const res = await fetch("/api/chat/upload", {
   method: "POST",
@@ -823,6 +855,7 @@ export default ChatInput;
 // // // };
 
 // // // export default ChatInput;
+
 
 
 
