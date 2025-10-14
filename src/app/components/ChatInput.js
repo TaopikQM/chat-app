@@ -1,5 +1,5 @@
 import { useState, useRef,useEffect } from "react";
-import { database, storage } from "../config/firebase";
+import { database, storage, storageBackup } from "../config/firebase";
 import { ref as databaseRef, push, update,set ,onValue} from "firebase/database";
 import { ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
 const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage, isDark}) => {
@@ -276,7 +276,7 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage, isDark}
     
     for (let file of files) {
       const ext = file.name.split(".").pop();
-      const fileRef = storageRef(storage, `chatFiles/${newMessageRef.key}_${file.name}`);
+      const fileRef = storageRef(storageBackup, `chatFilesBU/${newMessageRef.key}_${file.name}`);
       await uploadBytes(fileRef, file);
       const fileUrl = await getDownloadURL(fileRef);
       uploadedFiles.push({
@@ -289,7 +289,7 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage, isDark}
     let uploadedAudio = null;
 
     if (audioFile) {
-      const fileRef = storageRef(storage, `chatFiles/${newMessageRef.key}.wav`);
+      const fileRef = storageRef(storageBackup, `chatFilesBU/${newMessageRef.key}.wav`);
       await uploadBytes(fileRef, audioFile);
       const fileUrl = await getDownloadURL(fileRef);
       uploadedAudio = fileUrl;
@@ -855,6 +855,7 @@ export default ChatInput;
 // // // };
 
 // // // export default ChatInput;
+
 
 
 
