@@ -31,53 +31,55 @@ const firebaseConfigbu = {
   appId: process.env.NEXT_PUBLIC_firebase_APP_ID,
   measurementId: process.env.NEXT_PUBLIC_firebase_MEANSUREMENT_ID
 };
-// ✅ Inisialisasi dua Firebase App: "main" dan "backup"
-let appMain, appBackup;
+// // ✅ Inisialisasi dua Firebase App: "main" dan "backup"
+// let appMain, appBackup;
+const app = initializeApp(firebaseConfig);
+ const appBackup = initializeApp(firebaseConfigBackup, "backup");
 
- let app;
- if (!getApps().length) {
-   app = initializeApp(firebaseConfig);
- } else {
-   app = getApp();
- }
+//  let app;
+//  if (!getApps().length) {
+//    app = initializeApp(firebaseConfig);
+//  } else {
+//    app = getApp();
+//  }
 
-const existingApps = getApps();
+// const existingApps = getApps();
 
-if (!existingApps.find(app => app.name === "main")) {
-  appMain = initializeApp(firebaseConfig, "main");
-} else {
-  appMain = getApp("main");
-}
+// if (!existingApps.find(app => app.name === "main")) {
+//   appMain = initializeApp(firebaseConfig, "main");
+// } else {
+//   appMain = getApp("main");
+// }
 
-if (!existingApps.find(app => app.name === "backup")) {
-  appBackup = initializeApp(firebaseConfigbu, "backup");
-} else {
-  appBackup = getApp("backup");
-}
+// if (!existingApps.find(app => app.name === "backup")) {
+//   appBackup = initializeApp(firebaseConfigbu, "backup");
+// } else {
+//   appBackup = getApp("backup");
+// }
 
-// ✅ Inisialisasi layanan dari masing-masing app
-const storageMain = getStorage(appMain);
-const storageBackup = getStorage(appBackup);
+// // ✅ Inisialisasi layanan dari masing-masing app
+// const storageMain = getStorage(appMain);
+// const storageBackup = getStorage(appBackup);
 
-const databaseMain = getDatabase(appMain);
-const databaseBackup = getDatabase(appBackup); // opsional kalau pakai RTDB backup juga
+// const databaseMain = getDatabase(appMain);
+// const databaseBackup = getDatabase(appBackup); // opsional kalau pakai RTDB backup juga
 
-// const authMain = getAuth(appMain);
-// const firestoreMain = getFirestore(appMain);
- const database = getDatabase(app); // Add this line to initialize Realtime Database
+// // const authMain = getAuth(appMain);
+// // const firestoreMain = getFirestore(appMain);
+//  const database = getDatabase(app); // Add this line to initialize Realtime Database
  
-const storage = getStorage(app);
+// const storage = getStorage(app);
 
-export {
-  // Main app
-  storageMain,
-  databaseMain,
+// export {
+//   // Main app
+//   storageMain,
+//   databaseMain,
 
-  // Backup app
- database, storage,
-  storageBackup,
-  databaseBackup,
-};
+//   // Backup app
+//  database, storage,
+//   storageBackup,
+//   databaseBackup,
+// };
 // let appMain = null;
 // let appBackup = null;
 
@@ -88,20 +90,24 @@ export {
 //   appMain = getApp("main");
 //   appBackup = getApp("backup");}
 // //  const db = getFirestore(app);
-// //  const storage = getStorage(app);
-// //  const auth = getAuth(app);
- 
-//  // Initialize Realtime Database
-//  const database = getDatabase(app); // Add this line to initialize Realtime Database
- 
-// const storage = getStorage(app);
 
-//  export { database, storage};//,db, storage,   auth, signInWithEmailAndPassword, signInWithPopup,  createUserWithEmailAndPassword, GoogleAuthProvider
+ const storage = getStorage(app);
+
+ const storageBackup = getStorage(appBackup);
+ const auth = getAuth(app);
+ 
+ // Initialize Realtime Database
+ const database = getDatabase(app); // Add this line to initialize Realtime Database
+ 
+const storage = getStorage(app);
+
+ export { database, storage, storageBackup};//,db, storage,   auth, signInWithEmailAndPassword, signInWithPopup,  createUserWithEmailAndPassword, GoogleAuthProvider
 //  /*
  // const app = initializeApp(firebaseConfig);
  // const db = getFirestore(app);
  // const storage = getStorage(app);
  // */
+
 
 
 
