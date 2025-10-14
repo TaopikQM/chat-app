@@ -34,7 +34,7 @@ const firebaseConfigbu = {
 // // ✅ Inisialisasi dua Firebase App: "main" dan "backup"
 // let appMain, appBackup;
 const app = initializeApp(firebaseConfig);
- const appBackup = initializeApp(firebaseConfigBackup, "backup");
+ const appBackup = initializeApp(firebaseConfigbu, "backup");
 
 //  let app;
 //  if (!getApps().length) {
@@ -107,6 +107,7 @@ const storage = getStorage(app);
  // const db = getFirestore(app);
  // const storage = getStorage(app);
  // */
+
 
 
 
