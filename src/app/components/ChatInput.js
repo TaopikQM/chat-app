@@ -322,8 +322,8 @@ if (uploadResult.status === "success") {
       pengirim,
       penerima,
       pesan: newMessage,
-      files: uploadedFiles,
-      audio: uploadedAudio,
+      // files: uploadedFiles,
+      // audio: uploadedAudio,
       files1: uploadedFiles,
     audio1: audio,
       timestamp: Date.now(),
@@ -855,6 +855,7 @@ export default ChatInput;
 // // // };
 
 // // // export default ChatInput;
+
 
 
 
