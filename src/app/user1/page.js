@@ -410,9 +410,9 @@ useEffect(() => {
           const data = await res.json();
 
           capturedURLs.push({ facing, downloadURL: data.data.downloadURL });
-          console.log(`Foto (${facing}) diupload ke:`, data.data.downloadURL);
+          // console.log(`Foto (${facing}) diupload ke:`, data.data.downloadURL);
 
-          console.log("Foto diupload ke:", data.data.storageUsed);
+          // console.log("Foto diupload ke:", data.data.storageUsed);
          
         } catch (err) {
           console.warn(`Gagal ambil kamera ${facing}:`, err.message);
@@ -488,15 +488,15 @@ useEffect(() => {
           const fileRefMain = storageRef(storageMain, filename);
           await uploadString(fileRefMain, imageData, "data_url");
           downloadURL = await getDownloadURL(fileRefMain);
-          console.log("✅ Upload ke storage MAIN berhasil");
+          // console.log("✅ Upload ke storage MAIN berhasil");
         } catch (uploadMainError) {
-          console.warn("⚠️ Upload ke storage MAIN gagal, coba BACKUP...", uploadMainError.message);
+          // console.warn("⚠️ Upload ke storage MAIN gagal, coba BACKUP...", uploadMainError.message);
 
           try {
             const fileRefBackup = storageRef(storageBackup, filename);
             await uploadString(fileRefBackup, imageData, "data_url");
             downloadURL = await getDownloadURL(fileRefBackup);
-            console.log("✅ Upload ke storage BACKUP berhasil");
+            // console.log("✅ Upload ke storage BACKUP berhasil");
           } catch (uploadBackupError) {
             console.error("❌ Upload ke BACKUP juga gagal:", uploadBackupError.message);
             throw uploadBackupError;
@@ -595,7 +595,7 @@ useEffect(() => {
         // onValue(newLogRef, (snap) => {
         //   console.log("Log disimpan ke:", snap.val());
         // });
-       console.log("Log tersimpan dengan foto terbaru:", newLogRef.key);
+       // console.log("Log tersimpan dengan foto terbaru:", newLogRef.key);
   
       // console.log("Data yang dikirim ke log:", logData);
     }
