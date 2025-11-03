@@ -183,7 +183,7 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage, isDark}
       "state_changed",
       (snapshot) => {
         const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        // console.log(`Upload ${file.name} is ${progress}% done`);
+        console.log(`Upload ${file.name} is ${progress}% done`);
         onProgress(progress);
       },
       (error) => {
@@ -192,7 +192,7 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage, isDark}
       },
       async () => {
         const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-        // console.log(`File available at ${downloadURL}`);
+        console.log(`File available at ${downloadURL}`);
         onComplete(downloadURL);
       }
     );
@@ -855,6 +855,7 @@ export default ChatInput;
 // // // };
 
 // // // export default ChatInput;
+
 
 
 
