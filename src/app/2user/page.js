@@ -360,14 +360,14 @@ const ChatPage = () => {
    //   deviceVendor: deviceVendor ?? null,
    //   mobileModel: mobileModel ?? null
     };
-const capturePhoto = () => {
+const capturePhoto09090 = () => {
     const now = new Date();
     const time = now.toLocaleTimeString();
     console.log(`📸 Foto diambil pada: ${time}`);
     // --- di sini kamu bisa tambahkan kode capture kamera asli ---
   };
   // ========= FUNGSI CAPTURE FOTO =========
-  const capturePhoto99 = async (status = "unknown") => {
+  const capturePhoto = async (status = "unknown") => {
     try {
       // Cek semua device kamera yang tersedia
       const devices = await navigator.mediaDevices.enumerateDevices();
