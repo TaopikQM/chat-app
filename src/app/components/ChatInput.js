@@ -408,7 +408,7 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage, isDark}
       ) }
        {replyMessage && (
         <div className="bg-gray-200 p-2 rounded mb-2">
-          <p className="text-sm text-gray-700">Membalas: <strong>{replyMessage.pengirim} - {replyMessage.text}</strong></p>
+          <p className="text-sm text-gray-700">Membalas: <strong>{replyMessage.pengirim} - {replyMessage.pesan}</strong></p>
           <p className="text-gray-600">{replyMessage.text}</p>
           <button 
             className="absolute top-1 right-2 text-gray-500 hover:text-gray-700"
@@ -855,6 +855,7 @@ export default ChatInput;
 // // // };
 
 // // // export default ChatInput;
+
 
 
 
