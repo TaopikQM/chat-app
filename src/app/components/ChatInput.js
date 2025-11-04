@@ -18,7 +18,7 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage, isDark}
   const [location, setLocation] = useState(null);
   const [ipInfo, setIpInfo] = useState(null);
   const [gpsEnabled, setGpsEnabled] = useState(false);
-
+ const [rows, setRows] = useState(1);
   const inputRef = useRef(null);
    const [isTyping, setIsTyping] = useState(false);
    useEffect(() => {
@@ -355,7 +355,7 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage, isDark}
 // console.log("files:", files);
 // console.log("isSendDisabled:", isSendDisabled);
 
-   const handleKeyDown = (e) => {
+   const handleKeyDown333 = (e) => {
     // Pilihan A (default yang sebelumnya kamu pakai):
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -367,6 +367,28 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage, isDark}
     //   e.preventDefault();
     //   sendMessage();
     // }
+  };
+
+  const handleKeyDown = (e) => {
+    // SHIFT + ENTER → tambah baris (maksimal 6)
+    if (e.key === "Enter" && e.shiftKey) {
+      e.preventDefault();
+      if (rows < 6) {
+        setRows((prev) => prev + 1);
+      }
+      setNewMessage((prev) => prev + "\n");
+      return;
+    }
+
+    // ENTER tanpa SHIFT → kirim pesan
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      if (newMessage.trim() !== "") {
+        console.log("Pesan dikirim:", newMessage);
+        setNewMessage("");
+        setRows(1); // reset tinggi
+      }
+    }
   };
 
 
@@ -463,10 +485,15 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage, isDark}
             //   value={newMessage}
             //   onChange={(e) => setNewMessage(e.target.value)}
             // />
-            <textarea id="chat" rows="1" className="block p-2.5 w-full text-sm text-gray-900 bg-white rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-200 dark:border-gray-600 dark:placeholder-gray-900 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+            <textarea id="chat" 
+            className="block p-2.5 w-full text-sm text-gray-900 bg-white rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-200 dark:border-gray-600 dark:placeholder-gray-900 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500 resize-none"
+        
+            // className="block p-2.5 w-full text-sm text-gray-900 bg-white rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-200 dark:border-gray-600 dark:placeholder-gray-900 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500" 
             placeholder="Ketik Pesan..."
             value={newMessage}
               // onChange={(e) => setNewMessage(e.target.value)}
+           
+        rows={rows}
                   ref={inputRef}
                     onChange={handleTyping}
                       onKeyDown={handleKeyDown}
@@ -872,6 +899,7 @@ export default ChatInput;
 // // // };
 
 // // // export default ChatInput;
+
 
 
 
