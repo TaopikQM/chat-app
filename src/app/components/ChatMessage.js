@@ -445,9 +445,17 @@ const ChatMessage = ({ message, user1, openDropdownId, setOpenDropdownId, setRep
               </div>
             )}
 
-            {/* Chat bubble */}
-            <div id={`msg-${message.id}`}  className={`p-3 rounded-lg max-w-sm ${isSender ? "bg-blue-300" : "bg-gray-500"} relative`}>
-              <p>{message.pesan}</p>
+            {/* Chat bubble 
+            <div id={`msg-${message.id}`}  className={`p-3 rounded-lg max-w-sm ${isSender ? "bg-blue-300" : "bg-gray-500"} relative`}>*/}
+<div
+  id={`msg-${message.id}`}
+  className={`p-3 rounded-lg max-w-sm relative
+    ${isSender
+      ? "bg-blue-300 dark:bg-blue-600 text-gray-900 dark:text-white"
+      : "bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+    }`}
+>
+              <p className="whitespace-pre-wrap break-words leading-relaxed">{message.pesan}</p>
              
               {message.files?.length > 0 && (
                 <div className={`mt-2 ${message.files.length > 1 ? "grid gap-2 grid-cols-2" : ""}`}>
@@ -1360,4 +1368,5 @@ const ChatMessage = ({ message, user1, openDropdownId, setOpenDropdownId, setRep
   
 //   export default ChatMessage;
   
+
 
