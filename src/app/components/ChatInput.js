@@ -384,7 +384,9 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage, isDark}
     // ENTER tanpa SHIFT → kirim pesan
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
+      sendMessage();
       if (newMessage.trim() !== "") {
+        
         console.log("Pesan dikirim:", newMessage);
         setNewMessage("");
         setRows(1); // reset tinggi
@@ -900,6 +902,7 @@ export default ChatInput;
 // // // };
 
 // // // export default ChatInput;
+
 
 
 
