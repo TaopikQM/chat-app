@@ -345,6 +345,8 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage, isDark}
     setUploading(false);
     setReplyMessage(null);
     setAudioPending(false);
+    
+    inputRef.current?.focus();
   };
 //   console.log("uploading:", uploading);
 // console.log("recording:", recording);
@@ -352,6 +354,20 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage, isDark}
 // console.log("newMessage:", newMessage);
 // console.log("files:", files);
 // console.log("isSendDisabled:", isSendDisabled);
+
+   const handleKeyDown = (e) => {
+    // Pilihan A (default yang sebelumnya kamu pakai):
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+
+    // Pilihan B (jika kamu ingin Enter = newline dan Ctrl+Enter = kirim):
+    // if (e.key === "Enter" && e.ctrlKey) {
+    //   e.preventDefault();
+    //   sendMessage();
+    // }
+  };
 
 
   return (
@@ -453,6 +469,7 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage, isDark}
               // onChange={(e) => setNewMessage(e.target.value)}
                   ref={inputRef}
                     onChange={handleTyping}
+                      onKeyDown={handleKeyDown}
               ></textarea>
             
           )}
@@ -855,6 +872,7 @@ export default ChatInput;
 // // // };
 
 // // // export default ChatInput;
+
 
 
 
