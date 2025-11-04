@@ -345,6 +345,7 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage, isDark}
     setUploading(false);
     setReplyMessage(null);
     setAudioPending(false);
+     setRows(1);  
     
     inputRef.current?.focus();
   };
@@ -899,6 +900,7 @@ export default ChatInput;
 // // // };
 
 // // // export default ChatInput;
+
 
 
 
