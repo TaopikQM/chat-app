@@ -5,6 +5,14 @@ import { ref as databaseRef, onValue,update,remove,set,get } from "firebase/data
  
 import Modal from "react-modal";
 
+function linkify(text) {
+  if (!text) return "";
+  const urlRegex = /(https?:\/\/[^\s]+)/g;
+  return text.replace(
+    urlRegex,
+    (url) => `<a href="${url}" target="_blank" rel="noopener noreferrer" class="text-blue-600 dark:text-blue-400 underline hover:text-blue-800 dark:hover:text-blue-300">${url}</a>`
+  );
+}
 
 const ChatMessage = ({ message, user1, openDropdownId, setOpenDropdownId, setReplyMessage, setSearchTerm, setCurrentPage  }) => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -447,15 +455,19 @@ const ChatMessage = ({ message, user1, openDropdownId, setOpenDropdownId, setRep
 
             {/* Chat bubble 
             <div id={`msg-${message.id}`}  className={`p-3 rounded-lg max-w-sm ${isSender ? "bg-blue-300" : "bg-gray-500"} relative`}>*/}
-<div
-  id={`msg-${message.id}`}
-  className={`p-3 rounded-lg max-w-sm relative
-    ${isSender
-      ? "bg-blue-300 dark:bg-blue-600 text-gray-900 dark:text-white"
-      : "bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-    }`}
->
-              <p className="whitespace-pre-wrap break-words leading-relaxed">{message.pesan}</p>
+            <div
+              id={`msg-${message.id}`}
+              className={`p-3 rounded-lg max-w-sm relative
+                ${isSender
+                  ? "bg-blue-300 dark:bg-blue-600 text-gray-900 dark:text-white"
+                  : "bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                }`}
+            >
+            {/*   <p className="whitespace-pre-wrap break-words leading-relaxed">{message.pesan}</p>*/}
+           <p
+                   className="whitespace-pre-wrap break-words leading-relaxed"
+                   dangerouslySetInnerHTML={{ __html: linkify(message.pesan) }}
+                 />
              
               {message.files?.length > 0 && (
                 <div className={`mt-2 ${message.files.length > 1 ? "grid gap-2 grid-cols-2" : ""}`}>
@@ -1368,5 +1380,6 @@ const ChatMessage = ({ message, user1, openDropdownId, setOpenDropdownId, setRep
   
 //   export default ChatMessage;
   
+
 
 
