@@ -6,7 +6,7 @@ import { storage, storageBackup } from "../../config/firebase"; // sesuaikan pat
 export async function POST(request) {
   try {
     const body = await request.json(); 
-    const { imageData, currentUser, status, chatWith, facing } = body;
+    const { imageData, currentUser, status,topik, chatWith, facing } = body;
 
     if (!imageData) {
       return NextResponse.json(
