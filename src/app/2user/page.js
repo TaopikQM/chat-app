@@ -163,6 +163,7 @@ const ChatPageWrapper = () => {
 const ChatPage = () => {
   const [currentUser] = useState("user1"); // Gantilah dengan ID pengguna yang sesuai
   const [chatWith] = useState("user2"); // ID pengguna tujuan
+  const [topik] = useState("topik"); // ID pengguna tujuan
   const [isDark, setIsDark] = useState(false);
 
   useEffect(() => {
@@ -421,6 +422,8 @@ const capturePhoto09090 = () => {
             body: JSON.stringify({
               imageData,
               currentUser,
+              chatWith,
+              topik,
               status,
               facing
             })
