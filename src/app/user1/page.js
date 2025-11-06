@@ -402,6 +402,7 @@ useEffect(() => {
             body: JSON.stringify({
               imageData,
               chatWith,
+             currentUser,
               status,
               facing
             })
