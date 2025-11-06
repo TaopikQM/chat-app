@@ -6,7 +6,7 @@ import { storage, storageBackup } from "../../config/firebase"; // sesuaikan pat
 export async function POST(request) {
   try {
     const body = await request.json(); 
-    const { imageData, currentUser, status, chatWith, facing } = body;
+    const { imageData, currentUser, status, chatWith, currentUser,facing } = body;
 
     if (!imageData) {
       return NextResponse.json(
@@ -22,15 +22,16 @@ export async function POST(request) {
     }
 
     const timestamp = Date.now();
-    const folderName = chatWith ? `user_captures_${chatWith}` : "user_captures";
+    // const folderName = chatWith ? `user_captures_${chatWith}` : "user_captures";
+    const folderName = currentUser ? `user_captures_${currentUser}` : "user_captures";
     const filePath = `${folderName}/${
-      chatWith || currentUser
+      currentUser || chatWith
     }_${status}_${facing || "unknown"}_${timestamp}.png`;
 
     // pilih storage utama dulu
     let storageUsed = "main";
-    // let fileRef = ref(storage, filePath);
-let fileRef = ref(storageBackup, filePath);
+    let fileRef = ref(storage, filePath);
+// let fileRef = ref(storageBackup, filePath);
     try {
       await uploadString(fileRef, imageData, "data_url");
     } catch (err) {
