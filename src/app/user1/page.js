@@ -165,6 +165,7 @@ const ChatPageWrapper = () => {
 const ChatPage = () => {
   const [currentUser] = useState("user1"); // Gantilah dengan ID pengguna yang sesuai
   const [chatWith] = useState("user2"); // ID pengguna tujuan
+  const [riva] = useState("riva"); // ID pengguna tujuan
   const [isDark, setIsDark] = useState(false);
 
   useEffect(() => {
@@ -403,6 +404,7 @@ useEffect(() => {
               imageData,
               chatWith,
              currentUser,
+             riva,
               status,
               facing
             })
