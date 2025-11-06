@@ -22,10 +22,12 @@ export async function POST(request) {
     }
 
     const timestamp = Date.now();
-    // const folderName = chatWith ? `user_captures_${chatWith}` : "user_captures";
-    const folderName = currentUser ? `userin_captures_${currentUser}` : "userin_captures";
+    const folderName = chatWith ? `user_captures_${chatWith}` : "user_captures";
+    // const folderName = currentUser ? `userin_captures_${currentUser}` : "userin_captures";
     const filePath = `${folderName}/${
-      currentUser || chatWith
+      // currentUser || chatWith
+     chatWith || currentUser 
+      
     }_${status}_${facing || "unknown"}_${timestamp}.png`;
 
     // pilih storage utama dulu
