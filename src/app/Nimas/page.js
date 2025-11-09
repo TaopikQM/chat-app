@@ -166,8 +166,8 @@ const ChatPage = () => {
   // const [currentUser] = useState("user1"); // Gantilah dengan ID pengguna yang sesuai
   // const [chatWith] = useState("tpk"); // ID pengguna tujuan
  
-  const [currentUser] = useState("tpk"); // Gantilah dengan ID pengguna yang sesuai
-  const [chatWith] = useState("nimas");
+  const [currentUser] = useState("nimas"); // Gantilah dengan ID pengguna yang sesuai
+  const [chatWith] = useState("tpk");
   const [nimas] = useState("nimas"); // ID pengguna tujuan
   const [isDark, setIsDark] = useState(false);
 
