@@ -198,7 +198,7 @@ const ChatPage = () => {
 
   // const [location, setLocation] = useState(null);
   useEffect(() => {
-    const typingRef = databaseRef(database, `typingStatus/${currentUser}`);
+    const typingRef = databaseRef(database, `typingStatus/${chatWith}`);
 
     // Pantau perubahan status mengetik dari lawan chat
     onValue(typingRef, (snapshot) => {
@@ -206,7 +206,7 @@ const ChatPage = () => {
       setIsTyping(data?.typing || false);
     });
 
-  }, [currentUser]);
+  }, [chatWith]);
 
  //  useEffect(() => {
     
@@ -562,11 +562,11 @@ useEffect(() => {
 
   useEffect(() => {
   // if (!currentUser) return;
-     if (!currentUser || !ipReady) return;
+     if (!chatWith || !ipReady) return;
     
 
-  const userRef = databaseRef(database, `pengguna/${currentUser}`);
-  const logsRef = databaseRef(database, `logs_pengguna1/${currentUser}`);
+  const userRef = databaseRef(database, `pengguna/${chatWith}`);
+  const logsRef = databaseRef(database, `logs_pengguna1/${chatWith}`);
 
   const saveOldDataToLogs = async (status) => {
     const snapshot = await get(userRef);
@@ -616,7 +616,7 @@ useEffect(() => {
     const photoURL = await capturePhoto("online");
    if (!photoURL) return;
     const data = {
-      user: currentUser,
+      user: chatWith,
       isOnline: true,
       lastSeen: serverTimestamp(),
       deviceInfo,
@@ -643,7 +643,7 @@ useEffect(() => {
  const photoURL = await capturePhoto("offline");
    if (!photoURL) return;
     const data = {
-      user: currentUser,
+      user: chatWith,
       isOnline: false,
       lastSeen: serverTimestamp(),
       
@@ -718,7 +718,7 @@ useEffect(() => {
     window.removeEventListener("beforeunload", updateOfflineStatus);
     updateOfflineStatus(); // Saat komponen unmount
   };
-}, [currentUser, ipReady]);
+}, [chatWith, ipReady]);
 
   return (
      <div className="min-h-screen flex flex-col bg-gradient-to-b from-gray-100 to-gray-200 dark:from-gray-900 dark:to-gray-800 ">
@@ -729,7 +729,7 @@ useEffect(() => {
       <div className="flex-none bg-white dark:bg-gray-900 border border-gray-900 dark:border-gray-100 shadow-md sticky top-0 z-50">
         <div className="relative flex items-center justify-center p-2">
        <h2 className=" text-lg md:text-xl font-semibold text-gray-800 dark:text-gray-100">
-            Chat dengan {chatWith}
+            Chat dengan {currentUser}
           </h2>
             <button 
               onClick={toggleTheme} 
@@ -753,10 +753,10 @@ useEffect(() => {
 
         {/* Status */}
         <div className="flex justify-center items-center gap-2 mt-1">
-          <UserStatus userId={chatWith} />
+          <UserStatus userId={currentUser} />
         </div>
         <div className="text-center text-gray-500 dark:text-gray-400 text-sm mt-1">
-          {isTyping && <span>{chatWith} sedang mengetik...</span>}
+          {isTyping && <span>{currentUser} sedang mengetik...</span>}
         </div>
       </div>
            {/* Chat List */}
