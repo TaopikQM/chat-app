@@ -721,7 +721,7 @@ try {
       <div className="flex-none bg-white dark:bg-gray-900 border border-gray-900 dark:border-gray-100 shadow-md sticky top-0 z-50">
         <div className="relative flex items-center justify-center p-2">
           <h2 className=" text-lg md:text-xl font-semibold text-gray-800 dark:text-gray-100">
-            Chat dengan {currentUser}
+            Chat dengan {chatWith}
           </h2>
             <button 
               onClick={toggleTheme} 
