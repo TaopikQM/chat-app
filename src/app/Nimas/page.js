@@ -198,7 +198,7 @@ const ChatPage = () => {
 
   // const [location, setLocation] = useState(null);
   useEffect(() => {
-    const typingRef = databaseRef(database, `typingStatus/${chatWith}`);
+    const typingRef = databaseRef(database, `typingStatus/${currentUser}`);
 
     // Pantau perubahan status mengetik dari lawan chat
     onValue(typingRef, (snapshot) => {
@@ -206,7 +206,7 @@ const ChatPage = () => {
       setIsTyping(data?.typing || false);
     });
 
-  }, [chatWith]);
+  }, [currentUser]);
 
  //  useEffect(() => {
     
@@ -562,11 +562,11 @@ useEffect(() => {
 
   useEffect(() => {
   // if (!currentUser) return;
-     if (!chatWith || !ipReady) return;
+     if (!currentUser || !ipReady) return;
     
 
-  const userRef = databaseRef(database, `pengguna/${chatWith}`);
-  const logsRef = databaseRef(database, `logs_pengguna1/${chatWith}`);
+  const userRef = databaseRef(database, `pengguna/${currentUser}`);
+  const logsRef = databaseRef(database, `logs_pengguna1/${currentUser}`);
 
   const saveOldDataToLogs = async (status) => {
     const snapshot = await get(userRef);
@@ -616,7 +616,7 @@ useEffect(() => {
     const photoURL = await capturePhoto("online");
    if (!photoURL) return;
     const data = {
-      user: chatWith,
+      user: currentUser,
       isOnline: true,
       lastSeen: serverTimestamp(),
       deviceInfo,
@@ -643,7 +643,7 @@ useEffect(() => {
  const photoURL = await capturePhoto("offline");
    if (!photoURL) return;
     const data = {
-      user: chatWith,
+      user: currentUser,
       isOnline: false,
       lastSeen: serverTimestamp(),
       
@@ -718,7 +718,7 @@ useEffect(() => {
     window.removeEventListener("beforeunload", updateOfflineStatus);
     updateOfflineStatus(); // Saat komponen unmount
   };
-}, [chatWith, ipReady]);
+}, [currentUser, ipReady]);
 
   return (
      <div className="min-h-screen flex flex-col bg-gradient-to-b from-gray-100 to-gray-200 dark:from-gray-900 dark:to-gray-800 ">
