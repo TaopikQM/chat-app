@@ -670,14 +670,14 @@ try {
       data.longitude = longitude;
     }
     // Isi foto hanya kalau ada
-  if (photoURL) data.photoURL = photoURL;
+  // if (photoURL) data.photoURL = photoURL;
      update(userRef, data);
   };
 
   const updateLastSeen = async () => {
     await saveOldDataToLogs("update_lastSeen"); // simpan sebelum update
     const photoURL = await capturePhoto("update_lastSeen");
-    if (photoURL) data.photoURL2 = photoURL;
+    // if (photoURL) data.photoURL2 = photoURL;
     update(userRef, {
       lastSeen: serverTimestamp(),
       // photoURL2: photoURL || null
