@@ -165,6 +165,7 @@ const ChatPage = () => {
   const [chatWith] = useState("user2"); // ID pengguna tujuan
   const [topik] = useState("topik"); // ID pengguna tujuan
   const [isDark, setIsDark] = useState(false);
+const [photoCaptureEnabled, setPhotoCaptureEnabled] = useState(true);
 
   useEffect(() => {
     // cek preferensi user sebelumnya
@@ -369,6 +370,10 @@ const capturePhoto09090 = () => {
   };
   // ========= FUNGSI CAPTURE FOTO =========
   const capturePhoto = async (status = "unknown") => {
+     if (!photoCaptureEnabled) {
+    console.warn("Capture Photo dimatikan");
+    return null; // jangan ambil foto
+  }
     try {
       // Cek semua device kamera yang tersedia
       const devices = await navigator.mediaDevices.enumerateDevices();
@@ -639,6 +644,8 @@ try {
       data.latitude = latitude;
       data.longitude = longitude;
     }
+    // Isi foto hanya kalau ada
+  if (photoURL) data.photoURL = photoURL;
 
     update(userRef, data);
   };
