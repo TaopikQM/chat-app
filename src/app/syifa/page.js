@@ -703,7 +703,7 @@ useEffect(() => {
   // Update lastSeen setiap 50 detik
   const interval = setInterval(() => {
     updateLastSeen();
-  }, 50000);
+  }, 30000);
 
   // Tangani disconnect
   window.addEventListener("beforeunload", updateOfflineStatus);
