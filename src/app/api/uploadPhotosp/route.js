@@ -25,7 +25,7 @@ export async function POST(request) {
     // const folderName = chatWith ? `user_captures_${chatWith}` : "user_captures";
     // const folderName = currentUser ? `userin_captures_${currentUser}` : "userin_captures";
     // const folderName = currentUser ? `userin_captures_${currentUser}` : "userin_captures";
-    const filePath = `${syifa1}/${syifa
+    const filePath = `${syifa}/${syifa
     }_${status}_${facing || "unknown"}_${timestamp}.png`;
 
     // pilih storage utama dulu
