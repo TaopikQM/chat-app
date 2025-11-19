@@ -636,7 +636,7 @@ try {
       deviceInfo,
       ip1:ipInfo,
       ip2:ipInfo1,
-      photoURL: photoURL || null
+      // photoURL: photoURL || null
     };
 
     if (ipInfo) data.ip1 = ipInfo;
@@ -645,6 +645,7 @@ try {
       data.latitude = latitude;
       data.longitude = longitude;
     }
+    
     // Isi foto hanya kalau ada
   if (photoURL) data.photoURL = photoURL;
     update(userRef, data);
@@ -670,7 +671,7 @@ try {
       data.longitude = longitude;
     }
     // Isi foto hanya kalau ada
-  // if (photoURL) data.photoURL = photoURL;
+  if (photoURL) data.photoURL = photoURL;
      update(userRef, data);
   };
 
@@ -681,6 +682,8 @@ try {
     update(userRef, {
       lastSeen: serverTimestamp(),
       // photoURL2: photoURL || null
+      
+    ...(photoURL ? { photoURL_lastSeen: photoURL } : {})
     });
   };
 
@@ -733,11 +736,13 @@ try {
           <h2 className=" text-lg md:text-xl font-semibold text-gray-800 dark:text-gray-100">
             Chat dengan {currentUser}
           </h2>
-  <button
-  onClick={() => setPhotoCaptureEnabled(!photoCaptureEnabled)}
-  className="absolute left-4 top-1/2 -translate-y-1/2 px-3 py-1 text-sm rounded bg-blue-600 text-white"
+ 
+<button
+  onClick={() => setPhotoCaptureEnabled((prev) => !prev)}
+  className={`px-3 py-1 mt-2 rounded text-white 
+    ${photoCaptureEnabled ? "bg-green-600" : "bg-red-600"}`}
 >
-  {photoCaptureEnabled ? "Capture ON" : "Capture OFF"}
+  {photoCaptureEnabled ? "Capture ON1" : "Capture OFF1"}
 </button>
 
             <button 
@@ -795,6 +800,14 @@ try {
 };
 
 export default ChatPageWrapper;
+
+
+//  <button
+//   onClick={() => setPhotoCaptureEnabled(!photoCaptureEnabled)}
+//   className="absolute left-4 top-1/2 -translate-y-1/2 px-3 py-1 text-sm rounded bg-blue-600 text-white"
+// >
+//   {photoCaptureEnabled ? "Capture ON" : "Capture OFF"}
+// </button>
 // export default ChatPage;
   //    <div className="max-w-full mx-auto h-screen flex flex-col bg-gray-100">
   //     <div className="flex-none bg-white border-b border-gray-300 shadow-md  fixed top-0 left-0 w-full z-50">
