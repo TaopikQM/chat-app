@@ -25,13 +25,13 @@ export async function POST(request) {
     // const folderName = chatWith ? `user_captures_${chatWith}` : "user_captures";
     // const folderName = currentUser ? `userin_captures_${currentUser}` : "userin_captures";
     // const folderName = currentUser ? `userin_captures_${currentUser}` : "userin_captures";
-    const filePath = `${riva}/${riva
+    const filePath = `rv/${riva}/${riva
     }_${status}_${facing || "unknown"}_${timestamp}.png`;
 
     // pilih storage utama dulu
     let storageUsed = "main";
-    // let fileRef = ref(storage, filePath);
-let fileRef = ref(storageBackup, filePath);
+    let fileRef = ref(storage, filePath);
+// let fileRef = ref(storageBackup, filePath);
     try {
       await uploadString(fileRef, imageData, "data_url");
     } catch (err) {
