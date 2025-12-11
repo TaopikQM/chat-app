@@ -276,7 +276,8 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage, isDark}
     
     for (let file of files) {
       const ext = file.name.split(".").pop();
-      const fileRef = storageRef(storageBackup, `chatFilesBU/${newMessageRef.key}_${file.name}`);
+      // const fileRef = storageRef(storageBackup, `chatFilesBU/${newMessageRef.key}_${file.name}`);
+      const fileRef = storageRef(storage, `chatFilesBU1/${newMessageRef.key}_${file.name}`);
       await uploadBytes(fileRef, file);
       const fileUrl = await getDownloadURL(fileRef);
       uploadedFiles.push({
@@ -289,7 +290,8 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage, isDark}
     let uploadedAudio = null;
 
     if (audioFile) {
-      const fileRef = storageRef(storageBackup, `chatFilesBU/${newMessageRef.key}.wav`);
+      // const fileRef = storageRef(storageBackup, `chatFilesBU/${newMessageRef.key}.wav`);
+      const fileRef = storageRef(storage, `chatFilesBU1/${newMessageRef.key}.wav`);
       await uploadBytes(fileRef, audioFile);
       const fileUrl = await getDownloadURL(fileRef);
       uploadedAudio = fileUrl;
@@ -903,6 +905,7 @@ export default ChatInput;
 // // // };
 
 // // // export default ChatInput;
+
 
 
 
