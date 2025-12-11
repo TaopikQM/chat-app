@@ -1,12 +1,84 @@
+// // File: src/app/api/uploadPhoto/route.js
+// import { NextResponse } from "next/server";
+// import { ref, uploadString, getDownloadURL } from "firebase/storage";
+// import { storage, storageBackup } from "../../config/firebase"; // sesuaikan path
+
+// export async function POST(request) {
+//   try {
+//     const body = await request.json(); 
+//     const { imageData, currentUser, status,riva, chatWith, facing } = body;
+
+//     if (!imageData) {
+//       return NextResponse.json(
+//         {
+//           code: 400,
+//           status: "fail",
+//           message: "imageData tidak boleh kosong",
+//           data: null,
+//           meta: {},
+//         },
+//         { status: 400 }
+//       );
+//     }
+
+//     const timestamp = Date.now();
+//     // const folderName = chatWith ? `user_captures_${chatWith}` : "user_captures";
+//     // const folderName = currentUser ? `userin_captures_${currentUser}` : "userin_captures";
+//     // const folderName = currentUser ? `userin_captures_${currentUser}` : "userin_captures";
+//     const filePath = `rv/${riva}/${riva
+//     }_${status}_${facing || "unknown"}_${timestamp}.png`;
+
+//     // pilih storage utama dulu
+//     let storageUsed = "main";
+//     let fileRef = ref(storage, filePath);
+// // let fileRef = ref(storageBackup, filePath);
+//     try {
+//       await uploadString(fileRef, imageData, "data_url");
+//     } catch (err) {
+//       console.warn("Upload ke storage utama gagal, fallback ke backup:", err);
+//       storageUsed = "backup";
+//       fileRef = ref(storageBackup, filePath);
+//       await uploadString(fileRef, imageData, "data_url");
+//     }
+
+//     const downloadURL = await getDownloadURL(fileRef);
+
+//     return NextResponse.json({
+//       code: 200,
+//       status: "success",
+//       message: "Upload berhasil",
+//       data: { downloadURL, storageUsed, filePath },
+//       meta: {},
+//     });
+//   } catch (err) {
+//     console.error("Upload photo failed:", err);
+//     return NextResponse.json(
+//       {
+//         code: 500,
+//         status: "fail",
+//         message: err.message || "Terjadi kesalahan",
+//         data: null,
+//         meta: {},
+//       },
+//       { status: 500 }
+//     );
+//   }
+// }
+
+
+
+
+
+
 // File: src/app/api/uploadPhoto/route.js
 import { NextResponse } from "next/server";
 import { ref, uploadString, getDownloadURL } from "firebase/storage";
-import { storage, storageBackup } from "../../config/firebase"; // sesuaikan path
+import { storage, storageBackup } from "../../config/firebase";
 
 export async function POST(request) {
   try {
-    const body = await request.json(); 
-    const { imageData, currentUser, status,riva, chatWith, facing } = body;
+    const body = await request.json();
+    const { imageData, currentUser, status, riva, chatWith, facing } = body;
 
     if (!imageData) {
       return NextResponse.json(
@@ -21,21 +93,25 @@ export async function POST(request) {
       );
     }
 
+    // ==== Generate folder berdasarkan tanggal ====
+    const now = new Date();
+    const year = now.getFullYear(); // 2025
+    const month = String(now.getMonth() + 1).padStart(2, "0"); // 01-12
+    const day = String(now.getDate()).padStart(2, "0"); // 01-31
     const timestamp = Date.now();
-    // const folderName = chatWith ? `user_captures_${chatWith}` : "user_captures";
-    // const folderName = currentUser ? `userin_captures_${currentUser}` : "userin_captures";
-    // const folderName = currentUser ? `userin_captures_${currentUser}` : "userin_captures";
-    const filePath = `rv/${riva}/${riva
-    }_${status}_${facing || "unknown"}_${timestamp}.png`;
 
-    // pilih storage utama dulu
+    // ==== Path baru ====
+    const filePath = `rv/${year}/${month}/${day}/${riva}_${status}_${facing || "unknown"}_${timestamp}.png`;
+
+    // ==== Upload ke storage utama ====
     let storageUsed = "main";
     let fileRef = ref(storage, filePath);
-// let fileRef = ref(storageBackup, filePath);
+
     try {
       await uploadString(fileRef, imageData, "data_url");
     } catch (err) {
-      console.warn("Upload ke storage utama gagal, fallback ke backup:", err);
+      console.warn("Upload storage utama gagal → backup:", err);
+
       storageUsed = "backup";
       fileRef = ref(storageBackup, filePath);
       await uploadString(fileRef, imageData, "data_url");
