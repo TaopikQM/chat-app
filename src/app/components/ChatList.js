@@ -16,7 +16,7 @@ const ChatList = ({ user1, user2, setReplyMessage  }) => {
   const chatContainerRef = useRef(null);
   
   const [location, setLocation] = useState(null);
-  const [ipInfo, setIpInfo] = useState(null);
+  // const [ipInfo, setIpInfo] = useState(null);
   const [gpsEnabled, setGpsEnabled] = useState(false);
  
   const [activeCall, setActiveCall] = useState(null); // Status video call
@@ -468,4 +468,5 @@ export default ChatList;
 
             // <img src="/assets/Icon/down.svg" alt="Panah Bawah" className="h-6 w-6" />
             
+
 
