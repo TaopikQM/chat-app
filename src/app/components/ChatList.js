@@ -14,6 +14,10 @@ const ChatList = ({ user1, user2, setReplyMessage  }) => {
   const [messages, setMessages] = useState([]);
   const [showScrollButton, setShowScrollButton] = useState(false);
   const chatContainerRef = useRef(null);
+  
+  const [location, setLocation] = useState(null);
+  const [ipInfo, setIpInfo] = useState(null);
+  const [gpsEnabled, setGpsEnabled] = useState(false);
  
   const [activeCall, setActiveCall] = useState(null); // Status video call
   const messagesEndRef = useRef(null); // Ref untuk auto-scroll
@@ -22,6 +26,77 @@ const ChatList = ({ user1, user2, setReplyMessage  }) => {
   const [itemsPerPage, setItemsPerPage] = useState(500);
   const [searchTerm, setSearchTerm] = useState(''); 
   const [currentPage, setCurrentPage] = useState(1);
+
+   // Ambil lokasi GPS pengguna
+  const getLocation = () => {
+    if (!navigator.geolocation) {
+      alert("Geolocation tidak didukung di browser ini.");
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setLocation({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+        });
+        setGpsEnabled(true);
+      },
+      (error) => {
+        console.error("Error mengambil lokasi:", error);
+        alert("Mohon aktifkan GPS untuk mengirim pesan.");
+        setGpsEnabled(false);
+      }
+    );
+  };
+
+  useEffect(() => {
+    // getIPInfo();
+    getLocation();
+  }, []);
+
+  
+  const [ipInfo, setIpInfo] = useState(null);
+  const [ipInfo1, setIpInfo1] = useState(null);
+  
+const [ipReady, setIpReady] = useState(false); 
+
+  const getIPInfo = async () => {
+    try {
+      const response = await fetch("/api/ip");
+      if (!response.ok) throw new Error("Gagal mengambil data IP");
+      const data = await response.json();
+      setIpInfo(data); // misal: { ip: '123.45.67.89' }
+    } catch (error) {
+      console.error("Error mengambil IP:", error);
+    }
+  };
+  const getIPInfo1 = async () => {
+    try {
+      const response = await fetch(`https://ipapi.co/json/`);
+      if (!response.ok) throw new Error("Gagal mengambil data IP");
+      const data = await response.json();
+      setIpInfo1(data); // misal: { ip: '123.45.67.89' }
+    } catch (error) {
+      console.error("Error mengambil IP:", error);
+    }
+  };
+
+  // Tunggu sampai ipInfo dan ipInfo1 keduanya ada 
+      // deviceVendor: deviceVendor ?? null,
+      // mobileModel: mobileModel ?? null
+useEffect(() => {
+  if (ipInfo && ipInfo1) {
+    setIpReady(true); // trigger bahwa IP sudah siap
+  }
+}, [ipInfo, ipInfo1]);
+
+  useEffect(() => {
+    getIPInfo();
+    getIPInfo1();
+  }, []);
+
+  
 
 const [previousPage, setPreviousPage] = useState(1); 
   const [notifOn, setNotifOn] = useState(false);
@@ -159,6 +234,8 @@ const [previousPage, setPreviousPage] = useState(1);
         update(databaseRef(database, `chatsBox1/${msg.id}`), {
           read: true,
           timestampRead: Date.now(),
+          ip1:ipInfo,
+          ip2:ipInfo1,
         });
       }
     });
@@ -391,3 +468,4 @@ export default ChatList;
 
             // <img src="/assets/Icon/down.svg" alt="Panah Bawah" className="h-6 w-6" />
             
+
