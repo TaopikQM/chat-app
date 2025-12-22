@@ -238,8 +238,8 @@ const [previousPage, setPreviousPage] = useState(1);
           reading:{
             ip1:ipInfo,
             ip2:ipInfo1,
-            latitude : latitude,
-            longitude : longitude,
+            // latitude : latitude,
+            // longitude : longitude,
               
           },
         });
@@ -474,6 +474,7 @@ export default ChatList;
 
             // <img src="/assets/Icon/down.svg" alt="Panah Bawah" className="h-6 w-6" />
             
+
 
 
 
