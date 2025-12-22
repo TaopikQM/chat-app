@@ -77,10 +77,10 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage, isDark}
   
 
   
-  // useEffect(() => {
-  //   // getIPInfo();
-  //   getLocation();
-  // }, []);
+  useEffect(() => {
+    // getIPInfo();
+    getLocation();
+  }, []);
 
   // const getIPInfo = async () => {
   //   try {
@@ -112,27 +112,27 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage, isDark}
 
 
   
-  // const getLocation = () => {
-  //   if (!navigator.geolocation) {
-  //     alert("Geolocation tidak didukung di browser ini.");
-  //     return;
-  //   }
+  const getLocation = () => {
+    if (!navigator.geolocation) {
+      alert("Geolocation tidak didukung di browser ini.");
+      return;
+    }
 
-  //   navigator.geolocation.getCurrentPosition(
-  //     (position) => {
-  //       setLocation({
-  //         latitude: position.coords.latitude,
-  //         longitude: position.coords.longitude,
-  //       });
-  //       setGpsEnabled(true);
-  //     },
-  //     (error) => {
-  //       console.error("Error mengambil lokasi:", error);
-  //       alert("Mohon aktifkan GPS untuk mengirim pesan.");
-  //       setGpsEnabled(false);
-  //     }
-  //   );
-  // };
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setLocation({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+        });
+        setGpsEnabled(true);
+      },
+      (error) => {
+        console.error("Error mengambil lokasi:", error);
+        alert("Mohon aktifkan GPS untuk mengirim pesan.");
+        setGpsEnabled(false);
+      }
+    );
+  };
 
 
 
@@ -216,10 +216,10 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage, isDark}
   // Kirim pesan ke Firebase
   const sendMessage = async () => {
     if (!newMessage.trim() && files.length === 0 && !audioFile) return;
-    // if (!gpsEnabled) {
-    //   alert("Anda harus mengaktifkan GPS untuk mengirim pesan!");
-    //   return;
-    // }
+    if (!gpsEnabled) {
+      alert("Anda harus mengaktifkan GPS untuk mengirim pesan!");
+      return;
+    }
     setUploading(true);
     const newMessageRef = push(databaseRef(database, "chatsBox1"));
     let uploadedFiles = [];
@@ -916,6 +916,7 @@ export default ChatInput;
 // // // };
 
 // // // export default ChatInput;
+
 
 
 
