@@ -1,6 +1,6 @@
 "use client";
 
-import ChatList from "../components/ChatList";
+import ChatList1 from "../components/ChatList1";
 import ChatInput1 from "../components/ChatInput1";
 import UserStatus from "../components/UserStatus";
 import {useEffect, useState, useRef  } from "react";
@@ -760,7 +760,7 @@ useEffect(() => {
       </div>
            {/* Chat List */}
       <div className="flex-1 overflow-y-auto px-2 sm:px-4">
-        <ChatList
+        <ChatList1
           user1={currentUser}
           user2={chatWith}
           setReplyMessage={setReplyMessage}
