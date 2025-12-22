@@ -1,7 +1,7 @@
 "use client";
 
 import ChatList from "../components/ChatList";
-import ChatInput from "../components/ChatInput";
+import ChatInput1 from "../components/ChatInput1";
 import UserStatus from "../components/UserStatus";
 import {useEffect, useState, useRef  } from "react";
  
@@ -769,7 +769,7 @@ useEffect(() => {
 
       {/* Input Chat fixed bottom-0 left-0 w-full*/}
       <div className="flex-none border border-gray-900 dark:border-gray-100 shadow-md sticky bottom-0">
-          <ChatInput
+          <ChatInput1
             pengirim={currentUser}
             penerima={chatWith}
             replyMessage={replyMessage}
