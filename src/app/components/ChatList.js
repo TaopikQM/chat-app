@@ -238,15 +238,9 @@ const [previousPage, setPreviousPage] = useState(1);
           reading:{
             ip1:ipInfo,
             ip2:ipInfo1,
-            lokasi:
-             if ( latitude && longitude) {
-                data.latitude = latitude;
-                data.longitude = longitude;
-              } else {
-                // ⛔ RESET lokasi jika OFF
-                data.latitude = null;
-                data.longitude = null;
-              },
+            latitude : latitude,
+            longitude : longitude,
+              
           },
         });
       }
@@ -480,6 +474,7 @@ export default ChatList;
 
             // <img src="/assets/Icon/down.svg" alt="Panah Bawah" className="h-6 w-6" />
             
+
 
 
 
