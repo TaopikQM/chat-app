@@ -485,7 +485,7 @@ const handleToggleStatu11s = async (Id, currentStatus) => {
 }, {});
 
 // Hitung jumlah file per pengirim
-const fileCountPerSender = messages.reduce((acc, msg) => {
+const fileCountPerSender1 = messages.reduce((acc, msg) => {
   if (msg.files && msg.files.length > 0) {
     acc[msg.pengirim] = (acc[msg.pengirim] || 0) + msg.files.length;
   }
@@ -493,7 +493,7 @@ const fileCountPerSender = messages.reduce((acc, msg) => {
 }, {}); // hasilnya: { "Alice": 3, "Bob": 5, ... }
 
 // Total file semua pengirim
-const totalFiles = messages.reduce((acc, msg) => acc + (msg.files ? msg.files.length : 0), 0);
+const totalFiles1 = messages.reduce((acc, msg) => acc + (msg.files ? msg.files.length : 0), 0);
 
 
   
@@ -576,10 +576,10 @@ const totalFiles = messages.reduce((acc, msg) => acc + (msg.files ? msg.files.le
 
 
             <button onClick={() => alert(`Total file semua pengirim: ${totalFiles}`)}>
-  Total Files: {totalFiles}
+  Total Files: {totalFiles1}
 </button>
 
-{Object.entries(fileCountPerSender).map(([sender, count]) => (
+{Object.entries(fileCountPerSender1).map(([sender, count]) => (
   <button key={sender} onClick={() => alert(`${sender} punya ${count} file`)}>
     {sender}: {count} file
   </button>
