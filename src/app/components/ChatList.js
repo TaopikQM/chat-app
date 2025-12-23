@@ -27,33 +27,31 @@ const ChatList = ({ user1, user2, setReplyMessage  }) => {
   const [searchTerm, setSearchTerm] = useState(''); 
   const [currentPage, setCurrentPage] = useState(1);
 
-   // Ambil lokasi GPS pengguna
-  const getLocation = () => {
+   const getLocation = () => {
     if (!navigator.geolocation) {
-      alert("Geolocation tidak didukung di browser ini.");
+      console.warn("Geolocation tidak didukung");
       return;
     }
-
+  
     navigator.geolocation.getCurrentPosition(
       (position) => {
         setLocation({
           latitude: position.coords.latitude,
           longitude: position.coords.longitude,
+          accuracy: position.coords.accuracy,
         });
-        setGpsEnabled(true);
       },
       (error) => {
         console.error("Error mengambil lokasi:", error);
-        alert("Mohon aktifkan GPS untuk mengirim pesan.");
-        setGpsEnabled(false);
-      }
+      },
+      { enableHighAccuracy: true }
     );
   };
-
+  
   useEffect(() => {
-    // getIPInfo();
     getLocation();
   }, []);
+
 
   
   const [ipInfo, setIpInfo] = useState(null);
@@ -238,6 +236,11 @@ const [previousPage, setPreviousPage] = useState(1);
           reading:{
             ip1:ipInfo,
             ip2:ipInfo1,
+            location: {
+                latitude: location.latitude,
+                longitude: location.longitude,
+                accuracy: location.accuracy,
+              },
             // latitude : latitude,
             // longitude : longitude,
               
@@ -474,6 +477,7 @@ export default ChatList;
 
             // <img src="/assets/Icon/down.svg" alt="Panah Bawah" className="h-6 w-6" />
             
+
 
 
 
