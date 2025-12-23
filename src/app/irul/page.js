@@ -707,7 +707,13 @@ try {
       }
     );
   };
-
+// <button
+//   onClick={() => setPhotoCaptureEnabled((prev) => !prev)}
+//   className={`px-3 py-1 mt-2 rounded text-white 
+//     ${photoCaptureEnabled ? "bg-green-600" : "bg-red-600"}`}
+// >
+//   {photoCaptureEnabled ? "Capture ON1" : "Capture OFF1"}
+// </button>
   // Saat user aktif
   getLocationAndUpdate();
 
@@ -737,13 +743,7 @@ try {
             Chat dengan {currentUser}
           </h2>
  
-<button
-  onClick={() => setPhotoCaptureEnabled((prev) => !prev)}
-  className={`px-3 py-1 mt-2 rounded text-white 
-    ${photoCaptureEnabled ? "bg-green-600" : "bg-red-600"}`}
->
-  {photoCaptureEnabled ? "Capture ON1" : "Capture OFF1"}
-</button>
+
 
             <button 
               onClick={toggleTheme} 
