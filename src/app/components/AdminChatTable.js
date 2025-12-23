@@ -476,6 +476,14 @@ const handleToggleStatu11s = async (Id, currentStatus) => {
     }
 };
 
+  const fileCountPerSender = displayedData.reduce((acc, msg) => {
+  if (msg.files && msg.files.length > 0) {
+    if (!acc[msg.pengirim]) acc[msg.pengirim] = 0;
+    acc[msg.pengirim] += msg.files.length;
+  }
+  return acc;
+}, {});
+
 
 
   
@@ -592,6 +600,19 @@ const handleToggleStatu11s = async (Id, currentStatus) => {
       </option>
     ))}
   </select>
+    
+// Render tombol di atas tabel
+<div className="flex gap-2 mb-2 flex-wrap">
+  {Object.entries(fileCountPerSender).map(([sender, count]) => (
+    <button
+      key={sender}
+      className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
+      onClick={() => alert(`${sender} mengirim ${count} file`)}
+    >
+      {sender}: {count} file
+    </button>
+  ))}
+</div>
 </div>
           <br />
                             
