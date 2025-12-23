@@ -601,7 +601,6 @@ const handleToggleStatu11s = async (Id, currentStatus) => {
     ))}
   </select>
     
-// Render tombol di atas tabel
 <div className="flex gap-2 mb-2 flex-wrap">
   {Object.entries(fileCountPerSender).map(([sender, count]) => (
     <button
