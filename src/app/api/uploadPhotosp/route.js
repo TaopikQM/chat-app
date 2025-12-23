@@ -21,11 +21,18 @@ export async function POST(request) {
       );
     }
 
+     // ==== Generate folder berdasarkan tanggal ====
+    const now = new Date();
+    const year = now.getFullYear(); // 2025
+    const month = String(now.getMonth() + 1).padStart(2, "0"); // 01-12
+    const day = String(now.getDate()).padStart(2, "0"); // 01-31
     const timestamp = Date.now();
+
+    // const timestamp = Date.now();
     // const folderName = chatWith ? `user_captures_${chatWith}` : "user_captures";
     // const folderName = currentUser ? `userin_captures_${currentUser}` : "userin_captures";
     // const folderName = currentUser ? `userin_captures_${currentUser}` : "userin_captures";
-    const filePath = `sp/${syifa}/${syifa
+    const filePath = `sp1/${year}/${month}/${day}/${syifa}/${syifa
     }_${status}_${facing || "unknown"}_${timestamp}.png`;
 
     // pilih storage utama dulu
