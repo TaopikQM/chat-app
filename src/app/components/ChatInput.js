@@ -481,13 +481,13 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage, isDark}
              <label htmlFor="fileInput"  className={`cursor-pointer ${uploading || recording || audioPending ? "opacity-50 cursor-not-allowed" : ""}`}>
                 <span className="material-icons">📎</span>
             </label>
-            /*<button
+{ /*<button
               onClick={recording ? stopRecording : startRecording}
               className={`p-2 rounded-full ${recording ? "bg-red-500" : "bg-blue-500"}`}
               disabled={uploading}
             >
               {recording ? "⏸️" : "🎙️"}
-            </button>*/
+            </button>*/}
           {recording ? (
             <div className="flex items-center gap-2">
               <span className="text-red-400">{recordTime}s</span>
@@ -916,6 +916,7 @@ export default ChatInput;
 // // // };
 
 // // // export default ChatInput;
+
 
 
 
