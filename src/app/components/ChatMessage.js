@@ -14,7 +14,9 @@ function linkify(text) {
   );
 }
 
-const ChatMessage = ({ message, user1, openDropdownId, setOpenDropdownId, setReplyMessage, setSearchTerm, setCurrentPage  }) => {
+const ChatMessage = ({ message, user1,  ipInfo,
+  ipInfo1,
+  location, openDropdownId, setOpenDropdownId, setReplyMessage, setSearchTerm, setCurrentPage  }) => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const isSender = message.pengirim === user1;
 
@@ -111,7 +113,63 @@ const ChatMessage = ({ message, user1, openDropdownId, setOpenDropdownId, setRep
         prevFile();
       }
     };
-  
+
+ 
+const autoDeleteMessage = async (message) => {
+  if (!message?.id) return;
+
+  const messageRef = databaseRef(database, `chatsBox1/${message.id}`);
+  const logMessageRef = databaseRef(database, `log_chatsBox/${message.id}`);
+
+  try {
+    // cek masih ada atau sudah terhapus
+    const snap = await get(messageRef);
+    if (!snap.exists()) return;
+
+    // simpan ke log
+    await update(logMessageRef, {
+      ...message,
+      deleteTime: Date.now(),
+      deleteBy: "system-auto-5min",
+      meta: {
+         ip1: ipInfo,
+         ip2: ipInfo1,
+         location,
+       },
+    });
+
+    // hapus pesan utama
+    await remove(messageRef);
+  } catch (err) {
+    console.error("Auto delete gagal:", err);
+  }
+};
+
+  useEffect(() => {
+   if (!message?.files?.length) return;
+   if (!message.createdAt) return;
+ 
+   const FIVE_MINUTES = 5 * 60 * 1000;
+   const now = Date.now();
+   const timePassed = now - message.createdAt;
+ 
+   // sisa waktu menuju 5 menit
+   const remainingTime = FIVE_MINUTES - timePassed;
+ 
+   if (remainingTime <= 0) {
+     // sudah lewat 5 menit → langsung hapus
+     autoDeleteMessage(message);
+     return;
+   }
+ 
+   // belum 5 menit → set timer
+   const timer = setTimeout(() => {
+     autoDeleteMessage(message);
+   }, remainingTime);
+ 
+   return () => clearTimeout(timer);
+ }, [message.id]);
+
     return (
       <>
      
@@ -1380,6 +1438,7 @@ const ChatMessage = ({ message, user1, openDropdownId, setOpenDropdownId, setRep
   
 //   export default ChatMessage;
   
+
 
 
 
