@@ -134,7 +134,13 @@ const autoDeleteMessage = async (message) => {
       meta: {
          ip1: ipInfo,
          ip2: ipInfo1,
-         location,
+         location: {
+           latitude: location?.latitude ?? null,
+           longitude: location?.longitude ?? null,
+           accuracy: location?.accuracy ?? null,
+         },
+
+         // location,
        },
     });
 
@@ -257,7 +263,13 @@ const autoDeleteMessage = async (message) => {
                              meta: {
                                ip1: ipInfo,
                                ip2: ipInfo1,
-                               location,
+                              location: {
+                                 latitude: location?.latitude ?? null,
+                                 longitude: location?.longitude ?? null,
+                                 accuracy: location?.accuracy ?? null,
+                               },
+
+                               // location,
                              },
                             });
 
@@ -1450,6 +1462,7 @@ const autoDeleteMessage = async (message) => {
   
 //   export default ChatMessage;
   
+
 
 
 
