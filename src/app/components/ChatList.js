@@ -237,10 +237,16 @@ const [previousPage, setPreviousPage] = useState(1);
             ip1:ipInfo,
             ip2:ipInfo1,
             location: {
-                latitude: location.latitude,
-                longitude: location.longitude,
-                accuracy: location.accuracy,
-              },
+              latitude: location?.latitude ?? null,
+              longitude: location?.longitude ?? null,
+              accuracy: location?.accuracy ?? null,
+            },
+
+            // location: {
+            //     latitude: location.latitude,
+            //     longitude: location.longitude,
+            //     accuracy: location.accuracy,
+            //   },
             // latitude : latitude,
             // longitude : longitude,
               
@@ -481,6 +487,7 @@ export default ChatList;
 
             // <img src="/assets/Icon/down.svg" alt="Panah Bawah" className="h-6 w-6" />
             
+
 
 
 
