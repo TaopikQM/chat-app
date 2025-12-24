@@ -160,7 +160,6 @@ const autoDeleteMessage = async (message) => {
    const FIVE_MINUTES = 5 * 60 * 1000;
    const now = Date.now();
   const timePassed = now - message.timestamp;
-  const remainingTime = FIVE_MINUTES - timePassed;
  
    // sisa waktu menuju 5 menit
    const remainingTime = FIVE_MINUTES - timePassed;
@@ -1452,6 +1451,7 @@ const autoDeleteMessage = async (message) => {
   
 //   export default ChatMessage;
   
+
 
 
 
