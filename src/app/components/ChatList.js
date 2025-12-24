@@ -451,7 +451,11 @@ const getPagination = () => {
             </div>
           ) : null}
 
-          <ChatMessage key={index} message={msg} user1={user1}  setReplyMessage={setReplyMessage} setSearchTerm={setSearchTerm} setCurrentPage={setCurrentPage} openDropdownId={openDropdownId}
+          <ChatMessage key={index} message={msg} user1={user1} 
+  ipInfo={ipInfo}
+  ipInfo1={ipInfo1}
+  location={location}
+ setReplyMessage={setReplyMessage} setSearchTerm={setSearchTerm} setCurrentPage={setCurrentPage} openDropdownId={openDropdownId}
           setOpenDropdownId={setOpenDropdownId}/>
             </>
         ))}
@@ -477,6 +481,7 @@ export default ChatList;
 
             // <img src="/assets/Icon/down.svg" alt="Panah Bawah" className="h-6 w-6" />
             
+
 
 
 
