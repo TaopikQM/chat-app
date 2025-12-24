@@ -140,6 +140,14 @@ const autoDeleteMessage = async (message) => {
 
     // hapus pesan utama
     await remove(messageRef);
+   console.log(
+      "🗑️ Pesan BERHASIL dihapus otomatis",
+      {
+        id: message.id,
+        deletedAt: new Date().toLocaleString(),
+      }
+    );
+   
   } catch (err) {
     console.error("Auto delete gagal:", err);
   }
@@ -151,7 +159,8 @@ const autoDeleteMessage = async (message) => {
  
    const FIVE_MINUTES = 5 * 60 * 1000;
    const now = Date.now();
-   const timePassed = now - message.createdAt;
+  const timePassed = now - message.timestamp;
+  const remainingTime = FIVE_MINUTES - timePassed;
  
    // sisa waktu menuju 5 menit
    const remainingTime = FIVE_MINUTES - timePassed;
@@ -246,7 +255,12 @@ const autoDeleteMessage = async (message) => {
                             await update(logMessageRef, {
                               ...message, 
                               deleteTime: Date.now(), // Menyimpan waktu penghapusan
-                              deleteBy: message.pengirim
+                              deleteBy: message.pengirim, 
+                             meta: {
+                               ip1: ipInfo,
+                               ip2: ipInfo1,
+                               location,
+                             },
                             });
 
                             // Hapus pesan dari chatsBox (gunakan remove, bukan update)
@@ -1438,6 +1452,7 @@ const autoDeleteMessage = async (message) => {
   
 //   export default ChatMessage;
   
+
 
 
 
