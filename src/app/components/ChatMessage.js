@@ -155,7 +155,6 @@ const autoDeleteMessage = async (message) => {
 
   useEffect(() => {
    if (!message?.files?.length) return;
-   if (!message.createdAt) return;
  
    const FIVE_MINUTES = 5 * 60 * 1000;
    const now = Date.now();
@@ -1451,6 +1450,7 @@ const autoDeleteMessage = async (message) => {
   
 //   export default ChatMessage;
   
+
 
 
 
