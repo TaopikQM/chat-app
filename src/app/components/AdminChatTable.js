@@ -1173,9 +1173,24 @@ const totalFiles1 = messages.reduce((acc, msg) => acc + (msg.files ? msg.files.l
   <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
     <div className="bg-white p-4 rounded w-[400px]">
       <h2 className="font-bold mb-3">Edit Pesan</h2>
+      <input
+        className="border p-2 w-full mb-2"
+        value={editData.pengirim}
+        onChange={(e) =>
+          setEditData({ ...editData, pengirim: e.target.value })
+        }
+        placeholder="Pengirim"
+      />
 
-      
-        <select
+      <input
+        className="border p-2 w-full mb-2"
+        value={editData.penerima}
+        onChange={(e) =>
+          setEditData({ ...editData, penerima: e.target.value })
+        }
+        placeholder="Penerima"
+      />
+      <select
   className="border p-2 w-full mb-2"
   value={editData.pengirim}
   onChange={(e) => {
@@ -1184,14 +1199,18 @@ const totalFiles1 = messages.reduce((acc, msg) => acc + (msg.files ? msg.files.l
     setEditData({
       ...editData,
       pengirim: val,
-      penerima: val === "pengirim" ? "penerima" : "pengirim",
+      penerima:
+        val === editData.pengirim
+          ? editData.penerima
+          : editData.pengirim,
     });
   }}
 >
-  <option value="pengirim">Pengirim</option>
-  <option value="penerima">Penerima</option>
+  <option value={editData.pengirim}>{editData.pengirim}</option>
+  <option value={editData.penerima}>{editData.penerima}</option>
 </select>
-<select
+
+     <select
   className="border p-2 w-full mb-2"
   value={editData.penerima}
   onChange={(e) => {
@@ -1200,14 +1219,16 @@ const totalFiles1 = messages.reduce((acc, msg) => acc + (msg.files ? msg.files.l
     setEditData({
       ...editData,
       penerima: val,
-      pengirim: val === "pengirim" ? "penerima" : "pengirim",
+      pengirim:
+        val === editData.penerima
+          ? editData.pengirim
+          : editData.penerima,
     });
   }}
 >
-  <option value="penerima">Penerima</option>
-  <option value="pengirim">Pengirim</option>
+  <option value={editData.penerima}>{editData.penerima}</option>
+  <option value={editData.pengirim}>{editData.pengirim}</option>
 </select>
-
 
       <textarea
         className="border p-2 w-full mb-2"
