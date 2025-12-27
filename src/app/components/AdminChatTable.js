@@ -1191,53 +1191,26 @@ const totalFiles1 = messages.reduce((acc, msg) => acc + (msg.files ? msg.files.l
         }
         placeholder="Penerima"
       />
-          <select
-  className="border p-2 w-full mb-2"
-  value={editData.pengirimMode}
-  onChange={(e) =>
-    setEditData({
-      ...editData,
-      pengirimMode: e.target.value,
-      pengirim: "",
-    })
-  }
->
-  <option value="pengirim">Pengirim</option>
-  <option value="penerima">Penerima</option>
-</select>
-
-<input
+         <select
   className="border p-2 w-full mb-2"
   value={editData.pengirim}
   onChange={(e) =>
     setEditData({ ...editData, pengirim: e.target.value })
   }
-  placeholder={`Isi ${editData.pengirimMode}`}
-/>
-<select
-  className="border p-2 w-full mb-2"
-  value={editData.penerimaMode}
-  onChange={(e) =>
-    setEditData({
-      ...editData,
-      penerimaMode: e.target.value,
-      penerima: "",
-    })
-  }
 >
-  <option value="penerima">Penerima</option>
   <option value="pengirim">Pengirim</option>
+  <option value="penerima">Penerima</option>
 </select>
-
-<input
+<select
   className="border p-2 w-full mb-2"
   value={editData.penerima}
   onChange={(e) =>
     setEditData({ ...editData, penerima: e.target.value })
   }
-  placeholder={`Isi ${editData.penerimaMode}`}
-/>
-
+>
+  <option value="penerima">Penerima</option>
+  <option value="pengirim">Pengirim</option>
+</select>
 
       <textarea
         className="border p-2 w-full mb-2"
