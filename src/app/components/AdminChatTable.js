@@ -41,40 +41,60 @@ const [popupQueue, setPopupQueue] = useState([]); // antrian notif
   };
 
   const handleSaveEdit = async () => {
-  if (!editData?.id) return;
+    if (!editData?.id) return;
+  
+    const msgRef = ref(rtdb, `chatsBox1/${editData.id}`);
+  
+    // ambil data lama
+    const snapshot = await get(msgRef);
+    if (!snapshot.exists()) return;
+  
+    const oldData = snapshot.val();
+    const now = Date.now();
 
-  const msgRef = ref(rtdb, `chatsBox1/${editData.id}`);
+     let timestampReadUpdate = {};
 
-  // ambil data lama
-  const snapshot = await get(msgRef);
-  if (!snapshot.exists()) return;
+    if (oldData.read === false && editData.read === true) {
+      timestampReadUpdate = {
+        timestampRead: now
+      };
+    }
+  
+    // 1. simpan ke logsUpdate
+    await push(ref(rtdb, `chatsBox1/${editData.id}/logsUpdate`), {
+      oldData1,
+      oldData: {
+        pengirim: oldData.pengirim,
+        penerima: oldData.penerima,
+        pesan: oldData.pesan,
+        read: oldData.read,
+        status: oldData.status,
+        timestamp: oldData.timestamp,
+        onUSer: oldData.onUSer,
+        timestampRead: oldData.timestampRead ?? null
+      },
+      updateBy: "admin",
+      timeEdit: now,
+    });
+  
+    // 2. update data utama
+    await update(msgRef, {
+      onUSer: editData.onUSer,
+      pengirim: editData.pengirim,
+      penerima: editData.penerima,
+      pesan: editData.pesan,
+      read: editData.read,
+      status: editData.status,
+      timestamp: editData.timestamp,
+        
+    ...timestampReadUpdate, // <- hanya muncul jika read true
 
-  const oldData = snapshot.val();
-  const now = Date.now();
-
-  // 1. simpan ke logsUpdate
-  await push(ref(rtdb, `chatsBox1/${editData.id}/logsUpdate`), {
-    oldData,
-    updateBy: "admin",
-    timeEdit: now,
-  });
-
-  // 2. update data utama
-  await update(msgRef, {
-    onUSer: editData.onUSer,
-    pengirim: editData.pengirim,
-    penerima: editData.penerima,
-    pesan: editData.pesan,
-    read: editData.read,
-    status: editData.status,
-    timestamp: editData.timestamp,
-
-    timeEdit: now,
-    updateBy: "admin",
-  });
-
-  setOpenEdit(false);
-};
+      timeEdit: now,
+      updateBy: "admin",
+    });
+  
+    setOpenEdit(false);
+  };
 
   
 
@@ -758,6 +778,31 @@ const totalFiles1 = messages.reduce((acc, msg) => acc + (msg.files ? msg.files.l
                     <div className={`h-2.5 w-2.5 rounded-full me-2 ${users.find(user => user.user === msg.penerima)?.isOnline ? 'bg-green-500' : 'bg-red-500'}`}></div>
                     {msg.penerima}
                 </div>
+                    
+                  <a
+                    href={`https://www.google.com/maps?q=${msg.location.latitude},${msg.location.longitude}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title={`Lokasi ${msg.location.latitude},${msg.location.longitude}`   }                                                 className="inline-flex items-center gap-2 cursor-pointer text-blue-700 hover:text-white border border-blue-500 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 dark:focus:ring-blue-800"
+                    >
+                    {/* Maps */}
+                    <svg className="w-6 h-6 text-inherit" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/>
+                        <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.8 13.938h-.011a7 7 0 1 0-11.464.144h-.016l.14.171c.1.127.2.251.3.371L12 21l5.13-6.248c.194-.209.374-.429.54-.659l.13-.155Z"/>
+                    </svg>
+
+                    {/*  // href={`https://www.google.com/maps/@${user.location?.latitude},${user.location?.longitude},105m/data=!3m1!1e3?entry=ttu&g_ep=EgoyMDI1MDQwOS4wIKXMDSoASAFQAw%3D%3D`}
+                    // href={`https://www.google.com/maps/@${user.location?.latitude},${user.location?.longitude},70m/data=!3m1!1e3?entry=ttu&g_ep=EgoyMDI1MDQwOS4wIKXMDSoASAFQAw%3D%3D`}
+                   
+                   Lokasi {msg.latitude || "-"},{msg.latitude || "-"} <br /> */}
+                    
+                    {/* {
+                        user.location.latitude
+                    } , 
+                    {
+                        user.location.longitude
+                    } */}
+                </a> 
             </td>
             {/* <td className="border border-gray-300 px-4 py-2 text-center flex items-center justify-center">
                     <div className={`h-2.5 w-2.5 rounded-full me-2 ${sender?.isOnline ? 'bg-green-500' : 'bg-red-500'}`}></div>
@@ -1176,6 +1221,12 @@ const totalFiles1 = messages.reduce((acc, msg) => acc + (msg.files ? msg.files.l
         />
         Read
       </label>
+          {editData.read && (
+            <p className="text-xs text-gray-500">
+              Dibaca pada: {new Date(editData.timestampRead).toLocaleString()}
+            </p>
+          )}
+
 
       <div className="flex justify-end gap-2">
         <button
