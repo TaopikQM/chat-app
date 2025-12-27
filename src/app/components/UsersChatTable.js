@@ -29,7 +29,7 @@ const UsersChatTable = () => {
                 usersArray.sort((a, b) => b.isOnline - a.isOnline);
 
                 setUsers(usersArray);
-                // console.log("data",usersArray)
+                console.log("data log users",usersArray)
             }
         });
     }, []);
@@ -1966,3 +1966,4 @@ export default UsersChatTable;
 // // // // // // // // };
 
 // // // // // // // // export default AdminChatTable;
+
