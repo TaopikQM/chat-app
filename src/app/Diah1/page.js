@@ -165,8 +165,8 @@ const ChatPageWrapper = () => {
 };
 
 const ChatPage = () => {
-  const [currentUser] = useState("sitop"); // Gantilah dengan ID pengguna yang sesuai
-  const [chatWith] = useState("diah"); // ID pengguna tujuan
+  const [currentUser] = useState("diah"); // Gantilah dengan ID pengguna yang sesuai
+  const [chatWith] = useState("sitop"); // ID pengguna tujuan
   const [diah] = useState("diah"); // ID pengguna tujuan
   const [isDark, setIsDark] = useState(false);
 
