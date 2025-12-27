@@ -31,6 +31,53 @@ const [popupQueue, setPopupQueue] = useState([]); // antrian notif
    const [modalFile, setModalFile] = useState(null);
   const [modalType, setModalType] = useState(null); 
   const [openMedia, setOpenMedia] = useState({});
+  
+  const [openEdit, setOpenEdit] = useState(false);
+  const [editData, setEditData] = useState(null);
+
+  const handleEdit = (msg) => {
+    setEditData(msg);
+    setOpenEdit(true);
+  };
+
+  const handleSaveEdit = async () => {
+  if (!editData?.id) return;
+
+  const msgRef = ref(rtdb, `chatsBox1/${editData.id}`);
+
+  // ambil data lama
+  const snapshot = await get(msgRef);
+  if (!snapshot.exists()) return;
+
+  const oldData = snapshot.val();
+  const now = Date.now();
+
+  // 1. simpan ke logsUpdate
+  await push(ref(rtdb, `chatsBox1/${editData.id}/logsUpdate`), {
+    oldData,
+    updateBy: "admin",
+    timeEdit: now,
+  });
+
+  // 2. update data utama
+  await update(msgRef, {
+    onUSer: editData.onUSer,
+    pengirim: editData.pengirim,
+    penerima: editData.penerima,
+    pesan: editData.pesan,
+    read: editData.read,
+    status: editData.status,
+    timestamp: editData.timestamp,
+
+    timeEdit: now,
+    updateBy: "admin",
+  });
+
+  setOpenEdit(false);
+};
+
+  
+
     const openModal = (file, type) => {
     setModalFile(file);
     setModalType(type);
@@ -968,6 +1015,13 @@ const totalFiles1 = messages.reduce((acc, msg) => acc + (msg.files ? msg.files.l
                         >
                             Hapus
                         </button>
+  <button
+    onClick={() => handleEdit(msg)}
+    className="bg-blue-500 text-white px-2 py-1 rounded"
+  >
+    Edit
+  </button>
+
                     </>
                   </td>
                 </tr>
@@ -1068,6 +1122,79 @@ const totalFiles1 = messages.reduce((acc, msg) => acc + (msg.files ? msg.files.l
     </div>
   </div>
 )}
+
+  {openEdit && editData && (
+  <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+    <div className="bg-white p-4 rounded w-[400px]">
+      <h2 className="font-bold mb-3">Edit Pesan</h2>
+
+      <input
+        className="border p-2 w-full mb-2"
+        value={editData.pengirim}
+        onChange={(e) =>
+          setEditData({ ...editData, pengirim: e.target.value })
+        }
+        placeholder="Pengirim"
+      />
+
+      <input
+        className="border p-2 w-full mb-2"
+        value={editData.penerima}
+        onChange={(e) =>
+          setEditData({ ...editData, penerima: e.target.value })
+        }
+        placeholder="Penerima"
+      />
+
+      <textarea
+        className="border p-2 w-full mb-2"
+        value={editData.pesan}
+        onChange={(e) =>
+          setEditData({ ...editData, pesan: e.target.value })
+        }
+        placeholder="Pesan"
+      />
+
+      <select
+        className="border p-2 w-full mb-2"
+        value={editData.status}
+        onChange={(e) =>
+          setEditData({ ...editData, status: e.target.value })
+        }
+      >
+        <option value="ACTIVE">ACTIVE</option>
+        <option value="DELETED">DELETED</option>
+      </select>
+
+      <label className="flex items-center gap-2 mb-2">
+        <input
+          type="checkbox"
+          checked={editData.read}
+          onChange={(e) =>
+            setEditData({ ...editData, read: e.target.checked })
+          }
+        />
+        Read
+      </label>
+
+      <div className="flex justify-end gap-2">
+        <button
+          onClick={() => setOpenEdit(false)}
+          className="px-3 py-1 border rounded"
+        >
+          Batal
+        </button>
+        <button
+          onClick={handleSaveEdit}
+          className="px-3 py-1 bg-green-600 text-white rounded"
+        >
+          Simpan
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
 
     </div>
   );
