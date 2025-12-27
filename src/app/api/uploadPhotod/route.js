@@ -105,7 +105,10 @@ export async function POST(request) {
 
     // ==== Upload ke storage utama ====
     let storageUsed = "main";
-    let fileRef = ref(storage, filePath);
+    // let fileRef = ref(storage, filePath);
+    
+    // let fileRef = ref(storage, filePath);
+    let fileRef = ref(storageBackup, filePath);
 
     try {
       await uploadString(fileRef, imageData, "data_url");
