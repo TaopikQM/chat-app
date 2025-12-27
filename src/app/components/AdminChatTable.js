@@ -1174,29 +1174,19 @@ const totalFiles1 = messages.reduce((acc, msg) => acc + (msg.files ? msg.files.l
     <div className="bg-white p-4 rounded w-[400px]">
       <h2 className="font-bold mb-3">Edit Pesan</h2>
 
-      <input
-        className="border p-2 w-full mb-2"
-        value={editData.pengirim}
-        onChange={(e) =>
-          setEditData({ ...editData, pengirim: e.target.value })
-        }
-        placeholder="Pengirim"
-      />
-
-      <input
-        className="border p-2 w-full mb-2"
-        value={editData.penerima}
-        onChange={(e) =>
-          setEditData({ ...editData, penerima: e.target.value })
-        }
-        placeholder="Penerima"
-      />
-         <select
+      
+        <select
   className="border p-2 w-full mb-2"
   value={editData.pengirim}
-  onChange={(e) =>
-    setEditData({ ...editData, pengirim: e.target.value })
-  }
+  onChange={(e) => {
+    const val = e.target.value;
+
+    setEditData({
+      ...editData,
+      pengirim: val,
+      penerima: val === "pengirim" ? "penerima" : "pengirim",
+    });
+  }}
 >
   <option value="pengirim">Pengirim</option>
   <option value="penerima">Penerima</option>
@@ -1204,13 +1194,20 @@ const totalFiles1 = messages.reduce((acc, msg) => acc + (msg.files ? msg.files.l
 <select
   className="border p-2 w-full mb-2"
   value={editData.penerima}
-  onChange={(e) =>
-    setEditData({ ...editData, penerima: e.target.value })
-  }
+  onChange={(e) => {
+    const val = e.target.value;
+
+    setEditData({
+      ...editData,
+      penerima: val,
+      pengirim: val === "pengirim" ? "penerima" : "pengirim",
+    });
+  }}
 >
   <option value="penerima">Penerima</option>
   <option value="pengirim">Pengirim</option>
 </select>
+
 
       <textarea
         className="border p-2 w-full mb-2"
