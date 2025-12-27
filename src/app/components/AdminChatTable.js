@@ -50,11 +50,12 @@ const [popupQueue, setPopupQueue] = useState([]); // antrian notif
     if (!snapshot.exists()) return;
   
     const oldData = snapshot.val();
+    const oldData1 = snapshot.val();
     const now = Date.now();
 
      let timestampReadUpdate = {};
 
-    if (oldData.read === false && editData.read === true) {
+    if (oldData.read === false &&oldData1.read === false && editData.read === true) {
       timestampReadUpdate = {
         timestampRead: now
       };
