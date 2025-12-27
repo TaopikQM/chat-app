@@ -43,7 +43,7 @@ const [popupQueue, setPopupQueue] = useState([]); // antrian notif
   const handleSaveEdit = async () => {
     if (!editData?.id) return;
   
-    const msgRef = databaseRef(rtdb, `chatsBox1/${editData.id}`);
+    const msgRef = databaseRef(database, `chatsBox1/${editData.id}`);
   
     // ambil data lama
     const snapshot = await get(msgRef);
@@ -61,7 +61,7 @@ const [popupQueue, setPopupQueue] = useState([]); // antrian notif
     }
   
     // 1. simpan ke logsUpdate
-    await push(databaseRef(rtdb, `chatsBox1/${editData.id}/logsUpdate`), {
+    await push(databaseRef(database, `chatsBox1/${editData.id}/logsUpdate`), {
       oldData1,
       oldData: {
         pengirim: oldData.pengirim,
