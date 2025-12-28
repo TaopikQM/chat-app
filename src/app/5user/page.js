@@ -1,7 +1,7 @@
 "use client";
 
 
-import { useEffect, useState, useRef } from "react";
+// import { useEffect, useState, useRef } from "react";
 import { setupPresence } from "../lib/presence";
 import { useNow } from "../hooks/useNow";
 import { formatLastSeen } from "../lib/lastSeen";
