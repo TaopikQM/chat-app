@@ -45,18 +45,21 @@ const ChatPage = () => {
   const bottomRef = useRef(null);
   const now = useNow();
 
+  
+  
   /* ===== PRESENCE ===== */
-  useEffect(() => {
-    return setupPresence(currentUser, `/chat/${currentUser}`);
-  }, [currentUser]);
+useEffect(() => {
+  return setupPresence(currentUser, `/chat/${currentUser}`);
+}, [currentUser]);
 
-  /* ===== TARGET STATUS ===== */
-  useEffect(() => {
-    const statusRef = databaseRef(database, `statusOnline/${chatWith}`);
-    return onValue(statusRef, snap => {
-      setTargetStatus(snap.val());
-    });
-  }, [chatWith]);
+/* ===== TARGET STATUS ===== */
+useEffect(() => {
+  const statusRef = databaseRef(database, `statusOnline/${chatWith}`);
+
+  return onValue(statusRef, snap => {
+    setTargetStatus(snap.val());
+  });
+}, [chatWith]);
   
   
   const [replyMessage, setReplyMessage] = useState(null); // ✅ Reply Message
