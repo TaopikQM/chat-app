@@ -52,7 +52,7 @@ const ChatPage = () => {
 
   /* ===== TARGET STATUS ===== */
   useEffect(() => {
-    const statusRef = ref(rtdb, `statusOnline/${chatWith}`);
+    const statusRef = databaseRef(database, `statusOnline/${chatWith}`);
     return onValue(statusRef, snap => {
       setTargetStatus(snap.val());
     });
