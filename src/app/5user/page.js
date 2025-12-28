@@ -42,12 +42,12 @@ const ChatPage = () => {
 
   /* ================= PRESENCE ================= */
   useEffect(() => {
-    return setupPresence(currentUserId, "user5");
+    return setupPresence(targetUserId, "user5");
   }, []);
 
   /* ================= TARGET STATUS ================= */
   useEffect(() => {
-    const statusRef = databaseRef(database, `statusOnline/${currentUserId}`);
+    const statusRef = databaseRef(database, `statusOnline/${targetUserId}`);
 
     return onValue(statusRef, snap => {
       setTargetStatus(snap.val());
@@ -65,7 +65,7 @@ const ChatPage = () => {
 
       // READ RECEIPT
       list.forEach(m => {
-        if (m.to === currentUserId && !m.read) {
+        if (m.to === targetUserId && !m.read) {
           update(databaseRef(database, `chatsM/${chatId}/messages/${m.id}`), {
             read: true,
             readAt: Date.now(),
@@ -332,27 +332,27 @@ const ChatPage = () => {
      <div className="max-w-full mx-auto h-screen flex flex-col bg-gray-100">
       <div className="flex-none bg-white border-b border-gray-300 shadow-md  fixed top-0 left-0 w-full z-50">
         <h2 className="text-xl font-semibold text-center">Chat dengan {chatWith}</h2>
-        <h2 className="text-xl font-semibold text-center">{currentUserId}</h2>
+        <h2 className="text-xl font-semibold text-center">{targetUserId}</h2>
                 <div>
-            {!currentUserId.isOnline &&
+            {!targetUserId.isOnline &&
               <p className="text-xs text-gray-500">
-                Terakhir dilihat {formatLastSeen(currentUserId.lastSeen, now)}
+                Terakhir dilihat {formatLastSeen(targetUserId.lastSeen, now)}
               </p>
                 }
 </div>
 
                 <span
-                  className={`text-sm ${currentUserId.isOnline
+                  className={`text-sm ${targetUserId.isOnline
                     ? "text-green-600"
                     : "text-red-600"}`}
                 >
-                  {currentUserId.isOnline ? "ONLINE" : "OFFLINE"}
+                  {targetUserId.isOnline ? "ONLINE" : "OFFLINE"}
                 </span>
 <p className="text-xs text-gray-500">
-          {currentUserId?.isOnline
+          {targetUserId?.isOnline
             ? "ONLINE"
-            : currentUserId?.lastSeen
-            ? `Terakhir online ${formatLastSeen(currentUserId.lastSeen, now)}`
+            : targetUserId?.lastSeen
+            ? `Terakhir online ${formatLastSeen(targetUserId.lastSeen, now)}`
             : "OFFLINE"}
         </p>
                 {/*// {isOpen && typingMap[userId] && (
