@@ -31,6 +31,8 @@ const ChatPage = () => {
   const [currentUser] = useState("user5"); // Gantilah dengan ID pengguna yang sesuai
   const [chatWith] = useState("user6"); // ID pengguna tujuan
 
+  const currentUserId = "user5";
+  const targetUserId = "user6";
   
   const chatId = [currentUserId, targetUserId].sort().join("_");
 
