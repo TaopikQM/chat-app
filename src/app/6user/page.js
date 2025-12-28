@@ -179,18 +179,18 @@ const [gpsEnabled, setGpsEnabled] = useState(false);
         <h2 className="text-xl font-semibold text-center">Chat dengan {currentUser}</h2>
    <h2 className="text-xl font-semibold text-center">{currentUser}</h2>
                 <div>
-            {targetUserId.isOnline &&
+            {targetStatus.isOnline &&
               <p className="text-xs text-gray-500">
-                Terakhir dilihat {formatLastSeen(targetUserId.lastSeen, now)}
+                Terakhir dilihat {formatLastSeen(targetStatus.lastSeen, now)}
               </p>}
                 </div>
 
                 <span
-                  className={`text-sm ${targetUserId.isOnline
+                  className={`text-sm ${targetStatus.isOnline
                     ? "text-green-600"
                     : "text-red-600"}`}
                 >
-                  {targetUserId.isOnline ? "ONLINE" : "OFFLINE"}
+                  {targetStatus.isOnline ? "ONLINE" : "OFFLINE"}
                 </span>
                   
         <UserStatus userId={currentUser} />
