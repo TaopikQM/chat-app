@@ -40,27 +40,27 @@ const ChatPage = () => {
   // const targetUserId = "user5";
   
    const chatId = [currentUser, chatWith].sort().join("_");
-
+ 
   const [targetStatus, setTargetStatus] = useState(null);
+  
   const bottomRef = useRef(null);
   const now = useNow();
 
-  
-  
+
   /* ===== PRESENCE ===== */
 useEffect(() => {
-  return setupPresence(currentUser, `/chat/${currentUser}`);
-}, [currentUser]);
+  return setupPresence(chatWith, `/chat/${chatWith}`);
+}, [chatWith]);
 
 /* ===== TARGET STATUS ===== */
 useEffect(() => {
-  const statusRef = databaseRef(database, `statusOnline/${chatWith}`);
+  const statusRef = databaseRef(database, `statusOnline/${currentUser}`);
 
   return onValue(statusRef, snap => {
     setTargetStatus(snap.val());
   });
-}, [chatWith]);
-  
+}, [currentUser]);
+
   
   const [replyMessage, setReplyMessage] = useState(null); // ✅ Reply Message
   const [isTyping, setIsTyping] = useState(false); 
