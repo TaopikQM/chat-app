@@ -40,7 +40,7 @@ const ChatPage = () => {
 
   /* ================= PRESENCE ================= */
   useEffect(() => {
-    return setupPresence(currentUser, "user5);
+    return setupPresence(currentUser, "user5");
   }, []);
 
   /* ================= TARGET STATUS ================= */
