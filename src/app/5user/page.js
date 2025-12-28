@@ -42,7 +42,7 @@ const ChatPage = () => {
 
   /* ================= PRESENCE ================= */
   useEffect(() => {
-    return setupPresence(targetUserId, "user5");
+    return setupPresence(currentUserId, `/chat/${currentUserId}`);
   }, []);
 
   /* ================= TARGET STATUS ================= */
@@ -65,7 +65,7 @@ const ChatPage = () => {
 
       // READ RECEIPT
       list.forEach(m => {
-        if (m.to === targetUserId && !m.read) {
+        if (m.to === currentUserId && !m.read) {
           update(databaseRef(database, `chatsM/${chatId}/messages/${m.id}`), {
             read: true,
             readAt: Date.now(),
@@ -75,7 +75,7 @@ const ChatPage = () => {
 
       setMessages(list);
     });
-  }, []);
+  }, [chatId, currentUserId]);
   
   
   const [replyMessage, setReplyMessage] = useState(null); // ✅ Reply Message
