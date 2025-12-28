@@ -21,21 +21,24 @@ const ChatPage = () => {
   const [currentUser] = useState("user5"); // Gantilah dengan ID pengguna yang sesuai
   const [chatWith] = useState("user6"); // ID pengguna tujuan
 
+  const chatId = [currentUser, chatWith].sort().join("_");
+
   const [targetStatus, setTargetStatus] = useState(null);
+  const bottomRef = useRef(null);
   const now = useNow();
 
-  /* ===== PRESENCE USER SENDIRI ===== */
+  /* ===== PRESENCE ===== */
   useEffect(() => {
-    return setupPresence(currentUser, `/chat/${currentUser}`);
-  }, [currentUser]);
+    return setupPresence(chatWith, `/chat/${chatWith}`);
+  }, [chatWith]);
 
-  /* ===== STATUS LAWAN CHAT ===== */
+  /* ===== TARGET STATUS ===== */
   useEffect(() => {
-    const statusRef = databaseRef(database, `statusOnline/${chatWith}`);
+    const statusRef = ref(rtdb, `statusOnline/${currentUser}`);
     return onValue(statusRef, snap => {
       setTargetStatus(snap.val());
     });
-  }, [chatWith]);
+  }, [currentUser]);
 
   
   
