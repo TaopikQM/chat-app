@@ -184,13 +184,13 @@ const [gpsEnabled, setGpsEnabled] = useState(false);
       <div className="flex-none bg-white border-b border-gray-300 shadow-md  fixed top-0 left-0 w-full z-50">
         <h2 className="text-xl font-semibold text-center">Chat dengan {currentUser}</h2>
    <h2 className="text-xl font-semibold text-center">{currentUser}</h2>
-                <p className="text-xs text-gray-500">
-                   {targetStatus?.isOnline
-                    ? "ONLINE"
-                    : targetStatus?.lastSeen
-                    ? `Terakhir online ${formatLastSeen(targetStatus.lastSeen, now)}`
-                    : "OFFLINE"}
-                </p>
+              <p className="text-xs text-gray-500">
+           {targetStatus?.isOnline
+            ? "ONLINE"
+            : targetStatus?.lastSeen
+            ? `Terakhir online ${formatLastSeen(targetStatus.lastSeen, now)}`
+            : "OFFLINE"}
+        </p>
                   
         <UserStatus userId={currentUser} />
          <div className="text-center text-gray-500 text-sm my-2">
