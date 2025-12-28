@@ -42,12 +42,12 @@ const ChatPage = () => {
 
   /* ================= PRESENCE ================= */
   useEffect(() => {
-    return setupPresence(targetUserId, "user5");
+    return setupPresence(currentUserId, "user5");
   }, []);
 
   /* ================= TARGET STATUS ================= */
   useEffect(() => {
-    const statusRef = databaseRef(database, `statusOnline/${targetUserId}`);
+    const statusRef = databaseRef(database, `statusOnline/${currentUserId}`);
 
     return onValue(statusRef, snap => {
       setTargetStatus(snap.val());
@@ -332,27 +332,27 @@ const ChatPage = () => {
      <div className="max-w-full mx-auto h-screen flex flex-col bg-gray-100">
       <div className="flex-none bg-white border-b border-gray-300 shadow-md  fixed top-0 left-0 w-full z-50">
         <h2 className="text-xl font-semibold text-center">Chat dengan {chatWith}</h2>
-        <h2 className="text-xl font-semibold text-center">{targetUserId}</h2>
+        <h2 className="text-xl font-semibold text-center">{currentUserId}</h2>
                 <div>
-            {!targetUserId.isOnline &&
+            {!currentUserId.isOnline &&
               <p className="text-xs text-gray-500">
-                Terakhir dilihat {formatLastSeen(targetUserId.lastSeen, now)}
+                Terakhir dilihat {formatLastSeen(currentUserId.lastSeen, now)}
               </p>
                 }
 </div>
 
                 <span
-                  className={`text-sm ${targetUserId.isOnline
+                  className={`text-sm ${currentUserId.isOnline
                     ? "text-green-600"
                     : "text-red-600"}`}
                 >
-                  {targetUserId.isOnline ? "ONLINE" : "OFFLINE"}
+                  {currentUserId.isOnline ? "ONLINE" : "OFFLINE"}
                 </span>
 <p className="text-xs text-gray-500">
-          {targetStatus?.isOnline
+          {currentUserId?.isOnline
             ? "ONLINE"
-            : targetStatus?.lastSeen
-            ? `Terakhir online ${formatLastSeen(targetStatus.lastSeen, now)}`
+            : currentUserId?.lastSeen
+            ? `Terakhir online ${formatLastSeen(currentUserId.lastSeen, now)}`
             : "OFFLINE"}
         </p>
                 {/*// {isOpen && typingMap[userId] && (
