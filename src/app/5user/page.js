@@ -312,23 +312,9 @@ const ChatPage = () => {
       <div className="flex-none bg-white border-b border-gray-300 shadow-md  fixed top-0 left-0 w-full z-50">
         <h2 className="text-xl font-semibold text-center">Chat dengan {chatWith}</h2>
         <h2 className="text-xl font-semibold text-center">{chatWith}</h2>
-                <div>
-            {targetStatus.isOnline &&
-              <p className="text-xs text-gray-500">
-                Terakhir dilihat {formatLastSeen(targetStatus.lastSeen, now)}
-              </p>
-                }
-</div>
-
-                <span
-                  className={`text-sm ${targetStatus.isOnline
-                    ? "text-green-600"
-                    : "text-red-600"}`}
-                >
-                  {targetStatus.isOnline ? "ONLINE" : "OFFLINE"}
-                </span>
+              
 <p className="text-xs text-gray-500">
-          {targetStatus?.isOnline
+           {targetStatus?.isOnline
             ? "ONLINE"
             : targetStatus?.lastSeen
             ? `Terakhir online ${formatLastSeen(targetStatus.lastSeen, now)}`
