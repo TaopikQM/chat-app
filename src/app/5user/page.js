@@ -28,8 +28,8 @@ import {
 import { database, storage } from "../config/firebase";
 import { ref as databaseRef, push, update,get,set ,onValue,serverTimestamp } from "firebase/database";
 const ChatPage = () => {
-  const [currentUser] = useState("user5"); // Gantilah dengan ID pengguna yang sesuai
-  const [chatWith] = useState("user6"); // ID pengguna tujuan
+  const [currentUser] = useState("user6"); // Gantilah dengan ID pengguna yang sesuai
+  const [chatWith] = useState("user5"); // ID pengguna tujuan
 
   // const currentUserId = "user5";
   // const targetUserId = "user6";
