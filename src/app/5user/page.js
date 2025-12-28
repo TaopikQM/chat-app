@@ -46,20 +46,21 @@ const ChatPage = () => {
   const bottomRef = useRef(null);
   const now = useNow();
 
-
+  
+  
   /* ===== PRESENCE ===== */
 useEffect(() => {
-  return setupPresence(chatWith, `/chat/${chatWith}`);
-}, [chatWith]);
+  return setupPresence(currentUser, `/chat/${currentUser}`);
+}, [currentUser]);
 
 /* ===== TARGET STATUS ===== */
 useEffect(() => {
-  const statusRef = databaseRef(database, `statusOnline/${currentUser}`);
+  const statusRef = databaseRef(database, `statusOnline/${chatWith}`);
 
   return onValue(statusRef, snap => {
     setTargetStatus(snap.val());
   });
-}, [currentUser]);
+}, [chatWith]);
 
   
   const [replyMessage, setReplyMessage] = useState(null); // ✅ Reply Message
