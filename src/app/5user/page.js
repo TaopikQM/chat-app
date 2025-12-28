@@ -2,9 +2,9 @@
 
 
 import { useEffect, useState, useRef } from "react";
-import { setupPresence } from "@/lib/presence";
-import { useNow } from "@/hooks/useNow";
-import { formatLastSeen } from "@/lib/lastSeen";
+import { setupPresence } from "../lib/presence";
+import { useNow } from "../hooks/useNow";
+import { formatLastSeen } from "../lib/lastSeen";
 
 import ChatList from "../components/ChatList";
 import ChatInput from "../components/ChatInput";
