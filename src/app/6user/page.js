@@ -29,18 +29,29 @@ const ChatPage = () => {
 
 
   /* ===== PRESENCE ===== */
-useEffect(() => {
-  return setupPresence(chatWith, `/chat/${chatWith}`);
-}, [chatWith]);
+// useEffect(() => {
+//   return setupPresence(chatWith, `/chat/${chatWith}`);
+// }, [chatWith]);
 
-/* ===== TARGET STATUS ===== */
-useEffect(() => {
-  const statusRef = databaseRef(database, `statusOnline/${currentUser}`);
+// /* ===== TARGET STATUS ===== */
+// useEffect(() => {
+//   const statusRef = databaseRef(database, `statusOnline/${currentUser}`);
 
-  return onValue(statusRef, snap => {
-    setTargetStatus(snap.val());
-  });
-}, [currentUser]);
+//   return onValue(statusRef, snap => {
+//     setTargetStatus(snap.val());
+//   });
+// }, [currentUser]);
+   useEffect(() => {
+    return setupPresence(currentUser, `/chat/${chatId}`);
+  }, [currentUser, chatId]);
+
+  /* ===== DENGARKAN STATUS LAWAN ===== */
+  useEffect(() => {
+    const statusRef = databaseRef(database, `statusOnline/${chatWith}`);
+    return onValue(statusRef, snap => {
+      setTargetStatus(snap.val());
+    });
+  }, [chatWith]);
 
 
   
