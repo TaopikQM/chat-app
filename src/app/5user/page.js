@@ -34,39 +34,38 @@ const ChatPage = () => {
   const currentUserId = "user5";
   const targetUserId = "user6";
   
-  const chatId = [currentUserId, targetUserId].sort().join("_");
+   const chatId = [currentUserId, targetUserId].sort().join("_");
 
+ 
   const [targetStatus, setTargetStatus] = useState(null);
   const bottomRef = useRef(null);
   const now = useNow();
 
-  /* ================= PRESENCE ================= */
+  /* ===== PRESENCE ===== */
   useEffect(() => {
     return setupPresence(currentUserId, `/chat/${currentUserId}`);
-  }, []);
+  }, [currentUserId]);
 
-  /* ================= TARGET STATUS ================= */
+  /* ===== TARGET STATUS ===== */
   useEffect(() => {
     const statusRef = databaseRef(database, `statusOnline/${targetUserId}`);
-
     return onValue(statusRef, snap => {
       setTargetStatus(snap.val());
     });
-  }, []);
-   /* ================= LOAD MESSAGE ================= */
-  useEffect(() => {
-    const msgRef = databaseRef(database, `chatsM/${chatId}/messages`);
+  }, [targetUserId]);
 
+  /* ===== LOAD MESSAGE ===== */
+  useEffect(() => {
+    const msgRef = databaseRef(database, `chats/${chatId}/messages`);
     return onValue(msgRef, snap => {
       const data = snap.val() || {};
       const list = Object.entries(data)
         .map(([id, m]) => ({ id, ...m }))
         .sort((a, b) => a.createdAt - b.createdAt);
 
-      // READ RECEIPT
       list.forEach(m => {
         if (m.to === currentUserId && !m.read) {
-          update(databaseRef(database, `chatsM/${chatId}/messages/${m.id}`), {
+          update(    const typingRef = databaseRef(database, `typingStatus/${currentUser}`);, `chats/${chatId}/messages/${m.id}`), {
             read: true,
             readAt: Date.now(),
           });
