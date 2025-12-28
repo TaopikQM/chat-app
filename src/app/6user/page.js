@@ -21,8 +21,8 @@ const ChatPage = () => {
   const [currentUser] = useState("user5"); // Gantilah dengan ID pengguna yang sesuai
   const [chatWith] = useState("user6"); // ID pengguna tujuan
 
-  const currentUserId = "user5";
-  const targetUserId = "user6";
+  const currentUserId = "user6";
+  const targetUserId = "user5";
 
   
   const chatId = [currentUserId, targetUserId].sort().join("_");
@@ -33,7 +33,7 @@ const ChatPage = () => {
 
   /* ================= PRESENCE ================= */
   useEffect(() => {
-    return setupPresence(currentUserId, "user6");
+    return setupPresence(currentUserId, `/chat/${currentUserId}`);
   }, []);
 
   /* ================= TARGET STATUS ================= */
@@ -66,7 +66,7 @@ const ChatPage = () => {
 
       setMessages(list);
     });
-  }, []);
+  }, [chatId, currentUserId]);
 
   
   
@@ -208,20 +208,20 @@ const [gpsEnabled, setGpsEnabled] = useState(false);
      <div className="max-w-full mx-auto h-screen flex flex-col bg-gray-100">
       <div className="flex-none bg-white border-b border-gray-300 shadow-md  fixed top-0 left-0 w-full z-50">
         <h2 className="text-xl font-semibold text-center">Chat dengan {currentUser}</h2>
-   <h2 className="text-xl font-semibold text-center">{currentUserId}</h2>
+   <h2 className="text-xl font-semibold text-center">{targetUserId}</h2>
                 <div>
-            {!currentUserId.isOnline &&
+            {!targetUserId.isOnline &&
               <p className="text-xs text-gray-500">
-                Terakhir dilihat {formatLastSeen(currentUserId.lastSeen, now)}
+                Terakhir dilihat {formatLastSeen(targetUserId.lastSeen, now)}
               </p>}
                 </div>
 
                 <span
-                  className={`text-sm ${currentUserId.isOnline
+                  className={`text-sm ${targetUserId.isOnline
                     ? "text-green-600"
                     : "text-red-600"}`}
                 >
-                  {currentUserId.isOnline ? "ONLINE" : "OFFLINE"}
+                  {targetUserId.isOnline ? "ONLINE" : "OFFLINE"}
                 </span>
                   
         <UserStatus userId={currentUser} />
