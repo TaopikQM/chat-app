@@ -773,6 +773,31 @@ const totalFiles1 = messages.reduce((acc, msg) => acc + (msg.files ? msg.files.l
                     <div className={`h-2.5 w-2.5 rounded-full me-2 ${users.find(user => user.user === msg.pengirim)?.isOnline ? 'bg-green-500' : 'bg-red-500'}`}></div>
                     {msg.pengirim}
                 </div>
+                  <a
+                    href={`https://www.google.com/maps?q=${msg.location.latitude},${msg.location.longitude}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title={`Lokasi ${msg.location.latitude},${msg.location.longitude}`   }                                                 className="inline-flex items-center gap-2 cursor-pointer text-blue-700 hover:text-white border border-blue-500 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 dark:focus:ring-blue-800"
+                    >
+                    {/* Maps */}
+                    <svg className="w-6 h-6 text-inherit" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/>
+                        <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.8 13.938h-.011a7 7 0 1 0-11.464.144h-.016l.14.171c.1.127.2.251.3.371L12 21l5.13-6.248c.194-.209.374-.429.54-.659l.13-.155Z"/>
+                    </svg>
+
+                    {/*  // href={`https://www.google.com/maps/@${user.location?.latitude},${user.location?.longitude},105m/data=!3m1!1e3?entry=ttu&g_ep=EgoyMDI1MDQwOS4wIKXMDSoASAFQAw%3D%3D`}
+                    // href={`https://www.google.com/maps/@${user.location?.latitude},${user.location?.longitude},70m/data=!3m1!1e3?entry=ttu&g_ep=EgoyMDI1MDQwOS4wIKXMDSoASAFQAw%3D%3D`}
+                   
+                   Lokasi {msg.latitude || "-"},{msg.latitude || "-"} <br /> */}
+                    
+                    {/* {
+                        user.location.latitude
+                    } , 
+                    {
+                        user.location.longitude
+                    } */}
+                </a> 
+
             </td>
             <td className="border border-gray-300 px-4 py-2 text-center">
                 <div className="flex items-center justify-center">
