@@ -1,4 +1,12 @@
 "use client";
+
+
+import { useEffect, useState, useRef } from "react";
+import { setupPresence } from "../lib/presence";
+import { useNow } from "../hooks/useNow";
+import { formatLastSeen } from "../lib/lastSeen";
+
+
 import ChatList from "../components/ChatList";
 import ChatInput from "../components/ChatInput";
 import UserStatus from "../components/UserStatus";
@@ -12,6 +20,56 @@ import { ref as databaseRef, push, update,set ,onValue,serverTimestamp } from "f
 const ChatPage = () => {
   const [currentUser] = useState("user5"); // Gantilah dengan ID pengguna yang sesuai
   const [chatWith] = useState("user6"); // ID pengguna tujuan
+
+  const currentUserId = "user5";
+  const targetUserId = "user6";
+
+  
+  const chatId = [currentUserId, targetUserId].sort().join("_");
+
+  const [targetStatus, setTargetStatus] = useState(null);
+  const bottomRef = useRef(null);
+  const now = useNow();
+
+  /* ================= PRESENCE ================= */
+  useEffect(() => {
+    return setupPresence(currentUserId, "user6");
+  }, []);
+
+  /* ================= TARGET STATUS ================= */
+  useEffect(() => {
+    const statusRef = databaseRef(database, `statusOnline/${currentUserId}`);
+
+    return onValue(statusRef, snap => {
+      setTargetStatus(snap.val());
+    });
+  }, []);
+   /* ================= LOAD MESSAGE ================= */
+  useEffect(() => {
+    const msgRef = databaseRef(database, `chatsM/${chatId}/messages`);
+
+    return onValue(msgRef, snap => {
+      const data = snap.val() || {};
+      const list = Object.entries(data)
+        .map(([id, m]) => ({ id, ...m }))
+        .sort((a, b) => a.createdAt - b.createdAt);
+
+      // READ RECEIPT
+      list.forEach(m => {
+        if (m.to === currentUserId && !m.read) {
+          update(databaseRef(database, `chatsM/${chatId}/messages/${m.id}`), {
+            read: true,
+            readAt: Date.now(),
+          });
+        }
+      });
+
+      setMessages(list);
+    });
+  }, []);
+
+  
+  
 const [gpsEnabled, setGpsEnabled] = useState(false);
   const [location, setLocation] = useState(null);
   const [replyMessage, setReplyMessage] = useState(null); // ✅ Reply Message
@@ -150,6 +208,21 @@ const [gpsEnabled, setGpsEnabled] = useState(false);
      <div className="max-w-full mx-auto h-screen flex flex-col bg-gray-100">
       <div className="flex-none bg-white border-b border-gray-300 shadow-md  fixed top-0 left-0 w-full z-50">
         <h2 className="text-xl font-semibold text-center">Chat dengan {currentUser}</h2>
+   <h2 className="text-xl font-semibold text-center">{currentUserId}</h2>
+                
+            {!currentUserId.isOnline &&
+              <p className="text-xs text-gray-500">
+                Terakhir dilihat {formatLastSeen(currentUserId.lastSeen, now)}
+              </p>}
+
+                <span
+                  className={`text-sm ${currentUserId.isOnline
+                    ? "text-green-600"
+                    : "text-red-600"}`}
+                >
+                  {currentUserId.isOnline ? "ONLINE" : "OFFLINE"}
+                </span>
+                  
         <UserStatus userId={currentUser} />
          <div className="text-center text-gray-500 text-sm my-2">
           {isTyping && <span>{currentUser} sedang mengetik...</span>}
