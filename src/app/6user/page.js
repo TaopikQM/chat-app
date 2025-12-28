@@ -24,65 +24,22 @@ const ChatPage = () => {
   const currentUserId = "user6";
   const targetUserId = "user5";
   
-   const chatId = [currentUserId, targetUserId].sort().join("_");
+  
+  const [targetStatus, setTargetStatus] = useState(null);
+  const now = useNow();
 
-const [messages, setMessages] = useState([]);
-const [targetStatus, setTargetStatus] = useState(null);
-const bottomRef = useRef(null);
-const now = useNow();
-
-  /* ===== PRESENCE ===== */
+  /* ===== PRESENCE USER SENDIRI ===== */
   useEffect(() => {
-  return setupPresence(currentUserId, `/chat/${currentUserId}`);
-}, [currentUserId]);
+    return setupPresence(currentUser, `/chat/${currentUser}`);
+  }, [currentUser]);
 
-
-  /* ===== TARGET STATUS ===== */
+  /* ===== STATUS LAWAN CHAT ===== */
   useEffect(() => {
-  const statusRef = databaseRef(
-    database,
-    `statusOnline/${targetUserId}`
-  );
-
-  return onValue(statusRef, (snap) => {
-    setTargetStatus(snap.val());
-  });
-}, [targetUserId]);
-
-
-  /* ===== LOAD MESSAGE ===== */
- useEffect(() => {
-  const msgRef = databaseRef(
-    database,
-    `chatsM/${chatId}/messages`
-  );
-
-  return onValue(msgRef, (snap) => {
-    const data = snap.val() || {};
-
-    const list = Object.entries(data)
-      .map(([id, m]) => ({ id, ...m }))
-      .sort((a, b) => a.createdAt - b.createdAt);
-
-    // READ RECEIPT
-    list.forEach((m) => {
-      if (m.to === currentUserId && !m.read) {
-        const messageRef = databaseRef(
-          database,
-          `chatsM/${chatId}/messages/${m.id}`
-        );
-
-        update(messageRef, {
-          read: true,
-          readAt: Date.now(),
-        });
-      }
+    const statusRef = databaseRef(database, `statusOnline/${chatWith}`);
+    return onValue(statusRef, snap => {
+      setTargetStatus(snap.val());
     });
-
-    setMessages(list);
-  });
-}, [chatId, currentUserId]);
-
+  }, [chatWith]);
 
   
   
@@ -224,9 +181,9 @@ const [gpsEnabled, setGpsEnabled] = useState(false);
      <div className="max-w-full mx-auto h-screen flex flex-col bg-gray-100">
       <div className="flex-none bg-white border-b border-gray-300 shadow-md  fixed top-0 left-0 w-full z-50">
         <h2 className="text-xl font-semibold text-center">Chat dengan {currentUser}</h2>
-   <h2 className="text-xl font-semibold text-center">{targetUserId}</h2>
+   <h2 className="text-xl font-semibold text-center">{currentUser}</h2>
                 <div>
-            {!targetUserId.isOnline &&
+            {targetUserId.isOnline &&
               <p className="text-xs text-gray-500">
                 Terakhir dilihat {formatLastSeen(targetUserId.lastSeen, now)}
               </p>}
