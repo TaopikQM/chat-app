@@ -90,7 +90,7 @@ const now = useNow();
 
     setMessages(list);
   });
-}, [chatId, currentUserId]);
+}, [chatId, currentUserId]); 
   
   
   const [replyMessage, setReplyMessage] = useState(null); // ✅ Reply Message
