@@ -6,7 +6,9 @@ import {
   onDisconnect,
   serverTimestamp,
 } from "firebase/database";
-import { database } from "./firebase";
+// import { database } from "./firebase";
+
+import { database, storage } from "../config/firebase";
 
 export const setupPresence = (userId, page) => {
   const userRef = ref(database, `statusOnlineweb/${userId}`);
