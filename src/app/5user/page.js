@@ -45,16 +45,16 @@ const ChatPage = () => {
 
   /* ===== PRESENCE USER SENDIRI ===== */
   useEffect(() => {
-    return setupPresence(currentUser, `/chat/${currentUser}`);
-  }, [currentUser]);
+    return setupPresence(chatWith, `/chat/${chatWith}`);
+  }, [chatWith]);
 
   /* ===== STATUS LAWAN CHAT ===== */
   useEffect(() => {
-    const statusRef = databaseRef(database, `statusOnline/${chatWith}`);
+    const statusRef = databaseRef(database, `statusOnline/${currentUser}`);
     return onValue(statusRef, snap => {
       setTargetStatus(snap.val());
     });
-  }, [chatWith]);
+  }, [currentUser]);
   
   
   const [replyMessage, setReplyMessage] = useState(null); // ✅ Reply Message
