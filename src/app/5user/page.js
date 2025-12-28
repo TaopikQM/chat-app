@@ -28,69 +28,33 @@ import {
 import { database, storage } from "../config/firebase";
 import { ref as databaseRef, push, update,get,set ,onValue,serverTimestamp } from "firebase/database";
 const ChatPage = () => {
-  const [currentUser] = useState("user5"); // Gantilah dengan ID pengguna yang sesuai
-  const [chatWith] = useState("user6"); // ID pengguna tujuan
+  const [currentUser] = useState("user6"); // Gantilah dengan ID pengguna yang sesuai
+  const [chatWith] = useState("user5"); // ID pengguna tujuan
 
-  const currentUserId = "user5";
-  const targetUserId = "user6";
+  // const currentUserId = "user5";
+  // const targetUserId = "user6";
+  //  const [currentUser] = useState("user5"); // Gantilah dengan ID pengguna yang sesuai
+  // const [chatWith] = useState("user6"); // ID pengguna tujuan
+
+  // const currentUserId = "user6";
+  // const targetUserId = "user5";
   
-   const chatId = [currentUserId, targetUserId].sort().join("_");
-const [messages, setMessages] = useState([]);
-const [targetStatus, setTargetStatus] = useState(null);
-const bottomRef = useRef(null);
-const now = useNow();
+  
+  const [targetStatus, setTargetStatus] = useState(null);
+  const now = useNow();
 
-  /* ===== PRESENCE ===== */
+  /* ===== PRESENCE USER SENDIRI ===== */
   useEffect(() => {
-  return setupPresence(currentUserId, `/chat/${currentUserId}`);
-}, [currentUserId]);
+    return setupPresence(currentUser, `/chat/${currentUser}`);
+  }, [currentUser]);
 
-
-  /* ===== TARGET STATUS ===== */
+  /* ===== STATUS LAWAN CHAT ===== */
   useEffect(() => {
-  const statusRef = databaseRef(
-    database,
-    `statusOnline/${targetUserId}`
-  );
-
-  return onValue(statusRef, (snap) => {
-    setTargetStatus(snap.val());
-  });
-}, [targetUserId]);
-
-
-  /* ===== LOAD MESSAGE ===== */
- useEffect(() => {
-  const msgRef = databaseRef(
-    database,
-    `chatsM/${chatId}/messages`
-  );
-
-  return onValue(msgRef, (snap) => {
-    const data = snap.val() || {};
-
-    const list = Object.entries(data)
-      .map(([id, m]) => ({ id, ...m }))
-      .sort((a, b) => a.createdAt - b.createdAt);
-
-    // READ RECEIPT
-    list.forEach((m) => {
-      if (m.to === currentUserId && !m.read) {
-        const messageRef = databaseRef(
-          database,
-          `chatsM/${chatId}/messages/${m.id}`
-        );
-
-        update(messageRef, {
-          read: true,
-          readAt: Date.now(),
-        });
-      }
+    const statusRef = databaseRef(database, `statusOnline/${chatWith}`);
+    return onValue(statusRef, snap => {
+      setTargetStatus(snap.val());
     });
-
-    setMessages(list);
-  });
-}, [chatId, currentUserId]); 
+  }, [chatWith]);
   
   
   const [replyMessage, setReplyMessage] = useState(null); // ✅ Reply Message
@@ -349,7 +313,7 @@ const now = useNow();
         <h2 className="text-xl font-semibold text-center">Chat dengan {chatWith}</h2>
         <h2 className="text-xl font-semibold text-center">{targetUserId}</h2>
                 <div>
-            {!targetUserId.isOnline &&
+            {targetUserId.isOnline &&
               <p className="text-xs text-gray-500">
                 Terakhir dilihat {formatLastSeen(targetUserId.lastSeen, now)}
               </p>
