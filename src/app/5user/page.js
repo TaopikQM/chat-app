@@ -333,11 +333,13 @@ const ChatPage = () => {
       <div className="flex-none bg-white border-b border-gray-300 shadow-md  fixed top-0 left-0 w-full z-50">
         <h2 className="text-xl font-semibold text-center">Chat dengan {chatWith}</h2>
         <h2 className="text-xl font-semibold text-center">{targetUserId}</h2>
-                
+                <div>
             {!targetUserId.isOnline &&
               <p className="text-xs text-gray-500">
                 Terakhir dilihat {formatLastSeen(targetUserId.lastSeen, now)}
-              </p>}
+              </p>
+                }
+</div>
 
                 <span
                   className={`text-sm ${targetUserId.isOnline
