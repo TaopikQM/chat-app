@@ -39,22 +39,24 @@ const ChatPage = () => {
   // const currentUserId = "user6";
   // const targetUserId = "user5";
   
-  
+   const chatId = [currentUser, chatWith].sort().join("_");
+
   const [targetStatus, setTargetStatus] = useState(null);
+  const bottomRef = useRef(null);
   const now = useNow();
 
-  /* ===== PRESENCE USER SENDIRI ===== */
+  /* ===== PRESENCE ===== */
   useEffect(() => {
-    return setupPresence(chatWith, `/chat/${chatWith}`);
-  }, [chatWith]);
+    return setupPresence(currentUser, `/chat/${currentUser}`);
+  }, [currentUser]);
 
-  /* ===== STATUS LAWAN CHAT ===== */
+  /* ===== TARGET STATUS ===== */
   useEffect(() => {
-    const statusRef = databaseRef(database, `statusOnline/${currentUser}`);
+    const statusRef = ref(rtdb, `statusOnline/${chatWith}`);
     return onValue(statusRef, snap => {
       setTargetStatus(snap.val());
     });
-  }, [currentUser]);
+  }, [chatWith]);
   
   
   const [replyMessage, setReplyMessage] = useState(null); // ✅ Reply Message
