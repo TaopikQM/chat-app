@@ -1,5 +1,11 @@
 "use client";
 
+
+import { useEffect, useState, useRef } from "react";
+import { setupPresence } from "@/lib/presence";
+import { useNow } from "@/hooks/useNow";
+import { formatLastSeen } from "@/lib/lastSeen";
+
 import ChatList from "../components/ChatList";
 import ChatInput from "../components/ChatInput";
 import UserStatus from "../components/UserStatus";
@@ -24,6 +30,51 @@ import { ref as databaseRef, push, update,get,set ,onValue,serverTimestamp } fro
 const ChatPage = () => {
   const [currentUser] = useState("user5"); // Gantilah dengan ID pengguna yang sesuai
   const [chatWith] = useState("user6"); // ID pengguna tujuan
+
+  
+  const chatId = [currentUserId, targetUserId].sort().join("_");
+
+  const [targetStatus, setTargetStatus] = useState(null);
+  const bottomRef = useRef(null);
+  const now = useNow();
+
+  /* ================= PRESENCE ================= */
+  useEffect(() => {
+    return setupPresence(currentUser, "user5);
+  }, []);
+
+  /* ================= TARGET STATUS ================= */
+  useEffect(() => {
+    const statusRef = databaseRef(database, `statusOnline/${targetUserId}`);
+
+    return onValue(statusRef, snap => {
+      setTargetStatus(snap.val());
+    });
+  }, []);
+   /* ================= LOAD MESSAGE ================= */
+  useEffect(() => {
+    const msgRef = databaseRef(database, `chatsM/${chatId}/messages`);
+
+    return onValue(msgRef, snap => {
+      const data = snap.val() || {};
+      const list = Object.entries(data)
+        .map(([id, m]) => ({ id, ...m }))
+        .sort((a, b) => a.createdAt - b.createdAt);
+
+      // READ RECEIPT
+      list.forEach(m => {
+        if (m.to === currentUserId && !m.read) {
+          update(databaseRef(database, `chatsM/${chatId}/messages/${m.id}`), {
+            read: true,
+            readAt: Date.now(),
+          });
+        }
+      });
+
+      setMessages(list);
+    });
+  }, []);
+  
   
   const [replyMessage, setReplyMessage] = useState(null); // ✅ Reply Message
   const [isTyping, setIsTyping] = useState(false); 
@@ -279,6 +330,26 @@ const ChatPage = () => {
      <div className="max-w-full mx-auto h-screen flex flex-col bg-gray-100">
       <div className="flex-none bg-white border-b border-gray-300 shadow-md  fixed top-0 left-0 w-full z-50">
         <h2 className="text-xl font-semibold text-center">Chat dengan {chatWith}</h2>
+        <h2 className="text-xl font-semibold text-center">{targetUserId}</h2>
+                
+            {!targetUserId.isOnline &&
+              <p className="text-xs text-gray-500">
+                Terakhir dilihat {formatLastSeen(targetUserId.lastSeen, now)}
+              </p>}
+
+                <span
+                  className={`text-sm ${targetUserId.isOnline
+                    ? "text-green-600"
+                    : "text-red-600"}`}
+                >
+                  {targetUserId.isOnline ? "ONLINE" : "OFFLINE"}
+                </span>
+                // {isOpen && typingMap[userId] && (
+                //   <p className="text-xs text-gray-500 mt-1">
+                //     sedang mengetik...
+                //   </p>
+                // )}
+
         <UserStatus userId={chatWith} />
         <div className="text-center text-gray-500 text-sm my-2">
           {isTyping && <span>{chatWith} sedang mengetik...</span>}
