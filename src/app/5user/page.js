@@ -348,11 +348,11 @@ const ChatPage = () => {
                 >
                   {targetUserId.isOnline ? "ONLINE" : "OFFLINE"}
                 </span>
-                // {isOpen && typingMap[userId] && (
+                {/*// {isOpen && typingMap[userId] && (
                 //   <p className="text-xs text-gray-500 mt-1">
                 //     sedang mengetik...
                 //   </p>
-                // )}
+                // )}*/}
 
         <UserStatus userId={chatWith} />
         <div className="text-center text-gray-500 text-sm my-2">
