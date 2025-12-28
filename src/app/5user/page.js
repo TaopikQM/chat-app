@@ -313,25 +313,25 @@ const ChatPage = () => {
         <h2 className="text-xl font-semibold text-center">Chat dengan {chatWith}</h2>
         <h2 className="text-xl font-semibold text-center">{chatWith}</h2>
                 <div>
-            {targetUserId.isOnline &&
+            {targetStatus.isOnline &&
               <p className="text-xs text-gray-500">
-                Terakhir dilihat {formatLastSeen(targetUserId.lastSeen, now)}
+                Terakhir dilihat {formatLastSeen(targetStatus.lastSeen, now)}
               </p>
                 }
 </div>
 
                 <span
-                  className={`text-sm ${targetUserId.isOnline
+                  className={`text-sm ${targetStatus.isOnline
                     ? "text-green-600"
                     : "text-red-600"}`}
                 >
-                  {targetUserId.isOnline ? "ONLINE" : "OFFLINE"}
+                  {targetStatus.isOnline ? "ONLINE" : "OFFLINE"}
                 </span>
 <p className="text-xs text-gray-500">
-          {targetUserId?.isOnline
+          {targetStatus?.isOnline
             ? "ONLINE"
-            : targetUserId?.lastSeen
-            ? `Terakhir online ${formatLastSeen(targetUserId.lastSeen, now)}`
+            : targetStatus?.lastSeen
+            ? `Terakhir online ${formatLastSeen(targetStatus.lastSeen, now)}`
             : "OFFLINE"}
         </p>
                 {/*// {isOpen && typingMap[userId] && (
