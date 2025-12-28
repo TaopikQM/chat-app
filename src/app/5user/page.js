@@ -42,7 +42,7 @@ const ChatPage = () => {
 
   /* ================= PRESENCE ================= */
   useEffect(() => {
-    return setupPresence(currentUser, "user5");
+    return setupPresence(targetUserId, "user5");
   }, []);
 
   /* ================= TARGET STATUS ================= */
@@ -348,6 +348,13 @@ const ChatPage = () => {
                 >
                   {targetUserId.isOnline ? "ONLINE" : "OFFLINE"}
                 </span>
+<p className="text-xs text-gray-500">
+          {targetStatus?.isOnline
+            ? "ONLINE"
+            : targetStatus?.lastSeen
+            ? `Terakhir online ${formatLastSeen(targetStatus.lastSeen, now)}`
+            : "OFFLINE"}
+        </p>
                 {/*// {isOpen && typingMap[userId] && (
                 //   <p className="text-xs text-gray-500 mt-1">
                 //     sedang mengetik...
