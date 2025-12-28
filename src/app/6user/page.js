@@ -27,18 +27,21 @@ const ChatPage = () => {
   const bottomRef = useRef(null);
   const now = useNow();
 
-  /* ===== PRESENCE ===== */
-  useEffect(() => {
-    return setupPresence(chatWith, `/chat/${chatWith}`);
-  }, [chatWith]);
 
-  /* ===== TARGET STATUS ===== */
-  useEffect(() => {
-    const statusRef = databaseRef(database, `statusOnline/${currentUser}`);
-    return onValue(statusRef, snap => {
-      setTargetStatus(snap.val());
-    });
-  }, [currentUser]);
+  /* ===== PRESENCE ===== */
+useEffect(() => {
+  return setupPresence(chatWith, `/chat/${chatWith}`);
+}, [chatWith]);
+
+/* ===== TARGET STATUS ===== */
+useEffect(() => {
+  const statusRef = databaseRef(database, `statusOnline/${currentUser}`);
+
+  return onValue(statusRef, snap => {
+    setTargetStatus(snap.val());
+  });
+}, [currentUser]);
+
 
   
   
