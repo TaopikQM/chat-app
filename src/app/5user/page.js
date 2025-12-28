@@ -319,13 +319,13 @@ useEffect(() => {
         <h2 className="text-xl font-semibold text-center">Chat dengan {chatWith}</h2>
         <h2 className="text-xl font-semibold text-center">{chatWith}</h2>
               
-<p className="text-xs text-gray-500">
-           {targetStatus?.isOnline
-            ? "ONLINE"
-            : targetStatus?.lastSeen
-            ? `Terakhir online ${formatLastSeen(targetStatus.lastSeen, now)}`
-            : "OFFLINE"}
-        </p>
+ <p className="text-xs text-gray-500">
+                   {targetStatus?.isOnline
+                    ? "ONLINE"
+                    : targetStatus?.lastSeen
+                    ? `Terakhir online ${formatLastSeen(targetStatus.lastSeen, now)}`
+                    : "OFFLINE"}
+                </p>
                 {/*// {isOpen && typingMap[userId] && (
                 //   <p className="text-xs text-gray-500 mt-1">
                 //     sedang mengetik...
