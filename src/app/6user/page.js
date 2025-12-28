@@ -209,11 +209,12 @@ const [gpsEnabled, setGpsEnabled] = useState(false);
       <div className="flex-none bg-white border-b border-gray-300 shadow-md  fixed top-0 left-0 w-full z-50">
         <h2 className="text-xl font-semibold text-center">Chat dengan {currentUser}</h2>
    <h2 className="text-xl font-semibold text-center">{currentUserId}</h2>
-                
+                <div>
             {!currentUserId.isOnline &&
               <p className="text-xs text-gray-500">
                 Terakhir dilihat {formatLastSeen(currentUserId.lastSeen, now)}
               </p>}
+                </div>
 
                 <span
                   className={`text-sm ${currentUserId.isOnline
