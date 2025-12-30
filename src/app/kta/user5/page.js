@@ -5,8 +5,8 @@ import { setupPresence } from "../../lib/presence";
 import UserStatus from "../../components/UserStatus";
 
 export default function KTAUser5() {
-  const currentUser = "user5";
-  const targetUser = "user6";
+  const currentUser = "user555";
+  const targetUser = "user666";
 
   useEffect(() => {
     return setupPresence(currentUser, "/kta/user5");
