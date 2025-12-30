@@ -1,0 +1,25 @@
+"use client";
+
+import { useEffect } from "react";
+import { setupPresence } from "../../config/presence";
+import UserStatus from "../../components/UserStatus";
+
+export default function KTAUser5() {
+  const currentUser = "user5";
+  const targetUser = "user6";
+
+  useEffect(() => {
+    return setupPresence(currentUser, "/kta/user5");
+  }, []);
+
+  return (
+    <div className="p-6">
+      <h1 className="font-bold text-xl">KTA USER 5</h1>
+
+      <div className="mt-4">
+        <p className="font-semibold">Status user6:</p>
+        <UserStatus userId={targetUser} />
+      </div>
+    </div>
+  );
+}
