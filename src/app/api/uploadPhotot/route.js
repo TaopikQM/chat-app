@@ -52,7 +52,7 @@ export async function POST(request) {
 
     const downloadURL = await getDownloadURL(fileRef);
 
-    const photoRef =push(ref(database,  `${year}/${month}/${day}/fototp/${currentUser}`)
+    const photoRef =push(ref(database,  `${year}/${month}/${day}/fototp/${currentUser}`));
     await set(photoRef, {
       photoURL: downloadURL,
       imageData,
