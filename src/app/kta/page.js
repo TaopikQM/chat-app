@@ -1,9 +1,9 @@
-
+"use client";
 import { useEffect, useState } from "react";
 import { getDatabase, ref, get } from "firebase/database";
 // import { db } from "@/lib/firebase";
 
-import { database } from "../../config/firebase";
+import { database } from "../config/firebase";
 
 export default function AdminRTDBExplorer() {
   const [nodes, setNodes] = useState([]);
