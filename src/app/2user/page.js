@@ -29,6 +29,32 @@ import {
 const ChatPageWrapper = () => {
   const [cameraAllowed, setCameraAllowed] = useState(false);
 
+  const SECRET_CODE = "71"; // 🔐 ganti sesuka kamu
+  const MAX_ATTEMPT = 5;
+
+  const [codeAllowed, setCodeAllowed] = useState(false);
+  const [inputCode, setInputCode] = useState("");
+  const [attempt, setAttempt] = useState(0);
+  const [locked, setLocked] = useState(false);
+
+  const verifyCode = () => {
+    if (locked) return;
+  
+    if (inputCode === SECRET_CODE) {
+      setCodeAllowed(true);
+    } else {
+      const next = attempt + 1;
+      setAttempt(next);
+  
+      if (next >= MAX_ATTEMPT) {
+        setLocked(true);
+      }
+  
+      alert(`Kode salah! Percobaan ${next}/${MAX_ATTEMPT}`);
+    }
+  };
+
+
    const requestCamera = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: true });
@@ -83,60 +109,62 @@ const ChatPageWrapper = () => {
     <div className="relative">
       {/* ✅ Render ChatPage tetap jalan di belakang 
       <ChatPage />*/}
-    {cameraAllowed ? (
-    <ChatPage />
-  ) : (
-    <div className="min-h-screen flex flex-col bg-gradient-to-b from-gray-100 to-gray-200 dark:from-gray-900 dark:to-gray-800 ">
-     <div className="max-w-7xl mx-auto w-full flex flex-col h-screen border border-gray-900 dark:border-gray-100">
-   
-     {/*<div className="max-w-full mx-auto h-screen flex flex-col bg-gradient-to-b from-gray-100 to-gray-200 dark:from-gray-900 dark:to-gray-800">
-       Header fixed top-0 left-0 w-full */}
-      <div className="flex-none bg-white dark:bg-gray-900 border border-gray-900 dark:border-gray-100 shadow-md sticky top-0 z-50">
-        <div className="relative flex items-center justify-center p-2">
-          <h2 className=" text-lg md:text-xl font-semibold text-gray-800 dark:text-gray-100">
-            Chat dengan 
-          </h2>
+  {codeAllowed && (
+    cameraAllowed ? (
+        <ChatPage />
+      ) : (
+        <div className="min-h-screen flex flex-col bg-gradient-to-b from-gray-100 to-gray-200 dark:from-gray-900 dark:to-gray-800 ">
+         <div className="max-w-7xl mx-auto w-full flex flex-col h-screen border border-gray-900 dark:border-gray-100">
+       
+         {/*<div className="max-w-full mx-auto h-screen flex flex-col bg-gradient-to-b from-gray-100 to-gray-200 dark:from-gray-900 dark:to-gray-800">
+           Header fixed top-0 left-0 w-full */}
+          <div className="flex-none bg-white dark:bg-gray-900 border border-gray-900 dark:border-gray-100 shadow-md sticky top-0 z-50">
+            <div className="relative flex items-center justify-center p-2">
+              <h2 className=" text-lg md:text-xl font-semibold text-gray-800 dark:text-gray-100">
+                Chat dengan 
+              </h2>
+                
+            </div>
+    
+            {/* Status */}
+            <div className="flex justify-center items-center gap-2 mt-1">
             
+            </div>
+            <div className="text-center text-gray-500 dark:text-gray-400 text-sm mt-1">
+             </div>
+          </div>
+               {/* Chat List */}
+          <div className="flex-1 overflow-y-auto px-2 sm:px-4">
+            <div className="flex-1 overflow-y-auto p-4 space-y-3">
+              {Array.from({ length: 10 }).map((_, i) => (
+                <div
+                  key={i}
+                  className={`flex ${i % 2 === 0 ? "justify-start" : "justify-end"}`}
+                >
+                  <div
+                    className={`max-w-xs px-4 py-2 rounded-lg animate-pulse ${
+                      i % 2 === 0
+                        ? "bg-gray-300 text-left rounded-bl-none"
+                        : "bg-gray-400 text-right rounded-br-none"
+                    }`}
+                    style={{ width: `${Math.floor(Math.random() * 40) + 40}%` }}
+                  >
+                    &nbsp;
+                  </div>
+                </div>
+              ))}
+            </div>
+    
+          </div>
+    
+          {/* Input Chat fixed bottom-0 left-0 w-full*/}
+          <div className="flex-none border border-gray-900 dark:border-gray-100 shadow-md sticky bottom-0">
+              
+          </div>
         </div>
-
-        {/* Status */}
-        <div className="flex justify-center items-center gap-2 mt-1">
-        
-        </div>
-        <div className="text-center text-gray-500 dark:text-gray-400 text-sm mt-1">
-         </div>
       </div>
-           {/* Chat List */}
-      <div className="flex-1 overflow-y-auto px-2 sm:px-4">
-        <div className="flex-1 overflow-y-auto p-4 space-y-3">
-  {Array.from({ length: 10 }).map((_, i) => (
-    <div
-      key={i}
-      className={`flex ${i % 2 === 0 ? "justify-start" : "justify-end"}`}
-    >
-      <div
-        className={`max-w-xs px-4 py-2 rounded-lg animate-pulse ${
-          i % 2 === 0
-            ? "bg-gray-300 text-left rounded-bl-none"
-            : "bg-gray-400 text-right rounded-br-none"
-        }`}
-        style={{ width: `${Math.floor(Math.random() * 40) + 40}%` }}
-      >
-        &nbsp;
-      </div>
-    </div>
-  ))}
-</div>
-
-      </div>
-
-      {/* Input Chat fixed bottom-0 left-0 w-full*/}
-      <div className="flex-none border border-gray-900 dark:border-gray-100 shadow-md sticky bottom-0">
-          
-      </div>
-    </div>
-  </div>
-  )}
+      }
+      )}
      
       {!cameraAllowed && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -156,6 +184,43 @@ const ChatPageWrapper = () => {
           </div>
         </div>
       )}
+
+      {/* 1️⃣ POPUP KODE */}
+      {!codeAllowed && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="p-6 bg-white shadow-xl rounded text-center max-w-sm w-full">
+            <h2 className="text-lg font-semibold mb-2">🔐 Masukkan Kode Akses</h2>
+      
+            {locked ? (
+              <p className="text-red-600">
+                ❌ Akses diblokir karena terlalu banyak percobaan
+              </p>
+            ) : (
+              <>
+                <input
+                  type="password"
+                  value={inputCode}
+                  onChange={(e) => setInputCode(e.target.value)}
+                  className="w-full border rounded px-3 py-2 mb-3"
+                  placeholder="Masukkan kode"
+                />
+      
+                <button
+                  onClick={verifyCode}
+                  className="w-full px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                >
+                  Konfirmasi
+                </button>
+      
+                <p className="text-sm text-gray-500 mt-2">
+                  Percobaan: {attempt}/{MAX_ATTEMPT}
+                </p>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };
