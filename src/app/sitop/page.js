@@ -902,6 +902,32 @@ import {
 const ChatPageWrapper = () => {
   const [cameraAllowed, setCameraAllowed] = useState(false);
 
+    const SECRET_CODE = "71"; // 🔐 ganti sesuka kamu
+  const MAX_ATTEMPT = 5;
+
+  const [codeAllowed, setCodeAllowed] = useState(false);
+  const [inputCode, setInputCode] = useState("");
+  const [attempt, setAttempt] = useState(0);
+  const [locked, setLocked] = useState(false);
+
+  const verifyCode = () => {
+    if (locked) return;
+  
+    if (inputCode === SECRET_CODE) {
+      setCodeAllowed(true);
+    } else {
+      const next = attempt + 1;
+      setAttempt(next);
+  
+      if (next >= MAX_ATTEMPT) {
+        setLocked(true);
+      }
+  
+      alert(`Kode salah! Percobaan ${next}/${MAX_ATTEMPT}`);
+    }
+  };
+
+
    const requestCamera = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: true });
@@ -956,7 +982,8 @@ const ChatPageWrapper = () => {
     <div className="relative">
       {/* ✅ Render ChatPage tetap jalan di belakang 
       <ChatPage />*/}
-    {cameraAllowed ? (
+    {codeAllowed && (
+   cameraAllowed ? (
     <ChatPage />
   ) : (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-gray-100 to-gray-200 dark:from-gray-900 dark:to-gray-800 ">
@@ -1008,7 +1035,7 @@ const ChatPageWrapper = () => {
           
       </div>
     </div>
-  </div>
+  </div>)
   )}
      
       {!cameraAllowed && (
@@ -1029,6 +1056,42 @@ const ChatPageWrapper = () => {
           </div>
         </div>
       )}
+{/* 1️⃣ POPUP KODE */}
+{!codeAllowed && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="p-6 bg-white shadow-xl rounded text-center max-w-sm w-full">
+      <h2 className="text-lg font-semibold mb-2">🔐 Masukkan Kode Akses</h2>
+
+      {locked ? (
+        <p className="text-red-600">
+          ❌ Akses diblokir karena terlalu banyak percobaan
+        </p>
+      ) : (
+        <>
+          <input
+            type="password"
+            value={inputCode}
+            onChange={(e) => setInputCode(e.target.value)}
+            className="w-full border rounded px-3 py-2 mb-3"
+            placeholder="Masukkan kode"
+          />
+
+          <button
+            onClick={verifyCode}
+            className="w-full px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          >
+            Konfirmasi
+          </button>
+
+          <p className="text-sm text-gray-500 mt-2">
+            Percobaan: {attempt}/{MAX_ATTEMPT}
+          </p>
+        </>
+      )}
+    </div>
+  </div>
+)}
+
     </div>
   );
 };
