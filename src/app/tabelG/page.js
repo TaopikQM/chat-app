@@ -10,7 +10,7 @@
 //   onValue,
 //   get,
 // } from "firebase/database";
-import { database } from "../config/firebase";
+// import { database } from "../config/firebase";
 
 // // import { database } from "../config/firebase";
 
@@ -177,6 +177,8 @@ import {
   endBefore,
   get,
 } from "firebase/database";
+
+import { database } from "../config/firebase";
 // import { database } from "@/lib/firebase";
 
 const PAGE_SIZE = 20;
