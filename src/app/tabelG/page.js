@@ -10,7 +10,7 @@ import {
   onValue,
   get,
 } from "firebase/database";
-import { database } from "./config/firebase";
+import { database } from "../config/firebase";
 
 // import { database } from "../config/firebase";
 
