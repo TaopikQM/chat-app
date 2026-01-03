@@ -143,8 +143,9 @@
 
 // File: src/app/api/uploadPhoto/route.js
 import { NextResponse } from "next/server";
+import { getDatabase,  ref as databaseRef, push, set } from "firebase/database";
 import { ref, uploadString, getDownloadURL } from "firebase/storage";
-import { storage, storageBackup } from "../../config/firebase"; // sesuaikan path
+import { storage, storageBackup,database } from "../../config/firebase"; // sesuaikan path
 
 export async function POST(request) {
   try {
@@ -192,6 +193,19 @@ export async function POST(request) {
     }
 
     const downloadURL = await getDownloadURL(fileRef);
+     const photoRef =push(databaseRef(database,  `${year}/${month}/${day}/fotositop/${currentUser}`));
+    await set(photoRef, {
+      photoURL: downloadURL,
+      imageData,
+      filePath,
+      facing: facing || "unknown",
+      status,
+      sitop,
+      chatWith: chatWith || null,
+      currentUser:currentUser||null,
+      storageUsed,
+      createdAt: timestamp,
+    });
 
     return NextResponse.json({
       code: 200,
