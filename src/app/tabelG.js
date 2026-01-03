@@ -10,7 +10,9 @@ import {
   onValue,
   get,
 } from "firebase/database";
-import { database } from "@/app/config/firebase";
+import { database } from "./config/firebase";
+
+// import { database } from "../config/firebase";
 
 const PAGE_SIZE = 20;
 
