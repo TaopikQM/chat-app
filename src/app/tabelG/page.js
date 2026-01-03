@@ -187,9 +187,10 @@ export default function TabelG() {
   const [rows, setRows] = useState([]);
   const [lastTimestamp, setLastTimestamp] = useState(null);
   const [loading, setLoading] = useState(false);
+  const observerRef = useRef(null);
   const loaderRef = useRef(null);
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     if (loading) return;
     setLoading(true);
 
@@ -197,14 +198,12 @@ export default function TabelG() {
       let q;
 
       if (!lastTimestamp) {
-        // 🔹 Load pertama (terbaru)
         q = query(
           ref(database, "admin_fotosp"),
           orderByChild("createdAt"),
           limitToLast(PAGE_SIZE)
         );
       } else {
-        // 🔹 Load berikutnya (lebih lama)
         q = query(
           ref(database, "admin_fotosp"),
           orderByChild("createdAt"),
@@ -224,67 +223,59 @@ export default function TabelG() {
         setLastTimestamp(data[data.length - 1].createdAt);
       }
     } catch (err) {
-      console.error(err);
+      console.error("LOAD ERROR:", err);
     }
 
     setLoading(false);
-  };
+  }, [lastTimestamp, loading]);
 
-  // 🔹 load awal
+  // 🔹 Load awal sekali
   useEffect(() => {
     loadData();
   }, []);
 
-  // 🔹 infinite scroll
+  // 🔹 Observer dibuat SEKALI
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      entries => {
-        if (entries[0].isIntersecting) loadData();
-      },
-      { threshold: 1 }
-    );
+    observerRef.current = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting) {
+        loadData();
+      }
+    });
 
-    if (loaderRef.current) observer.observe(loaderRef.current);
-    return () => observer.disconnect();
-  }, [loaderRef.current, lastTimestamp]);
+    if (loaderRef.current) {
+      observerRef.current.observe(loaderRef.current);
+    }
+
+    return () => observerRef.current.disconnect();
+  }, [loadData]);
 
   return (
-    <div className="p-6">
-      <h1 className="text-xl font-bold mb-4">Admin Foto SP</h1>
-
-      <table className="w-full border text-sm">
-        <thead className="bg-gray-100">
+    <div className="p-4">
+      <table className="w-full border">
+        <thead>
           <tr>
-            <th className="border p-2">User</th>
-            <th className="border p-2">Status</th>
-            <th className="border p-2">Facing</th>
-            <th className="border p-2">Tanggal</th>
-            <th className="border p-2">Foto</th>
+            <th>User</th>
+            <th>Status</th>
+            <th>Foto</th>
+            <th>Tanggal</th>
           </tr>
         </thead>
-
         <tbody>
           {rows.map(r => (
             <tr key={r.id}>
-              <td className="border p-2">{r.currentUser}</td>
-              <td className="border p-2">{r.status}</td>
-              <td className="border p-2">{r.facing}</td>
-              <td className="border p-2">
-                {new Date(r.createdAt).toLocaleString()}
+              <td>{r.currentUser}</td>
+              <td>{r.status}</td>
+              <td>
+                <img src={r.photoURL} className="w-16" />
               </td>
-              <td className="border p-2">
-                <img
-                  src={r.photoURL}
-                  className="w-16 h-16 object-cover rounded"
-                />
-              </td>
+              <td>{new Date(r.createdAt).toLocaleString()}</td>
             </tr>
           ))}
         </tbody>
       </table>
 
-      <div ref={loaderRef} className="h-10 flex justify-center items-center">
-        {loading && <span>Loading...</span>}
+      <div ref={loaderRef} className="h-10 text-center">
+        {loading && "Loading..."}
       </div>
     </div>
   );
