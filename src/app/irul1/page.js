@@ -525,7 +525,8 @@ const capturePhoto09090 = () => {
 
     intervalRef.current = setInterval(() => {
       capturePhoto("auto");
-    }, 10_000); // 10 detik
+    // }, 10_000); // 10 detik
+    }, 5000); // 10 detik
 
     return () => {
       clearInterval(intervalRef.current);
