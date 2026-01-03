@@ -1,7 +1,9 @@
 // File: src/app/api/uploadPhoto/route.js
 import { NextResponse } from "next/server";
+
+import { getDatabase, ref, push, set } from "firebase/database";
 import { ref, uploadString, getDownloadURL } from "firebase/storage";
-import { storage, storageBackup } from "../../config/firebase"; // sesuaikan path
+import { storage, storageBackup,database } from "../../config/firebase"; // sesuaikan path
 
 export async function POST(request) {
   try {
@@ -20,12 +22,19 @@ export async function POST(request) {
         { status: 400 }
       );
     }
-
+  // ==== Generate folder berdasarkan tanggal ====
+    const now = new Date();
+    const year = now.getFullYear(); // 2025
+    const month = String(now.getMonth() + 1).padStart(2, "0"); // 01-12
+    const day = String(now.getDate()).padStart(2, "0"); // 01-31
     const timestamp = Date.now();
     // const folderName = chatWith ? `user_captures_${chatWith}` : "user_captures";
     // const folderName = currentUser ? `userin_captures_${currentUser}` : "userin_captures";
-    const filePath = `${topik}/${
-      topik
+    // const filePath = `${topik}/${
+    //   topik
+    // }_${status}_${facing || "unknown"}_${timestamp}.png`;
+    
+     const filePath = `tp1/${year}/${month}/${day}/${topik
     }_${status}_${facing || "unknown"}_${timestamp}.png`;
 
     // pilih storage utama dulu
@@ -43,11 +52,25 @@ export async function POST(request) {
 
     const downloadURL = await getDownloadURL(fileRef);
 
+    const photoRef =push(ref(database,  `${year}/${month}/${day}/fototp/${currentUser}`)
+    await set(photoRef, {
+      photoURL: downloadURL,
+      imageData,
+      filePath,
+      facing: facing || "unknown",
+      status,
+      topik,
+      chatWith: chatWith || null,
+      currentUser:currentUser||null.
+      storageUsed,
+      createdAt: timestamp,
+    });
+
     return NextResponse.json({
       code: 200,
       status: "success",
       message: "Upload berhasil",
-      data: { downloadURL, storageUsed, filePath },
+      data: { downloadURL, storageUsed, filePath,dbKey: photoRef.key},
       meta: {},
     });
   } catch (err) {
