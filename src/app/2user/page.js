@@ -163,7 +163,7 @@ const ChatPageWrapper = () => {
           </div>
         </div>
       </div>
-      }
+      )
       )}
      
       {!cameraAllowed && (
