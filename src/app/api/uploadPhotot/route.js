@@ -61,7 +61,7 @@ export async function POST(request) {
       status,
       topik,
       chatWith: chatWith || null,
-      currentUser:currentUser||null.
+      currentUser:currentUser||null,
       storageUsed,
       createdAt: timestamp,
     });
