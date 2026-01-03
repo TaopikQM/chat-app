@@ -298,57 +298,86 @@ export default function AdminFotoSP() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const loadAll = async () => {
-      try {
-        // ⬇️ ambil SEMUA root data
-        const snapshot = await get(ref(database));
+  const loadAll = async () => {
+    try {
+      console.log("📡 Ambil data dari root database...");
 
-        if (!snapshot.exists()) {
-          setRows([]);
-          return;
-        }
+      const snapshot = await get(ref(database));
 
-        const raw = snapshot.val();
-        const result = [];
+      if (!snapshot.exists()) {
+        console.warn("❌ Snapshot kosong");
+        setRows([]);
+        return;
+      }
 
-        // year
-        Object.keys(raw).forEach(year => {
-          // month
-          Object.keys(raw[year]).forEach(month => {
-            // day
-            Object.keys(raw[year][month]).forEach(day => {
-              const fotosp = raw[year][month][day]?.fotosp;
-              if (!fotosp) return;
+      const raw = snapshot.val();
 
-              // user
-              Object.keys(fotosp).forEach(user => {
-                Object.keys(fotosp[user]).forEach(id => {
-                  result.push({
-                    id,
-                    year,
-                    month,
-                    day,
-                    ...fotosp[user][id],
-                  });
+      console.log("✅ RAW DATABASE:", raw);
+
+      const result = [];
+
+      // year
+      Object.keys(raw).forEach(year => {
+        console.log("📁 YEAR:", year);
+
+        Object.keys(raw[year]).forEach(month => {
+          console.log("  📁 MONTH:", month);
+
+          Object.keys(raw[year][month]).forEach(day => {
+            console.log("    📁 DAY:", day);
+
+            const fotosp = raw[year][month][day]?.fotosp;
+
+            if (!fotosp) {
+              console.log("      ⚠️ fotosp TIDAK ADA");
+              return;
+            }
+
+            console.log("      📸 fotosp ditemukan");
+
+            Object.keys(fotosp).forEach(user => {
+              console.log("        👤 USER:", user);
+
+              Object.keys(fotosp[user]).forEach(id => {
+                const data = fotosp[user][id];
+
+                console.log("          🧾 DATA:", {
+                  id,
+                  createdAt: data.createdAt,
+                  currentUser: data.currentUser,
+                  status: data.status,
+                });
+
+                result.push({
+                  id,
+                  year,
+                  month,
+                  day,
+                  ...data, 
                 });
               });
             });
           });
         });
+      });
 
-        // 🔥 URUTKAN TERBARU
-        result.sort((a, b) => b.createdAt - a.createdAt);
+      console.log("📊 TOTAL DATA:", result.length);
 
-        setRows(result);
-      } catch (err) {
-        console.error("Load error:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
+      result.sort((a, b) => b.createdAt - a.createdAt);
 
-    loadAll();
-  }, []);
+      console.log("📊 SETELAH SORT:", result);
+
+      setRows(result);
+    } catch (err) {
+      console.error("🔥 Load error:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  loadAll();
+}, []);
+
 
   if (loading) return <p className="p-4">Loading...</p>;
 
