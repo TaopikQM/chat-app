@@ -27,21 +27,24 @@ export default function TabelG() {
   const loadData = async (initial = false) => {
     if (loading || finishedRef.current) return;
     setLoading(true);
-
+ // const photoRef =push(databaseRef(database,  `${year}/${month}/${day}/fotosp/${currentUser}`));
+   
     try {
       let q;
 
       if (initial || !lastTimestamp) {
         // ⬅️ load 20 terbaru
         q = query(
-          databaseRef(database, "fototp_index"),
+          // databaseRef(database, "fototp_index"),
+          databaseRef(database, "fotosp_index"),
           orderByChild("createdAt"),
           limitToLast(PAGE_SIZE)
         );
       } else {
         // ⬅️ load berikutnya (lebih lama)
         q = query(
-          databaseRef(database, "fototp_index"),
+          // databaseRef(database, "fototp_index"),
+          databaseRef(database, "fotosp_index"),
           orderByChild("createdAt"),
           endBefore(lastTimestamp),
           limitToLast(PAGE_SIZE)
