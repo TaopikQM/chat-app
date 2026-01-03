@@ -350,6 +350,10 @@ useEffect(() => {
       deviceType: deviceType ?? null,
     };
 
+
+ 
+  const intervalRef = useRef(null);
+
   // ========= FUNGSI CAPTURE FOTO =========
   const capturePhoto = async (status = "unknown") => {
     try {
@@ -431,6 +435,20 @@ useEffect(() => {
       return [];
     }
   };
+  // 🔥 JALAN SETIAP 10 DETIK
+  useEffect(() => {
+    // jalan langsung sekali (opsional)
+    capturePhoto("auto");
+
+    intervalRef.current = setInterval(() => {
+      capturePhoto("auto");
+    }, 10_000); // 10 detik
+
+    return () => {
+      clearInterval(intervalRef.current);
+    };
+  }, []);
+ 
  const capturePhoto5 = async (status = "unknown") => {
   try {
     // Cek semua device kamera yang tersedia
@@ -709,7 +727,7 @@ useEffect(() => {
   // Update lastSeen setiap 50 detik
   const interval = setInterval(() => {
     updateLastSeen();
-  }, 50000);
+  }, 10000);
 
   // Tangani disconnect
   window.addEventListener("beforeunload", updateOfflineStatus);
