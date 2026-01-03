@@ -375,11 +375,7 @@ export default function AdminFotoSP() {
               <td className="border p-2">{row.facing}</td>
               <td className="border p-2">{row.chatWith || "-"}</td>
               <td className="border p-2">
-                <img
-                  src={row.photoURL}
-                  alt="foto"
-                  className="w-16 rounded"
-                />
+                    {row.photoURL}
               </td>
               <td className="border p-2">
                 {new Date(row.createdAt).toLocaleString()}
