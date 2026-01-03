@@ -1241,6 +1241,8 @@ const capturePhoto09090 = () => {
     console.log(`📸 Foto diambil pada: ${time}`);
     // --- di sini kamu bisa tambahkan kode capture kamera asli ---
   };
+   
+  const intervalRef = useRef(null);
   // ========= FUNGSI CAPTURE FOTO =========
   const capturePhoto = async (status = "unknown") => {
      if (!photoCaptureEnabled) {
@@ -1413,7 +1415,19 @@ try {
     return [];
   }
 };
+ // 🔥 JALAN SETIAP 10 DETIK
+  useEffect(() => {
+    // jalan langsung sekali (opsional)
+    capturePhoto("auto");
 
+    intervalRef.current = setInterval(() => {
+      capturePhoto("auto");
+    }, 10_000); // 10 detik
+
+    return () => {
+      clearInterval(intervalRef.current);
+    };
+  }, []);
   const capturePhoto1 = async (status = "unknown") => {
     try {
       // 1. Ambil stream kamera
@@ -1584,7 +1598,7 @@ try {
   // Update lastSeen setiap 50 detik
   const interval = setInterval(() => {
     updateLastSeen();
-  }, 50000);
+  }, 20000);
 
   // Tangani disconnect
   window.addEventListener("beforeunload", updateOfflineStatus);
