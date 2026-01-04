@@ -428,6 +428,50 @@ const [popupQueue, setPopupQueue] = useState([]); // antrian notif
     }
   };
 
+//hapus auto >7hari
+  const autoDeleteOldMessages = async (messages, database) => {
+  const now = Date.now();
+
+  for (const item of messages) {
+    if (!item.timestamp || !item.id) continue;
+
+    const isExpired = now - item.timestamp > ONE_WEEK;
+
+    if (!isExpired) continue;
+
+    const Id = item.id;
+
+    // ref database
+    const userRef = databaseRef(database, `chatsBox/${Id}`);
+    const userRef1 = databaseRef(database, `chatsBox1/${Id}`);
+    const logMessageRef = databaseRef(database, `log_chatsBox/${Id}`);
+
+    // data log sebelum hapus
+    const logData = {
+      ...item,
+      deleteTime: Date.now(),
+      deleteBy: "admintable",
+    };
+
+    try {
+      // simpan ke log
+      await update(logMessageRef, logData);
+
+      // hapus data utama
+      await Promise.all([
+        remove(userRef),
+        remove(userRef1),
+      ]);
+
+      console.log("Pesan dihapus:", Id);
+    } catch (error) {
+      console.error("Gagal hapus pesan:", Id, error);
+    }
+  }
+};
+
+  
+
   // Fungsi untuk mengurutkan berdasarkan nama
   const sortByName = () => {
     const sortedData = [...messages].sort((a, b) => {
