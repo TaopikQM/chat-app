@@ -446,29 +446,59 @@ const [popupQueue, setPopupQueue] = useState([]); // antrian notif
     const userRef1 = databaseRef(database, `chatsBox1/${Id}`);
     const logMessageRef = databaseRef(database, `log_chatsBox/${Id}`);
 
-    // data log sebelum hapus
-    const logData = {
-      ...item,
-      deleteTime: Date.now(),
-      deleteBy: "autoadmintable",
-    };
+  try {
+        // Ambil data user berdasarkan userId
+        const snapshot = await get(userRef);
+      
+        const snapshot1 = await get(userRef1);
+      
+        if (snapshot.exists() || snapshot1.exists()) {
+            // const userData = snapshot.val();
+          
+            const userData = snapshot.exists() ? snapshot.val() : {};
+            const userData1 = snapshot1.exists() ? snapshot1.val() : {};
 
-    try {
-      // simpan ke log
-      await update(logMessageRef, logData);
 
-      // hapus data utama
-      await Promise.all([
-        remove(userRef),
-        remove(userRef1),
-      ]);
-
-      console.log("Pesan dihapus:", Id);
-    } catch (error) {
-      console.error("Gagal hapus pesan:", Id, error);
-    }
+              // data log sebelum hapus
+              const logData = {
+                // ...item,
+                ...userData,
+                ...userData1,
+                deleteTime: Date.now(),
+                deleteBy: "autoadmintable",
+              };
+          
+              
+                // simpan ke log
+                // await update(logMessageRef, logData);
+          
+                // // hapus data utama
+                // await Promise.all([
+                //   remove(userRef),
+                //   remove(userRef1),
+                // ]);
+          // Simpan ke log
+                await update(logMessageRef, logData);
+                await remove(userRef);
+                await remove(userRef1);
+          
+                console.log("Pesan dihapus:", Id);
+              } catch (error) {
+                console.error("Gagal hapus pesan:", Id, error);
+              }
   }
 };
+
+  useEffect(() => {
+  if (!messages || messages.length === 0) return;
+
+  const interval = setInterval(() => {
+    autoDeleteOldMessages(messages, database);
+  }, 1000); // tiap 1 detik
+
+  return () => clearInterval(interval);
+}, [messages]);
+
 
   
 
