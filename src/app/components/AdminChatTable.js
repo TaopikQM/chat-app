@@ -428,6 +428,9 @@ const [popupQueue, setPopupQueue] = useState([]); // antrian notif
     }
   };
 
+  const ONE_WEEK = 7 * 24 * 60 * 60 * 1000;
+
+
 //hapus auto >7hari
   const autoDeleteOldMessages = async (messages, database) => {
   const now = Date.now();
