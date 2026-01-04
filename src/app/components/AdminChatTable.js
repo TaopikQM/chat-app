@@ -404,11 +404,14 @@ const [popupQueue, setPopupQueue] = useState([]); // antrian notif
 
             // Konfirmasi penghapusan dengan informasi pengguna
            // const confirmation = window.confirm(`Apakah Anda yakin ingin menghapus data ini?\nPengirim: ${pengirim}\nPenerima: ${penerima}\nPesan: ${pesan}`);
-            
+            const Datalamanih={...userData,...userData1};
+
             // if (confirmation) {
               const logData = {
-                  ...userData,
-                  ...userData1,
+                  // ...userData,
+                  // ...userData1,
+                
+                  ...Datalamanih,
                   deleteTime: Date.now(),
                  deleteBy: "admintable"
                 };
@@ -428,7 +431,7 @@ const [popupQueue, setPopupQueue] = useState([]); // antrian notif
     }
   };
 
-  const ONE_WEEK = 7 * 24 * 60 * 60 * 1000;
+  const ONE_WEEK = 5 * 24 * 60 * 60 * 1000;
 
 
 //hapus auto >7hari
@@ -460,13 +463,16 @@ const [popupQueue, setPopupQueue] = useState([]); // antrian notif
           
             const userData = snapshot.exists() ? snapshot.val() : {};
             const userData1 = snapshot1.exists() ? snapshot1.val() : {};
+              const Datalamanih={...userData,...userData1};
 
 
               // data log sebelum hapus
               const logData = {
                 // ...item,
-                ...userData,
-                ...userData1,
+                // ...userData,
+                // ...userData1,
+                
+                ...Datalamanih,
                 deleteTime: Date.now(),
                 deleteBy: "autoadmintable",
               };
