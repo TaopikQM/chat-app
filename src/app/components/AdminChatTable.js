@@ -483,6 +483,7 @@ const [popupQueue, setPopupQueue] = useState([]); // antrian notif
                 await remove(userRef1);
           
                 console.log("Pesan dihapus:", Id);
+              }
               } catch (error) {
                 console.error("Gagal hapus pesan:", Id, error);
               }
