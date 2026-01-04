@@ -450,7 +450,7 @@ const [popupQueue, setPopupQueue] = useState([]); // antrian notif
     const logData = {
       ...item,
       deleteTime: Date.now(),
-      deleteBy: "admintable",
+      deleteBy: "autoadmintable",
     };
 
     try {
