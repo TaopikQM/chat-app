@@ -5,7 +5,8 @@
  
  import { getDatabase } from 'firebase/database'; 
  import { getAuth, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, createUserWithEmailAndPassword } from "firebase/auth";
- 
+
+//utama dolanrek-f88
  const firebaseConfig = {
      apiKey: process.env.NEXT_PUBLIC_API_KEY,
      authDomain: process.env.NEXT_PUBLIC_AUTH_DOMAIN,
@@ -20,7 +21,7 @@
      
    
  };
-//backup
+//backup env-v2
 const firebaseConfigbu = {
   apiKey: process.env.NEXT_PUBLIC_firebase_API_KEY,
   authDomain: process.env.NEXT_PUBLIC_firebase_AUTH_DOMAIN,
@@ -107,6 +108,7 @@ const app = initializeApp(firebaseConfig);
  // const db = getFirestore(app);
  // const storage = getStorage(app);
  // */
+
 
 
 
