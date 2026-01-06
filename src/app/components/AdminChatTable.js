@@ -431,7 +431,7 @@ const [popupQueue, setPopupQueue] = useState([]); // antrian notif
     }
   };
 
-  const ONE_WEEK = 5 * 24 * 60 * 60 * 1000;
+  const ONE_WEEK = 12 * 24 * 60 * 60 * 1000;
 
 
 //hapus auto >7hari
