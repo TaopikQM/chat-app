@@ -134,6 +134,11 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage, isDark}
     );
   };
 
+   const now = new Date();
+    const year = now.getFullYear(); // 2025
+    const month = String(now.getMonth() + 1).padStart(2, "0"); // 01-12
+    const day = String(now.getDate()).padStart(2, "0"); // 01-31
+    const timestamp = Date.now();
 
 
 
@@ -287,8 +292,12 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage, isDark}
     
     for (let file of files) {
       const ext = file.name.split(".").pop();
-      // const fileRef = storageRef(storageBackup, `chatFilesBU/${newMessageRef.key}_${file.name}`);
-      const fileRef = storageRef(storage, `chatFilesBU1/${newMessageRef.key}_${file.name}`);
+      // // const fileRef = storageRef(storageBackup, `chatFilesBU/${newMessageRef.key}_${file.name}`);
+      // const fileRef = storageRef(storage, `chatFilesBU1/${newMessageRef.key}_${file.name}`);
+       const fileRef = storageRef(storageBackup, `${year}/${month}/${day}/chatFilesBU/${newMessageRef.key}.wav`);//backup env-v2
+      // const fileRef = storageRef(storageBackup, `chatFilesBU/${newMessageRef.key}.wav`);//backup env-v2
+      //const fileRef = storageRef(storage, `chatFilesBU1/${newMessageRef.key}.wav`);//utama dolanrek-f88
+     
       await uploadBytes(fileRef, file);
       const fileUrl = await getDownloadURL(fileRef);
       uploadedFiles.push({
@@ -301,8 +310,9 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage, isDark}
     let uploadedAudio = null;
 
     if (audioFile) {
-      // const fileRef = storageRef(storageBackup, `chatFilesBU/${newMessageRef.key}.wav`);
-      const fileRef = storageRef(storage, `chatFilesBU1/${newMessageRef.key}.wav`);
+      const fileRef = storageRef(storageBackup, `${year}/${month}/${day}/chatFilesBU/${newMessageRef.key}.wav`);//backup env-v2
+      // const fileRef = storageRef(storageBackup, `chatFilesBU/${newMessageRef.key}.wav`);//backup env-v2
+      //const fileRef = storageRef(storage, `chatFilesBU1/${newMessageRef.key}.wav`);//utama dolanrek-f88
       await uploadBytes(fileRef, audioFile);
       const fileUrl = await getDownloadURL(fileRef);
       uploadedAudio = fileUrl;
@@ -916,6 +926,7 @@ export default ChatInput;
 // // // };
 
 // // // export default ChatInput;
+
 
 
 
