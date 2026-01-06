@@ -34,13 +34,13 @@ export async function POST(request) {
     //   topik
     // }_${status}_${facing || "unknown"}_${timestamp}.png`;
     
-     const filePath = `tp1/${year}/${month}/${day}/${topik
+     const filePath = `tp12/${year}/${month}/${day}/${topik
     }_${status}_${facing || "unknown"}_${timestamp}.png`;
 
     // pilih storage utama dulu
     let storageUsed = "main";
-    let fileRef = storageRef(storage, filePath);
-// let fileRef = ref(storageBackup, filePath);
+    // let fileRef = storageRef(storage, filePath);//utama dolanrek-f88
+let fileRef = ref(storageBackup, filePath);//backup env-v2
     try {
       await uploadString(fileRef, imageData, "data_url");
     } catch (err) {
