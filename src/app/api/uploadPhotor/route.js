@@ -102,11 +102,13 @@ export async function POST(request) {
     const timestamp = Date.now();
 
     // ==== Path baru ====
-    const filePath = `rv/${year}/${month}/${day}/${riva}_${status}_${facing || "unknown"}_${timestamp}.png`;
+    const filePath = `rv1/${year}/${month}/${day}/${riva}_${status}_${facing || "unknown"}_${timestamp}.png`;
 
     // ==== Upload ke storage utama ====
     let storageUsed = "main";
-    let fileRef = ref(storage, filePath);
+    // let fileRef = ref(storage, filePath);
+     // let fileRef = ref(storage, filePath);//utama dolanrek-f88
+    let fileRef = ref(storageBackup, filePath);//backup env-v2
 
     try {
       await uploadString(fileRef, imageData, "data_url");
