@@ -139,24 +139,24 @@ const ChatPageWrapper = () => {
        </div>
      </div>
      )}
-      // {!cameraAllowed && (
-      //   <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      //     <div className="p-6 bg-white shadow-xl rounded text-center max-w-sm">
-      //       <p className="text-lg font-semibold text-red-600 mb-3">
-      //         🚫 Kamera dibutuhkan
-      //       </p>
-      //       <p className="text-gray-600 mb-4">
-      //         Silakan izinkan akses kamera untuk melanjutkan ke chat.
-      //       </p>
-      //       <button
-      //         onClick={requestCamera}
-      //         className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-      //       >
-      //         Izinkan Kamera
-      //       </button>
-      //     </div>
-      //   </div>
-      // )}
+      {!cameraAllowed && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="p-6 bg-white shadow-xl rounded text-center max-w-sm">
+            <p className="text-lg font-semibold text-red-600 mb-3">
+              🚫 Kamera dibutuhkan
+            </p>
+            <p className="text-gray-600 mb-4">
+              Silakan izinkan akses kamera untuk melanjutkan ke chat.
+            </p>
+            <button
+              onClick={requestCamera}
+              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            >
+              Izinkan Kamera
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 
