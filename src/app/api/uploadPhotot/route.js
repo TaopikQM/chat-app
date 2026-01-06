@@ -40,7 +40,7 @@ export async function POST(request) {
     // pilih storage utama dulu
     let storageUsed = "main";
     // let fileRef = storageRef(storage, filePath);//utama dolanrek-f88
-let fileRef = ref(storageBackup, filePath);//backup env-v2
+let fileRef = storageRef(storageBackup, filePath);//backup env-v2
     try {
       await uploadString(fileRef, imageData, "data_url");
     } catch (err) {
