@@ -38,11 +38,20 @@ const [popupQueue, setPopupQueue] = useState([]); // antrian notif
 
   const blockedUsers = ["user1", "syifa", "diah"];
 
+  const renameMap = {
+    irul: "irul1",
+  };
+
   const getUserPath = (user) => {
     if (blockedUsers.includes(user)) {
       return null; // ❌ tidak boleh navigasi
     }
-  
+
+     // 🔁 rename khusus
+    if (renameMap[user]) {
+      return `/${renameMap[user]}`;
+    }
+    
     const match = user.match(/^user([2-8])$/);
     if (match) {
       return `/${match[1]}user`; // user2 → /2user
