@@ -51,6 +51,8 @@ const [popupQueue, setPopupQueue] = useState([]); // antrian notif
     return `/${user}`;
   };
 
+  
+
 
   const handleEdit = (msg) => {
     setEditData(msg);
@@ -725,7 +727,7 @@ const totalFiles1 = messages.reduce((acc, msg) => acc + (msg.files ? msg.files.l
       );
     })}
   </ul>
-)} */}
+)} 
 
   {Object.keys(notifications).length === 0 ? (
   <p className="text-gray-500">Tidak ada notif baru ✅</p>
@@ -762,6 +764,43 @@ const totalFiles1 = messages.reduce((acc, msg) => acc + (msg.files ? msg.files.l
           ) : (
             <Link href={path} className="block">
               {Content}
+            </Link>
+          )}
+        </li>
+      );
+    })}
+  </ul>
+)} */}
+  {Object.keys(notifications).length === 0 ? (
+  <p className="text-gray-500">Tidak ada notif baru ✅</p>
+) : (
+  <ul className="space-y-2">
+    {Object.entries(notifications).map(([user, count]) => {
+      const path = getUserPath(user);
+      const isBlocked = !path;
+
+      const Row = (
+        <div
+          className={`flex justify-between items-center bg-gray-100 dark:bg-gray-700 px-3 py-2 rounded-lg
+            ${isBlocked ? "cursor-not-allowed" : "hover:bg-gray-200 dark:hover:bg-gray-600"}
+          `}
+        >
+          <span className="font-medium">{user}</span>
+
+          {/* 🔥 BADGE TETEP NORMAL */}
+          <span className="bg-red-600 text-white px-3 py-1 rounded-full text-sm">
+            {count} pesan belum dibaca
+          </span>
+        </div>
+      );
+
+      return (
+        <li key={user}>
+          {isBlocked ? (
+            Row
+          ) : (
+            <Link href={path} className="block">
+              {Row}
             </Link>
           )}
         </li>
