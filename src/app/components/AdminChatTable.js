@@ -665,44 +665,51 @@ const totalFiles1 = messages.reduce((acc, msg) => acc + (msg.files ? msg.files.l
       <div className="mb-6 bg-white dark:bg-gray-800 p-4 rounded-xl shadow">
    
         <h2 className="text-lg font-bold mb-3">🔔 Notifikasi Pesan Belum Dibaca</h2>
-        {Object.keys(notifications).length === 0 ? (
-          <p className="text-gray-500">Tidak ada notif baru ✅</p>
-        ) : (
-          <ul className="space-y-2">
-            // {Object.entries(notifications).map(([user, count]) => (
-            //   <li
-            //     key={user}
-            //     className="flex justify-between items-center bg-gray-100 dark:bg-gray-700 px-3 py-2 rounded-lg"
-            //   >
-            //     <span className="font-medium">{user}</span>
-            //     <span className="bg-red-600 text-white px-3 py-1 rounded-full text-sm">
-            //       {count} pesan belum dibaca
-            //     </span>
-            //   </li>
-            // ))}
-          {Object.entries(notifications).map(([user, count]) => {
-              // 🔹 mapping khusus
-              const userPath =
-                user === "user2"
-                  ? "/domain/2user"
-                  : `/domain/${user}`;
-        
-              return (
-                <li key={user}>
-                  <Link
-                    href={userPath}
-                    className="flex justify-between items-center bg-gray-100 dark:bg-gray-700 px-3 py-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition"
-                  >
-                    <span className="font-medium">{user}</span>
-                    <span className="bg-red-600 text-white px-3 py-1 rounded-full text-sm">
-                      {count} pesan belum dibaca
-                    </span>
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-        )}
+        // {Object.keys(notifications).length === 0 ? (
+        //   <p className="text-gray-500">Tidak ada notif baru ✅</p>
+        // ) : (
+        //   <ul className="space-y-2">
+        //     {Object.entries(notifications).map(([user, count]) => (
+        //       <li
+        //         key={user}
+        //         className="flex justify-between items-center bg-gray-100 dark:bg-gray-700 px-3 py-2 rounded-lg"
+        //       >
+        //         <span className="font-medium">{user}</span>
+        //         <span className="bg-red-600 text-white px-3 py-1 rounded-full text-sm">
+        //           {count} pesan belum dibaca
+        //         </span>
+        //       </li>
+        //     ))}
+         
+        //   </ul>
+        // )}
+  {Object.keys(notifications).length === 0 ? (
+  <p className="text-gray-500">Tidak ada notif baru ✅</p>
+) : (
+  <ul className="space-y-2">
+    {Object.entries(notifications).map(([user, count]) => {
+      // 🔹 mapping khusus
+      const userPath =
+        user === "user2"
+          ? "/domain/2user"
+          : `/domain/${user}`;
+
+      return (
+        <li key={user}>
+          <Link
+            href={userPath}
+            className="flex justify-between items-center bg-gray-100 dark:bg-gray-700 px-3 py-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition"
+          >
+            <span className="font-medium">{user}</span>
+            <span className="bg-red-600 text-white px-3 py-1 rounded-full text-sm">
+              {count} pesan belum dibaca
+            </span>
+          </Link>
+        </li>
+      );
+    })}
+  </ul>
+)}
       </div>
         <div className="relative overflow-x-auto shadow-md sm:rounded-lg ">
             {/* //title */}
