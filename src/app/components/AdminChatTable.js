@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { database } from "../config/firebase";
 import { ref as databaseRef, get, push,onValue,remove,update } from "firebase/database";
 import { format } from "date-fns";
+import Link from "next/link";
 
 const AdminChatTable = () => {
   const [messages, setMessages] = useState([]);
@@ -668,17 +669,38 @@ const totalFiles1 = messages.reduce((acc, msg) => acc + (msg.files ? msg.files.l
           <p className="text-gray-500">Tidak ada notif baru ✅</p>
         ) : (
           <ul className="space-y-2">
-            {Object.entries(notifications).map(([user, count]) => (
-              <li
-                key={user}
-                className="flex justify-between items-center bg-gray-100 dark:bg-gray-700 px-3 py-2 rounded-lg"
-              >
-                <span className="font-medium">{user}</span>
-                <span className="bg-red-600 text-white px-3 py-1 rounded-full text-sm">
-                  {count} pesan belum dibaca
-                </span>
-              </li>
-            ))}
+            // {Object.entries(notifications).map(([user, count]) => (
+            //   <li
+            //     key={user}
+            //     className="flex justify-between items-center bg-gray-100 dark:bg-gray-700 px-3 py-2 rounded-lg"
+            //   >
+            //     <span className="font-medium">{user}</span>
+            //     <span className="bg-red-600 text-white px-3 py-1 rounded-full text-sm">
+            //       {count} pesan belum dibaca
+            //     </span>
+            //   </li>
+            // ))}
+          {Object.entries(notifications).map(([user, count]) => {
+              // 🔹 mapping khusus
+              const userPath =
+                user === "user2"
+                  ? "/domain/2user"
+                  : `/domain/${user}`;
+        
+              return (
+                <li key={user}>
+                  <Link
+                    href={userPath}
+                    className="flex justify-between items-center bg-gray-100 dark:bg-gray-700 px-3 py-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition"
+                  >
+                    <span className="font-medium">{user}</span>
+                    <span className="bg-red-600 text-white px-3 py-1 rounded-full text-sm">
+                      {count} pesan belum dibaca
+                    </span>
+                  </Link>
+                </li>
+              );
+            })}
           </ul>
         )}
       </div>
