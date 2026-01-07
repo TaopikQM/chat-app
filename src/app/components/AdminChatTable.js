@@ -36,6 +36,22 @@ const [popupQueue, setPopupQueue] = useState([]); // antrian notif
   const [openEdit, setOpenEdit] = useState(false);
   const [editData, setEditData] = useState(null);
 
+  const blockedUsers = ["user1", "syifa", "diah"];
+
+  const getUserPath = (user) => {
+    if (blockedUsers.includes(user)) {
+      return null; // ❌ tidak boleh navigasi
+    }
+  
+    const match = user.match(/^user([2-8])$/);
+    if (match) {
+      return `/${match[1]}user`; // user2 → /2user
+    }
+  
+    return `/${user}`;
+  };
+
+
   const handleEdit = (msg) => {
     setEditData(msg);
     setOpenEdit(true);
@@ -682,7 +698,7 @@ const totalFiles1 = messages.reduce((acc, msg) => acc + (msg.files ? msg.files.l
         //     ))}
          
         //   </ul>
-        // )} */}
+        // )} 
   {Object.keys(notifications).length === 0 ? (
   <p className="text-gray-500">Tidak ada notif baru ✅</p>
 ) : (
@@ -691,8 +707,8 @@ const totalFiles1 = messages.reduce((acc, msg) => acc + (msg.files ? msg.files.l
       // 🔹 mapping khusus
       const userPath =
         user === "user2"
-          ? "/domain/2user"
-          : `/domain/${user}`;
+          ? "/2user"
+          : `/${user}`;
 
       return (
         <li key={user}>
@@ -705,6 +721,49 @@ const totalFiles1 = messages.reduce((acc, msg) => acc + (msg.files ? msg.files.l
               {count} pesan belum dibaca
             </span>
           </Link>
+        </li>
+      );
+    })}
+  </ul>
+)} */}
+
+  {Object.keys(notifications).length === 0 ? (
+  <p className="text-gray-500">Tidak ada notif baru ✅</p>
+) : (
+  <ul className="space-y-2">
+    {Object.entries(notifications).map(([user, count]) => {
+      const path = getUserPath(user);
+      const isBlocked = !path;
+
+      const Content = (
+        <div
+          className={`flex justify-between items-center px-3 py-2 rounded-lg
+            ${
+              isBlocked
+                ? "bg-gray-200 dark:bg-gray-800 text-gray-400 cursor-not-allowed"
+                : "bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600"
+            }`}
+        >
+          <span className="font-medium">{user}</span>
+          <span
+            className={`px-3 py-1 rounded-full text-sm ${
+              isBlocked ? "bg-gray-400" : "bg-red-600 text-white"
+            }`}
+          >
+            {count} pesan belum dibaca
+          </span>
+        </div>
+      );
+
+      return (
+        <li key={user}>
+          {isBlocked ? (
+            Content
+          ) : (
+            <Link href={path} className="block">
+              {Content}
+            </Link>
+          )}
         </li>
       );
     })}
