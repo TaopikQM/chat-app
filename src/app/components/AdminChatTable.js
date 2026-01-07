@@ -665,7 +665,7 @@ const totalFiles1 = messages.reduce((acc, msg) => acc + (msg.files ? msg.files.l
       <div className="mb-6 bg-white dark:bg-gray-800 p-4 rounded-xl shadow">
    
         <h2 className="text-lg font-bold mb-3">🔔 Notifikasi Pesan Belum Dibaca</h2>
-        // {Object.keys(notifications).length === 0 ? (
+        {/* // {Object.keys(notifications).length === 0 ? (
         //   <p className="text-gray-500">Tidak ada notif baru ✅</p>
         // ) : (
         //   <ul className="space-y-2">
@@ -682,7 +682,7 @@ const totalFiles1 = messages.reduce((acc, msg) => acc + (msg.files ? msg.files.l
         //     ))}
          
         //   </ul>
-        // )}
+        // )} */}
   {Object.keys(notifications).length === 0 ? (
   <p className="text-gray-500">Tidak ada notif baru ✅</p>
 ) : (
