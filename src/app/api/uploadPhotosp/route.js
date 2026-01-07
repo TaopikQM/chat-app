@@ -38,8 +38,8 @@ export async function POST(request) {
 
     // pilih storage utama dulu
     let storageUsed = "main";
-    // let fileRef = storageRef(storage, filePath);
-    let fileRef = storageRef(storageBackup, filePath);
+    let fileRef = storageRef(storage, filePath);
+    // let fileRef = storageRef(storageBackup, filePath);
     try {
       await uploadString(fileRef, imageData, "data_url");
     } catch (err) {
