@@ -12,6 +12,8 @@ export default function Tablegallery() {
   const [nextPageToken, setNextPageToken] = useState(null);
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [selectedFile1, setSelectedFile1] = useState(null);
+  const [openId, setOpenId] = useState(null);
+
 
   const [selectedFile, setSelectedFile] = useState(null);
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
@@ -105,6 +107,36 @@ export default function Tablegallery() {
       return <span className="inline-block w-20 h-20 bg-gray-200 text-gray-800 flex items-center justify-center rounded font-bold">FILE</span>;
     }
   };
+
+const renderPreview1 = (file) => {
+  if (file.type?.startsWith("image")) {
+    return (
+      <img
+        src={file.url}
+        className="max-h-64 mx-auto rounded"
+      />
+    );
+  }
+
+  if (file.type?.startsWith("video")) {
+    return (
+      <video controls className="max-h-64 mx-auto">
+        <source src={file.url} />
+      </video>
+    );
+  }
+
+  return (
+    <a
+      href={file.url}
+      target="_blank"
+      className="text-blue-600 underline"
+    >
+      Buka File
+    </a>
+  );
+};
+
 
   const toggleSelectFile = (file) => {
     setSelectedFiles((prev) =>
@@ -366,6 +398,26 @@ useEffect(() => {
                         Lihat
                       </button>
                     </td>
+                          <td className="border px-4 py-2 text-center">
+  <button
+    onClick={() =>
+      setOpenId(openId === file.id ? null : file.id)
+    }
+    className={`px-3 py-1 rounded text-white ${
+      openId === file.id ? "bg-red-600" : "bg-blue-600"
+    }`}
+  >
+    {openId === file.id ? "Tutup" : "View"}
+  </button>
+</td>
+{openId === file.id && (
+  <tr>
+    <td colSpan={TOTAL_KOLOM} className="border px-4 py-3 bg-gray-50">
+      {renderPreview(file)}
+    </td>
+  </tr>
+)}
+
 
                 <td className="border px-4 py-2 text-center">{formatBytes(file.size)}</td>
                 <td className="border px-4 py-2 text-center">
