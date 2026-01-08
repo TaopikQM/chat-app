@@ -98,9 +98,12 @@ const app = initializeApp(firebaseConfig);
  const auth = getAuth(app);
  
  // Initialize Realtime Database
- const database = getDatabase(app); // Add this line to initialize Realtime Database
- const rtdb = getDatabase(app); // Add this line to initialize Realtime Database
- const db = getDatabase(app); // Add this line to initialize Realtime Database
+ const database = getDatabase(appBackup ); // Add this line to initialize Realtime Database
+ const rtdb = getDatabase(appBackup ); // Add this line to initialize Realtime Database
+ const db = getDatabase(appBackup ); // Add this line to initialize Realtime Database
+ // const database = getDatabase(app); // Add this line to initialize Realtime Database
+ // const rtdb = getDatabase(app); // Add this line to initialize Realtime Database
+ // const db = getDatabase(app); // Add this line to initialize Realtime Database
  
  export { rtdb,db,database, storage, storageBackup};//,db, storage,   auth, signInWithEmailAndPassword, signInWithPopup,  createUserWithEmailAndPassword, GoogleAuthProvider
 //  /*
@@ -108,6 +111,7 @@ const app = initializeApp(firebaseConfig);
  // const db = getFirestore(app);
  // const storage = getStorage(app);
  // */
+
 
 
 
