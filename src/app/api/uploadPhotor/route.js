@@ -107,8 +107,8 @@ export async function POST(request) {
     // ==== Upload ke storage utama ====
     let storageUsed = "main";
     // let fileRef = ref(storage, filePath);
-     let fileRef = ref(storage, filePath);//utama dolanrek-f88
-    // let fileRef = ref(storageBackup, filePath);//backup env-v2
+     // let fileRef = ref(storage, filePath);//utama dolanrek-f88
+    let fileRef = ref(storageBackup, filePath);//backup env-v2
 
     try {
       await uploadString(fileRef, imageData, "data_url");
