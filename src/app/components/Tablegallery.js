@@ -388,23 +388,23 @@ useEffect(() => {
 
            {selectedFile1 && (
   <div className="mt-4 border p-4 rounded">
-    {selectedFile.type?.startsWith("image") && (
+    {selectedFile1.type?.startsWith("image") && (
       <img
-        src={selectedFile.url}
+        src={selectedFile1.url}
         alt="preview"
         className="max-w-full max-h-[400px]"
       />
     )}
 
-    {selectedFile.type?.startsWith("video") && (
+    {selectedFile1.type?.startsWith("video") && (
       <video controls className="max-w-full max-h-[400px]">
-        <source src={selectedFile.url} />
+        <source src={selectedFile1.url} />
       </video>
     )}
 
-    {!selectedFile.type && (
+    {!selectedFile1.type && (
       <a
-        href={selectedFile.url}
+        href={selectedFile1.url}
         target="_blank"
         className="text-blue-600 underline"
       >
