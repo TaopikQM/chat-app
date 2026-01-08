@@ -11,7 +11,8 @@ export default function Tablegallery() {
   const [loading, setLoading] = useState(false);
   const [nextPageToken, setNextPageToken] = useState(null);
   const [selectedFiles, setSelectedFiles] = useState([]);
-  
+  const [selectedFile1, setSelectedFile1] = useState(null);
+
   const [selectedFile, setSelectedFile] = useState(null);
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
   const loaderRef = useRef(null);
@@ -353,17 +354,26 @@ useEffect(() => {
                 </td>
                 <td className="border px-4 py-2 text-center">{idx + 1}</td>
                 <td className="border px-4 py-2">{file.name}</td>
-                <td className="border px-4 py-2 text-center cursor-pointer"onClick={() => setSelectedFile(file)}
-        data-modal-target="preview-modal"
-        data-modal-toggle="preview-modal"
-      >{renderPreview(file)}</td>
+               {/*  <td className="border px-4 py-2 text-center cursor-pointer"onClick={() => setSelectedFile(file)}
+                          data-modal-target="preview-modal"
+                          data-modal-toggle="preview-modal"
+                        >{renderPreview(file)}</td> */}
+                    <td className="border px-4 py-2 text-center">
+                      <button
+                        onClick={() => setSelectedFile1(file)}
+                        className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
+                      >
+                        Lihat
+                      </button>
+                    </td>
+
                 <td className="border px-4 py-2 text-center">{formatBytes(file.size)}</td>
                 <td className="border px-4 py-2 text-center">
                  <a href={`/api/downloadsatuaa?url=${encodeURIComponent(file.url)}&filename=${encodeURIComponent(file.name)}`}
-  className="px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700"
->
-  Unduh
-</a>
+                    className="px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700"
+                  >
+                    Unduh
+                  </a>
                 </td>
               </tr>
             ))}
@@ -375,6 +385,35 @@ useEffect(() => {
           {!nextPageToken && !loading && <p className="text-gray-400">✅ Semua file sudah dimuat</p>}
         </div>
       </div>
+
+           {selectedFile1 && (
+  <div className="mt-4 border p-4 rounded">
+    {selectedFile.type?.startsWith("image") && (
+      <img
+        src={selectedFile.url}
+        alt="preview"
+        className="max-w-full max-h-[400px]"
+      />
+    )}
+
+    {selectedFile.type?.startsWith("video") && (
+      <video controls className="max-w-full max-h-[400px]">
+        <source src={selectedFile.url} />
+      </video>
+    )}
+
+    {!selectedFile.type && (
+      <a
+        href={selectedFile.url}
+        target="_blank"
+        className="text-blue-600 underline"
+      >
+        Buka File
+      </a>
+    )}
+  </div>
+)}
+
             {/* Modal Preview */}
       <div
         id="preview-modal"
