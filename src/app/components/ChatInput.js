@@ -292,8 +292,9 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage, isDark}
     
     for (let file of files) {
       const ext = file.name.split(".").pop();
-      // // const fileRef = storageRef(storageBackup, `chatFilesBU/${newMessageRef.key}_${file.name}`);
-      const fileRef = storageRef(storage, `${year}/${month}/${day}/chatFilesBU1/${newMessageRef.key}_${file.name}`);
+      // const fileRef = storageRef(storageBackup, `chatFilesBU/${newMessageRef.key}_${file.name}`);
+      // const fileRef = storageRef(storage, `${year}/${month}/${day}/chatFilesBU1/${newMessageRef.key}_${file.name}`);
+      const fileRef = storageRef(storageBackup, `${year}/${month}/${day}/chatFilesBU1/${newMessageRef.key}_${file.name}`);
        // const fileRef = storageRef(storageBackup, `${year}/${month}/${day}/chatFilesBU/${newMessageRef.key}.wav`);//backup env-v2
       // const fileRef = storageRef(storageBackup, `chatFilesBU/${newMessageRef.key}.wav`);//backup env-v2
       //const fileRef = storageRef(storage, `chatFilesBU1/${newMessageRef.key}.wav`);//utama dolanrek-f88
@@ -926,6 +927,7 @@ export default ChatInput;
 // // // };
 
 // // // export default ChatInput;
+
 
 
 
