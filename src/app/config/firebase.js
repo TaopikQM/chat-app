@@ -54,6 +54,13 @@ const app = initializeApp(firebaseConfig);
  const appBackup = initializeApp(firebaseConfigbu, "backup");
  const appBackup1 = initializeApp(firebaseConfigBackup1, "backup1");
 
+
+
+// const appBackupnih =
+//   getApps().find((a) => a.name === "backupnih")
+//     ? getApp("backupnih")
+//     : initializeApp(firebaseConfigBackupnih, "backupnih");
+
 //  let app;
 //  if (!getApps().length) {
 //    app = initializeApp(firebaseConfig);
@@ -117,10 +124,10 @@ const app = initializeApp(firebaseConfig);
 
  const auth = getAuth(app);
  
- // Initialize Realtime Database env-v2
- const database = getDatabase(appBackup ); // Add this line to initialize Realtime Database
- const rtdb = getDatabase(appBackup ); // Add this line to initialize Realtime Database
- const db = getDatabase(appBackup ); // Add this line to initialize Realtime Database
+ // // Initialize Realtime Database env-v2
+ // const database = getDatabase(appBackup ); // Add this line to initialize Realtime Database
+ // const rtdb = getDatabase(appBackup ); // Add this line to initialize Realtime Database
+ // const db = getDatabase(appBackup ); // Add this line to initialize Realtime Database
 
 //data utama dolanrek-f88ad
  // const database = getDatabase(app); // Add this line to initialize Realtime Database
@@ -128,10 +135,10 @@ const app = initializeApp(firebaseConfig);
  // const db = getDatabase(app); // Add this line to initialize Realtime Database
 
 
-//data utama dolanrekid
- // const database = getDatabase(appbackup1); // Add this line to initialize Realtime Database
- // const rtdb = getDatabase(appbackup1); // Add this line to initialize Realtime Database
- // const db = getDatabase(appbackup1); // Add this line to initialize Realtime Database
+// data utama dolanrekid
+ const database = getDatabase(appbackup1); // Add this line to initialize Realtime Database
+ const rtdb = getDatabase(appbackup1); // Add this line to initialize Realtime Database
+ const db = getDatabase(appbackup1); // Add this line to initialize Realtime Database
  
  export { rtdb,db,database, storage, storageBackup,storageBackup1};//,db, storage,   auth, signInWithEmailAndPassword, signInWithPopup,  createUserWithEmailAndPassword, GoogleAuthProvider
 //  /*
@@ -139,6 +146,7 @@ const app = initializeApp(firebaseConfig);
  // const db = getFirestore(app);
  // const storage = getStorage(app);
  // */
+
 
 
 
