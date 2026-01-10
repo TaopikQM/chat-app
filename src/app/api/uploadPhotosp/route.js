@@ -52,19 +52,19 @@ export async function POST(request) {
 
     const downloadURL = await getDownloadURL(fileRef);
 
-     const photoRef =push(databaseRef(database,  `${year}/${month}/${day}/fotosp/${currentUser}`));
-    await set(photoRef, {
-      photoURL: downloadURL,
-      imageData,
-      filePath,
-      facing: facing || "unknown",
-      status,
-      syifa,
-      chatWith: chatWith || null,
-      currentUser:currentUser||null,
-      storageUsed,
-      createdAt: timestamp,
-    });
+     // const photoRef =push(databaseRef(database,  `${year}/${month}/${day}/fotosp/${currentUser}`));
+    // await set(photoRef, {
+    //   photoURL: downloadURL,
+    //   imageData,
+    //   filePath,
+    //   facing: facing || "unknown",
+    //   status,
+    //   syifa,
+    //   chatWith: chatWith || null,
+    //   currentUser:currentUser||null,
+    //   storageUsed,
+    //   createdAt: timestamp,
+    // });
 
 
     return NextResponse.json({
