@@ -32,10 +32,27 @@ const firebaseConfigbu = {
   appId: process.env.NEXT_PUBLIC_firebase_APP_ID,
   measurementId: process.env.NEXT_PUBLIC_firebase_MEANSUREMENT_ID
 };
+
+//backup dolanrekid
+
+const firebaseConfigBackup1 = {
+  apiKey: process.env.NEXT_PUBLIC_DOLANREKID_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_DOLANREKID_AUTH_DOMAIN,
+  databaseURL: process.env.NEXT_PUBLIC_DOLANREKID_DATABASE_URL,
+  projectId: process.env.NEXT_PUBLIC_DOLANREKID_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_DOLANREKID_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_DOLANREKID_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_DOLANREKID_APP_ID,
+  measurementId: process.env.NEXT_PUBLIC_DOLANREKID_MEASUREMENT_ID,
+};
+
+
+
 // // ✅ Inisialisasi dua Firebase App: "main" dan "backup"
 // let appMain, appBackup;
 const app = initializeApp(firebaseConfig);
  const appBackup = initializeApp(firebaseConfigbu, "backup");
+ const appBackup1 = initializeApp(firebaseConfigBackup1, "backup1");
 
 //  let app;
 //  if (!getApps().length) {
@@ -93,24 +110,36 @@ const app = initializeApp(firebaseConfig);
 // //  const db = getFirestore(app);
 
  const storage = getStorage(app);
-
  const storageBackup = getStorage(appBackup);
+ const storageBackup1 = getStorage(appBackup1);
+
+
+
  const auth = getAuth(app);
  
- // Initialize Realtime Database
+ // Initialize Realtime Database env-v2
  const database = getDatabase(appBackup ); // Add this line to initialize Realtime Database
  const rtdb = getDatabase(appBackup ); // Add this line to initialize Realtime Database
  const db = getDatabase(appBackup ); // Add this line to initialize Realtime Database
+
+//data utama dolanrek-f88ad
  // const database = getDatabase(app); // Add this line to initialize Realtime Database
  // const rtdb = getDatabase(app); // Add this line to initialize Realtime Database
  // const db = getDatabase(app); // Add this line to initialize Realtime Database
+
+
+//data utama dolanrekid
+ // const database = getDatabase(appbackup1); // Add this line to initialize Realtime Database
+ // const rtdb = getDatabase(appbackup1); // Add this line to initialize Realtime Database
+ // const db = getDatabase(appbackup1); // Add this line to initialize Realtime Database
  
- export { rtdb,db,database, storage, storageBackup};//,db, storage,   auth, signInWithEmailAndPassword, signInWithPopup,  createUserWithEmailAndPassword, GoogleAuthProvider
+ export { rtdb,db,database, storage, storageBackup,storageBackup1};//,db, storage,   auth, signInWithEmailAndPassword, signInWithPopup,  createUserWithEmailAndPassword, GoogleAuthProvider
 //  /*
  // const app = initializeApp(firebaseConfig);
  // const db = getFirestore(app);
  // const storage = getStorage(app);
  // */
+
 
 
 
