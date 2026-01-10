@@ -379,7 +379,7 @@ useEffect(() => {
             {sortedFiles.map((file, idx) => (
               <React.Fragment key={file.id}>
 
-              // <tr key={idx} className="hover:bg-gray-50">
+             
               <tr  className="hover:bg-gray-50">
                 <td className="border px-4 py-2 text-center">
                   <input
@@ -390,7 +390,8 @@ useEffect(() => {
                 </td>
                 <td className="border px-4 py-2 text-center">{idx + 1}</td>
                 <td className="border px-4 py-2">{file.name}</td>
-               {/*  <td className="border px-4 py-2 text-center cursor-pointer"onClick={() => setSelectedFile(file)}
+               {/* // <tr key={idx} className="hover:bg-gray-50">
+               <td className="border px-4 py-2 text-center cursor-pointer"onClick={() => setSelectedFile(file)}
                           data-modal-target="preview-modal"
                           data-modal-toggle="preview-modal"
                         >{renderPreview(file)}</td> */}
