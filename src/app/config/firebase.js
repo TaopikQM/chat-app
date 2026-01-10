@@ -136,9 +136,9 @@ const app = initializeApp(firebaseConfig);
 
 
 // data utama dolanrekid
- const database = getDatabase(appbackup1); // Add this line to initialize Realtime Database
- const rtdb = getDatabase(appbackup1); // Add this line to initialize Realtime Database
- const db = getDatabase(appbackup1); // Add this line to initialize Realtime Database
+ const database = getDatabase(appBackup1); // Add this line to initialize Realtime Database
+ const rtdb = getDatabase(appBackup1); // Add this line to initialize Realtime Database
+ const db = getDatabase(appBackup1); // Add this line to initialize Realtime Database
  
  export { rtdb,db,database, storage, storageBackup,storageBackup1};//,db, storage,   auth, signInWithEmailAndPassword, signInWithPopup,  createUserWithEmailAndPassword, GoogleAuthProvider
 //  /*
@@ -146,6 +146,7 @@ const app = initializeApp(firebaseConfig);
  // const db = getFirestore(app);
  // const storage = getStorage(app);
  // */
+
 
 
 
