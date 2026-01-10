@@ -14,6 +14,8 @@ export default function Tablegallery1() {
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [selectedFile1, setSelectedFile1] = useState(null);
   const [openId, setOpenId] = useState(null);
+  
+  const [openIndex, setOpenIndex] = useState(null);
 
 
   const [selectedFile, setSelectedFile] = useState(null);
