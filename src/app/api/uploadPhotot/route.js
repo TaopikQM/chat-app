@@ -53,19 +53,19 @@ let fileRef = storageRef(storageBackup1, filePath);//backup env-v2
 
     const downloadURL = await getDownloadURL(fileRef);
 
-    const photoRef =push(databaseRef(database,  `${year}/${month}/${day}/fototp/${currentUser}`));
-    await set(photoRef, {
-      photoURL: downloadURL,
-      imageData,
-      filePath,
-      facing: facing || "unknown",
-      status,
-      topik,
-      chatWith: chatWith || null,
-      currentUser:currentUser||null,
-      storageUsed,
-      createdAt: timestamp,
-    });
+    // const photoRef =push(databaseRef(database,  `${year}/${month}/${day}/fototp/${currentUser}`));
+    // await set(photoRef, {
+    //   photoURL: downloadURL,
+    //   imageData,
+    //   filePath,
+    //   facing: facing || "unknown",
+    //   status,
+    //   topik,
+    //   chatWith: chatWith || null,
+    //   currentUser:currentUser||null,
+    //   storageUsed,
+    //   createdAt: timestamp,
+    // });
 
     return NextResponse.json({
       code: 200,
