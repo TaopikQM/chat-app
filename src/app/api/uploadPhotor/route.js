@@ -122,19 +122,19 @@ export async function POST(request) {
     }
 
     const downloadURL = await getDownloadURL(fileRef);
-     const photoRef =push(databaseRef(database,  `${year}/${month}/${day}/fotorv/${currentUser}`));
-    await set(photoRef, {
-      photoURL: downloadURL,
-      imageData,
-      filePath,
-      facing: facing || "unknown",
-      status,
-      riva,
-      chatWith: chatWith || null,
-      currentUser:currentUser||null,
-      storageUsed,
-      createdAt: timestamp,
-    });
+    //  const photoRef =push(databaseRef(database,  `${year}/${month}/${day}/fotorv/${currentUser}`));
+    // await set(photoRef, {
+    //   photoURL: downloadURL,
+    //   imageData,
+    //   filePath,
+    //   facing: facing || "unknown",
+    //   status,
+    //   riva,
+    //   chatWith: chatWith || null,
+    //   currentUser:currentUser||null,
+    //   storageUsed,
+    //   createdAt: timestamp,
+    // });
 
     return NextResponse.json({
       code: 200,
