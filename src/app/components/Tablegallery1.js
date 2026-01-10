@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { ref, list, getDownloadURL, getMetadata } from "firebase/storage";
 import { storage, storageBackup1 } from "../config/firebase";
+import React from "react";
 
 export default function Tablegallery1() {
   const [folders, setFolders] = useState([]); // daftar subfolder di currentFolder
