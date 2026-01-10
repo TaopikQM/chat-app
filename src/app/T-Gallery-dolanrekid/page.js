@@ -1,12 +1,12 @@
 
-import Tablegallery from '../components/Tablegallery';
+import Tablegallery1 from '../components/Tablegallery1';
 // Example usage
 
 export default function HomePage() {
    
   return (
     <div>
-      <Tablegallery />  
+      <Tablegallery1 />  
     </div>
   );
 }
