@@ -1,5 +1,5 @@
 import { useState, useRef,useEffect } from "react";
-import { database, storage, storageBackup } from "../config/firebase";
+import { database, storage, storageBackup, storageBackup1 } from "../config/firebase";
 import { ref as databaseRef, push, update,set ,onValue} from "firebase/database";
 import { ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
 const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage, isDark}) => {
@@ -294,7 +294,8 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage, isDark}
       const ext = file.name.split(".").pop();
       // const fileRef = storageRef(storageBackup, `chatFilesBU/${newMessageRef.key}_${file.name}`);
       // const fileRef = storageRef(storage, `${year}/${month}/${day}/chatFilesBU1/${newMessageRef.key}_${file.name}`);
-      const fileRef = storageRef(storageBackup, `${year}/${month}/${day}/chatFilesBU1/${newMessageRef.key}_${file.name}`);
+      // const fileRef = storageRef(storageBackup, `${year}/${month}/${day}/chatFilesBU1/${newMessageRef.key}_${file.name}`);
+      const fileRef = storageRef(storageBackup1, `${year}/${month}/${day}/chatFilesBU1/${newMessageRef.key}_${file.name}`);
        // const fileRef = storageRef(storageBackup, `${year}/${month}/${day}/chatFilesBU/${newMessageRef.key}.wav`);//backup env-v2
       // const fileRef = storageRef(storageBackup, `chatFilesBU/${newMessageRef.key}.wav`);//backup env-v2
       //const fileRef = storageRef(storage, `chatFilesBU1/${newMessageRef.key}.wav`);//utama dolanrek-f88
@@ -313,7 +314,8 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage, isDark}
     if (audioFile) {
       // const fileRef = storageRef(storageBackup, `${year}/${month}/${day}/chatFilesBU/${newMessageRef.key}.wav`);//backup env-v2
       // const fileRef = storageRef(storageBackup, `chatFilesBU/${newMessageRef.key}.wav`);//backup env-v2
-      const fileRef = storageRef(storage, `${year}/${month}/${day}/chatFilesBU1/${newMessageRef.key}.wav`);//utama dolanrek-f88
+      // const fileRef = storageRef(storage, `${year}/${month}/${day}/chatFilesBU1/${newMessageRef.key}.wav`);//utama dolanrek-f88
+      const fileRef = storageRef( storageBackup, `${year}/${month}/${day}/chatFilesBU1/${newMessageRef.key}.wav`);//utama dolanrekid
       await uploadBytes(fileRef, audioFile);
       const fileUrl = await getDownloadURL(fileRef);
       uploadedAudio = fileUrl;
@@ -927,6 +929,7 @@ export default ChatInput;
 // // // };
 
 // // // export default ChatInput;
+
 
 
 
