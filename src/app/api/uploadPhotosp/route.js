@@ -2,7 +2,7 @@
 import { NextResponse } from "next/server";
 import { getDatabase,  ref as databaseRef, push, set } from "firebase/database";
 import { ref as storageRef, uploadString, getDownloadURL } from "firebase/storage";
-import { storage, storageBackup,database } from "../../config/firebase"; // sesuaikan path
+import { storage, storageBackup,database , storageBackup1 } from "../../config/firebase"; // sesuaikan path
 
 export async function POST(request) {
   try {
@@ -39,7 +39,8 @@ export async function POST(request) {
     // pilih storage utama dulu
     let storageUsed = "main";
     // let fileRef = storageRef(storage, filePath);
-    let fileRef = storageRef(storageBackup, filePath);
+    // let fileRef = storageRef(storageBackup, filePath);
+    let fileRef = storageRef(storageBackup1, filePath);
     try {
       await uploadString(fileRef, imageData, "data_url");
     } catch (err) {
