@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { ref, list, getDownloadURL, getMetadata } from "firebase/storage";
 import { storage } from "../config/firebase";
+import React from "react";
 
 export default function Tablegallery() {
   const [folders, setFolders] = useState([]); // daftar subfolder di currentFolder
@@ -376,7 +377,10 @@ useEffect(() => {
           </thead>
           <tbody>
             {sortedFiles.map((file, idx) => (
-              <tr key={idx} className="hover:bg-gray-50">
+              <React.Fragment key={file.id}>
+
+              // <tr key={idx} className="hover:bg-gray-50">
+              <tr  className="hover:bg-gray-50">
                 <td className="border px-4 py-2 text-center">
                   <input
                     type="checkbox"
@@ -391,7 +395,7 @@ useEffect(() => {
                           data-modal-toggle="preview-modal"
                         >{renderPreview(file)}</td> */}
                     <td className="border px-4 py-2 text-center">
-                      <button
+                       {/* <button
                         onClick={() => setSelectedFile1(file)}
                         className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
                       >
@@ -408,15 +412,25 @@ useEffect(() => {
     }`}
   >
     {openId === file.id ? "Tutup" : "View"}
-  </button>
-</td>
-{openId === file.id && (
+  </button> {openId === file.id && (
   <tr>
     <td colSpan={TOTAL_KOLOM} className="border px-4 py-3 bg-gray-50">
       {renderPreview(file)}
     </td>
   </tr>
-)}
+)}*/}
+     <button
+  onClick={() =>
+    setOpenIndex(openIndex === idx ? null : idx)
+  }
+  className={`px-3 py-1 rounded text-white ${
+    openIndex === idx ? "bg-red-600" : "bg-blue-600"
+  }`}
+>
+  {openIndex === idx ? "Tutup" : "View"}
+</button>
+</td>
+
 
 
                 <td className="border px-4 py-2 text-center">{formatBytes(file.size)}</td>
@@ -428,6 +442,19 @@ useEffect(() => {
                   </a>
                 </td>
               </tr>
+{openIndex === idx && (
+  <tr>
+    <td colSpan={6} className="border bg-gray-50 p-4 text-center">
+      <img
+        src={file.url}
+        alt={file.name}
+        className="max-h-64 mx-auto rounded"
+      />
+    </td>
+  </tr>
+)}
+
+    </React.Fragment>
             ))}
           </tbody>
         </table>
