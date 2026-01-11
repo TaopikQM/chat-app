@@ -16,39 +16,82 @@ const LUsersChatTable = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [sortOrderName, setSortOrderName] = useState('asc');
   
-    useEffect(() => {
-        const logsRef = databaseRef(database, "logs_pengguna1"); // 🔹 Ambil semua log pengguna
+    // useEffect(() => {
+    //     const logsRef = databaseRef(database, "logs_pengguna1"); // 🔹 Ambil semua log pengguna
 
-        const unsubscribe = onValue(logsRef, (snapshot) => {
-            const data = snapshot.val();
-            if (data) {
-                let logsArray = [];
+    //     const unsubscribe = onValue(logsRef, (snapshot) => {
+    //         const data = snapshot.val();
+    //         if (data) {
+    //             let logsArray = [];
 
-                // 🔹 Loop untuk mengambil semua user dalam logs_pengguna
-                Object.keys(data).forEach((userId) => {
-                    const userLogs = data[userId]; // Data tiap user
-                    Object.keys(userLogs).forEach((logId) => {
-                        logsArray.push({
-                            id: logId,
+    //             // 🔹 Loop untuk mengambil semua user dalam logs_pengguna
+    //             Object.keys(data).forEach((userId) => {
+    //                 const userLogs = data[userId]; // Data tiap user
+    //                 Object.keys(userLogs).forEach((logId) => {
+    //                     logsArray.push({
+    //                         id: logId,
                           
-                            ...userLogs[logId]
-                            // user: userLogs[logId].user, // Ambil user
-                            // status: userLogs[logId].status, // Ambil status
-                            // timestamp: userLogs[logId].timestamp // Ambil timestamp
-                        });
-                    });
-                });
+    //                         ...userLogs[logId]
+    //                         // user: userLogs[logId].user, // Ambil user
+    //                         // status: userLogs[logId].status, // Ambil status
+    //                         // timestamp: userLogs[logId].timestamp // Ambil timestamp
+    //                     });
+    //                 });
+    //             });
 
-                // Urutkan berdasarkan timestamp (terbaru ke terlama)
-                logsArray.sort((a, b) => b.deleteTime - a.deleteTime);
+    //             // Urutkan berdasarkan timestamp (terbaru ke terlama)
+    //             logsArray.sort((a, b) => b.deleteTime - a.deleteTime);
 
-                setLogsUsers(logsArray);
-                console.log("Data logsUsers:", logsArray);
-            }
-        });
+    //             setLogsUsers(logsArray);
+    //             console.log("Data logsUsers:", logsArray);
+    //         }
+    //     });
 
-        return () => unsubscribe(); // Unsubscribe saat komponen di-unmount
-    }, []);
+    //     return () => unsubscribe(); // Unsubscribe saat komponen di-unmount
+    // }, []);
+
+        useEffect(() => {
+              const logsRef = databaseRef(database, "logs_pengguna1");
+      
+              const unsubscribe = onValue(logsRef, (snapshot) => {
+                  const data = snapshot.val();
+                  if (!data) {
+                  setLogsUsers([]);
+                  return;
+                  }
+      
+                  let finalLogs = [];
+      
+                  Object.keys(data).forEach((userId) => {
+                  const userLogsObj = data[userId];
+      
+                  // ubah ke array
+                  const userLogs = Object.entries(userLogsObj)
+                      .map(([logId, log]) => ({
+                      id: logId,
+                      userId,
+                      ...log,
+                      }))
+                      // 🔹 urutkan terbaru → lama
+                      .sort((a, b) => b.deleteTime - a.deleteTime)
+                      // 🔹 AMBIL HANYA 20 TERBARU
+                      .slice(0, 20);
+      
+                  // gabung ke global array
+                  finalLogs.push(...userLogs);
+                  });
+      
+                  // (opsional) sort global kalau mau campur semua user
+                  finalLogs.sort((a, b) => b.deleteTime - a.deleteTime);
+      
+                  setLogsUsers(finalLogs);
+                  console.log("Logs per user (limit 20):", finalLogs);
+              });
+      
+              return () => unsubscribe();
+          }, []);
+
+  
  // 🔹 Hapus pengguna
     const handleDelete = async (userId, userName) => {
         const confirmDelete = window.confirm(`Apakah Anda yakin ingin menghapus pengguna ${userName}?`);
@@ -312,3 +355,4 @@ const LUsersChatTable = () => {
 };
 
 export default LUsersChatTable;
+
