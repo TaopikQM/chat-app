@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { format } from "date-fns";
 import { database } from "../config/firebase";
-import { ref as databaseRef, onValue,update,remove,set,get } from "firebase/database";
+import { ref as databaseRef, onValue,update,remove,set,get,push } from "firebase/database";
  
 import Modal from "react-modal";
 
@@ -186,10 +186,55 @@ const autoDeleteMessage = async (message) => {
  const [openEdit, setOpenEdit] = useState(false);
 const [editData, setEditData] = useState(null);
 
- const handleEdit = (msg) => {
+ const handleEditaa = (msg) => {
   setEditData(msg);
   setOpenEdit(true);
 };
+ const handleSaveEdit = async () => {
+  if (!editData?.id) return;
+
+  if (!editData.newPesan || editData.newPesan.trim() === "") {
+    alert("Pesan tidak boleh kosong");
+    return;
+  }
+
+  const msgRef = databaseRef(database, `chatsBox1/${editData.id}`);
+  const snapshot = await get(msgRef);
+  if (!snapshot.exists()) return;
+
+  const oldData = snapshot.val();
+  const now = Date.now();
+
+  const updateBy = oldData.pengirim; // atau editor saat ini jika mau
+
+  // simpan ke logsUpdate
+  await push(
+    databaseRef(database, `chatsBox1/${editData.id}/logsUpdate`),
+    {
+      oldPesan: oldData.pesan,
+      newPesan: editData.newPesan,
+      updateBy,
+      timeEdit: now,
+    }
+  );
+
+  // update pesan utama
+  await update(msgRef, {
+    pesan: editData.newPesan,
+    timeEdit: now,
+    updateBy,
+    isEdited: true,
+  });
+
+  setOpenEdit(false);
+};
+
+ 
+ const handleEditbbb = (msg) => {
+  setEditData({ ...msg, newPesan: msg.pesan, oldPesan: msg.pesan });
+  setOpenEdit(true);
+};
+
 
  const handleSaveEdit = async () => {
   if (!editData?.id) return;
@@ -975,16 +1020,16 @@ const [editData, setEditData] = useState(null);
 
       {/* Pesan lama */}
       <div className="text-xs text-gray-500 mb-1">Pesan sebelumnya</div>
-      <div className="bg-gray-100 dark:bg-gray-800 p-2 rounded text-sm mb-3">
-        {editData?.pesan}
+       <div className="bg-gray-100 dark:bg-gray-800 p-2 rounded text-sm mb-3">
+        {editData?.oldPesan}
       </div>
 
       {/* Input edit */}
       <textarea
         rows={4}
-        value={editData?.pesan || ""}
+        value={editData?.newPesan || ""}
         onChange={(e) =>
-          setEditData({ ...editData, pesan: e.target.value })
+          setEditData({ ...editData, newPesan: e.target.value })
         }
         className="w-full border rounded p-2 text-sm dark:bg-gray-800"
         placeholder="Edit pesan..."
@@ -1000,7 +1045,7 @@ const [editData, setEditData] = useState(null);
         </button>
         <button
           onClick={handleSaveEdit}
-          disabled={!editData?.pesan?.trim()}
+          disabled={!editData?.newPesan?.trim()}
           className="px-4 py-2 bg-blue-600 text-white rounded disabled:opacity-50"
         >
           Simpan
@@ -1624,6 +1669,7 @@ const [editData, setEditData] = useState(null);
   
 //   export default ChatMessage;
   
+
 
 
 
