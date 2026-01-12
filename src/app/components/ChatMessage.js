@@ -183,6 +183,94 @@ const autoDeleteMessage = async (message) => {
    return () => clearTimeout(timer);
  }, [message.id]);
 
+ const [openEdit, setOpenEdit] = useState(false);
+const [editData, setEditData] = useState(null);
+
+ const handleEdit = (msg) => {
+  setEditData(msg);
+  setOpenEdit(true);
+};
+
+ const handleSaveEdit = async () => {
+  if (!editData?.id) return;
+
+  if (!editData.pesan || editData.pesan.trim() === "") {
+    alert("Pesan tidak boleh kosong");
+    return;
+  }
+
+  const msgRef = databaseRef(database, `chatsBox1/${editData.id}`);
+  const snapshot = await get(msgRef);
+  if (!snapshot.exists()) return;
+
+  const oldData = snapshot.val(); // data lama pesan
+  const now = Date.now();
+
+  // 🔹 updateBy mengikuti pengirim pesan lama
+  const updateBy = oldData.pengirim;
+
+  // 1️⃣ simpan ke logsUpdate
+  await push(
+    databaseRef(database, `chatsBox1/${editData.id}/logsUpdate`),
+    {
+      oldPesan: oldData.pesan,
+      newPesan: editData.pesan,
+      updateBy, // <-- pengirim lama
+      timeEdit: now,
+    }
+  );
+
+  // 2️⃣ update pesan di data utama
+  await update(msgRef, {
+    pesan: editData.pesan,
+    timeEdit: now,
+    updateBy: updateBy, // opsional: bisa juga pakai editor saat ini
+    isEdited: true,
+  });
+
+  setOpenEdit(false);
+};
+
+
+ const handleSaveEditaa = async () => {
+  if (!editData?.id) return;
+
+  if (!editData.pesan || editData.pesan.trim() === "") {
+    alert("Pesan tidak boleh kosong");
+    return;
+  }
+
+  const msgRef = databaseRef(database, `chatsBox1/${editData.id}`);
+  const snapshot = await get(msgRef);
+  if (!snapshot.exists()) return;
+
+  const oldData = snapshot.val();
+  const now = Date.now();
+
+  // 1️⃣ simpan histori edit
+  await push(
+    databaseRef(database, `chatsBox1/${editData.id}/logsUpdate`),
+    {
+      oldPesan: oldData.pesan,
+      newPesan: editData.pesan,
+      updateBy: "admin",
+      timeEdit: now,
+    }
+  );
+
+  // 2️⃣ update HANYA pesan
+  await update(msgRef, {
+    pesan: editData.pesan,
+    timeEdit: now,
+    updateBy: "admin",
+    isEdited: true,
+  });
+
+  setOpenEdit(false);
+};
+
+
+
     return (
       <>
      
@@ -471,60 +559,81 @@ const autoDeleteMessage = async (message) => {
                         Update Pesan
                       </li>)}*/}
                             {Date.now() - message.timestamp <= 5 * 60 * 60 * 1000 && (
-                         <li 
-                           className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer"
-                           onClick={async () => {
-                             if (!message.id) return; 
+                          <li 
+                            className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer"
+                            onClick={async () => {
+                              if (!message.id) return; 
+                              
+                              if (message.pesan === "" || message.pesan.trim() === "") {
+                                alert("Pesan tidak valid atau kosong dan tidak bisa diubah!");
+                                return;
+                              }
+                          
+                              if (message.files?.length > 0 || message.audio) {
+                                alert("Pesan media tidak bisa diedit!");
+                                return;
+                              }
+                          
+                              const isConfirmed = window.confirm("Apakah Anda yakin ingin mengupdate pesan ini?");
+                              if (!isConfirmed) {
+                                alert("Update dibatalkan.");
+                                return;
+                              }
+                          
+                              const updatedMessage = prompt("Masukkan pesan baru:", message.pesan);
+                              if (!updatedMessage || updatedMessage.trim() === "") {
+                                alert("Pesan tidak bisa kosong!");
+                                return;
+                              }
+                          
+                              const messageRef = databaseRef(database, `chatsBox/${message.id}`);
+                              
+                              try {
+                                const oldData = {
+                                  pesan: message.pesan,
+                                  updateTime: message.updateTime || message.timestamp || Date.now(),
+                                };
+                          
+                                await update(messageRef, {
+                                  ...message,
+                                  pesan: updatedMessage,
+                                  updateTime: Date.now(),
+                                  history: [
+                                    ...(message.history || []), 
+                                    oldData
+                                  ]
+                                });
+                          
+                                alert("Pesan berhasil diupdate!");
+                              } catch (error) {
+                                console.error("Gagal mengupdate pesan:", error);
+                                alert("Terjadi kesalahan saat mengupdate pesan.");
+                              }
+                            }}
+                          >
+                            Update Pesan
+                          </li>)}
+
+                             <li
+                               className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer"
+                               onClick={() => {
+                                 if (!message?.id) return;
                              
-                             if (message.pesan === "" || message.pesan.trim() === "") {
-                               alert("Pesan tidak valid atau kosong dan tidak bisa diubah!");
-                               return;
-                             }
-                         
-                             if (message.files?.length > 0 || message.audio) {
-                               alert("Pesan media tidak bisa diedit!");
-                               return;
-                             }
-                         
-                             const isConfirmed = window.confirm("Apakah Anda yakin ingin mengupdate pesan ini?");
-                             if (!isConfirmed) {
-                               alert("Update dibatalkan.");
-                               return;
-                             }
-                         
-                             const updatedMessage = prompt("Masukkan pesan baru:", message.pesan);
-                             if (!updatedMessage || updatedMessage.trim() === "") {
-                               alert("Pesan tidak bisa kosong!");
-                               return;
-                             }
-                         
-                             const messageRef = databaseRef(database, `chatsBox/${message.id}`);
+                                 if (!message.pesan || message.pesan.trim() === "") {
+                                   alert("Pesan kosong tidak bisa diedit");
+                                   return;
+                                 }
                              
-                             try {
-                               const oldData = {
-                                 pesan: message.pesan,
-                                 updateTime: message.updateTime || message.timestamp || Date.now(),
-                               };
-                         
-                               await update(messageRef, {
-                                 ...message,
-                                 pesan: updatedMessage,
-                                 updateTime: Date.now(),
-                                 history: [
-                                   ...(message.history || []), 
-                                   oldData
-                                 ]
-                               });
-                         
-                               alert("Pesan berhasil diupdate!");
-                             } catch (error) {
-                               console.error("Gagal mengupdate pesan:", error);
-                               alert("Terjadi kesalahan saat mengupdate pesan.");
-                             }
-                           }}
-                         >
-                           Update Pesan
-                         </li>)}
+                                 if (message.files?.length > 0 || message.audio) {
+                                   alert("Pesan media tidak bisa diedit");
+                                   return;
+                                 }
+                             
+                                 handleEdit(message); // ⬅️ buka modal edit
+                               }}
+                             >
+                               Update Pesan
+                             </li>
 
 
                       
@@ -849,6 +958,59 @@ const autoDeleteMessage = async (message) => {
               </div>
             )}
           </div>
+{openEdit && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+    <div className="bg-white dark:bg-gray-900 w-full max-w-md rounded-lg p-4">
+
+      {/* Header */}
+      <div className="flex justify-between items-center mb-3">
+        <h2 className="text-lg font-semibold">Edit Pesan</h2>
+        <button
+          onClick={() => setOpenEdit(false)}
+          className="text-gray-500 hover:text-red-500"
+        >
+          ✕
+        </button>
+      </div>
+
+      {/* Pesan lama */}
+      <div className="text-xs text-gray-500 mb-1">Pesan sebelumnya</div>
+      <div className="bg-gray-100 dark:bg-gray-800 p-2 rounded text-sm mb-3">
+        {editData?.pesan}
+      </div>
+
+      {/* Input edit */}
+      <textarea
+        rows={4}
+        value={editData?.pesan || ""}
+        onChange={(e) =>
+          setEditData({ ...editData, pesan: e.target.value })
+        }
+        className="w-full border rounded p-2 text-sm dark:bg-gray-800"
+        placeholder="Edit pesan..."
+      />
+
+      {/* Action */}
+      <div className="flex justify-end gap-2 mt-4">
+        <button
+          onClick={() => setOpenEdit(false)}
+          className="px-4 py-2 bg-gray-300 rounded"
+        >
+          Batal
+        </button>
+        <button
+          onClick={handleSaveEdit}
+          disabled={!editData?.pesan?.trim()}
+          className="px-4 py-2 bg-blue-600 text-white rounded disabled:opacity-50"
+        >
+          Simpan
+        </button>
+      </div>
+
+    </div>
+  </div>
+)}
+
 
           {/* Modal Lightbox */}
           <Modal isOpen={isOpen} onClick={closeModal}  className="fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center p-4 z-[100]" overlayClassName="ReactModal__Overlay ReactModal__Overlay--after-open z-[100]">
@@ -1462,6 +1624,7 @@ const autoDeleteMessage = async (message) => {
   
 //   export default ChatMessage;
   
+
 
 
 
