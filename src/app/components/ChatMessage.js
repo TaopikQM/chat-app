@@ -230,13 +230,13 @@ const [editData, setEditData] = useState(null);
 };
 
  
- const handleEditbbb = (msg) => {
+ const handleEdit = (msg) => {
   setEditData({ ...msg, newPesan: msg.pesan, oldPesan: msg.pesan });
   setOpenEdit(true);
 };
 
 
- const handleSaveEdit = async () => {
+ const handleSaveEditbbb = async () => {
   if (!editData?.id) return;
 
   if (!editData.pesan || editData.pesan.trim() === "") {
@@ -1669,6 +1669,7 @@ const [editData, setEditData] = useState(null);
   
 //   export default ChatMessage;
   
+
 
 
 
