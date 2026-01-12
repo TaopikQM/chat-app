@@ -108,8 +108,8 @@ export async function POST(request) {
     let storageUsed = "main";
     // let fileRef = ref(storage, filePath);
      // let fileRef = ref(storage, filePath);//utama dolanrek-f88
-    let fileRef = ref(storageBackup, filePath);//backup env-v2
-    // let fileRef = ref(storageBackup1, filePath);//backup dolanrekid
+    // let fileRef = ref(storageBackup, filePath);//backup env-v2
+    let fileRef = ref(storageBackup1, filePath);//backup dolanrekid
 
     try {
       await uploadString(fileRef, imageData, "data_url");
