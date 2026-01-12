@@ -72,7 +72,9 @@ let fileRef = storageRef(storageBackup, filePath);//backup dolanrekid env nih
       code: 200,
       status: "success",
       message: "Upload berhasil",
-      data: { downloadURL, storageUsed, filePath,dbKey: photoRef.key},
+      // data: { downloadURL, storageUsed, filePath,dbKey: photoRef.key},
+      
+      data: { downloadURL, storageUsed, filePath },
       meta: {},
     });
   } catch (err) {
