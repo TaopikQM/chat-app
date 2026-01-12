@@ -603,7 +603,7 @@ const [editData, setEditData] = useState(null);
                       >
                         Update Pesan
                       </li>)}*/}
-                            {Date.now() - message.timestamp <= 5 * 60 * 60 * 1000 && (
+                 {/*  {Date.now() - message.timestamp <= 5 * 60 * 60 * 1000 && (
                           <li 
                             className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer"
                             onClick={async () => {
@@ -657,7 +657,7 @@ const [editData, setEditData] = useState(null);
                             }}
                           >
                             Update Pesan
-                          </li>)}
+                          </li>)}*/}
 
                              <li
                                className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer"
@@ -1669,6 +1669,7 @@ const [editData, setEditData] = useState(null);
   
 //   export default ChatMessage;
   
+
 
 
 
