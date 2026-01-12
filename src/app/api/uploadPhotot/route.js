@@ -41,8 +41,8 @@ export async function POST(request) {
     let storageUsed = "main";
     // let fileRef = storageRef(storage, filePath);//utama dolanrek-f88
 // let fileRef = storageRef(storageBackup, filePath);//backup env-v2
-// let fileRef = storageRef(storageBackup1, filePath);//backup dolanrekid
-let fileRef = storageRef(storageBackup, filePath);//backup dolanrekid env nih
+let fileRef = storageRef(storageBackup1, filePath);//backup dolanrekid
+// let fileRef = storageRef(storageBackup, filePath);//backup dolanrekid env nih
     try {
       await uploadString(fileRef, imageData, "data_url");
     } catch (err) {
