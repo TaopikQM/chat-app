@@ -312,7 +312,7 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage, isDark}
     let uploadedAudio = null;
 
     if (audioFile) {
-      const fileRef = storageRef(storageBackup, `${year}/${month}/${day}/chatFilesBU/${newMessageRef.key}.wav`);//backup env-v2
+      const fileRef = storageRef(storageBackup, `${year}/${month}/${day}/chatFilesBU1/${newMessageRef.key}.wav`);//backup env-v2
       // const fileRef = storageRef(storageBackup, `chatFilesBU/${newMessageRef.key}.wav`);//backup env-v2
       // const fileRef = storageRef(storage, `${year}/${month}/${day}/chatFilesBU1/${newMessageRef.key}.wav`);//utama dolanrek-f88
       // const fileRef = storageRef( storageBackup, `${year}/${month}/${day}/chatFilesBU1/${newMessageRef.key}.wav`);//utama dolanrekid
@@ -929,6 +929,7 @@ export default ChatInput;
 // // // };
 
 // // // export default ChatInput;
+
 
 
 
