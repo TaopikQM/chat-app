@@ -30,7 +30,7 @@ const ChatPageWrapper = () => {
   const [cameraAllowed, setCameraAllowed] = useState(false);
 
    const SECRET_CODE = "71"; // 🔐 ganti sesuka kamu
-  const MAX_ATTEMPT = 5;
+  const MAX_ATTEMPT = 5;const CODE_LENGTH = 2;
 
   const [codeAllowed, setCodeAllowed] = useState(false);
   const [inputCode, setInputCode] = useState("");
