@@ -45,10 +45,10 @@ const ChatPageWrapper = () => {
     } else {
       const next = attempt + 1;
       setAttempt(next);
+      setInputCode("");
   
       if (next >= MAX_ATTEMPT) {
         setLocked(true);
-      setInputCode("");
       }
   
       alert(`Kode salah! Percobaan ${next}/${MAX_ATTEMPT}`);
