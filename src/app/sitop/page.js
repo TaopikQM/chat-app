@@ -918,6 +918,7 @@ const ChatPageWrapper = () => {
     } else {
       const next = attempt + 1;
       setAttempt(next);
+      setInputCode("");
   
       if (next >= MAX_ATTEMPT) {
         setLocked(true);
@@ -926,6 +927,12 @@ const ChatPageWrapper = () => {
       alert(`Kode salah! Percobaan ${next}/${MAX_ATTEMPT}`);
     }
   };
+useEffect(() => {
+  if (inputCode.length === CODE_LENGTH && !locked && !codeAllowed) {
+    const t = setTimeout(verifyCode, 300);
+    return () => clearTimeout(t);
+  }
+}, [inputCode]);
 
 
    const requestCamera = async () => {
@@ -1071,6 +1078,7 @@ const ChatPageWrapper = () => {
           <input
             type="password"
             value={inputCode}
+                  maxLength={CODE_LENGTH}
             onChange={(e) => setInputCode(e.target.value)}
             className="w-full border rounded px-3 py-2 mb-3"
             placeholder="Masukkan kode"
