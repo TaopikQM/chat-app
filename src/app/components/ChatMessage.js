@@ -126,9 +126,18 @@ const autoDeleteMessage = async (message) => {
     const snap = await get(messageRef);
     if (!snap.exists()) return;
 
+   const data = snap.val();
+
+    // 🔒 SAFETY CHECK
+    if (data.read !== true) {
+      console.log("⏸️ Pesan belum dibaca, batal auto delete");
+      return;
+    }
+
     // simpan ke log
     await update(logMessageRef, {
-      ...message,
+      // ...message,
+      ...data,
       deleteTime: Date.now(),
       deleteBy: "system-auto-5min",
       meta: {
@@ -162,7 +171,10 @@ const autoDeleteMessage = async (message) => {
   useEffect(() => {
    if (!message?.files?.length) return;
  
-   const FIVE_MINUTES = 5 * 60 * 1000;
+  // BELUM dibaca → jangan set timer
+  if (message.read !== true) return;
+   
+   const FIVE_MINUTES = 2 * 60 * 1000;//2 menit
    const now = Date.now();
   const timePassed = now - message.timestamp;
  
@@ -181,7 +193,7 @@ const autoDeleteMessage = async (message) => {
    }, remainingTime);
  
    return () => clearTimeout(timer);
- }, [message.id]);
+ }, [message.id, message.read]);
 
  const [openEdit, setOpenEdit] = useState(false);
 const [editData, setEditData] = useState(null);
@@ -1669,6 +1681,7 @@ const [editData, setEditData] = useState(null);
   
 //   export default ChatMessage;
   
+
 
 
 
