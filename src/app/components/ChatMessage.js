@@ -177,6 +177,8 @@ const autoDeleteMessage = async (message) => {
    const FIVE_MINUTES = 2 * 60 * 1000;//2 menit
    const now = Date.now();
   const timePassed = now - message.timestamp;
+
+   const isExpired = Date.now() - message.timestamp >= FIVE_MINUTES;
  
    // sisa waktu menuju 5 menit
    const remainingTime = FIVE_MINUTES - timePassed;
@@ -716,97 +718,60 @@ const [editData, setEditData] = useState(null);
                    className="whitespace-pre-wrap break-words leading-relaxed"
                    dangerouslySetInnerHTML={{ __html: linkify(message.pesan) }}
                  />
+
+
+
+{message.files?.length > 0 && (
+  <div className="mt-2 space-y-1">
+    {isExpired ? (
+      // ⏱️ SUDAH > 5 MENIT → LINK SAJA
+      message.files.map((file, index) => (
+        <button
+          key={index}
+          onClick={() => window.open(file.url, "_blank")}
+          className="text-sm text-blue-600 hover:underline"
+        >
+          🔗 {file.name || `File ${index + 1}`}
+        </button>
+      ))
+    ) : (
+      // ⏳ BELUM 5 MENIT → PREVIEW NORMAL
+      <div className={`mt-2 ${message.files.length > 1 ? "grid gap-2 grid-cols-2" : ""}`}>
+        {message.files.slice(0, 3).map((file, index) => (
+          <div key={index} className="relative cursor-pointer" onClick={() => openModal(index)}>
+            {file.type.startsWith("image") && (
+              <img
+                src={file.url}
+                className="w-28 h-28 object-cover rounded-lg"
+              />
+            )}
+
+            {file.type.startsWith("video") && (
+              <video className="w-28 h-28 object-cover rounded-lg">
+                <source src={file.url} type="video/mp4" />
+              </video>
+            )}
+          </div>
+        ))}
+      </div>
+    )}
+  </div>
+)}
+
+{message.files?.map((file, index) => (
+  isExpired && !file.type.startsWith("image") && !file.type.startsWith("video") && (
+    <button
+      key={index}
+      onClick={() => window.open(file.url, "_blank")}
+      className="block mt-1 text-sm text-blue-600 hover:underline"
+    >
+      🔗 {file.name || `File ${index + 1}`}
+    </button>
+  )
+))}
+
+
              
-              {message.files?.length > 0 && (
-                <div className={`mt-2 ${message.files.length > 1 ? "grid gap-2 grid-cols-2" : ""}`}>
-                  {message.files?.slice(0, 3).map((file, index) => (
-                    <div key={index} className="group relative">
-                      {/* Overlay Download */}
-                      <div onClick={() => openModal(index)}
-                           className="absolute w-full h-full bg-gray-900/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg flex items-center justify-center cursor-pointer">
-                        <button
-                          // onClick={() => window.open(file.url, "_blank")}
-                          onClick={() => openModal(index)}
-                          className="inline-flex items-center justify-center rounded-full h-6 w-6 bg-white/30 hover:bg-white/50 focus:ring-4 focus:outline-none dark:text-white focus:ring-gray-50 cursor-pointer"
-                        >
-                         🔍 {/* <svg className="w-3 h-3 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 16 18">
-                            <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 1v11m0 0 4-4m-4 4L4 8m11 4v3a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2v-3"/>
-                          </svg> */}
-                        </button>
-                      </div>
-
-                      {/* Tampilkan Gambar / Video / Audio / File */}
-                      {file.type.startsWith("image") ? (
-                        <img src={file.url} alt={`Gambar ${index + 1}`} className="w-28 h-28 object-cover rounded-lg cursor-pointer"   onClick={() => openModal(index)}/>
-                      ) : file.type.startsWith("video") ? (
-                        <video className="w-28 h-28 object-cover rounded-lg cursor-pointer"   onClick={() => openModal(index)}>
-                          {/* controls */}
-                          <source src={file.url} type="video/mp4" />
-                        </video>
-                      ):null
-                      }
-                    </div>
-                  ))}
-
-                  {/* Jika lebih dari 4 file, tampilkan +X */}
-                  {message.files.length > 3 && (
-                    <div className="group relative">
-                      <button
-                        className="absolute w-28 h-28 bg-gray-900/90 hover:bg-gray-900/50 transition-all duration-300 rounded-lg flex items-center justify-center"
-                        // onClick={() => alert("Tampilkan semua file")}
-                        onClick={() => openModal(3)}
-                      >
-                        <span className="text-sm font-medium text-white">+{message.files.length - 4}</span>
-                      </button>
-                      <img src={message.files[4].url} alt="Gambar lebih" className="w-28 h-28 object-cover rounded-lg" />
-                    </div>
-                  )}
-                </div>
-              )}
-              {message.audio ? (
-                <audio controls className="mt-2">
-                  <source src={message.audio} type="audio/wav" />
-                  Browser Anda tidak mendukung pemutar audio.
-                </audio>
-              ) : message.files?.map((file, index) => (
-                !file.type.startsWith("image") && !file.type.startsWith("video") && ( // Hanya tampilkan audio & dokumen
-                  <div key={index} className="mt-2">
-                    {file.type.startsWith("audio") ? (
-                      <audio controls className="w-20">
-                        <source src={file.url} type={file.type} />
-                      </audio>
-                    ) : (
-                      // 🔹 Tampilan untuk file dokumen
-                      <div className="flex items-start my-2.5 bg-gray-50 dark:bg-gray-600 rounded-xl p-2">
-                        <div className="flex justify-between items-center w-full">
-                          <div className="flex-1 min-w-0">
-                            <span className="flex items-center gap-2 text-sm font-medium text-gray-900 dark:text-white pb-2">
-                              {getFileIcon(file.type)}
-                              {file.name}
-                            </span>
-                            <span className="flex text-xs font-normal text-gray-500 dark:text-gray-400 gap-2">
-                              {file.size ? (file.size / 1024).toFixed(2) + " KB" : "Unknown"}
-                              <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" className="self-center" width="3" height="4" viewBox="0 0 3 4" fill="none">
-                                <circle cx="1.5" cy="2" r="1.5" fill="#6B7280"/>
-                              </svg>
-                            </span>
-                          </div>
-                          <div className="flex-shrink-0">
-                            <button 
-                              onClick={() => handleDownload(file.url, file.name)}
-                              className="inline-flex self-center items-center p-2 text-sm font-medium text-center text-gray-900 bg-gray-50 rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none dark:text-white focus:ring-gray-50 dark:bg-gray-600 dark:hover:bg-gray-500 dark:focus:ring-gray-600" type="button">
-                              <svg className="w-4 h-4 text-gray-900 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M14.707 7.793a1 1 0 0 0-1.414 0L11 10.086V1.5a1 1 0 0 0-2 0v8.586L6.707 7.793a1 1 0 1 0-1.414 1.414l4 4a1 1 0 0 0 1.416 0l4-4a1 1 0 0 0-.002-1.414Z"/>
-                                <path d="M18 12h-2.55l-2.975 2.975a3.5 3.5 0 0 1-4.95 0L4.55 12H2a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2Zm-3 5a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"/>
-                              </svg>
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )
-              ))}
 
 {/*<small className={`block text-xs mt-1 flex ${isSender ? "justify-end" : "justify-start"} items-center`}>
                 {!isSender && (
@@ -1111,6 +1076,111 @@ const [editData, setEditData] = useState(null);
   };
   
   export default ChatMessage;
+
+
+
+
+
+
+              // {message.files?.length > 0 && (
+              //   <div className={`mt-2 ${message.files.length > 1 ? "grid gap-2 grid-cols-2" : ""}`}>
+              //     {message.files?.slice(0, 3).map((file, index) => (
+              //       <div key={index} className="group relative">
+              //         {/* Overlay Download */}
+              //         <div onClick={() => openModal(index)}
+              //              className="absolute w-full h-full bg-gray-900/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg flex items-center justify-center cursor-pointer">
+              //           <button
+              //             // onClick={() => window.open(file.url, "_blank")}
+              //             onClick={() => openModal(index)}
+              //             className="inline-flex items-center justify-center rounded-full h-6 w-6 bg-white/30 hover:bg-white/50 focus:ring-4 focus:outline-none dark:text-white focus:ring-gray-50 cursor-pointer"
+              //           >
+              //            🔍 {/* <svg className="w-3 h-3 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 16 18">
+              //               <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 1v11m0 0 4-4m-4 4L4 8m11 4v3a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2v-3"/>
+              //             </svg> */}
+              //           </button>
+              //         </div>
+
+              //         {/* Tampilkan Gambar / Video / Audio / File */}
+              //         {file.type.startsWith("image") ? (
+              //           <img src={file.url} alt={`Gambar ${index + 1}`} className="w-28 h-28 object-cover rounded-lg cursor-pointer"   onClick={() => openModal(index)}/>
+              //         ) : file.type.startsWith("video") ? (
+              //           <video className="w-28 h-28 object-cover rounded-lg cursor-pointer"   onClick={() => openModal(index)}>
+              //             {/* controls */}
+              //             <source src={file.url} type="video/mp4" />
+              //           </video>
+              //         ):null
+              //         }
+              //       </div>
+              //     ))}
+
+              //     {/* Jika lebih dari 4 file, tampilkan +X */}
+              //     {message.files.length > 3 && (
+              //       <div className="group relative">
+              //         <button
+              //           className="absolute w-28 h-28 bg-gray-900/90 hover:bg-gray-900/50 transition-all duration-300 rounded-lg flex items-center justify-center"
+              //           // onClick={() => alert("Tampilkan semua file")}
+              //           onClick={() => openModal(3)}
+              //         >
+              //           <span className="text-sm font-medium text-white">+{message.files.length - 4}</span>
+              //         </button>
+              //         <img src={message.files[4].url} alt="Gambar lebih" className="w-28 h-28 object-cover rounded-lg" />
+              //       </div>
+              //     )}
+              //   </div>
+              // )}
+              // {message.audio ? (
+              //   <audio controls className="mt-2">
+              //     <source src={message.audio} type="audio/wav" />
+              //     Browser Anda tidak mendukung pemutar audio.
+              //   </audio>
+              // ) : message.files?.map((file, index) => (
+              //   !file.type.startsWith("image") && !file.type.startsWith("video") && ( // Hanya tampilkan audio & dokumen
+              //     <div key={index} className="mt-2">
+              //       {file.type.startsWith("audio") ? (
+              //         <audio controls className="w-20">
+              //           <source src={file.url} type={file.type} />
+              //         </audio>
+              //       ) : (
+              //         // 🔹 Tampilan untuk file dokumen
+              //         <div className="flex items-start my-2.5 bg-gray-50 dark:bg-gray-600 rounded-xl p-2">
+              //           <div className="flex justify-between items-center w-full">
+              //             <div className="flex-1 min-w-0">
+              //               <span className="flex items-center gap-2 text-sm font-medium text-gray-900 dark:text-white pb-2">
+              //                 {getFileIcon(file.type)}
+              //                 {file.name}
+              //               </span>
+              //               <span className="flex text-xs font-normal text-gray-500 dark:text-gray-400 gap-2">
+              //                 {file.size ? (file.size / 1024).toFixed(2) + " KB" : "Unknown"}
+              //                 <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" className="self-center" width="3" height="4" viewBox="0 0 3 4" fill="none">
+              //                   <circle cx="1.5" cy="2" r="1.5" fill="#6B7280"/>
+              //                 </svg>
+              //               </span>
+              //             </div>
+              //             <div className="flex-shrink-0">
+              //               <button 
+              //                 onClick={() => handleDownload(file.url, file.name)}
+              //                 className="inline-flex self-center items-center p-2 text-sm font-medium text-center text-gray-900 bg-gray-50 rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none dark:text-white focus:ring-gray-50 dark:bg-gray-600 dark:hover:bg-gray-500 dark:focus:ring-gray-600" type="button">
+              //                 <svg className="w-4 h-4 text-gray-900 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+              //                   <path d="M14.707 7.793a1 1 0 0 0-1.414 0L11 10.086V1.5a1 1 0 0 0-2 0v8.586L6.707 7.793a1 1 0 1 0-1.414 1.414l4 4a1 1 0 0 0 1.416 0l4-4a1 1 0 0 0-.002-1.414Z"/>
+              //                   <path d="M18 12h-2.55l-2.975 2.975a3.5 3.5 0 0 1-4.95 0L4.55 12H2a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2Zm-3 5a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"/>
+              //                 </svg>
+              //               </button>
+              //             </div>
+              //           </div>
+              //         </div>
+              //       )}
+              //     </div>
+              //   )
+              // ))}
+
+
+
+
+
+
+
+
+
 // <li 
 //   className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer"
 //   onClick={async () => {
@@ -1681,6 +1751,7 @@ const [editData, setEditData] = useState(null);
   
 //   export default ChatMessage;
   
+
 
 
 
