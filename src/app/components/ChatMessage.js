@@ -178,7 +178,7 @@ const autoDeleteMessage = async (message) => {
    const now = Date.now();
   const timePassed = now - message.timestamp;
 
-   const isExpired = Date.now() - message.timestamp >= FIVE_MINUTES;
+   // const isExpired = Date.now() - message.timestamp >= FIVE_MINUTES;
  
    // sisa waktu menuju 5 menit
    const remainingTime = FIVE_MINUTES - timePassed;
@@ -196,6 +196,14 @@ const autoDeleteMessage = async (message) => {
  
    return () => clearTimeout(timer);
  }, [message.id, message.read]);
+
+ const FIVE_MINUTES = 2 * 60 * 1000;
+
+const isExpired =
+  message?.timestamp
+    ? Date.now() - message.timestamp >= FIVE_MINUTES
+    : false;
+
 
  const [openEdit, setOpenEdit] = useState(false);
 const [editData, setEditData] = useState(null);
@@ -1751,6 +1759,7 @@ const [editData, setEditData] = useState(null);
   
 //   export default ChatMessage;
   
+
 
 
 
