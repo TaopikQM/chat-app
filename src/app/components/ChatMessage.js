@@ -176,26 +176,8 @@ const autoDeleteMessage = async (message) => {
    
    const FIVE_MINUTES = 2 * 60 * 1000;//2 menit
    const now = Date.now();
-  // const timePassed = now - message.timestamp;
-   useEffect(() => {
-  if (!message?.files?.length) return;
-  if (message.read !== true) return;
-
-  const timePassed = Date.now() - message.timestamp;
-  const remainingTime = FIVE_MINUTES - timePassed;
-
-  if (remainingTime <= 0) {
-    autoDeleteMessage(message);
-    return;
-  }
-
-  const timer = setTimeout(() => {
-    autoDeleteMessage(message);
-  }, remainingTime);
-
-  return () => clearTimeout(timer);
-}, [message.id, message.read]);
-
+  const timePassed = now - message.timestamp;
+ 
 
    // const isExpired = Date.now() - message.timestamp >= FIVE_MINUTES;
  
@@ -216,12 +198,30 @@ const autoDeleteMessage = async (message) => {
    return () => clearTimeout(timer);
  }, [message.id, message.read]);
 
- const FIVE_MINUTES = 2 * 60 * 1000;
+//  const FIVE_MINUTES = 2 * 60 * 1000;
 
-const isExpired =
-  message?.timestamp
-    ? Date.now() - message.timestamp >= FIVE_MINUTES
-    : false;
+// const isExpired =
+  // message?.timestamp
+  //   ? Date.now() - message.timestamp >= FIVE_MINUTES
+  //   : false;
+
+ const FIVE_MINUTES = 2 * 60 * 1000; // 2 menit
+const [isExpired, setIsExpired] = useState(false);
+useEffect(() => {
+  if (!message?.timestamp) return;
+
+  const checkExpired = () => {
+    const expired = Date.now() - message.timestamp >= FIVE_MINUTES;
+    setIsExpired(expired);
+  };
+
+  checkExpired(); // cek langsung saat render
+
+  const interval = setInterval(checkExpired, 1000); // update tiap 1 detik
+
+  return () => clearInterval(interval);
+}, [message.timestamp]);
+
 
 
  const [openEdit, setOpenEdit] = useState(false);
@@ -1778,6 +1778,7 @@ const [editData, setEditData] = useState(null);
   
 //   export default ChatMessage;
   
+
 
 
 
