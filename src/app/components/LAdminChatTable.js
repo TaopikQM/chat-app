@@ -109,12 +109,78 @@ const LAdminChatTable = () => {
   // }, []);
 
 
-    useEffect(() => {
-              const logsUsersRef= databaseRef(database, "log_chatsBox");
-        const data = snapshot.val();
+    // useEffect(() => {
+    //           const logsUsersRef= databaseRef(database, "log_chatsBox");
+    //               const data = snapshot.val();
+          
+    //           if (!data) {
+    //             setLogsUsers([]);
+    //             return;
+    //           }
+          
+    //           const sortedData = Object.entries(data)
+    //             .map(([id, value]) => ({
+    //               id,
+    //               ...value,
+    //             }))
+    //             .sort((a, b) => b.deleteTime - a.deleteTime)
+    //             .slice(0, 50); // 🔹 LIMIT 150
+          
+    //           setLogsUsers(sortedData);
+    //           console.log("logs data user (limit 50):", sortedData);
+    //         });
+      
+    //           // const unsubscribe = onValue(logsUsersRef, (snapshot) => {
+    //           //     const data = snapshot.val();
+    //           //     if (!data) {
+    //           //     setLogsChats([]);
+    //           //     return;
+    //           //     }
+      
+    //           //     let finalLogs = [];
+      
+    //           //     Object.keys(data).forEach((userId) => {
+    //           //     const userLogsObj = data[userId];
+      
+    //           //     // ubah ke array
+    //           //     const userLogs = Object.entries(userLogsObj)
+    //           //         .map(([logId, log]) => ({
+    //           //         id: logId,
+    //           //         userId,
+    //           //         ...log,
+    //           //         }))
+    //           //     //     // 🔹 urutkan terbaru → lama
+    //           //     //     .sort((a, b) => b.deleteTime - a.deleteTime)
+    //           //     //     // 🔹 AMBIL HANYA 20 TERBARU
+    //           //     //     .slice(0, 20);
+      
+    //           //     // // gabung ke global array
+    //           //     finalLogs.push(...userLogs);
+    //           //     });
+      
+    //           //     // (opsional) sort global kalau mau campur semua user
+    //           //     // finalLogs.sort((a, b) => b.deleteTime - a.deleteTime);
+
+    //           //                  // 🔥 POTONG SETELAH DIGABUNG
+    //           //     finalLogs = finalLogs
+    //           //       .sort((a, b) => b.deleteTime - a.deleteTime)
+    //           //       .slice(0, 20); // ← TOTAL 20
+                
+    //           //     setLogsChats(finalLogs);
+    //           //     console.log("Logs messages per user (limit 20):", finalLogs);
+    //           // });
+      
+    //           return () => unsubscribe();
+    //       }, []);
+
+  useEffect(() => {
+     const logsChatsRef = databaseRef(database, "log_chatsBox");
+    
+  const unsubUsers = onValue(logsChatsRef, (snapshot) => {
+    const data = snapshot.val();
 
     if (!data) {
-      setLogsUsers([]);
+      setLogsChats([]);
       return;
     }
 
@@ -126,52 +192,13 @@ const LAdminChatTable = () => {
       .sort((a, b) => b.deleteTime - a.deleteTime)
       .slice(0, 50); // 🔹 LIMIT 150
 
-    setLogsUsers(sortedData);
+    setLogsChats(sortedData);
     console.log("logs data user (limit 50):", sortedData);
   });
-      
-              // const unsubscribe = onValue(logsUsersRef, (snapshot) => {
-              //     const data = snapshot.val();
-              //     if (!data) {
-              //     setLogsChats([]);
-              //     return;
-              //     }
-      
-              //     let finalLogs = [];
-      
-              //     Object.keys(data).forEach((userId) => {
-              //     const userLogsObj = data[userId];
-      
-              //     // ubah ke array
-              //     const userLogs = Object.entries(userLogsObj)
-              //         .map(([logId, log]) => ({
-              //         id: logId,
-              //         userId,
-              //         ...log,
-              //         }))
-              //     //     // 🔹 urutkan terbaru → lama
-              //     //     .sort((a, b) => b.deleteTime - a.deleteTime)
-              //     //     // 🔹 AMBIL HANYA 20 TERBARU
-              //     //     .slice(0, 20);
-      
-              //     // // gabung ke global array
-              //     finalLogs.push(...userLogs);
-              //     });
-      
-              //     // (opsional) sort global kalau mau campur semua user
-              //     // finalLogs.sort((a, b) => b.deleteTime - a.deleteTime);
 
-              //                  // 🔥 POTONG SETELAH DIGABUNG
-              //     finalLogs = finalLogs
-              //       .sort((a, b) => b.deleteTime - a.deleteTime)
-              //       .slice(0, 20); // ← TOTAL 20
-                
-              //     setLogsChats(finalLogs);
-              //     console.log("Logs messages per user (limit 20):", finalLogs);
-              // });
-      
-              return () => unsubscribe();
-          }, []);
+  return () => unsubUsers();
+}, []);
+
 
 
 
@@ -2125,6 +2152,7 @@ export default LAdminChatTable;
 // // // // // // // // };
 
 // // // // // // // // export default AdminChatTable;
+
 
 
 
