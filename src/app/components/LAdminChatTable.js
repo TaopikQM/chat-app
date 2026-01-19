@@ -20,93 +20,139 @@ const LAdminChatTable = () => {
   const [sortOrderName, setSortOrderName] = useState('asc');
   
 
-  //ambil buat nampilin data
-  useEffect(() => {
-    const messagesRef = databaseRef(database, "chatsBox");
-     const usersRef = databaseRef(database, "pengguna");
-    const logsChatsRef = databaseRef(database, "log_chatsBox");
-    const logsUsersRef = databaseRef(database, "logs_pengguna");
+  // //ambil buat nampilin data
+  // useEffect(() => {
+  //   const messagesRef = databaseRef(database, "chatsBox");
+  //    const usersRef = databaseRef(database, "pengguna");
+  //   const logsChatsRef = databaseRef(database, "log_chatsBox");
+  //   const logsUsersRef = databaseRef(database, "logs_pengguna");
     
-    // onValue(messagesRef, (snapshot) => {
-    //   const data = snapshot.val();
-    //   // const messages = [];
-    //   const messages =data? Object.keys(data).map(key => ({ id: key, ...data[key] })) : [];
-    //   // });
-    //   setMessages(messages);
-    //   // console.log(messages);
+  //   // onValue(messagesRef, (snapshot) => {
+  //   //   const data = snapshot.val();
+  //   //   // const messages = [];
+  //   //   const messages =data? Object.keys(data).map(key => ({ id: key, ...data[key] })) : [];
+  //   //   // });
+  //   //   setMessages(messages);
+  //   //   // console.log(messages);
       
-    //   // setTotalItems(data.length);
-    // }
-    // );
-    onValue(messagesRef, (snapshot) => {
-        const data = snapshot.val();
-        // const messages = [];
-      //   const messages =data? Object.keys(data).map(key => ({ id: key, ...data[key] })) : [];
-      //   // });
-      //   setMessages(messages);
-          const messages = Object.keys(data)
-              .map(key => ({
-                  id: key,
-                  ...data[key]
-              }))
-              .sort((a, b) => b.deleteTime - a.deleteTime); // 🔹 Urutkan dari terbaru ke terlama
+  //   //   // setTotalItems(data.length);
+  //   // }
+  //   // );
+  //   onValue(messagesRef, (snapshot) => {
+  //       const data = snapshot.val();
+  //       // const messages = [];
+  //     //   const messages =data? Object.keys(data).map(key => ({ id: key, ...data[key] })) : [];
+  //     //   // });
+  //     //   setMessages(messages);
+  //         const messages = Object.keys(data)
+  //             .map(key => ({
+  //                 id: key,
+  //                 ...data[key]
+  //             }))
+  //             .sort((a, b) => b.deleteTime - a.deleteTime); // 🔹 Urutkan dari terbaru ke terlama
   
-          setMessages(messages);
-        console.log("logs data pesan",messages);
+  //         setMessages(messages);
+  //       console.log("logs data pesan",messages);
         
-        // setTotalItems(data.length);
-      }
-      );
-     // Ambil data pengguna
-     onValue(usersRef, (snapshot) => {
-        const data = snapshot.val();
-        setUsers(data ? Object.entries(data).map(([id, value]) => ({ id, ...value })) : []);
-        // console.log(data);
-    });
+  //       // setTotalItems(data.length);
+  //     }
+  //     );
+  //    // Ambil data pengguna
+  //    onValue(usersRef, (snapshot) => {
+  //       const data = snapshot.val();
+  //       setUsers(data ? Object.entries(data).map(([id, value]) => ({ id, ...value })) : []);
+  //       // console.log(data);
+  //   });
 
-    // Ambil data log chats
-    // onValue(logsChatsRef, (snapshot) => {
-    //     const data = snapshot.val();
-    //     setLogsChats(data ? Object.entries(data).map(([id, value]) => ({ id, ...value })) : []);
-    // });
+  //   // Ambil data log chats
+  //   // onValue(logsChatsRef, (snapshot) => {
+  //   //     const data = snapshot.val();
+  //   //     setLogsChats(data ? Object.entries(data).map(([id, value]) => ({ id, ...value })) : []);
+  //   // });
 
-    onValue(logsChatsRef, (snapshot) => {
-        const data = snapshot.val();
-        const sortedData = data
-            ? Object.entries(data)
-                  .map(([id, value]) => ({ id, ...value }))
-                  .sort((a, b) => b.deleteTime - a.deleteTime) // Urutkan dari terbaru ke lama
-            : [];
-        setLogsChats(sortedData);
+  //   onValue(logsChatsRef, (snapshot) => {
+  //       const data = snapshot.val();
+  //       const sortedData = data
+  //           ? Object.entries(data)
+  //                 .map(([id, value]) => ({ id, ...value }))
+  //                 .sort((a, b) => b.deleteTime - a.deleteTime) // Urutkan dari terbaru ke lama
+  //           : [];
+  //       setLogsChats(sortedData);
       
-        console.log("logs data pesan1",sortedData);
-    });
+  //       console.log("logs data pesan1",sortedData);
+  //   });
     
-    // Ambil data log pengguna
-    onValue(logsUsersRef, (snapshot) => {
-        const data = snapshot.val();
-        setLogsUsers(data ? Object.entries(data).map(([id, value]) => ({ id, ...value })) : []);
-    });
-     // Promise.all untuk ambil semua data bersamaan
-    // const fetchData = async () => {
-    //   const promises = [
-    //     new Promise((resolve) => onValue(messagesRef, (snapshot) => resolve(snapshot.val()), { onlyOnce: true })),
-    //     new Promise((resolve) => onValue(usersRef, (snapshot) => resolve(snapshot.val()), { onlyOnce: true })),
-    //     new Promise((resolve) => onValue(logsChatsRef, (snapshot) => resolve(snapshot.val()), { onlyOnce: true })),
-    //     new Promise((resolve) => onValue(logsUsersRef, (snapshot) => resolve(snapshot.val()), { onlyOnce: true })),
-    //   ];
+  //   // Ambil data log pengguna
+  //   onValue(logsUsersRef, (snapshot) => {
+  //       const data = snapshot.val();
+  //       setLogsUsers(data ? Object.entries(data).map(([id, value]) => ({ id, ...value })) : []);
+  //   });
+  //    // Promise.all untuk ambil semua data bersamaan
+  //   // const fetchData = async () => {
+  //   //   const promises = [
+  //   //     new Promise((resolve) => onValue(messagesRef, (snapshot) => resolve(snapshot.val()), { onlyOnce: true })),
+  //   //     new Promise((resolve) => onValue(usersRef, (snapshot) => resolve(snapshot.val()), { onlyOnce: true })),
+  //   //     new Promise((resolve) => onValue(logsChatsRef, (snapshot) => resolve(snapshot.val()), { onlyOnce: true })),
+  //   //     new Promise((resolve) => onValue(logsUsersRef, (snapshot) => resolve(snapshot.val()), { onlyOnce: true })),
+  //   //   ];
 
-    //   const [messagesData, usersData, logsChatsData, logsUsersData] = await Promise.all(promises);
+  //   //   const [messagesData, usersData, logsChatsData, logsUsersData] = await Promise.all(promises);
 
-    //   setMessages(messagesData ? Object.keys(messagesData).map((key) => ({ id: key, ...messagesData[key] })) : []);
-    //   setUsers(usersData ? Object.keys(usersData).map((key) => ({ id: key, ...usersData[key] })) : []);
-    //   setLogsChats(logsChatsData ? Object.keys(logsChatsData).map((key) => ({ id: key, ...logsChatsData[key] })) : []);
-    //   setLogsUsers(logsUsersData ? Object.keys(logsUsersData).map((key) => ({ id: key, ...logsUsersData[key] })) : []);
-    //   console.log(setUsers);
-    // };
+  //   //   setMessages(messagesData ? Object.keys(messagesData).map((key) => ({ id: key, ...messagesData[key] })) : []);
+  //   //   setUsers(usersData ? Object.keys(usersData).map((key) => ({ id: key, ...usersData[key] })) : []);
+  //   //   setLogsChats(logsChatsData ? Object.keys(logsChatsData).map((key) => ({ id: key, ...logsChatsData[key] })) : []);
+  //   //   setLogsUsers(logsUsersData ? Object.keys(logsUsersData).map((key) => ({ id: key, ...logsUsersData[key] })) : []);
+  //   //   console.log(setUsers);
+  //   // };
 
-    // fetchData();
-  }, []);
+  //   // fetchData();
+  // }, []);
+
+
+    useEffect(() => {
+              const logsUsersRef= databaseRef(database, "log_chatsBox");
+      
+              const unsubscribe = onValue(logsUsersRef, (snapshot) => {
+                  const data = snapshot.val();
+                  if (!data) {
+                  setLogsChats([]);
+                  return;
+                  }
+      
+                  let finalLogs = [];
+      
+                  Object.keys(data).forEach((userId) => {
+                  const userLogsObj = data[userId];
+      
+                  // ubah ke array
+                  const userLogs = Object.entries(userLogsObj)
+                      .map(([logId, log]) => ({
+                      id: logId,
+                      userId,
+                      ...log,
+                      }))
+                      // 🔹 urutkan terbaru → lama
+                      .sort((a, b) => b.deleteTime - a.deleteTime)
+                      // 🔹 AMBIL HANYA 20 TERBARU
+                      .slice(0, 20);
+      
+                  // gabung ke global array
+                  finalLogs.push(...userLogs);
+                  });
+      
+                  // (opsional) sort global kalau mau campur semua user
+                  finalLogs.sort((a, b) => b.deleteTime - a.deleteTime);
+      
+                  setLogsChats(finalLogs);
+                  console.log("Logs messages per user (limit 20):", finalLogs);
+              });
+      
+              return () => unsubscribe();
+          }, []);
+
+
+
+  
 
  const handleDelete = async (id) => {
     const confirmDelete = window.confirm("Yakin ingin menghapus chat ini?");
@@ -2056,5 +2102,6 @@ export default LAdminChatTable;
 // // // // // // // // };
 
 // // // // // // // // export default AdminChatTable;
+
 
 
