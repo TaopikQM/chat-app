@@ -131,18 +131,23 @@ const LAdminChatTable = () => {
                       userId,
                       ...log,
                       }))
-                      // 🔹 urutkan terbaru → lama
-                      .sort((a, b) => b.deleteTime - a.deleteTime)
-                      // 🔹 AMBIL HANYA 20 TERBARU
-                      .slice(0, 20);
+                  //     // 🔹 urutkan terbaru → lama
+                  //     .sort((a, b) => b.deleteTime - a.deleteTime)
+                  //     // 🔹 AMBIL HANYA 20 TERBARU
+                  //     .slice(0, 20);
       
-                  // gabung ke global array
+                  // // gabung ke global array
                   finalLogs.push(...userLogs);
                   });
       
                   // (opsional) sort global kalau mau campur semua user
-                  finalLogs.sort((a, b) => b.deleteTime - a.deleteTime);
-      
+                  // finalLogs.sort((a, b) => b.deleteTime - a.deleteTime);
+
+                               // 🔥 POTONG SETELAH DIGABUNG
+                  finalLogs = finalLogs
+                    .sort((a, b) => b.deleteTime - a.deleteTime)
+                    .slice(0, 20); // ← TOTAL 20
+                
                   setLogsChats(finalLogs);
                   console.log("Logs messages per user (limit 20):", finalLogs);
               });
@@ -2102,6 +2107,7 @@ export default LAdminChatTable;
 // // // // // // // // };
 
 // // // // // // // // export default AdminChatTable;
+
 
 
 
