@@ -199,34 +199,90 @@ const LAdminChatTable = () => {
 //   return () => unsubUsers();
 // }, []);
 
-useEffect(() => {
+//   //perdata 20
+// useEffect(() => {
+//   const logsRef = databaseRef(database, "log_chatsBox");
+
+//   const unsubscribe = onValue(logsRef, (snapshot) => {
+//     const data = snapshot.val();
+
+//     if (!data) {
+//       setLogsChats([]);
+//       return;
+//     }
+
+//     // 🔹 object → array
+//     let finalLogs = Object.entries(data)
+//       .map(([logId, log]) => ({
+//         id: logId,
+//         ...log,
+//       }))
+//       // 🔹 urutkan terbaru → lama
+//       .sort((a, b) => b.deleteTime - a.deleteTime)
+//       // 🔹 ambil 20 terbaru
+//       .slice(0, 20);
+
+//     setLogsChats(finalLogs);
+//     console.log("Logs chats (limit 20):", finalLogs);
+//   });
+
+//   return () => unsubscribe();
+// }, []);
+
+
+  useEffect(() => {
   const logsRef = databaseRef(database, "log_chatsBox");
 
   const unsubscribe = onValue(logsRef, (snapshot) => {
     const data = snapshot.val();
-
     if (!data) {
       setLogsChats([]);
       return;
     }
 
-    // 🔹 object → array
-    let finalLogs = Object.entries(data)
-      .map(([logId, log]) => ({
-        id: logId,
-        ...log,
-      }))
-      // 🔹 urutkan terbaru → lama
-      .sort((a, b) => b.deleteTime - a.deleteTime)
-      // 🔹 ambil 20 terbaru
-      .slice(0, 20);
+    // 1️⃣ Ubah object → array
+    const allLogs = Object.entries(data).map(([logId, log]) => ({
+      id: logId,
+      ...log,
+    }));
+
+    // 2️⃣ Group berdasarkan pengirim
+    const groupedBySender = {};
+
+    allLogs.forEach((log) => {
+      const sender = log.pengirim || "unknown";
+      if (!groupedBySender[sender]) {
+        groupedBySender[sender] = [];
+      }
+      groupedBySender[sender].push(log);
+    });
+
+    // 3️⃣ Ambil 20 terbaru per pengirim
+    let finalLogs = [];
+
+    Object.keys(groupedBySender).forEach((sender) => {
+      const senderLogs = groupedBySender[sender]
+        .sort((a, b) => b.deleteTime - a.deleteTime)
+        .slice(0, 20);
+
+      finalLogs.push(
+        ...senderLogs.map((log) => ({
+          ...log,
+          userId: sender, // biar konsisten kayak logs_pengguna1
+        }))
+      );
+    });
+
+    // 4️⃣ Sort global (opsional, tapi DISARANKAN)
+    finalLogs.sort((a, b) => b.deleteTime - a.deleteTime);
 
     setLogsChats(finalLogs);
-    console.log("Logs chats (limit 20):", finalLogs);
+    console.log("Logs chats per pengirim (limit 20):", finalLogs);
   });
 
   return () => unsubscribe();
 }, []);
+
 
 
 
@@ -2180,6 +2236,7 @@ export default LAdminChatTable;
 // // // // // // // // };
 
 // // // // // // // // export default AdminChatTable;
+
 
 
 
