@@ -68,6 +68,10 @@ export default function LUsersChatTable() {
     return () => clearInterval(interval);
   }, [todayPrayerTimes]);
 
+  
+    const [loc, setLoc] = useState(null);
+    const [locKota, setLocKota] = useState(null);
+
   useEffect(() => {
     if (!currentTime) return;
     const fetchHijriYear = async () => {
@@ -88,6 +92,11 @@ export default function LUsersChatTable() {
             async (position) => {
               const { latitude, longitude } = position.coords;
               // await fetchLocation(latitude, longitude);
+              const locationData = {
+                latitude: position.coords.latitude,
+                longitude: position.coords.longitude,
+              };
+              setLoc(locationData);
               navigator.geolocation.getCurrentPosition(
                 async (position) => {
                   const { latitude, longitude } = position.coords;
