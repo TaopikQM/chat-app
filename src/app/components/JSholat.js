@@ -252,28 +252,52 @@ export default function LUsersChatTable() {
   useEffect(() => {
     console.log("Updated Five:", Five);
   }, [Five]);
-   useEffect(() => {
+  //  useEffect(() => {
+  //   const fetchLocKota = async () => {
+  //     if (!loc) return;
+  //     const { latitude, longitude } = loc;
+  //     try {
+  //       const res = await fetch(
+  //         `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
+  //       );
+  //       if (!res.ok) throw new Error("Gagal fetch alamat");
+
+  //       const data = await res.json();
+  //       setLocKota(data);
+  //       console.log("Alamat:", data);
+  //     } catch (error) {
+  //       console.error("Error fetch alamat:", error);
+  //     }
+  //   };
+  //   // Jika sudah ada lokasi, ambil alamatnya
+  //   if (loc) {
+  //     fetchLocKota();
+  //   }
+  // }, [loc]);
+  useEffect(() => {
     const fetchLocKota = async () => {
-      if (!loc) return;
-      const { latitude, longitude } = loc;
+      if (!loc?.latitude || !loc?.longitude) return;
+  
       try {
         const res = await fetch(
-          `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
+          `/api/reverse?lat=${loc.latitude}&lon=${loc.longitude}`
         );
+  
         if (!res.ok) throw new Error("Gagal fetch alamat");
-
+  
         const data = await res.json();
-        setLocKota(data);
-        console.log("Alamat:", data);
+  
+        // setLocKota(data);
+        setLocKota(data.address);
+        console.log("Alamatapi:", data);
       } catch (error) {
-        console.error("Error fetch alamat:", error);
+        console.error("Error fetch alamat:", error.message);
       }
     };
-    // Jika sudah ada lokasi, ambil alamatnya
-    if (loc) {
-      fetchLocKota();
-    }
+  
+    fetchLocKota();
   }, [loc]);
+  
 
   // Fungsi untuk mengurangi 12 menit dari waktu sholat
   const adjustTimings = (Five) => {
@@ -356,6 +380,7 @@ export default function LUsersChatTable() {
       if (data && data.address) {
         setLocation(`${data.address.city || data.address.town || "Tidak Diketahui"}, ${data.address.country}`);
       }
+       console.log("dataAlamat011:", data);
     } catch (error) {
       console.error("Gagal mengambil lokasi:", error);
       setLocation("Lokasi tidak ditemukan");
@@ -599,6 +624,35 @@ export default function LUsersChatTable() {
     return acc;
   }, {}) : {};
   // console.log("timing2",timings2);
+
+
+  const formatAlamat = (address) => {
+    if (!address) return "-";
+  
+    const wilayah =
+      address.municipality ||
+      address.city ||
+      address.county ||
+      address.village;
+  
+    const parts = [
+      wilayah,
+      address.city,
+      address.county,
+      address.state,
+      address.region,
+      address.postcode,
+      address.country,
+    ];
+  
+    // Hapus undefined / null / duplicate
+    const filtered = [...new Set(parts.filter(Boolean))];
+  
+    return filtered.join(", ");
+  };
+
+
+  
   return (
     <div className="p-4">
       <div className="text-center text-5xl font-bold text-gray-700 mb-4">
@@ -858,7 +912,8 @@ export default function LUsersChatTable() {
         <hr/>
       </div>
       <div className="mt-3 text-lg text-center bg-white bg-opacity-20 p-3 rounded-lg shadow-md">
-       <p className="font-semibold">🌍 Lokasi: {location}</p>
+          {/*  <p className="font-semibold">🌍 Lokasi: {location}</p>*/}
+       <p className="font-semibold">🌍 Lokasi:{formatAlamat(locKota)}</p>
       
         <h2 className="text-center text-4xl font-semibold text-blue-600">
           Jadwal Sholat Bulan 
