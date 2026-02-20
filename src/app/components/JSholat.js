@@ -849,7 +849,7 @@ export default function LUsersChatTable() {
         <hr/>
       </div>
       <div className="mt-3 text-lg text-center bg-white bg-opacity-20 p-3 rounded-lg shadow-md">
-       
+       <p className="font-semibold">🌍 Lokasi: {location}</p>
       
         <h2 className="text-center text-4xl font-semibold text-blue-600">
           Jadwal Sholat Bulan 
