@@ -36,6 +36,9 @@ export default function LUsersChatTable() {
 
   const [showDropdown, setShowDropdown] = useState(false);
 
+  const [volume, setVolume] = useState(1); // default full
+  const [isMuted, setIsMuted] = useState(false);
+
   // const SholawatD = "./audio/S_gusdur.mp3";
   // const adzanSound = "./audio/a1.mp3";
   // const adzanFajrSound = "./audio/A_SubuhA.mp3";
@@ -468,10 +471,38 @@ export default function LUsersChatTable() {
   };
 
   useEffect(() => {
-    sholawatAudioRef.current = new Audio(SholawatD);
-    adzanAudioRef.current = new Audio(adzanSound);
-    adzanFajrRef.current = new Audio(adzanFajrSound); 
+    const savedVolume = localStorage.getItem("adzanVolume");
+    const savedMute = localStorage.getItem("adzanMuted");
+  
+    if (savedVolume !== null) {
+      setVolume(parseFloat(savedVolume));
+    }
+  
+    if (savedMute !== null) {
+      setIsMuted(savedMute === "true");
+    }
   }, []);
+  
+  // useEffect(() => {
+  //   sholawatAudioRef.current = new Audio(SholawatD);
+  //   adzanAudioRef.current = new Audio(adzanSound);
+  //   adzanFajrRef.current = new Audio(adzanFajrSound); 
+  // }, []);
+  useEffect(() => {
+    const finalVolume = isMuted ? 0 : volume;
+  
+    if (sholawatAudioRef.current)
+      sholawatAudioRef.current.volume = finalVolume;
+  
+    if (adzanAudioRef.current)
+      adzanAudioRef.current.volume = finalVolume;
+  
+    if (adzanFajrRef.current)
+      adzanFajrRef.current.volume = finalVolume;
+  
+    localStorage.setItem("adzanVolume", volume);
+    localStorage.setItem("adzanMuted", isMuted);
+  }, [volume, isMuted]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -911,6 +942,36 @@ export default function LUsersChatTable() {
         </div>
         <hr/>
       </div>
+        {isRunning && (
+          <div className="flex items-center gap-4 mt-4 bg-white/10 backdrop-blur-md px-4 py-3 rounded-xl shadow-md w-fit">
+            
+            <button
+              onClick={() => setIsMuted(!isMuted)}
+              className="w-10 h-10 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/30 transition"
+            >
+              <span className="text-lg">
+                {isMuted || volume === 0 ? "🔇" : volume < 0.5 ? "🔉" : "🔊"}
+              </span>
+            </button>
+        
+            <input
+              type="range"
+              min="0"
+              max="1"
+              step="0.01"
+              value={isMuted ? 0 : volume}
+              onChange={(e) => {
+                setVolume(parseFloat(e.target.value));
+                setIsMuted(false);
+              }}
+              className="w-40 h-2 bg-gray-300 rounded-lg appearance-none cursor-pointer accent-blue-500"
+            />
+      
+          <span className="text-sm font-semibold w-10 text-right">
+            {Math.round((isMuted ? 0 : volume) * 100)}%
+          </span>
+        </div>
+      )}
       <div className="mt-3 text-lg text-center bg-white bg-opacity-20 p-3 rounded-lg shadow-md">
           {/*  <p className="font-semibold">🌍 Lokasi: {location}</p>*/}
        <p className="font-semibold">🌍 Lokasi:{formatAlamat(locKota)}</p>
