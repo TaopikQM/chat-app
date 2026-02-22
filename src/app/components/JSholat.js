@@ -482,13 +482,8 @@ export default function LUsersChatTable() {
       setIsMuted(savedMute === "true");
     }
   }, []);
-  
-  // useEffect(() => {
-  //   sholawatAudioRef.current = new Audio(SholawatD);
-  //   adzanAudioRef.current = new Audio(adzanSound);
-  //   adzanFajrRef.current = new Audio(adzanFajrSound); 
-  // }, []);
-  useEffect(() => {
+
+   useEffect(() => {
     const finalVolume = isMuted ? 0 : volume;
   
     if (sholawatAudioRef.current)
@@ -503,6 +498,13 @@ export default function LUsersChatTable() {
     localStorage.setItem("adzanVolume", volume);
     localStorage.setItem("adzanMuted", isMuted);
   }, [volume, isMuted]);
+  
+  useEffect(() => {
+    sholawatAudioRef.current = new Audio(SholawatD);
+    adzanAudioRef.current = new Audio(adzanSound);
+    adzanFajrRef.current = new Audio(adzanFajrSound); 
+  }, []);
+ 
 
   useEffect(() => {
     const interval = setInterval(() => {
