@@ -185,7 +185,8 @@ export default function LUsersChatTable() {
 
                 // Ambil data hari ini dari monthData
                 const ddate = `${day.toString().padStart(2, "0")}-${month.toString().padStart(2, "0")}-${year}`;
-                const todayData = monthData.find((d) => d.date.gregorian.date === ddate);
+                // const todayData = monthData.find((d) => d.date.gregorian.date === ddate);
+                const todayData = updatedMonthData.find((d) => d.date.gregorian.date === ddate);
 
                 setTodayPrayerTimes(todayData || null);
                 console.log("Today's Prayer Data:", todayData);
