@@ -367,7 +367,9 @@ const LUsersChatTable = () => {
                 )
               }
             </tbody>
-                  {previewUrl && (
+                
+          </table>
+  {previewUrl && (
   <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
     <div className="bg-white rounded-lg p-4 max-w-lg w-full relative">
       
@@ -402,7 +404,6 @@ const LUsersChatTable = () => {
     </div>
   </div>
 )}
-          </table>
           {totalItems > itemsPerPage && (
               <nav className="m-4 flex items-center flex-column flex-wrap md:flex-row justify-between pt-4" aria-label="Table navigation">
                   <span className="text-sm font-normal text-gray-500 dark:text-gray-400">
@@ -451,6 +452,7 @@ const LUsersChatTable = () => {
 };
 
 export default LUsersChatTable;
+
 
 
 
