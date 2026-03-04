@@ -259,38 +259,20 @@ const LUsersChatTable = () => {
                     )}
                     </td>
                   <td className="border border-gray-300 px-4 py-2 text-center">{msg.deleteTime && format(msg.deleteTime, "dd/MM/yyyy HH:mm:ss")}</td>
-                      <td className="border border-gray-300 px-4 py-2 text-center">
+                  <td className="border border-gray-300 px-4 py-2 text-center">
   {msg.photoURL && msg.photoURL.length > 0 ? (
-    msg.photoURL.map((url, index) => (
-      <div key={index}>
+    <div className="flex flex-col items-center gap-2">
+      {msg.photoURL.map((url, i) => (
         <a
-          href={url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-blue-500 underline"
-        >
-          Lihat Foto {index + 1}
-        </a>
-      </div>
-    ))
-  ) : (
-    "-"
-  )}
-</td>
-                      <td className="border border-gray-300 px-4 py-2 text-center">
-  {msg.photoURL && msg.photoURL.length > 0 ? (
-    <div className="flex flex-col gap-2 items-center">
-      {msg.photoURL.map((url, index) => (
-        <a
-          key={index}
+          key={i}
           href={url}
           target="_blank"
           rel="noopener noreferrer"
         >
           <img
             src={url}
-            alt={`photo-${index}`}
-            className="w-16 h-16 object-cover rounded border hover:scale-105 transition"
+            alt={`photo-${i}`}
+            className="w-14 h-14 object-cover rounded border hover:scale-105 transition"
           />
         </a>
       ))}
@@ -395,5 +377,6 @@ const LUsersChatTable = () => {
 };
 
 export default LUsersChatTable;
+
 
 
