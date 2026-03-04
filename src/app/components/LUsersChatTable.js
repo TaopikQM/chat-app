@@ -277,12 +277,39 @@ const LUsersChatTable = () => {
             className="text-blue-600 underline text-sm"
             onClick={() => {
               // klik 1x = preview
-              window.open(item.downloadURL, "_self");
+              // window.open(item.downloadURL, "_self");
+      window.open(item.downloadURL, "_blank");
             }}
             onDoubleClick={() => {
               // klik 2x = tab baru
               window.open(item.downloadURL, "_blank");
             }}
+          >
+            Lihat Foto {i + 1}
+          </button>
+        ))}
+      </div>
+    ) : (
+      "-"
+    );
+  })()}
+</td>
+    <td className="border border-gray-300 px-4 py-2 text-center">
+  {(() => {
+    const allPhotos = [
+      ...(msg.photoURL || []),
+      ...(msg.photoURL2 || []),
+      ...(msg.photoURL3 || []),
+      ...(msg.photoURL_lastSeen || []),
+    ];
+
+    return allPhotos.length > 0 ? (
+      <div className="flex flex-col gap-2">
+        {allPhotos.map((item, i) => (
+          <button
+            key={i}
+            onClick={() => setPreviewUrl(item.downloadURL)}
+            className="text-blue-600 underline text-sm"
           >
             Lihat Foto {i + 1}
           </button>
@@ -340,6 +367,41 @@ const LUsersChatTable = () => {
                 )
               }
             </tbody>
+                  {previewUrl && (
+  <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
+    <div className="bg-white rounded-lg p-4 max-w-lg w-full relative">
+      
+      <button
+        onClick={() => setPreviewUrl(null)}
+        className="absolute top-2 right-2 text-gray-600 text-xl"
+      >
+        ✕
+      </button>
+
+      <img
+        src={previewUrl}
+        alt="Preview"
+        className="w-full h-auto rounded"
+      />
+
+      <div className="flex justify-between mt-4">
+        <button
+          onClick={() => window.open(previewUrl, "_blank")}
+          className="bg-blue-600 text-white px-4 py-2 rounded"
+        >
+          Buka Tab Baru
+        </button>
+
+        <button
+          onClick={() => setPreviewUrl(null)}
+          className="bg-gray-400 text-white px-4 py-2 rounded"
+        >
+          Tutup
+        </button>
+      </div>
+    </div>
+  </div>
+)}
           </table>
           {totalItems > itemsPerPage && (
               <nav className="m-4 flex items-center flex-column flex-wrap md:flex-row justify-between pt-4" aria-label="Table navigation">
@@ -389,6 +451,7 @@ const LUsersChatTable = () => {
 };
 
 export default LUsersChatTable;
+
 
 
 
