@@ -259,7 +259,8 @@ const LUsersChatTable = () => {
                     )}
                     </td>
                   <td className="border border-gray-300 px-4 py-2 text-center">{msg.deleteTime && format(msg.deleteTime, "dd/MM/yyyy HH:mm:ss")}</td>
-                 <td className="border border-gray-300 px-4 py-2 text-center">
+                
+    <td className="border border-gray-300 px-4 py-2 text-center">
   {(() => {
     const allPhotos = [
       ...(msg.photoURL || []),
@@ -269,20 +270,22 @@ const LUsersChatTable = () => {
     ];
 
     return allPhotos.length > 0 ? (
-      <div className="flex flex-col items-center gap-2">
+      <div className="flex flex-col gap-2">
         {allPhotos.map((item, i) => (
-          <a
+          <button
             key={i}
-            href={item.downloadURL}   // ✅ FIX DI SINI
-            target="_blank"
-            rel="noopener noreferrer"
+            className="text-blue-600 underline text-sm"
+            onClick={() => {
+              // klik 1x = preview
+              window.open(item.downloadURL, "_self");
+            }}
+            onDoubleClick={() => {
+              // klik 2x = tab baru
+              window.open(item.downloadURL, "_blank");
+            }}
           >
-            <img
-              src={item.downloadURL}  // ✅ FIX DI SINI
-              alt={`photo-${i}`}
-              className="w-14 h-14 object-cover rounded border hover:scale-105 transition"
-            />
-          </a>
+            Lihat Foto {i + 1}
+          </button>
         ))}
       </div>
     ) : (
@@ -386,6 +389,7 @@ const LUsersChatTable = () => {
 };
 
 export default LUsersChatTable;
+
 
 
 
