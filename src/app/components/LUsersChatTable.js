@@ -15,6 +15,7 @@ const LUsersChatTable = () => {
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
   const [sortOrderName, setSortOrderName] = useState('asc');
+  const [previewUrl, setPreviewUrl] = useState(null);
   
     // useEffect(() => {
     //     const logsRef = databaseRef(database, "logs_pengguna1"); // 🔹 Ambil semua log pengguna
@@ -452,6 +453,7 @@ const LUsersChatTable = () => {
 };
 
 export default LUsersChatTable;
+
 
 
 
