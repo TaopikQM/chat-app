@@ -139,6 +139,111 @@ const app = initializeApp(firebaseConfig);
  const database = getDatabase(appBackup1); // Add this line to initialize Realtime Database
  const rtdb = getDatabase(appBackup1); // Add this line to initialize Realtime Database
  const db = getDatabase(appBackup1); // Add this line to initialize Realtime Database
+
+
+const firebaseConfigapotek1 = {
+  apiKey: process.env.NEXT_PUBLIC_apotek1_ddd99_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_apotek1_ddd99_AUTH_DOMAIN,
+  databaseURL: process.env.NEXT_PUBLIC_apotek1_ddd99_DATABASE_URL,
+  projectId: process.env.NEXT_PUBLIC_apotek1_ddd99_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_apotek1_ddd99_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_apotek1_ddd99_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_apotek1_ddd99_APP_ID,
+  measurementId: process.env.NEXT_PUBLIC_apotek1_ddd99_MEASUREMENT_ID,
+};
+
+const appapotek1 =
+  getApps().find((a) => a.name === "apotek1")
+    ? getApp("apotek1")
+    : initializeApp(firebaseConfigapotek1, "apotek1");
+
+export const storageapotek1 = getStorage(appapotek1);
+
+export const rtdbapotek1 = getDatabase(appapotek1);
+
+export const databaseapotek1 = getDatabase(appapotek1);
+
+export const dbapotek1 = getDatabase(appapotek1);
+
+
+const firebaseConfiuas13256 = {
+  apiKey: process.env.NEXT_PUBLIC_uas13256_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_uas13256_AUTH_DOMAIN,
+  databaseURL: process.env.NEXT_PUBLIC_uas13256_DATABASE_URL,
+  projectId: process.env.NEXT_PUBLIC_uas13256_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_uas13256_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_uas13256_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_uas13256_APP_ID,
+  measurementId: process.env.NEXT_PUBLIC_uas13256_MEASUREMENT_ID,
+};
+
+const appuas13256 =
+  getApps().find((a) => a.name === "uas13256")
+    ? getApp("uas13256")
+    : initializeApp(firebaseConfiuas13256, "uas13256");
+
+export const storageuas13256 = getStorage(appuas13256);
+
+export const rtdbuas13256 = getDatabase(appuas13256);
+
+export const databaseuas13256 = getDatabase(appuas13256);
+
+export const dbuas13256 = getDatabase(appuas13256);
+
+
+const firebaseConfiguas_firebase_a0256 = {
+  apiKey: process.env.NEXT_PUBLIC_uas_firebase_a0256_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_uas_firebase_a0256_AUTH_DOMAIN,
+  databaseURL: process.env.NEXT_PUBLIC_uas_firebase_a0256_DATABASE_URL,
+  projectId: process.env.NEXT_PUBLIC_uas_firebase_a0256_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_uas_firebase_a0256_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_uas_firebase_a0256_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_uas_firebase_a0256_APP_ID,
+  measurementId: process.env.NEXT_PUBLIC_uas_firebase_a0256_MEASUREMENT_ID,
+};
+
+const appuas_firebase_a0256 =
+  getApps().find((a) => a.name === "uas_firebase_a0256")
+    ? getApp("uas_firebase_a0256")
+    : initializeApp(firebaseConfiguas_firebase_a0256, "uas_firebase_a0256");
+
+export const storageuas_firebase_a0256 = getStorage(appuas_firebase_a0256);
+
+export const rtdbuas_firebase_a0256 = getDatabase(appuas_firebase_a0256);
+
+export const databaseuas_firebase_a0256 = getDatabase(appuas_firebase_a0256);
+
+export const dbuas_firebase_a0256 = getDatabase(appuas_firebase_a0256);
+
+
+const firebaseConfigproa112113270 = {
+  apiKey: process.env.NEXT_PUBLIC_proa112113270_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_proa112113270_AUTH_DOMAIN,
+  databaseURL: process.env.NEXT_PUBLIC_proa112113270_DATABASE_URL,
+  projectId: process.env.NEXT_PUBLIC_proa112113270_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_proa112113270_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_proa112113270_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_proa112113270_APP_ID,
+  measurementId: process.env.NEXT_PUBLIC_proa112113270_MEASUREMENT_ID,
+};
+
+const appproa112113270 =
+  getApps().find((a) => a.name === "proa112113270")
+    ? getApp("proa112113270")
+    : initializeApp(firebaseConfigproa112113270, "proa112113270");
+
+export const storageproa112113270 = getStorage(appproa112113270);
+
+export const rtdbproa112113270 = getDatabase(appproa112113270);
+
+export const databaseproa112113270 = getDatabase(appproa112113270);
+
+export const dbproa112113270 = getDatabase(appproa112113270);
+
+
+
+
+
  
  export { rtdb,db,database, storage, storageBackup,storageBackup1};//,db, storage,   auth, signInWithEmailAndPassword, signInWithPopup,  createUserWithEmailAndPassword, GoogleAuthProvider
 //  /*
@@ -146,6 +251,7 @@ const app = initializeApp(firebaseConfig);
  // const db = getFirestore(app);
  // const storage = getStorage(app);
  // */
+
 
 
 
