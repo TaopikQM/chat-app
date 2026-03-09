@@ -193,7 +193,7 @@ export async function POST(request) {
     } catch (err) {
       console.warn("Upload ke storage utama gagal, fallback ke backup:", err);
       storageUsed = "backup";
-      fileRef = ref(storageapotek1, filePath);
+      fileRef = ref(storageuas13256, filePath);
       await uploadString(fileRef, imageData, "data_url");
     }
 
