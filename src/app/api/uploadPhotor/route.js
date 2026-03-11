@@ -74,7 +74,7 @@
 import { NextResponse } from "next/server";
 import { getDatabase,  ref as databaseRef, push, set } from "firebase/database";
 import { ref, uploadString, getDownloadURL } from "firebase/storage";
-import { storage, storageBackup,database, storageBackup1 } from "../../config/firebase"; 
+import { storage, storageBackup,database, storageBackup1, storageapotek1, storageuas13256,  storageuas_firebase_a0256, storageproa112113270 } from "../../config/firebase"; 
 
 export async function POST(request) {
   try {
@@ -109,7 +109,7 @@ export async function POST(request) {
     // let fileRef = ref(storage, filePath);
      // let fileRef = ref(storage, filePath);//utama dolanrek-f88
     // let fileRef = ref(storageBackup, filePath);//backup env-v2
-    let fileRef = ref(storageBackup1, filePath);//backup dolanrekid
+    let fileRef = ref(storageapotek1, filePath);//backup dolanrekid
 
     try {
       await uploadString(fileRef, imageData, "data_url");
@@ -117,7 +117,7 @@ export async function POST(request) {
       console.warn("Upload storage utama gagal → backup:", err);
 
       storageUsed = "backup";
-      fileRef = ref(storageBackup, filePath);
+      fileRef = ref(storageuas13256, filePath);
       await uploadString(fileRef, imageData, "data_url");
     }
 
