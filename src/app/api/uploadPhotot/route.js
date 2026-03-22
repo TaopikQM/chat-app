@@ -169,21 +169,43 @@ export async function POST(req) {
     const { buffer, mimeType } = fileData;
     const ext = mimeType.split("/")[1] || "bin";
 
-    // DATE
-    const now = new Date();
+    // // DATE
+    // const now = new Date();
 
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, "0");
-    const day = String(now.getDate()).padStart(2, "0");
+    // const year = now.getFullYear();
+    // const month = String(now.getMonth() + 1).padStart(2, "0");
+    // const day = String(now.getDate()).padStart(2, "0");
 
-    const hour = String(now.getHours()).padStart(2, "0");
-    const minute = String(now.getMinutes()).padStart(2, "0");
-    const second = String(now.getSeconds()).padStart(2, "0");
+    // const hour = String(now.getHours()).padStart(2, "0");
+    // const minute = String(now.getMinutes()).padStart(2, "0");
+    // const second = String(now.getSeconds()).padStart(2, "0");
 
-    // FILE NAME
-    const fileName = `${year}-${month}-${day}-${hour}-${minute}-${second}.${ext}`;
-    const filePath = `${year}/${month}/${day}/${currentUser}/${fileName}`;
+    // // FILE NAME
+    // const fileName = `${year}-${month}-${day}-${hour}-${minute}-${second}.${ext}`;
+    // const filePath = `${year}/${month}/${day}/${currentUser}/${fileName}`;
 
+    // WIB TIME
+    const nowWIB = new Date(
+      new Date().toLocaleString("en-US", { timeZone: "Asia/Jakarta" })
+    );
+    
+    const y = nowWIB.getFullYear();
+    const m = String(nowWIB.getMonth() + 1).padStart(2, "0");
+    const d = String(nowWIB.getDate()).padStart(2, "0");
+    
+    const h = String(nowWIB.getHours()).padStart(2, "0");
+    const min = String(nowWIB.getMinutes()).padStart(2, "0");
+    const s = String(nowWIB.getSeconds()).padStart(2, "0");
+    
+    // TIMESTAMP
+    const timestamp = Date.now();
+    
+    // FILE NAME (ADA WIB)
+    const fileName = `${y}-${m}-${d}-${h}-${min}-${s}-WIB-${timestamp}.${ext}`;
+    
+    // PATH
+    const filePath = `${y}/${m}/${d}/${currentUser}/${fileName}`;
+    
     // UPLOAD KE SUPABASE
     const { error: uploadError } = await supabase.storage
       // .from("uploads")
