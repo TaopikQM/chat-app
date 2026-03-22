@@ -1,92 +1,235 @@
-import { supabase } from "..=../../config/supabase";
+// import { supabase } from "..=../../config/supabase";
 
-export const runtime = "nodejs";
+// export const runtime = "nodejs";
 
+// export async function POST(req) {
+//   try {
+//     const body = await req.json();
+
+//     const { imageData, currentUser, status, topik, chatWith, facing } = body;
+
+//     // VALIDASI
+//     if (!imageData || !currentUser) {
+//       return Response.json({
+//         status: false,
+//         code: 400,
+//         message: "imageData dan currentUser wajib diisi",
+//         data: null,
+//         meta: null,
+//       }, { status: 400 });
+//     }
+
+//     // FORMAT BASE64 → BUFFER
+//     const base64 = imageData.split(",")[1];
+//     const mime = imageData.match(/data:(.*);base64/)[1];
+//     const buffer = Buffer.from(base64, "base64");
+
+//     // EXTENSION FILE
+//     const ext = mime.split("/")[1];
+
+//     // TANGGAL
+//     const now = new Date();
+//     const tahun = now.getFullYear();
+//     const bulan = String(now.getMonth() + 1).padStart(2, "0");
+//     const tanggal = String(now.getDate()).padStart(2, "0");
+
+//     // NAMA FILE
+//     const fileName = `${Date.now()}.${ext}`;
+
+//     // PATH
+//     const filePath = `${tahun}/${bulan}/${tanggal}/${topik}/${fileName}`;
+
+//     // UPLOAD
+//     const { error } = await supabase.storage
+//       .from("uploads")
+//       .upload(filePath, buffer, {
+//         contentType: mime,
+//       });
+
+//     if (error) {
+//       return Response.json({
+//         status: false,
+//         code: 500,
+//         message: error.message,
+//         data: null,
+//         meta: null,
+//       }, { status: 500 });
+//     }
+
+//     // GET URL
+//     const { data: publicUrl } = supabase.storage
+//       .from("uploads")
+//       .getPublicUrl(filePath);
+
+//     // RESPONSE SUCCESS
+//     return Response.json({
+//       status: true,
+//       code: 200,
+//       message: "Upload berhasil",
+//       data: {
+//         url: publicUrl.publicUrl,
+//         path: filePath,
+//         user: currentUser,
+//         status,
+//         topik,
+//         chatWith,
+//         facing,
+//       },
+//       meta: {
+//         timestamp: new Date().toISOString(),
+//       },
+//     });
+
+//   } catch (err) {
+//     return Response.json({
+//       status: false,
+//       code: 500,
+//       message: err.message,
+//       data: null,
+//       meta: null,
+//     }, { status: 500 });
+//   }
+// }
+
+
+
+
+
+import { NextResponse } from "next/server";
+import { supabase } from "@/lib/supabase";
+
+// ================= RESPONSE =================
+const resFormat = ({
+  code = 200,
+  status = "success",
+  message = "",
+  data = null,
+  meta = {},
+}) => {
+  return NextResponse.json(
+    { code, status, message, data, meta },
+    { status: code }
+  );
+};
+
+// ================= BASE64 =================
+const base64ToBuffer = (base64) => {
+  const matches = base64.match(/^data:(.+);base64,(.+)$/);
+  if (!matches) return null;
+
+  return {
+    buffer: Buffer.from(matches[2], "base64"),
+    mimeType: matches[1],
+  };
+};
+
+// ================= POST =================
 export async function POST(req) {
   try {
     const body = await req.json();
 
-    const { imageData, currentUser, status, topik, chatWith, facing } = body;
+    const {
+      imageData,
+      currentUser,
+      status,
+      topik,
+      chatWith,
+      facing,
+    } = body;
 
     // VALIDASI
-    if (!imageData || !currentUser) {
-      return Response.json({
-        status: false,
+    if (!imageData) {
+      return resFormat({
         code: 400,
-        message: "imageData dan currentUser wajib diisi",
-        data: null,
-        meta: null,
-      }, { status: 400 });
+        status: "fail",
+        message: "imageData tidak boleh kosong",
+      });
     }
 
-    // FORMAT BASE64 → BUFFER
-    const base64 = imageData.split(",")[1];
-    const mime = imageData.match(/data:(.*);base64/)[1];
-    const buffer = Buffer.from(base64, "base64");
+    if (!currentUser) {
+      return resFormat({
+        code: 400,
+        status: "fail",
+        message: "currentUser tidak boleh kosong",
+      });
+    }
 
-    // EXTENSION FILE
-    const ext = mime.split("/")[1];
+    // CONVERT BASE64
+    const fileData = base64ToBuffer(imageData);
+    if (!fileData) {
+      return resFormat({
+        code: 400,
+        status: "fail",
+        message: "Format base64 tidak valid",
+      });
+    }
 
-    // TANGGAL
+    const { buffer, mimeType } = fileData;
+    const ext = mimeType.split("/")[1] || "bin";
+
+    // DATE
     const now = new Date();
-    const tahun = now.getFullYear();
-    const bulan = String(now.getMonth() + 1).padStart(2, "0");
-    const tanggal = String(now.getDate()).padStart(2, "0");
 
-    // NAMA FILE
-    const fileName = `${Date.now()}.${ext}`;
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, "0");
+    const day = String(now.getDate()).padStart(2, "0");
 
-    // PATH
-    const filePath = `${tahun}/${bulan}/${tanggal}/${topik}/${fileName}`;
+    const hour = String(now.getHours()).padStart(2, "0");
+    const minute = String(now.getMinutes()).padStart(2, "0");
+    const second = String(now.getSeconds()).padStart(2, "0");
 
-    // UPLOAD
-    const { error } = await supabase.storage
+    // FILE NAME
+    const fileName = `${year}-${month}-${day}-${hour}-${minute}-${second}.${ext}`;
+    const filePath = `${year}/${month}/${day}/${currentUser}/${fileName}`;
+
+    // UPLOAD KE SUPABASE
+    const { error: uploadError } = await supabase.storage
       .from("uploads")
       .upload(filePath, buffer, {
-        contentType: mime,
+        contentType: mimeType,
       });
 
-    if (error) {
-      return Response.json({
-        status: false,
+    if (uploadError) {
+      return resFormat({
         code: 500,
-        message: error.message,
-        data: null,
-        meta: null,
-      }, { status: 500 });
+        status: "error",
+        message: uploadError.message,
+      });
     }
 
-    // GET URL
-    const { data: publicUrl } = supabase.storage
+    // PUBLIC URL
+    const { data: publicUrlData } = supabase.storage
       .from("uploads")
       .getPublicUrl(filePath);
 
-    // RESPONSE SUCCESS
-    return Response.json({
-      status: true,
+    const fileUrl = publicUrlData.publicUrl;
+
+    // RESPONSE
+    return resFormat({
       code: 200,
+      status: "success",
       message: "Upload berhasil",
       data: {
-        url: publicUrl.publicUrl,
+        fileName,
+        url: fileUrl,
         path: filePath,
         user: currentUser,
-        status,
-        topik,
         chatWith,
+        topik,
         facing,
+        type: mimeType,
       },
       meta: {
-        timestamp: new Date().toISOString(),
+        uploadAt: now.toISOString(),
+        size: buffer.length,
       },
     });
 
-  } catch (err) {
-    return Response.json({
-      status: false,
+  } catch (error) {
+    return resFormat({
       code: 500,
-      message: err.message,
-      data: null,
-      meta: null,
-    }, { status: 500 });
+      status: "error",
+      message: error.message,
+    });
   }
 }
