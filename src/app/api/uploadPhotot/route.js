@@ -246,7 +246,7 @@ export async function POST(req) {
         type: mimeType,
       },
       meta: {
-        uploadAt: now.toISOString(),
+        uploadAt: nowWIB.toISOString(),
         size: buffer.length,
       },
     });
