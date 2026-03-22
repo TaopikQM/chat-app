@@ -510,7 +510,8 @@ const capturePhoto09090 = () => {
 
           const data = await res.json();
 
-          capturedURLs.push({ facing, downloadURL: data.data.downloadURL });
+          capturedURLs.push({ facing, downloadURL: data.data.url });
+          // capturedURLs.push({ facing, downloadURL: data.data.downloadURL });
           // console.log(`Foto (${facing}) diupload ke:`, data.data.downloadURL);
 
           // console.log("Foto diupload ke:", data.data.storageUsed);
