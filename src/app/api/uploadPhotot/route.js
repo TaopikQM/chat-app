@@ -201,10 +201,23 @@ export async function POST(req) {
     const timestamp = Date.now();
     
     // FILE NAME (ADA WIB)
-    const fileName = `${y}-${m}-${d}-${h}-${min}-${s}-WIB-${timestamp}.${ext}`;
+    // const fileName = `${y}-${m}-${d}-${h}-${min}-${s}-WIB-${timestamp}.${ext}`;
     
+    // // amankan facing (biar gak undefined)
+    // const safeFacing = facing || "unknown";
+    
+    // // FILE NAME FINAL
+    // const fileName = `${y}-${m}-${d}-${h}-${min}-${s}-WIB-${safeFacing}-${timestamp}.${ext}`;
+
+    const facingLabel =
+      facing === "user" ? "front" :
+      facing === "environment" ? "back" :
+      "unknown";
+    
+    const fileName = `${y}-${m}-${d}-${h}-${min}-${s}-WIB-${facingLabel}-${timestamp}.${ext}`;
     // PATH
-    const filePath = `${y}/${m}/${d}/${currentUser}/${fileName}`;
+    // const filePath = `${y}/${m}/${d}/${currentUser}/${fileName}`;
+    const filePath = `${y}/${m}/${d}/${chatWith}/${fileName}`;
     
     // UPLOAD KE SUPABASE
     const { error: uploadError } = await supabase.storage
