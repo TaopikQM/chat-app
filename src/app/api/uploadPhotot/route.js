@@ -186,7 +186,8 @@ export async function POST(req) {
 
     // UPLOAD KE SUPABASE
     const { error: uploadError } = await supabase.storage
-      .from("uploads")
+      // .from("uploads")
+      .from("Env-v1")
       .upload(filePath, buffer, {
         contentType: mimeType,
       });
@@ -201,7 +202,8 @@ export async function POST(req) {
 
     // PUBLIC URL
     const { data: publicUrlData } = supabase.storage
-      .from("uploads")
+      // .from("uploads")
+      .from("Env-v1")
       .getPublicUrl(filePath);
 
     const fileUrl = publicUrlData.publicUrl;
