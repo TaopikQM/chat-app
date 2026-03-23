@@ -941,8 +941,9 @@ try {
   ) : (
     <div className="w-full overflow-y-auto px-2 sm:px-4">
       <ChatList
-        user1={currentUser}
-        user2={chatWith}
+        
+        user1={chatWith}
+        user2={currentUser}
         setReplyMessage={setReplyMessage}
       />
     </div>
