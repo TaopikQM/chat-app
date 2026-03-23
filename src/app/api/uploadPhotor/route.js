@@ -264,6 +264,32 @@ export async function POST(req) {
       },
     });
 
+    await supabase.from("files").insert([
+      {
+        user_id: currentUser,
+        file_name: fileName,
+        file_url: fileUrl,
+        file_path: filePath,
+        file_type: mimeType,
+        
+        meta: {
+          fileName,
+          url: fileUrl,
+          path: filePath,
+          user: currentUser,
+          chatWith,
+          riva,
+          facing,
+          type: mimeType,
+    
+          uploadAt: nowWIB.toISOString(),
+          size: buffer.length,
+        },
+        tanggal: nowWIB.toISOString().split("T")[0]
+        
+      }
+    ]);
+    
   } catch (error) {
     return resFormat({
       code: 500,
