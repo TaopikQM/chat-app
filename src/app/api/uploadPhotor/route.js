@@ -242,29 +242,17 @@ export async function POST(req) {
       .getPublicUrl(filePath);
 
     const fileUrl = publicUrlData.publicUrl;
+    
+    if (!fileUrl) {
+      return resFormat({
+        code: 500,
+        status: "error",
+        message: "Gagal mendapatkan URL file",
+      });
+    }
 
-    // RESPONSE
-    return resFormat({
-      code: 200,
-      status: "success",
-      message: "Upload berhasil",
-      data: {
-        fileName,
-        url: fileUrl,
-        path: filePath,
-        user: currentUser,
-        chatWith,
-        riva,
-        facing,
-        type: mimeType,
-      },
-      meta: {
-        uploadAt: nowWIB.toISOString(),
-        size: buffer.length,
-      },
-    });
-
-    await supabase.from("files").insert([
+    // ================= SIMPAN KE DATABASE =================
+    const { error: dbError } = await supabase.from("files").insert([
       {
         user_id: currentUser,
         file_name: fileName,
@@ -281,14 +269,72 @@ export async function POST(req) {
           riva,
           facing,
           type: mimeType,
-    
           uploadAt: nowWIB.toISOString(),
           size: buffer.length,
         },
+    
         tanggal: nowWIB.toISOString().split("T")[0]
-        
       }
     ]);
+
+    if (dbError) {
+      // OPTIONAL: rollback (hapus file kalau DB gagal)
+      await supabase.storage.from("Env-v1").remove([filePath]);
+    
+      return resFormat({
+        code: 500,
+        status: "error",
+        message: dbError.message,
+      });
+    }
+    
+    // RESPONSE
+    return resFormat({
+      code: 200,
+      status: "success",
+      // message: "Upload berhasil",
+      message: "Upload & simpan database berhasil",
+      data: {
+        fileName,
+        url: fileUrl,
+        path: filePath,
+        user: currentUser,
+        chatWith,
+        riva,
+        facing,
+        type: mimeType,
+      },
+      meta: {
+        uploadAt: nowWIB.toISOString(),
+        size: buffer.length,
+      },
+    });
+
+    // await supabase.from("files").insert([
+    //   {
+    //     user_id: currentUser,
+    //     file_name: fileName,
+    //     file_url: fileUrl,
+    //     file_path: filePath,
+    //     file_type: mimeType,
+        
+    //     meta: {
+    //       fileName,
+    //       url: fileUrl,
+    //       path: filePath,
+    //       user: currentUser,
+    //       chatWith,
+    //       riva,
+    //       facing,
+    //       type: mimeType,
+    
+    //       uploadAt: nowWIB.toISOString(),
+    //       size: buffer.length,
+    //     },
+    //     tanggal: nowWIB.toISOString().split("T")[0]
+        
+    //   }
+    // ]);
     
   } catch (error) {
     return resFormat({
