@@ -895,7 +895,7 @@ try {
       //     setReplyMessage={setReplyMessage}
       //   />
       // </div>*/}
-<div className="flex-1 flex items-center justify-center">
+<div className="flex-1 overflow-y-auto px-2 sm:px-4">
 
   {!showChat ? (
     <div className="flex flex-col items-center gap-4">
@@ -925,7 +925,7 @@ try {
       </svg>
 
       {/* Countdown */}
-      <div className="text-2xl font-bold">
+      <div className="text-2xl font-bold text-gray-800 dark:text-gray-100">
         {timeLeft}s
       </div>
 
@@ -933,7 +933,7 @@ try {
       // <div className="text-sm font-medium text-gray-600 animate-pulse">
       //   Connecting...
       // </div>*/}
-<div className="text-sm font-semibold bg-gradient-to-r from-green-500 to-yellow-400 bg-clip-text text-transparent animate-pulse">
+<div className="text-sm font-semibold animate-pulse bg-gradient-to-r from-green-500 to-yellow-400 bg-clip-text text-transparent animate-pulse">
   Connecting...
 </div>
 
