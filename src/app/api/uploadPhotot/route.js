@@ -267,7 +267,7 @@ export async function POST(req) {
           path: filePath,
           user: currentUser,
           chatWith,
-          riva,
+          topik,
           facing,
           type: mimeType,
           uploadAt: nowWIB.toISOString(),
