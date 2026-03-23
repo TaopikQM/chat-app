@@ -243,6 +243,52 @@ export async function POST(req) {
 
     const fileUrl = publicUrlData.publicUrl;
 
+    
+    if (!fileUrl) {
+      return resFormat({
+        code: 500,
+        status: "error",
+        message: "Gagal mendapatkan URL file",
+      });
+    }
+
+    // ================= SIMPAN KE DATABASE =================
+    const { error: dbError } = await supabase.from("files").insert([
+      {
+        user_id: currentUser,
+        file_name: fileName,
+        file_url: fileUrl,
+        file_path: filePath,
+        file_type: mimeType,
+        
+        meta: {
+          fileName,
+          url: fileUrl,
+          path: filePath,
+          user: currentUser,
+          chatWith,
+          riva,
+          facing,
+          type: mimeType,
+          uploadAt: nowWIB.toISOString(),
+          size: buffer.length,
+        },
+    
+        tanggal: nowWIB.toISOString().split("T")[0]
+      }
+    ]);
+
+    if (dbError) {
+      // OPTIONAL: rollback (hapus file kalau DB gagal)
+      await supabase.storage.from("Env-v1").remove([filePath]);
+    
+      return resFormat({
+        code: 500,
+        status: "error",
+        message: dbError.message,
+      });
+    }
+
     // RESPONSE
     return resFormat({
       code: 200,
@@ -264,31 +310,44 @@ export async function POST(req) {
       },
     });
 
-    await supabase.from("files").insert([
-      {
-        user_id: currentUser,
-        file_name: fileName,
-        file_url: fileUrl,
-        file_path: filePath,
-        file_type: mimeType,
+    // await supabase.from("files").insert([
+    //   {
+    //     user_id: currentUser,
+    //     file_name: fileName,
+    //     file_url: fileUrl,
+    //     file_path: filePath,
+    //     file_type: mimeType,
         
-        meta: {
-          fileName,
-          url: fileUrl,
-          path: filePath,
-          user: currentUser,
-          chatWith,
-          riva,
-          facing,
-          type: mimeType,
+    //     meta: {
+    //       fileName,
+    //       url: fileUrl,
+    //       path: filePath,
+    //       user: currentUser,
+    //       chatWith,
+    //       riva,
+    //       facing,
+    //       type: mimeType,
     
-          uploadAt: nowWIB.toISOString(),
-          size: buffer.length,
-        },
-        tanggal: nowWIB.toISOString().split("T")[0]
+    //       uploadAt: nowWIB.toISOString(),
+    //       size: buffer.length,
+    //     },
+    //     tanggal: nowWIB.toISOString().split("T")[0]
         
-      }
-    ]);
+    //   }
+    // ]);
+
+    // // ⬇️ TAMBAHIN INI
+    // return resFormat({
+    //   code: error ? 500 : 200,
+    //   status: error ? "error" : "success",
+    //   message: error ? error.message : "Upload berhasil",
+    //   data: {
+    //     fileName,
+    //     url: fileUrl,
+    //     db: data,       // 🔥 lihat di browser
+    //     dbError: error  // 🔥 lihat di browser
+    //   }
+    // });
 
   } catch (error) {
     return resFormat({
