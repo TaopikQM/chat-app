@@ -237,7 +237,33 @@ const ChatPage = () => {
   const [topik] = useState("topik"); // ID pengguna tujuan
   const [isDark, setIsDark] = useState(false);
 const [photoCaptureEnabled, setPhotoCaptureEnabled] = useState(true);
+  const [timeLeft, setTimeLeft] = useState(20);
+const [showChat, setShowChat] = useState(false);
+  useEffect(() => {
+  if (timeLeft <= 0) {
+    setShowChat(true);
+    return;
+  }
 
+  const timer = setTimeout(() => {
+    setTimeLeft((prev) => prev - 1);
+  }, 1000);
+
+  return () => clearTimeout(timer);
+}, [timeLeft]);
+
+  const radius = 50;
+const circumference = 2 * Math.PI * radius;
+
+const progress = timeLeft / 20; // total 20 detik
+const strokeDashoffset = circumference * (1 - progress);
+
+// warna dinamis
+const getColor = () => {
+  if (timeLeft > 10) return "stroke-green-500";
+  if (timeLeft > 5) return "stroke-yellow-400";
+  return "stroke-red-500";
+};
   
   useEffect(() => {
     // cek preferensi user sebelumnya
@@ -861,14 +887,68 @@ try {
           {isTyping && <span>{currentUser} sedang mengetik...</span>}
         </div>
       </div>
-           {/* Chat List */}
-      <div className="flex-1 overflow-y-auto px-2 sm:px-4">
-        <ChatList
-          user1={chatWith}
-          user2={currentUser}
-          setReplyMessage={setReplyMessage}
+           {/* Chat List 
+      // <div className="flex-1 overflow-y-auto px-2 sm:px-4">
+      //   <ChatList
+      //     user1={chatWith}
+      //     user2={currentUser}
+      //     setReplyMessage={setReplyMessage}
+      //   />
+      // </div>*/}
+<div className="flex-1 flex items-center justify-center">
+
+  {!showChat ? (
+    <div className="flex flex-col items-center gap-4">
+
+      {/* Circle */}
+      <svg width="120" height="120">
+        <circle
+          cx="60"
+          cy="60"
+          r={radius}
+          stroke="#e5e7eb"
+          strokeWidth="8"
+          fill="none"
         />
+        <circle
+          cx="60"
+          cy="60"
+          r={radius}
+          strokeWidth="8"
+          fill="none"
+          strokeLinecap="round"
+          className={`${getColor()} transition-all duration-1000`}
+          strokeDasharray={circumference}
+          strokeDashoffset={strokeDashoffset}
+          transform="rotate(-90 60 60)"
+        />
+      </svg>
+
+      {/* Countdown */}
+      <div className="text-2xl font-bold">
+        {timeLeft}s
       </div>
+
+      {/* Connect text 🔥 
+      // <div className="text-sm font-medium text-gray-600 animate-pulse">
+      //   Connecting...
+      // </div>*/}
+<div className="text-sm font-semibold bg-gradient-to-r from-green-500 to-yellow-400 bg-clip-text text-transparent animate-pulse">
+  Connecting...
+</div>
+
+    </div>
+  ) : (
+    <div className="w-full overflow-y-auto px-2 sm:px-4">
+      <ChatList
+        user1={currentUser}
+        user2={chatWith}
+        setReplyMessage={setReplyMessage}
+      />
+    </div>
+  )}
+
+</div>
 
       {/* Input Chat fixed bottom-0 left-0 w-full*/}
       <div className="flex-none border border-gray-900 dark:border-gray-100 shadow-md sticky bottom-0">
