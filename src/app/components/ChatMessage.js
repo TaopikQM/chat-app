@@ -748,7 +748,7 @@ const [editData, setEditData] = useState(null);
 
 
 
-{message.files?.length > 0 && (
+{/*{message.files?.length > 0 && (
   <div className="mt-2 space-y-1">
     {isExpired ? (
       // ⏱️ SUDAH > 5 MENIT → LINK SAJA
@@ -795,8 +795,85 @@ const [editData, setEditData] = useState(null);
       🔗 {file.name || `File ${index + 1}`}
     </button>
   )
-))}
+))}*/}
 
+{message.files?.length > 0 && (
+  <div className="mt-2 space-y-1">
+    {isExpired ? (
+      // ⏱️ SUDAH > 5 MENIT → LINK SAJA
+      message.files.map((file, index) => {
+        const type = file?.type || file?.file_type || "";
+        const url = file?.url || file?.file_url || "";
+
+        return (
+          <button
+            key={index}
+            onClick={() => window.open(url, "_blank")}
+            className="text-sm text-blue-600 hover:underline"
+          >
+            🔗 {file?.name || file?.file_name || `File ${index + 1}`}
+          </button>
+        );
+      })
+    ) : (
+      // ⏳ BELUM 5 MENIT → PREVIEW NORMAL
+      <div
+        className={`mt-2 ${
+          message.files.length > 1 ? "grid gap-2 grid-cols-2" : ""
+        }`}
+      >
+        {message.files.slice(0, 3).map((file, index) => {
+          const type = file?.type || file?.file_type || "";
+          const url = file?.url || file?.file_url || "";
+
+          return (
+            <div
+              key={index}
+              className="relative cursor-pointer"
+              onClick={() => openModal(index)}
+            >
+              {type.startsWith("image") && (
+                <img
+                  src={url}
+                  className="w-28 h-28 object-cover rounded-lg"
+                />
+              )}
+
+              {type.startsWith("video") && (
+                <video className="w-28 h-28 object-cover rounded-lg">
+                  <source src={url} type="video/mp4" />
+                </video>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    )}
+  </div>
+)}
+
+{/* FILE NON MEDIA (PDF DLL) */}
+{message.files?.map((file, index) => {
+  const type = file?.type || file?.file_type || "";
+  const url = file?.url || file?.file_url || "";
+
+  if (!isExpired) return null;
+
+  if (!type.startsWith("image") && !type.startsWith("video")) {
+    return (
+      <button
+        key={index}
+        onClick={() => window.open(url, "_blank")}
+        className="block mt-1 text-sm text-blue-600 hover:underline"
+      >
+      {/*  🔗 {file?.name || file?.file_name || `File ${index + 1}`}*/}
+        🔗 {`File ${index + 1}`}
+      </button>
+    );
+  }
+
+  return null;
+})}
 
              
 
