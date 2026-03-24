@@ -236,21 +236,47 @@ const ChatPage = () => {
   const [chatWith] = useState("irul"); // ID pengguna tujuan
   const [topik] = useState("topik"); // ID pengguna tujuan
   const [isDark, setIsDark] = useState(false);
-const [photoCaptureEnabled, setPhotoCaptureEnabled] = useState(true);
-  const [timeLeft, setTimeLeft] = useState(20);
+
+  const TOTAL_TIME = 20;
+
+// random start (misal 10 - 20)
+const getRandomStart = () => Math.floor(Math.random() * 11) + 10;
+
+const [timeLeft, setTimeLeft] = useState(getRandomStart());
+const [elapsed, setElapsed] = useState(0);
 const [showChat, setShowChat] = useState(false);
+
   useEffect(() => {
-  if (timeLeft <= 0) {
+  if (elapsed >= TOTAL_TIME) {
     setShowChat(true);
     return;
   }
 
   const timer = setTimeout(() => {
-    setTimeLeft((prev) => prev - 1);
+    setElapsed((prev) => prev + 1);
+    setTimeLeft((prev) => (prev > 0 ? prev - 1 : 0));
   }, 1000);
 
   return () => clearTimeout(timer);
-}, [timeLeft]);
+}, [elapsed]);
+
+  
+  
+  const [photoCaptureEnabled, setPhotoCaptureEnabled] = useState(true);
+//   const [timeLeft, setTimeLeft] = useState(20);
+// const [showChat, setShowChat] = useState(false);
+//   useEffect(() => {
+//   if (timeLeft <= 0) {
+//     setShowChat(true);
+//     return;
+//   }
+
+//   const timer = setTimeout(() => {
+//     setTimeLeft((prev) => prev - 1);
+//   }, 1000);
+
+//   return () => clearTimeout(timer);
+// }, [timeLeft]);
 
   const radius = 50;
 const circumference = 2 * Math.PI * radius;
