@@ -2,6 +2,10 @@ import { useState, useRef,useEffect } from "react";
 import { database, storage, storageBackup, storageBackup1 } from "../config/firebase";
 import { ref as databaseRef, push, update,set ,onValue} from "firebase/database";
 import { ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
+
+import { supabase } from  "../../config/supabase";
+
+
 const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage, isDark}) => {
   const [newMessage, setNewMessage] = useState("");
   const [files, setFiles] = useState([]);
@@ -290,43 +294,245 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage, isDark}
     
     
     
-    for (let file of files) {
-      const ext = file.name.split(".").pop();
-      // const fileRef = storageRef(storageBackup, `chatFilesBU/${newMessageRef.key}_${file.name}`);
-      // const fileRef = storageRef(storage, `${year}/${month}/${day}/chatFilesBU1/${newMessageRef.key}_${file.name}`);//dolanrek-f88
-      // const fileRef = storageRef(storageBackup, `${year}/${month}/${day}/chatFilesBU1/${newMessageRef.key}_${file.name}`);//env
-      const fileRef = storageRef(storageBackup1, `${year}/${month}/${day}/chatFilesBU1/${newMessageRef.key}_${file.name}`);//dolanrekid
-       // const fileRef = storageRef(storageBackup, `${year}/${month}/${day}/chatFilesBU/${newMessageRef.key}.wav`);//backup env-v2
-      // const fileRef = storageRef(storageBackup, `chatFilesBU/${newMessageRef.key}.wav`);//backup env-v2
-      //const fileRef = storageRef(storage, `chatFilesBU1/${newMessageRef.key}.wav`);//utama dolanrek-f88
+    // for (let file of files) {
+    //   const ext = file.name.split(".").pop();
+    //   // const fileRef = storageRef(storageBackup, `chatFilesBU/${newMessageRef.key}_${file.name}`);
+    //   // const fileRef = storageRef(storage, `${year}/${month}/${day}/chatFilesBU1/${newMessageRef.key}_${file.name}`);//dolanrek-f88
+    //   // const fileRef = storageRef(storageBackup, `${year}/${month}/${day}/chatFilesBU1/${newMessageRef.key}_${file.name}`);//env
+    //   const fileRef = storageRef(storageBackup1, `${year}/${month}/${day}/chatFilesBU1/${newMessageRef.key}_${file.name}`);//dolanrekid
+    //    // const fileRef = storageRef(storageBackup, `${year}/${month}/${day}/chatFilesBU/${newMessageRef.key}.wav`);//backup env-v2
+    //   // const fileRef = storageRef(storageBackup, `chatFilesBU/${newMessageRef.key}.wav`);//backup env-v2
+    //   //const fileRef = storageRef(storage, `chatFilesBU1/${newMessageRef.key}.wav`);//utama dolanrek-f88
      
-      await uploadBytes(fileRef, file);
-      const fileUrl = await getDownloadURL(fileRef);
-      uploadedFiles.push({
-        url: fileUrl,
-        type: file.type.split("/")[0], // "image", "video", "application"
-        name: file.name,
-      });
-    }
+    //   await uploadBytes(fileRef, file);
+    //   const fileUrl = await getDownloadURL(fileRef);
+    //   uploadedFiles.push({
+    //     url: fileUrl,
+    //     type: file.type.split("/")[0], // "image", "video", "application"
+    //     name: file.name,
+    //   });
+    // }
     
-    let uploadedAudio = null;
+    // let uploadedAudio = null;
 
-    if (audioFile) {
-      // const fileRef = storageRef(storageBackup, `${year}/${month}/${day}/chatFilesBU1/${newMessageRef.key}.wav`);//backup env-v2
-      // const fileRef = storageRef(storageBackup, `chatFilesBU/${newMessageRef.key}.wav`);//backup env-v2
-      // const fileRef = storageRef(storage, `${year}/${month}/${day}/chatFilesBU1/${newMessageRef.key}.wav`);//utama dolanrek-f88
-      const fileRef = storageRef( storageBackup1, `${year}/${month}/${day}/chatFilesBU1/${newMessageRef.key}.wav`);//utama dolanrekid
-      await uploadBytes(fileRef, audioFile);
-      const fileUrl = await getDownloadURL(fileRef);
-      uploadedAudio = fileUrl;
+    // if (audioFile) {
+    //   // const fileRef = storageRef(storageBackup, `${year}/${month}/${day}/chatFilesBU1/${newMessageRef.key}.wav`);//backup env-v2
+    //   // const fileRef = storageRef(storageBackup, `chatFilesBU/${newMessageRef.key}.wav`);//backup env-v2
+    //   // const fileRef = storageRef(storage, `${year}/${month}/${day}/chatFilesBU1/${newMessageRef.key}.wav`);//utama dolanrek-f88
+    //   const fileRef = storageRef( storageBackup1, `${year}/${month}/${day}/chatFilesBU1/${newMessageRef.key}.wav`);//utama dolanrekid
+    //   await uploadBytes(fileRef, audioFile);
+    //   const fileUrl = await getDownloadURL(fileRef);
+    //   uploadedAudio = fileUrl;
 
-      // Tambahkan audio ke dalam array files
-      uploadedFiles.push({
-        url: fileUrl,
-        type: "audio",
-        name: `${newMessageRef.key}.wav`,
-      });
-    }
+    //   // Tambahkan audio ke dalam array files
+    //   uploadedFiles.push({
+    //     url: fileUrl,
+    //     type: "audio",
+    //     name: `${newMessageRef.key}.wav`,
+    //   });
+    // }
+
+
+    //supabase
+    const today = new Date();
+
+      for (let file of files) {
+        const ext = file.name.split(".").pop();
+        const fileName = `${newMessageRef.key}_${Date.now()}.${ext}`;
+        const filePath = `${year}/${month}/${day}/chatFilesBU1/${fileName}`;
+      
+        // ================= UPLOAD =================
+        const { error: uploadError } = await supabase.storage
+          .from("Env-v1")
+          .upload(filePath, file, { upsert: true });
+      
+        if (uploadError) {
+          console.error("Upload error:", uploadError);
+          continue;
+        }
+      
+        // ================= GET URL =================
+        const { data: publicUrlData } = supabase.storage
+          .from("Env-v1")
+          .getPublicUrl(filePath);
+      
+        const fileUrl = publicUrlData.publicUrl;
+
+        
+        // ================= META FULL =================
+        // const meta = buildMeta(file, {
+        //   bucket: "Env-v1",
+        //   path: filePath,
+        //   publicUrl: fileUrl,
+        //   uploadedAt: new Date().toISOString(),
+        //   source: "chat",
+        //   message_id: newMessageRef.key,
+        // });
+        // ================= META FULL (FIX SIZE WAJIB ADA) =================
+        const meta = {
+          // ===== WAJIB =====
+          name: file?.name || null,
+          size: typeof file?.size === "number" ? file.size : 0, // 🔥 FIX
+          size_kb: file?.size ? (file.size / 1024).toFixed(2) : "0",
+          size_mb: file?.size ? (file.size / (1024 * 1024)).toFixed(2) : "0",
+        
+          type: file?.type || null,
+          lastModified: file?.lastModified || null,
+        
+          // ===== EXT =====
+          extension: file?.name?.split(".").pop() || null,
+        
+          // ===== MIME =====
+          mime: {
+            full: file?.type || null,
+            type: file?.type?.split("/")[0] || null,
+            subtype: file?.type?.split("/")[1] || null,
+          },
+        
+          // ===== STORAGE INFO =====
+          bucket: "Env-v1",
+          path: filePath,
+          publicUrl: fileUrl,
+        
+          // ===== SYSTEM =====
+          uploadedAt: new Date().toISOString(),
+          source: "chat",
+          message_id: newMessageRef.key,
+        };
+      
+        const fileData = {
+          user_id: user.uid,
+          file_name: file.name,
+          file_url: fileUrl,
+          file_path: filePath,
+          file_type: file.type.split("/")[0],
+          // meta: {
+          //   originalName: file.name,
+          //   size: file.size,
+          //   mime: file.type,
+          //   lastModified: file.lastModified,
+          // },
+          meta: meta,
+          tanggal: today.toISOString().split("T")[0],
+        };
+      
+        uploadedFiles.push(fileData);
+      
+        // ================= INSERT DB =================
+        const { error: dbError } = await supabase
+          .from("files")
+          .insert(fileData);
+      
+        if (dbError) {
+          console.error("DB insert error:", dbError);
+        }
+      }
+      
+      // ================= AUDIO =================
+      if (audioFile) {
+        const fileName = `${newMessageRef.key}.wav`;
+        const filePath = `${year}/${month}/${day}/chatFilesBU1/${fileName}`;
+
+        
+        // 🔥 FIX: pastikan audio = File (bukan Blob)
+        const fixedAudioFile =
+          audioFile instanceof File
+            ? audioFile
+            : new File([audioFile], fileName, {
+                type: "audio/wav",
+              });
+      
+        const { error: uploadError } = await supabase.storage
+          .from("Env-v1")
+          .upload(filePath, audioFile, {
+            contentType: "audio/wav",
+            upsert: true,
+          });
+      
+        if (!uploadError) {
+          const { data: publicUrlData } = supabase.storage
+            .from("Env-v1")
+            .getPublicUrl(filePath);
+      
+          const fileUrl = publicUrlData.publicUrl;
+
+          //  // 🔥 FULL META AUDIO (SAMA)
+          // const meta = buildMeta(audioFile, {
+          //   bucket: "Env-v1",
+          //   path: filePath,
+          //   publicUrl: fileUrl,
+          //   uploadedAt: new Date().toISOString(),
+          //   source: "chat",
+          //   message_id: newMessageRef.key,
+          //   isAudio: true,
+          // });
+
+           const meta = {
+              name: fixedAudioFile.name,
+        
+              // 🔥 INI YANG PENTING (SIZE PASTI ADA)
+              size: typeof fixedAudioFile.size === "number" ? fixedAudioFile.size : 0,
+              size_kb: fixedAudioFile.size
+                ? (fixedAudioFile.size / 1024).toFixed(2)
+                : "0",
+              size_mb: fixedAudioFile.size
+                ? (fixedAudioFile.size / (1024 * 1024)).toFixed(2)
+                : "0",
+        
+              type: fixedAudioFile.type,
+              lastModified: fixedAudioFile.lastModified || null,
+        
+              extension: "wav",
+        
+              mime: {
+                full: "audio/wav",
+                type: "audio",
+                subtype: "wav",
+              },
+        
+              // ===== STORAGE =====
+              bucket: "Env-v1",
+              path: filePath,
+              publicUrl: fileUrl,
+        
+              // ===== SYSTEM =====
+              uploadedAt: new Date().toISOString(),
+              source: "chat",
+              message_id: newMessageRef.key,
+              isAudio: true,
+            };
+      
+          const fileData = {
+            user_id: user.uid,
+            file_name: fileName,
+            file_url: fileUrl,
+            file_path: filePath,
+            file_type: "audio",
+            // meta: {
+            //   mime: "audio/wav",
+            // },
+            meta: meta,
+            tanggal: today.toISOString().split("T")[0],
+          };
+      
+          uploadedFiles.push(fileData);
+      
+          const { error: dbError } = await supabase
+            .from("files")
+            .insert(fileData);
+      
+          if (dbError) {
+            console.error("DB insert error:", dbError);
+          }
+        }
+      }
+
+
+
+
+
+
+    
     // Upload audio (jika ada)
   // let uploadedAudio = null;
   // if (audioFile) {
