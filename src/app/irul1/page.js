@@ -281,7 +281,10 @@ const [showChat, setShowChat] = useState(false);
   const radius = 50;
 const circumference = 2 * Math.PI * radius;
 
-const progress = timeLeft / 20; // total 20 detik
+// const progress = timeLeft / 20; // total 20 detik
+  
+
+const progress = elapsed / TOTAL_TIME; // 🔥 pakai elapsed
 const strokeDashoffset = circumference * (1 - progress);
 
 // warna dinamis
