@@ -169,25 +169,52 @@ const ChatPage = () => {
   const [chatWith] = useState("sitop"); // ID pengguna tujuan
   const [diah] = useState("diah"); // ID pengguna tujuan
   const [isDark, setIsDark] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(20);
+
+ const TOTAL_TIME = 20;
+
+// random start (misal 10 - 20)
+const getRandomStart = () => Math.floor(Math.random() * 11) + 10;
+
+const [timeLeft, setTimeLeft] = useState(getRandomStart());
+const [elapsed, setElapsed] = useState(0);
 const [showChat, setShowChat] = useState(false);
-  useEffect(() => {
-  if (timeLeft <= 0) {
+
+ useEffect(() => {
+  if (elapsed >= TOTAL_TIME) {
     setShowChat(true);
     return;
   }
 
   const timer = setTimeout(() => {
-    setTimeLeft((prev) => prev - 1);
+    setElapsed((prev) => prev + 1);
+    setTimeLeft((prev) => (prev > 0 ? prev - 1 : 0));
   }, 1000);
 
   return () => clearTimeout(timer);
-}, [timeLeft]);
+}, [elapsed]);
+ 
+//  const [timeLeft, setTimeLeft] = useState(20);
+// const [showChat, setShowChat] = useState(false);
+//   useEffect(() => {
+//   if (timeLeft <= 0) {
+//     setShowChat(true);
+//     return;
+//   }
+
+//   const timer = setTimeout(() => {
+//     setTimeLeft((prev) => prev - 1);
+//   }, 1000);
+
+//   return () => clearTimeout(timer);
+// }, [timeLeft]);
 
   const radius = 50;
 const circumference = 2 * Math.PI * radius;
 
-const progress = timeLeft / 20; // total 20 detik
+// const progress = timeLeft / 20; // total 20 detik
+ 
+
+const progress = elapsed / TOTAL_TIME; // 🔥 pakai elapsed
 const strokeDashoffset = circumference * (1 - progress);
 
 // warna dinamis
