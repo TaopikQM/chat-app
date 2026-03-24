@@ -428,7 +428,7 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage, isDark}
         }
       }
 
-    // let uploadedAudio = null;
+    let uploadedAudio = null;
       // ================= AUDIO =================
       if (audioFile) {
         const fileName = `${newMessageRef.key}.wav`;
