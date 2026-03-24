@@ -128,30 +128,55 @@ export default function GalleryPage() {
             <div className="flex-1 h-[1px] bg-gray-300"></div>
           </div>
 
-          <div className="grid grid-cols-3 gap-2">
+          <div className="columns-2 sm:columns-3 md:columns-4 lg:columns-5 gap-3 space-y-3">
             {grouped[bulan].map((file) => {
               const indexGlobal = files.findIndex(f => f.name === file.name);
               const url = getUrl(file.name);
               const type = file.metadata?.mimetype || "";
 
-              return (
-                <div
+             {/*   return (
+              <div
                   key={file.name}
                   onClick={() => setSelectedIndex(indexGlobal)}
                   className="cursor-pointer"
                 >
                   {type.startsWith("image") && (
-                    <img src={url} className="w-full h-28 object-cover rounded" />
+                    <img src={url} loading="lazy" className="w-full h-28 object-cover rounded" />
                   )}
 
                   {type.startsWith("video") && (
-                    <video className="w-full h-28 object-cover rounded">
+                    <video className="w-full loading="lazy" h-28 object-cover rounded">
                       <source src={url} />
                     </video>
                   )}
                 </div>
               );
-            })}
+            })}*/}
+            return (
+  <div
+    key={file.name}
+    onClick={() => setSelectedIndex(indexGlobal)}
+    className="cursor-pointer break-inside-avoid"
+  >
+    {(type || "").startsWith("image") && (
+      <img
+        src={url}
+        loading="lazy"
+        className="w-full rounded-lg object-cover hover:scale-[1.02] transition"
+      />
+    )}
+
+    {(type || "").startsWith("video") && (
+      <video
+        className="w-full rounded-lg object-cover"
+        muted
+        preload="metadata"
+      >
+        <source src={url} />
+      </video>
+    )}
+  </div>
+);
           </div>
         </div>
       ))}
