@@ -417,6 +417,10 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage, isDark}
         };
       
         uploadedFiles.push(fileData);
+        
+        // const fileUrls = uploadedFiles
+        //     .filter(f => f && f.file_url)
+        //     .map(f => f.file_url);
       
         // ================= INSERT DB =================
         const { error: dbError } = await supabase
@@ -445,7 +449,8 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage, isDark}
       
         const { error: uploadError } = await supabase.storage
           .from("Env-v1")
-          .upload(filePath, audioFile, {
+          // .upload(filePath, audioFile, {
+        .upload(filePath, fixedAudioFile, {
             contentType: "audio/wav",
             upsert: true,
           });
@@ -518,10 +523,27 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage, isDark}
       
           uploadedFiles.push(fileData);
 
-         const uploadedAudio = uploadedFiles.find(
-            (f) => f.file_type === "audio"
-          ) || null;
-      
+         // const uploadedAudio = uploadedFiles.find(
+         //    (f) => f.file_type === "audio"
+         //  ) || null;
+
+            // const fileUrls = uploadedFiles
+            //   .filter(f => f.file_type !== "audio")
+            //   .map(f => f.file_url);
+            
+            // const audioUrl = uploadedFiles.find(
+            //   f => f.file_type === "audio"
+            // )?.file_url || null;
+
+          // 🔥 ambil semua URL selain audio
+          const fileUrls = uploadedFiles
+            .filter(f => f && f.file_url && f.file_type !== "audio")
+            .map(f => f.file_url);
+          
+          // 🔥 ambil 1 audio
+          const audioUrl = uploadedFiles.find(
+            f => f.file_type === "audio"
+          )?.file_url || null;
           const { error: dbError } = await supabase
             .from("files")
             .insert(fileData);
@@ -559,8 +581,10 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage, isDark}
       pengirim,
       penerima,
       pesan: newMessage,
-      files: uploadedFiles,
-      audio: uploadedAudio,
+      // files: uploadedFiles,
+      // audio: uploadedAudio,
+      files: fileUrls,   // ✅ array URL
+        audio: audioUrl,   // ✅ 1 URL audio
     //   files1: uploadedFiles,
     // audio1: audio,
       timestamp: Date.now(),
