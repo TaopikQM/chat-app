@@ -180,32 +180,51 @@ const [previousPage, setPreviousPage] = useState(1);
         .sort((a, b) => a.timestamp - b.timestamp);
         
         // **Ambil metadata untuk setiap file dalam pesan**
-        messagesArray = await Promise.all(
-          messagesArray.map(async (msg) => {
-            if (msg.files && Array.isArray(msg.files)) {
-              const filesWithMetadata = await Promise.all(
-                msg.files.map(async (file) => {
-                  try {
-                    const fileRef = storageRef(storage, file.url);
-                    const metadata = await getMetadata(fileRef);
-                    return {
-                      ...file,
-                      size: metadata.size, // Ukuran dalam bytes
-                      type: metadata.contentType, // Tipe file
-                    };
-                  } catch (error) {
-                    console.error("Error getting metadata:", error);
-                    return { ...file, size: null, type: null }; // Handle jika metadata gagal diambil
-                  }
-                })
-              );
-              return { ...msg, files: filesWithMetadata };
-            }
-            return msg;
-          })
-        );
+        // messagesArray = await Promise.all(
+        //   messagesArray.map(async (msg) => {
+        //     if (msg.files && Array.isArray(msg.files)) {
+        //       const filesWithMetadata = await Promise.all(
+        //         msg.files.map(async (file) => {
+        //           try {
+        //             const fileRef = storageRef(storage, file.url);
+        //             const metadata = await getMetadata(fileRef);
+        //             return {
+        //               ...file,
+        //               size: metadata.size, // Ukuran dalam bytes
+        //               type: metadata.contentType, // Tipe file
+        //             };
+        //           } catch (error) {
+        //             console.error("Error getting metadata:", error);
+        //             return { ...file, size: null, type: null }; // Handle jika metadata gagal diambil
+        //           }
+        //         })
+        //       );
+        //       return { ...msg, files: filesWithMetadata };
+        //     }
+        //     return msg;
+        //   })
+        // );
 
-        setMessages(messagesArray);
+        // setMessages(messagesArray);
+
+
+        // messagesArray = messagesArray
+        //   .map(([id, msg]) => ({ id, ...msg }))
+        //   .filter(...) // punyamu tetap
+        //   .sort((a, b) => a.timestamp - b.timestamp)
+        //   .map((msg) => ({
+        //     ...msg,
+        //     files: Array.isArray(msg.files) ? msg.files : [],
+        //   }));
+        
+        // setMessages(messagesArray);
+
+        messagesArray = messagesArray.map((msg) => ({
+            ...msg,
+            files: Array.isArray(msg.files) ? msg.files : [],
+          }));
+          
+          setMessages(messagesArray);
 
         // console.log(messagesArray);
         // **✅ Set halaman terakhir saat pertama kali load**
