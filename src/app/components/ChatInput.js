@@ -427,7 +427,8 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage, isDark}
           console.error("DB insert error:", dbError);
         }
       }
-      
+
+    // let uploadedAudio = null;
       // ================= AUDIO =================
       if (audioFile) {
         const fileName = `${newMessageRef.key}.wav`;
@@ -516,6 +517,10 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage, isDark}
           };
       
           uploadedFiles.push(fileData);
+
+         const uploadedAudio = uploadedFiles.find(
+            (f) => f.file_type === "audio"
+          ) || null;
       
           const { error: dbError } = await supabase
             .from("files")
