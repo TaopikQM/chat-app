@@ -3,7 +3,7 @@ import { database, storage, storageBackup, storageBackup1 } from "../config/fire
 import { ref as databaseRef, push, update,set ,onValue} from "firebase/database";
 import { ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
 
-import { supabase } from  "../../config/supabase";
+import { supabase } from  "../config/supabase";
 
 
 const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage, isDark}) => {
