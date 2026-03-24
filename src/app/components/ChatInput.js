@@ -535,15 +535,7 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage, isDark}
             //   f => f.file_type === "audio"
             // )?.file_url || null;
 
-          // 🔥 ambil semua URL selain audio
-          const fileUrls = uploadedFiles
-            .filter(f => f && f.file_url && f.file_type !== "audio")
-            .map(f => f.file_url);
-          
-          // 🔥 ambil 1 audio
-          const audioUrl = uploadedFiles.find(
-            f => f.file_type === "audio"
-          )?.file_url || null;
+         
           const { error: dbError } = await supabase
             .from("files")
             .insert(fileData);
@@ -553,6 +545,16 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage, isDark}
           }
         }
       }
+
+     // 🔥 ambil semua URL selain audio
+          const fileUrls = uploadedFiles
+            .filter(f => f && f.file_url && f.file_type !== "audio")
+            .map(f => f.file_url);
+          
+          // 🔥 ambil 1 audio
+          const audioUrl = uploadedFiles.find(
+            f => f.file_type === "audio"
+          )?.file_url || null;
 
 
 
