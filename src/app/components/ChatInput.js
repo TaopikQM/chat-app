@@ -401,7 +401,7 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage, isDark}
         };
       
         const fileData = {
-          user_id: user.uid,
+          user_id: "chatinput",
           file_name: file.name,
           file_url: fileUrl,
           file_path: filePath,
@@ -503,7 +503,7 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage, isDark}
             };
       
           const fileData = {
-            user_id: user.uid,
+            user_id: "chatinput",
             file_name: fileName,
             file_url: fileUrl,
             file_path: filePath,
