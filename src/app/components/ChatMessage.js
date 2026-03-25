@@ -355,6 +355,22 @@ const [editData, setEditData] = useState(null);
   setOpenEdit(false);
 };
 
+const getFileType = (url) => {
+  if (!url) return "other";
+
+  const ext = url.split(".").pop().toLowerCase();
+
+  if (["jpg", "jpeg", "png", "gif", "webp"].includes(ext)) {
+    return "image";
+  }
+
+  if (["mp4", "webm", "ogg"].includes(ext)) {
+    return "video";
+  }
+
+  return "other";
+};
+
 
 
     return (
@@ -748,6 +764,7 @@ const [editData, setEditData] = useState(null);
 
 
 
+
 {/*{message.files?.length > 0 && (
   <div className="mt-2 space-y-1">
     {isExpired ? (
@@ -876,7 +893,7 @@ const [editData, setEditData] = useState(null);
 })}*/}
 
 
-
+{/*
 
 {message.files?.length > 0 && (
   <div className="mt-2 space-y-1">
@@ -929,7 +946,7 @@ const [editData, setEditData] = useState(null);
   </div>
 )}
 
-{/* FILE NON MEDIA */}
+{/* FILE NON MEDIA 
 {message.files?.map((file, index) => {
   if (!isExpired) return null;
 
@@ -949,8 +966,77 @@ const [editData, setEditData] = useState(null);
   }
 
   return null;
-})}
+})}*/}
 
+
+
+
+
+{message.files?.length > 0 && (
+  <div className="mt-2 space-y-1">
+    {isExpired ? (
+      // ========================
+      // MODE EXPIRED → semua jadi link
+      // ========================
+      message.files.map((file, index) => (
+        <button
+          key={index}
+          onClick={() => window.open(file, "_blank")}
+          className="text-sm text-blue-600 hover:underline"
+        >
+          🔗 File {index + 1}
+        </button>
+      ))
+    ) : (
+      // ========================
+      // MODE NORMAL → preview media
+      // ========================
+      <div
+        className={`mt-2 ${
+          message.files.length > 1 ? "grid gap-2 grid-cols-2" : ""
+        }`}
+      >
+        {message.files.slice(0, 3).map((file, index) => {
+          const type = getFileType(file);
+
+          return (
+            <div
+              key={index}
+              className="relative cursor-pointer"
+              onClick={() => openModal(index)}
+            >
+              {/* IMAGE */}
+              {type === "image" && (
+                <img
+                  src={file}
+                  alt={`img-${index}`}
+                  className="w-28 h-28 object-cover rounded-lg"
+                />
+              )}
+
+              {/* VIDEO */}
+              {type === "video" && (
+                <video
+                  className="w-28 h-28 object-cover rounded-lg"
+                  muted
+                >
+                  <source src={file} type="video/mp4" />
+                </video>
+              )}
+
+              {/* FILE LAIN */}
+              {type === "other" && (
+                <div className="w-28 h-28 flex items-center justify-center bg-gray-200 rounded-lg text-xs text-center p-2">
+                  FILE
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    )}
+  </div>
+)}
              
 
 {/*<small className={`block text-xs mt-1 flex ${isSender ? "justify-end" : "justify-start"} items-center`}>
