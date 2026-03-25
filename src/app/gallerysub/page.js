@@ -153,30 +153,31 @@ export default function GalleryPage() {
               );
             })}*/}
             return (
-  <div
-    key={file.name}
-    onClick={() => setSelectedIndex(indexGlobal)}
-    className="cursor-pointer break-inside-avoid"
-  >
-    {(type || "").startsWith("image") && (
-      <img
-        src={url}
-        loading="lazy"
-        className="w-full rounded-lg object-cover hover:scale-[1.02] transition"
-      />
-    )}
-
-    {(type || "").startsWith("video") && (
-      <video
-        className="w-full rounded-lg object-cover"
-        muted
-        preload="metadata"
-      >
-        <source src={url} />
-      </video>
-    )}
-  </div>
-);
+              <div
+                key={file.name}
+                onClick={() => setSelectedIndex(indexGlobal)}
+                className="cursor-pointer break-inside-avoid"
+              >
+                {(type || "").startsWith("image") && (
+                  <img
+                    src={url}
+                    loading="lazy"
+                    className="w-full rounded-lg object-cover hover:scale-[1.02] transition"
+                  />
+                )}
+            
+                {(type || "").startsWith("video") && (
+                  <video
+                    className="w-full rounded-lg object-cover"
+                    muted
+                    preload="metadata"
+                  >
+                    <source src={url} />
+                  </video>
+                )}
+              </div>
+            );
+             })}
           </div>
         </div>
       ))}
