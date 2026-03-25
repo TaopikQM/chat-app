@@ -882,12 +882,12 @@ const toggleMedia = (index) => {
                 </button>
               )}
 
-              {/* COPY BUTTON */}
-              <div className="flex gap-2 text-[10px]">
-                <button onClick={copyIMG}>📋 IMG</button>
-                <button onClick={copyURL}>🔗 URL</button>
-                <button onClick={copyDL}>⬇️ DL</button>
-              </div>
+              {/* COPY BUTTON
+              // <div className="flex gap-2 text-[10px]">
+              //   <button onClick={copyIMG}>📋 IMG</button>
+              //   <button onClick={copyURL}>🔗 URL</button>
+              //   <button onClick={copyDL}>⬇️ DL</button>
+              // </div> */}
 
             </div>
           );
