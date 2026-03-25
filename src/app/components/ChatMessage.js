@@ -795,7 +795,7 @@ const [editData, setEditData] = useState(null);
       🔗 {file.name || `File ${index + 1}`}
     </button>
   )
-))}*/}
+))}
 
 {message.files?.length > 0 && (
   <div className="mt-2 space-y-1">
@@ -852,7 +852,7 @@ const [editData, setEditData] = useState(null);
   </div>
 )}
 
-{/* FILE NON MEDIA (PDF DLL) */}
+{/* FILE NON MEDIA (PDF DLL) 
 {message.files?.map((file, index) => {
   const type = file?.type || file?.file_type || "";
   const url = file?.url || file?.file_url || "";
@@ -866,7 +866,83 @@ const [editData, setEditData] = useState(null);
         onClick={() => window.open(url, "_blank")}
         className="block mt-1 text-sm text-blue-600 hover:underline"
       >
-      {/*  🔗 {file?.name || file?.file_name || `File ${index + 1}`}*/}
+      // {/*  🔗 {file?.name || file?.file_name || `File ${index + 1}`}
+        🔗 {`File ${index + 1}`}
+      </button>
+    );
+  }
+
+  return null;
+})}*/}
+
+
+
+
+{message.files?.length > 0 && (
+  <div className="mt-2 space-y-1">
+    {isExpired ? (
+      message.files.map((file, index) => {
+        const url = file;
+        return (
+          <button
+            key={index}
+            onClick={() => window.open(url, "_blank")}
+            className="text-sm text-blue-600 hover:underline"
+          >
+            🔗 {`File ${index + 1}`}
+          </button>
+        );
+      })
+    ) : (
+      <div
+        className={`mt-2 ${
+          message.files.length > 1 ? "grid gap-2 grid-cols-2" : ""
+        }`}
+      >
+        {message.files.slice(0, 3).map((file, index) => {
+          const url = file;
+          const type = getFileType(url);
+
+          return (
+            <div
+              key={index}
+              className="relative cursor-pointer"
+              onClick={() => openModal(index)}
+            >
+              {type === "image" && (
+                <img
+                  src={url}
+                  className="w-28 h-28 object-cover rounded-lg"
+                />
+              )}
+
+              {type === "video" && (
+                <video className="w-28 h-28 object-cover rounded-lg">
+                  <source src={url} />
+                </video>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    )}
+  </div>
+)}
+
+{/* FILE NON MEDIA */}
+{message.files?.map((file, index) => {
+  if (!isExpired) return null;
+
+  const url = file;
+  const type = getFileType(url);
+
+  if (type === "other") {
+    return (
+      <button
+        key={index}
+        onClick={() => window.open(url, "_blank")}
+        className="block mt-1 text-sm text-blue-600 hover:underline"
+      >
         🔗 {`File ${index + 1}`}
       </button>
     );
