@@ -15,11 +15,15 @@ export default function GalleryPage() {
   const [files, setFiles] = useState([]);
   const [selectedIndex, setSelectedIndex] = useState(null);
 
+  const [openMenu, setOpenMenu] = useState(null);
+  const [metaData, setMetaData] = useState(null);
+  const [loadingMeta, setLoadingMeta] = useState(false);
+
   // ================= FETCH =================
   const fetchData = async (folder = "") => {
     const { data, error } = await supabase.storage
       .from("Env-v1")
-      .list(folder, { limit: 1000 });
+      .list(folder, { limit: 10000 });
 
     if (error) {
       console.error(error);
@@ -91,6 +95,25 @@ export default function GalleryPage() {
     setSelectedIndex((i) => (i > 0 ? i - 1 : i));
   };
 
+  const getMeta = async (fileName) => {
+    setLoadingMeta(true);
+  
+    const { data, error } = await supabase.storage
+      .from("Env-v1")
+      .list(path); // path sekarang
+  
+    if (error) {
+      console.error(error);
+      setLoadingMeta(false);
+      return;
+    }
+  
+    const file = data.find((f) => f.name === fileName);
+  
+    setMetaData(file || null);
+    setLoadingMeta(false);
+  };
+  
   return (
     <div className="p-4">
       <h1 className="text-xl font-bold mb-4">Gallery Supabase</h1>
@@ -153,11 +176,67 @@ export default function GalleryPage() {
               );
             })}*/}
             return (
-              <div
+              {/* <div
                 key={file.name}
                 onClick={() => setSelectedIndex(indexGlobal)}
                 className="cursor-pointer break-inside-avoid"
-              >
+              >*/}
+                  <div
+                    key={file.name}
+                    className="relative cursor-pointer break-inside-avoid"
+                  >
+                      {/* ================= TITIK 3 ================= */}
+<button
+  onClick={(e) => {
+    e.stopPropagation();
+    setOpenMenu(openMenu === file.name ? null : file.name);
+  }}
+  className="absolute top-1 right-1 bg-black/50 text-white px-2 rounded"
+>
+  ⋮
+</button>
+
+{/* ================= DROPDOWN ================= */}
+{openMenu === file.name && (
+  <div className="absolute top-6 right-1 bg-white text-black shadow rounded text-xs z-50">
+    <button
+      onClick={(e) => {
+        e.stopPropagation();
+        getMeta(file.name);
+      }}
+      className="block px-3 py-1 hover:bg-gray-100 w-full text-left"
+    >
+      📄 Meta
+    </button>
+
+    <button
+      onClick={(e) => {
+        e.stopPropagation();
+        alert(`Size: ${file.metadata?.size || "Unknown"} bytes`);
+      }}
+      className="block px-3 py-1 hover:bg-gray-100 w-full text-left"
+    >
+      📦 Size
+    </button>
+  </div>
+)}
+              {type?.startsWith?.("image") && (
+  <img
+    src={url}
+    loading="lazy"
+    className="w-full rounded-lg object-cover hover:scale-[1.02] transition"
+  />
+)}
+
+{type?.startsWith?.("video") && (
+  <video
+    className="w-full rounded-lg object-cover"
+    muted
+    preload="metadata"
+  >
+    <source src={url} />
+  </video>
+)}{/*
                 {(type || "").startsWith("image") && (
                   <img
                     src={url}
@@ -174,7 +253,25 @@ export default function GalleryPage() {
                   >
                     <source src={url} />
                   </video>
-                )}
+                )}*/}
+              {metaData && (
+  <div className="fixed bottom-4 right-4 bg-white p-3 shadow rounded text-xs max-w-xs">
+    <div className="font-bold mb-1">Meta File</div>
+    {loadingMeta ? (
+      <div>Loading...</div>
+    ) : (
+      <pre className="whitespace-pre-wrap">
+        {JSON.stringify(metaData, null, 2)}
+      </pre>
+    )}
+    <button
+      onClick={() => setMetaData(null)}
+      className="mt-2 text-red-500"
+    >
+      Tutup
+    </button>
+  </div>
+)}
               </div>
             );
              })}
