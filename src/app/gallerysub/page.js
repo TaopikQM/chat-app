@@ -179,7 +179,7 @@ export default function GalleryPage() {
                 key={file.name}
                 onClick={() => setSelectedIndex(indexGlobal)}
                 className="cursor-pointer break-inside-avoid"
-              >*/}*/}
+              >*/}
             return (
              
                   <div
