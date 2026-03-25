@@ -371,20 +371,31 @@ const [editData, setEditData] = useState(null);
 //   return "other";
 // };
 
- const getFileType = (url) => {
-  if (!url || typeof url !== "string") return "other";
+//  const getFileType = (url) => {
+//   if (!url || typeof url !== "string") return "other";
 
-  const ext = url.split(".").pop()?.toLowerCase();
+//   const ext = url.split(".").pop()?.toLowerCase();
 
-  if (!ext) return "other";
+//   if (!ext) return "other";
 
-  if (["jpg", "jpeg", "png", "gif", "webp"].includes(ext)) {
-    return "image";
-  }
+//   if (["jpg", "jpeg", "png", "gif", "webp"].includes(ext)) {
+//     return "image";
+//   }
 
-  if (["mp4", "webm", "ogg"].includes(ext)) {
-    return "video";
-  }
+//   if (["mp4", "webm", "ogg"].includes(ext)) {
+//     return "video";
+//   }
+
+//   return "other";
+// };
+
+ const getFileType = (file) => {
+  if (!file || typeof file !== "string") return "other";
+
+  const ext = file.split(".").pop()?.toLowerCase();
+
+  if (["jpg", "jpeg", "png", "gif", "webp"].includes(ext)) return "image";
+  if (["mp4", "webm", "ogg"].includes(ext)) return "video";
 
   return "other";
 };
@@ -987,9 +998,111 @@ const [editData, setEditData] = useState(null);
 })}*/}
 
 
+{message.files?.length > 0 && (
+  <div className="mt-2 space-y-1">
 
+    {/* ========================= */}
+    {/* MODE EXPIRED → LINK SAJA */}
+    {/* ========================= */}
+    {isExpired ? (
+      message.files
+        .filter((file) => typeof file === "string")
+        .map((file, index) => (
+          <button
+            key={index}
+            onClick={() => window.open(file, "_blank")}
+            className="text-sm text-blue-600 hover:underline block"
+          >
+            🔗 File {index + 1}
+          </button>
+        ))
+    ) : (
+      <>
+        {/* ========================= */}
+        {/* MODE NORMAL → PREVIEW */}
+        {/* ========================= */}
+        <div
+          className={`mt-2 ${
+            message.files.length > 1 ? "grid grid-cols-2 gap-2" : ""
+          }`}
+        >
+          {message.files
+            .filter((file) => typeof file === "string") // 🔥 anti error
+            .slice(0, 4)
+            .map((file, index) => {
+              const type = getFileType(file);
 
+              return (
+                <div
+                  key={index}
+                  className="relative cursor-pointer"
+                  onClick={() => openModal(index)}
+                >
+                  {/* IMAGE */}
+                  {type === "image" && (
+                    <img
+                      src={file}
+                      alt={`img-${index}`}
+                      className="w-28 h-28 object-cover rounded-lg"
+                    />
+                  )}
 
+                  {/* VIDEO */}
+                  {type === "video" && (
+                    <>
+                      <video
+                        className="w-28 h-28 object-cover rounded-lg"
+                        muted
+                      >
+                        <source src={file} />
+                      </video>
+
+                      {/* overlay play icon */}
+                      <div className="absolute inset-0 flex items-center justify-center text-white text-xl">
+                        ▶️
+                      </div>
+                    </>
+                  )}
+
+                  {/* FILE OTHER */}
+                  {type === "other" && (
+                    <div className="w-28 h-28 flex items-center justify-center bg-gray-200 rounded-lg text-xs text-center p-2">
+                      FILE
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+        </div>
+
+        {/* ========================= */}
+        {/* FILE NON MEDIA (opsional) */}
+        {/* ========================= */}
+        {message.files
+          .filter((file) => typeof file === "string")
+          .map((file, index) => {
+            const type = getFileType(file);
+
+            if (type === "other") {
+              return (
+                <button
+                  key={index}
+                  onClick={() => window.open(file, "_blank")}
+                  className="block mt-1 text-sm text-blue-600 hover:underline"
+                >
+                  🔗 File {index + 1}
+                </button>
+              );
+            }
+
+            return null;
+          })}
+      </>
+    )}
+  </div>
+)}
+
+{/*
 {message.files?.length > 0 && (
   <div className="mt-2 space-y-1">
     {isExpired ? (
@@ -1014,7 +1127,7 @@ const [editData, setEditData] = useState(null);
           message.files.length > 1 ? "grid gap-2 grid-cols-2" : ""
         }`}
       >
-        {/*// {message.files.slice(0, 3).map((file, index) => {*/}
+        // {message.files.slice(0, 3).map((file, index) => {
          {message.files
           ?.filter((f) => typeof f === "string" && f.startsWith("http"))
           .slice(0, 3)
@@ -1045,7 +1158,7 @@ const [editData, setEditData] = useState(null);
                 >
                   <source src={file} type="video/mp4" />
                 </video>
-              )} */}
+              )}
 
               {type === "image" && file && (
                 <img
@@ -1061,7 +1174,7 @@ const [editData, setEditData] = useState(null);
                 </video>
               )}
 
-              {/* FILE LAIN */}
+              {/* FILE LAIN 
               {type === "other" && (
                 <div className="w-28 h-28 flex items-center justify-center bg-gray-200 rounded-lg text-xs text-center p-2">
                   FILE
@@ -1073,7 +1186,7 @@ const [editData, setEditData] = useState(null);
       </div>
     )}
   </div>
-)}
+)}*/}
              
 
 {/*<small className={`block text-xs mt-1 flex ${isSender ? "justify-end" : "justify-start"} items-center`}>
