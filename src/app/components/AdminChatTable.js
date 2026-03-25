@@ -1079,7 +1079,84 @@ const totalFiles1 = messages.reduce((acc, msg) => acc + (msg.files ? msg.files.l
                      "-"
                      )}
                    </td> alert('Link copied to clipboard!');  onClick={copyToClipboard} alert('Link formula copied for Google Sheets!');*/}
-                      <td className="border border-gray-300 px-4 py-2">
+                    
+<td className="border border-gray-300 px-4 py-2">
+  {msg.files && msg.files.length > 0 ? (
+    <div className="flex flex-col gap-2">
+      {msg.files
+        .filter((file) => typeof file === "string") // 🔥 penting
+        .map((file, fileIndex) => {
+          const ext = file.split(".").pop()?.toLowerCase();
+
+          const isImage = ["jpg", "jpeg", "png", "gif", "webp"].includes(ext);
+          const isVideo = ["mp4", "avi", "mov", "webm"].includes(ext);
+
+          const copyToClipboard = (url) => {
+            const formula = `=IMAGE("${url}",4,100,50)`;
+            navigator.clipboard.writeText(formula);
+          };
+
+          const copyToClipboard1 = (url) => {
+            navigator.clipboard.writeText(url);
+          };
+
+          const copyToClipboard2 = (url) => {
+            const formula = `=HYPERLINK("${url}", "⬇️")`;
+            navigator.clipboard.writeText(formula);
+          };
+
+          return (
+            <div key={fileIndex} className="flex flex-col gap-1">
+              {/* Toggle */}
+              {(isImage || isVideo) && (
+                <button
+                  onClick={() => toggleMedia(fileIndex)}
+                  className="text-sm w-fit"
+                >
+                  {isImage ? "🖼️" : "🎞️"}{" "}
+                  {openMedia[fileIndex] ? "Hide" : "Show"}
+                </button>
+              )}
+
+              {/* MEDIA */}
+              {openMedia[fileIndex] && (
+                <>
+                  {isImage && (
+                    <img
+                      src={file}
+                      alt={`img-${fileIndex}`}
+                      onClick={() => openModal(file, "image")}
+                      className="max-w-xs max-h-40 object-contain border rounded cursor-pointer"
+                    />
+                  )}
+
+                  {isVideo && (
+                    <video
+                      controls
+                      src={file}
+                      onClick={() => openModal(file, "video")}
+                      className="max-w-xs max-h-40 border rounded cursor-pointer"
+                    />
+                  )}
+                </>
+              )}
+
+              {/* COPY BUTTON */}
+              <div className="flex gap-2 text-xs">
+                <button onClick={() => copyToClipboard(file)}>📋 IMG</button>
+                <button onClick={() => copyToClipboard1(file)}>🔗 URL</button>
+                <button onClick={() => copyToClipboard2(file)}>⬇️ DL</button>
+              </div>
+            </div>
+          );
+        })}
+    </div>
+  ) : (
+    <span className="text-gray-400 text-sm">Tidak ada file</span>
+  )}
+</td>
+
+{/*  <td className="border border-gray-300 px-4 py-2">
   {msg.files && msg.files.length > 0 ? (
     <div className="flex flex-col gap-2">
                       {msg.files.map((file, fileIndex) => {
@@ -1103,7 +1180,7 @@ const totalFiles1 = messages.reduce((acc, msg) => acc + (msg.files ? msg.files.l
 
   return (
     <div key={fileIndex} className="flex flex-col gap-1">
-      {/* Tombol toggle media */}
+      {/* Tombol toggle media
       {(isImage || isVideo) && (
         <button
           onClick={() => toggleMedia(fileIndex)}
@@ -1114,7 +1191,7 @@ const totalFiles1 = messages.reduce((acc, msg) => acc + (msg.files ? msg.files.l
         </button>
       )}
 
-      {/* Media */}
+      {/* Media 
       {openMedia[fileIndex] && (
         <>
           {isImage ? (
@@ -1135,7 +1212,7 @@ const totalFiles1 = messages.reduce((acc, msg) => acc + (msg.files ? msg.files.l
         </>
       )}
 
-      {/* Tombol Copy */}
+      {/* Tombol Copy
       <div className="flex gap-2 flex-wrap">
         {isImage && (
           <button
@@ -1164,7 +1241,7 @@ const totalFiles1 = messages.reduce((acc, msg) => acc + (msg.files ? msg.files.l
   ) : (
     "-"
   )}
-</td>
+</td>*/}
 {/* 
 <td className="border border-gray-300 px-4 py-2">
   {msg.files && msg.files.length > 0 ? (
