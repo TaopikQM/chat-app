@@ -174,13 +174,14 @@ export default function GalleryPage() {
                   )}
                 </div>
               );
-            })}*/}
-            return (
-              {/* <div
+            })}
+             {/* <div
                 key={file.name}
                 onClick={() => setSelectedIndex(indexGlobal)}
                 className="cursor-pointer break-inside-avoid"
-              >*/}
+              >*/}*/}
+            return (
+             
                   <div
                     key={file.name}
                     className="relative cursor-pointer break-inside-avoid"
