@@ -182,9 +182,9 @@ export default function GalleryPage() {
               >*/}
             return (
              
-                  <div
+                 <div
                     key={file.name}
-                    className="relative cursor-pointer break-inside-avoid"
+                    className="relative break-inside-avoid group"
                   >
                       {/* ================= TITIK 3 ================= */}
 <button
@@ -192,52 +192,59 @@ export default function GalleryPage() {
     e.stopPropagation();
     setOpenMenu(openMenu === file.name ? null : file.name);
   }}
-  className="absolute top-1 right-1 bg-black/50 text-white px-2 rounded"
+  className="
+    absolute top-2 right-2 z-50
+    bg-black/60 text-white px-2 py-1 rounded
+    opacity-0 group-hover:opacity-100
+    transition
+    pointer-events-auto
+  "
 >
   ⋮
 </button>
 
 {/* ================= DROPDOWN ================= */}
 {openMenu === file.name && (
-  <div className="absolute top-6 right-1 bg-white text-black shadow rounded text-xs z-50">
+  <div
+    onClick={(e) => e.stopPropagation()}
+    className="absolute top-8 right-2 z-[999] bg-white text-black shadow rounded text-xs min-w-[100px]"
+  >
     <button
-      onClick={(e) => {
-        e.stopPropagation();
-        getMeta(file.name);
-      }}
-      className="block px-3 py-1 hover:bg-gray-100 w-full text-left"
+      onClick={() => getMeta(file.name)}
+      className="block px-3 py-2 hover:bg-gray-100 w-full text-left"
     >
       📄 Meta
     </button>
 
     <button
-      onClick={(e) => {
-        e.stopPropagation();
-        alert(`Size: ${file.metadata?.size || "Unknown"} bytes`);
-      }}
-      className="block px-3 py-1 hover:bg-gray-100 w-full text-left"
+      onClick={() =>
+        alert(`Size: ${file.metadata?.size || "Unknown"} bytes`)
+      }
+      className="block px-3 py-2 hover:bg-gray-100 w-full text-left"
     >
       📦 Size
     </button>
   </div>
 )}
-              {type?.startsWith?.("image") && (
-  <img
-    src={url}
-    loading="lazy"
-    className="w-full rounded-lg object-cover hover:scale-[1.02] transition"
-  />
-)}
-
-{type?.startsWith?.("video") && (
-  <video
-    className="w-full rounded-lg object-cover"
-    muted
-    preload="metadata"
-  >
-    <source src={url} />
-  </video>
-)}{/*
+          <div onClick={() => setSelectedIndex(indexGlobal)}>
+            {type?.startsWith?.("image") && (
+              <img
+                src={url}
+                className="w-full rounded-lg object-cover hover:scale-[1.02] transition"
+              />
+            )}
+          
+            {type?.startsWith?.("video") && (
+              <video
+                className="w-full rounded-lg object-cover"
+                muted
+                preload="metadata"
+              >
+                <source src={url} />
+              </video>
+            )}
+          </div>
+          {/*
                 {(type || "").startsWith("image") && (
                   <img
                     src={url}
