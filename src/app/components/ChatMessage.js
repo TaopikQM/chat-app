@@ -1549,14 +1549,14 @@ const toggleMedia = (index) => {
 
 
           {/* Modal Lightbox */}
-          <Modal isOpen={isOpen} onClick={closeModal}  className="fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center p-4 z-[100]" overlayClassName="ReactModal__Overlay ReactModal__Overlay--after-open z-[100]">
+         {/*  <Modal isOpen={isOpen} onClick={closeModal}  className="fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center p-4 z-[100]" overlayClassName="ReactModal__Overlay ReactModal__Overlay--after-open z-[100]">
             <div className=" inset-0 cursor-pointer "  onTouchStart={handleTouchStart}
               onTouchMove={handleTouchMove}
               onTouchEnd={handleTouchEnd} >
             <button onClick={closeModal} className="absolute top-2 right-2 text-red text-2xl  z-50 cursor-pointer">❌</button>
 
             {/* Nomor Urut di Tengah Atas */}
-            {files.length > 1 && (
+          {/*   {files.length > 1 && (
               <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-white text-black px-4 py-1 rounded-full text-sm font-semibold z-50 shadow-lg">
                 {currentIndex + 1} / {files.length}
               </div>
@@ -1565,10 +1565,10 @@ const toggleMedia = (index) => {
               <div className="relative flex flex-col items-center">
               
                 {/* Navigasi Kiri */}
-                {files.length > 1 && <button onClick={prevFile} className="z-50 absolute left-4  top-1/2  transform -translate-y-1/2 text-red-500 text-3xl cursor-pointer p-3 rounded-full shadow-lg hover:bg-gray-200 transition">⬅</button>}
+              {/*   {files.length > 1 && <button onClick={prevFile} className="z-50 absolute left-4  top-1/2  transform -translate-y-1/2 text-red-500 text-3xl cursor-pointer p-3 rounded-full shadow-lg hover:bg-gray-200 transition">⬅</button>}
 
                 {/* File Tampil */}
-                {files[currentIndex]?.type.startsWith("image") ? (
+              {/*   {files[currentIndex]?.type.startsWith("image") ? (
                   <img src={files[currentIndex].url} className="max-w-full max-h-screen object-contain transition-transform"  />
                 ) : files[currentIndex]?.type.startsWith("video") ? (
                   <video controls className="max-w-full max-h-screen">
@@ -1577,11 +1577,11 @@ const toggleMedia = (index) => {
                 ) : null}
 
                 {/* Navigasi Kanan */}
-                {files.length > 1 && <button onClick={nextFile} className="z-50 absolute right-4  top-1/2   transform -translate-y-1/2 text-red-500 text-3xl cursor-pointer p-3 rounded-full shadow-lg hover:bg-gray-200 transition">➡</button>}
+              {/*   {files.length > 1 && <button onClick={nextFile} className="z-50 absolute right-4  top-1/2   transform -translate-y-1/2 text-red-500 text-3xl cursor-pointer p-3 rounded-full shadow-lg hover:bg-gray-200 transition">➡</button>}
 
               </div>
             </div>
-          </Modal>
+          </Modal>*/}
         </div>
       </div>
       
