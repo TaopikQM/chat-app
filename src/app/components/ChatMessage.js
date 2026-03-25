@@ -355,10 +355,28 @@ const [editData, setEditData] = useState(null);
   setOpenEdit(false);
 };
 
-const getFileType = (url) => {
-  if (!url) return "other";
+// const getFileType = (url) => {
+//   if (!url) return "other";
 
-  const ext = url.split(".").pop().toLowerCase();
+//   const ext = url.split(".").pop().toLowerCase();
+
+//   if (["jpg", "jpeg", "png", "gif", "webp"].includes(ext)) {
+//     return "image";
+//   }
+
+//   if (["mp4", "webm", "ogg"].includes(ext)) {
+//     return "video";
+//   }
+
+//   return "other";
+// };
+
+ const getFileType = (url) => {
+  if (!url || typeof url !== "string") return "other";
+
+  const ext = url.split(".").pop()?.toLowerCase();
+
+  if (!ext) return "other";
 
   if (["jpg", "jpeg", "png", "gif", "webp"].includes(ext)) {
     return "image";
@@ -996,7 +1014,12 @@ const getFileType = (url) => {
           message.files.length > 1 ? "grid gap-2 grid-cols-2" : ""
         }`}
       >
-        {message.files.slice(0, 3).map((file, index) => {
+        {/*// {message.files.slice(0, 3).map((file, index) => {*/}
+         {message.files
+          ?.filter((f) => typeof f === "string" && f.startsWith("http"))
+          .slice(0, 3)
+          .map((file, index) => {
+           
           const type = getFileType(file);
 
           return (
@@ -1005,22 +1028,36 @@ const getFileType = (url) => {
               className="relative cursor-pointer"
               onClick={() => openModal(index)}
             >
-              {/* IMAGE */}
+              {/* IMAGE 
               {type === "image" && (
                 <img
                   src={file}
                   alt={`img-${index}`}
                   className="w-28 h-28 object-cover rounded-lg"
                 />
-              )}
+              )} */}
 
-              {/* VIDEO */}
+              {/* VIDEO
               {type === "video" && (
                 <video
                   className="w-28 h-28 object-cover rounded-lg"
                   muted
                 >
                   <source src={file} type="video/mp4" />
+                </video>
+              )} */}
+
+              {type === "image" && file && (
+                <img
+                  src={file}
+                  alt={`img-${index}`}
+                  className="w-28 h-28 object-cover rounded-lg"
+                />
+              )}
+              
+              {type === "video" && file && (
+                <video className="w-28 h-28 object-cover rounded-lg" muted>
+                  <source src={file} />
                 </video>
               )}
 
