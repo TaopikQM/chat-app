@@ -401,6 +401,15 @@ const [editData, setEditData] = useState(null);
 };
 
 
+ const [openMedia, setOpenMedia] = useState({});
+
+const toggleMedia = (index) => {
+  setOpenMedia((prev) => ({
+    ...prev,
+    [index]: !prev[index],
+  }));
+};
+
 
     return (
       <>
@@ -792,6 +801,103 @@ const [editData, setEditData] = useState(null);
                  />
 
 
+{message.files?.length > 0 && (
+  <div className="mt-2 space-y-2">
+
+    {/* ========================= */}
+    {/* EXPIRED */}
+    {/* ========================= */}
+    {isExpired ? (
+      <span className="text-xs text-gray-400 italic">
+        File sudah kedaluwarsa
+      </span>
+    ) : (
+      message.files
+        .filter((file) => typeof file === "string")
+        .map((file, index) => {
+          const ext = file.split(".").pop()?.toLowerCase();
+
+          const isImage = ["jpg", "jpeg", "png", "gif", "webp"].includes(ext);
+          const isVideo = ["mp4", "avi", "mov", "webm"].includes(ext);
+
+          // =========================
+          // COPY FUNCTION
+          // =========================
+          const copyIMG = () => {
+            const formula = `=IMAGE("${file}",4,100,50)`;
+            navigator.clipboard.writeText(formula);
+          };
+
+          const copyURL = () => {
+            navigator.clipboard.writeText(file);
+          };
+
+          const copyDL = () => {
+            const formula = `=HYPERLINK("${file}", "⬇️")`;
+            navigator.clipboard.writeText(formula);
+          };
+
+          return (
+            <div key={index} className="flex flex-col gap-1">
+
+              {/* TOGGLE */}
+              {(isImage || isVideo) && (
+                <button
+                  onClick={() => toggleMedia(index)}
+                  className="text-xs w-fit"
+                >
+                  {isImage ? "🖼️" : "🎞️"}{" "}
+                  {openMedia[index] ? "Hide" : "Show"}
+                </button>
+              )}
+
+              {/* MEDIA */}
+              {openMedia[index] && (
+                <>
+                  {isImage && (
+                    <img
+                      src={file}
+                      onClick={() => openModal(index)}
+                      className="max-w-[120px] max-h-32 object-cover rounded cursor-pointer"
+                    />
+                  )}
+
+                  {isVideo && (
+                    <video
+                      src={file}
+                      className="max-w-[120px] max-h-32 rounded cursor-pointer"
+                      controls
+                    />
+                  )}
+                </>
+              )}
+
+              {/* FILE OTHER */}
+              {!isImage && !isVideo && (
+                <button
+                  onClick={() => window.open(file, "_blank")}
+                  className="text-xs text-blue-600 underline"
+                >
+                  🔗 File {index + 1}
+                </button>
+              )}
+
+              {/* COPY BUTTON */}
+              <div className="flex gap-2 text-[10px]">
+                <button onClick={copyIMG}>📋 IMG</button>
+                <button onClick={copyURL}>🔗 URL</button>
+                <button onClick={copyDL}>⬇️ DL</button>
+              </div>
+
+            </div>
+          );
+        })
+    )}
+  </div>
+)}
+
+
+
 
 
 {/*{message.files?.length > 0 && (
@@ -995,15 +1101,12 @@ const [editData, setEditData] = useState(null);
   }
 
   return null;
-})}*/}
+})}
 
 
 {message.files?.length > 0 && (
   <div className="mt-2 space-y-1">
 
-    {/* ========================= */}
-    {/* MODE EXPIRED → LINK SAJA */}
-    {/* ========================= */}
     {isExpired ? (
       message.files
         .filter((file) => typeof file === "string")
@@ -1018,9 +1121,7 @@ const [editData, setEditData] = useState(null);
         ))
     ) : (
       <>
-        {/* ========================= */}
-        {/* MODE NORMAL → PREVIEW */}
-        {/* ========================= */}
+       
         <div
           className={`mt-2 ${
             message.files.length > 1 ? "grid grid-cols-2 gap-2" : ""
@@ -1038,7 +1139,7 @@ const [editData, setEditData] = useState(null);
                   className="relative cursor-pointer"
                   onClick={() => openModal(index)}
                 >
-                  {/* IMAGE */}
+                
                   {type === "image" && (
                     <img
                       src={file}
@@ -1047,7 +1148,7 @@ const [editData, setEditData] = useState(null);
                     />
                   )}
 
-                  {/* VIDEO */}
+                
                   {type === "video" && (
                     <>
                       <video
@@ -1057,14 +1158,13 @@ const [editData, setEditData] = useState(null);
                         <source src={file} />
                       </video>
 
-                      {/* overlay play icon */}
+                     
                       <div className="absolute inset-0 flex items-center justify-center text-white text-xl">
                         ▶️
                       </div>
                     </>
                   )}
 
-                  {/* FILE OTHER */}
                   {type === "other" && (
                     <div className="w-28 h-28 flex items-center justify-center bg-gray-200 rounded-lg text-xs text-center p-2">
                       FILE
@@ -1075,9 +1175,7 @@ const [editData, setEditData] = useState(null);
             })}
         </div>
 
-        {/* ========================= */}
-        {/* FILE NON MEDIA (opsional) */}
-        {/* ========================= */}
+     
         {message.files
           .filter((file) => typeof file === "string")
           .map((file, index) => {
@@ -1100,7 +1198,7 @@ const [editData, setEditData] = useState(null);
       </>
     )}
   </div>
-)}
+)}*/}
 
 {/*
 {message.files?.length > 0 && (
