@@ -464,7 +464,7 @@ const downloadSelected = async () => {
                     
                        className="relative"
                         style={{
-                          gridRowEnd: `span ${Math.ceil((sizes[file.name] || 200) / 10)}`
+                          gridRowEnd: `span ${Math.ceil((file.height|| 200) / 10)}`
                         }}
                     >
                       {/* ✅ CHECKBOX  className="break-inside-avoid relative" */}
