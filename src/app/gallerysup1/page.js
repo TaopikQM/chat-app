@@ -57,6 +57,60 @@ export default function GalleryPage() {
   ).length;
 
   const downloadSelected = async () => {
+  setDownloading(true);
+
+  for (const key in selectedItems) {
+    const item = selectedItems[key];
+
+    if (!item.checked || item.downloaded) continue;
+
+    const isFile = key.startsWith("file-");
+    if (!isFile) continue;
+
+    const fileName = key.replace("file-", "");
+    const url = getUrl(fileName);
+
+    try {
+      // ✅ ambil file asli
+      const res = await fetch(url);
+      const blob = await res.blob();
+
+      // ✅ buat object URL
+      const blobUrl = window.URL.createObjectURL(blob);
+
+      // ✅ trigger download
+      const a = document.createElement("a");
+      a.href = blobUrl;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+
+      // cleanup
+      window.URL.revokeObjectURL(blobUrl);
+
+      // update state
+      setSelectedItems((prev) => ({
+        ...prev,
+        [key]: {
+          ...prev[key],
+          downloaded: true,
+          checked: false
+        }
+      }));
+
+      // delay biar ga overload
+      await new Promise((res) => setTimeout(res, 400));
+
+    } catch (err) {
+      console.error("Download error:", err);
+    }
+  }
+
+  setDownloading(false);
+};
+  
+  const downloadSelected1 = async () => {
     setDownloading(true);
   
     for (const key in selectedItems) {
