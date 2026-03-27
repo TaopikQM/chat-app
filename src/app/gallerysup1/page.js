@@ -21,6 +21,9 @@ export default function GalleryPage() {
   const isImage = (name) => /\.(jpg|jpeg|png|webp|gif)$/i.test(name);
   const isVideo = (name) => /\.(mp4|webm|mov|mkv)$/i.test(name);
 
+  const [viewerOpen, setViewerOpen] = useState(false);
+  const [viewerIndex, setViewerIndex] = useState(0);
+
   const toggleSelect = (key) => {
     setSelectedItems((prev) => ({
       ...prev,
@@ -380,11 +383,59 @@ const downloadSelected = async () => {
             <div key={group} className="mb-6">
               <h2 className="font-semibold mb-2">{group}</h2>
           
-              {/* ✅ MASONRY RESPONSIVE */}
-              <div className="columns-2 md:columns-3 lg:columns-5 xl:columns-6 gap-2 space-y-2">
+              {/* ✅ MASONRY RESPONSIVE
+              <div className="columns-2 md:columns-3 lg:columns-5 xl:columns-6 gap-2 space-y-2"> */}
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-2">
                 {grouped[group].map((file, i) => {
                   const key = `file-${path}-${file.name}`;
                   const url = getUrl(file.name);
+                  const flatFiles = files; // sudah urut dari terbaru
+
+                  // 🔥 FLAT FILE (GLOBAL INDEX)
+                  const flatFiles = files;
+                  
+                  // 🔥 CARI INDEX GLOBAL
+                  const getGlobalIndex = (name) => {
+                    return flatFiles.findIndex((f) => f.name === name);
+                  };
+                  
+                  // 🔥 NAV
+                  const next = () => {
+                    setViewerIndex((i) => (i < flatFiles.length - 1 ? i + 1 : i));
+                  };
+                  
+                  const prev = () => {
+                    setViewerIndex((i) => (i > 0 ? i - 1 : i));
+                  };
+
+
+                  
+                  let startX = 0;
+
+                  const handleTouchStart = (e) => {
+                    startX = e.touches[0].clientX;
+                  };
+                  
+                  const handleTouchEnd = (e) => {
+                    const endX = e.changedTouches[0].clientX;
+                  
+                    if (startX - endX > 50) next(); // kiri
+                    if (endX - startX > 50) prev(); // kanan
+                  };
+
+
+                  useEffect(() => {
+                    const handleKey = (e) => {
+                      if (!viewerOpen) return;
+                  
+                      if (e.key === "ArrowRight") next();
+                      if (e.key === "ArrowLeft") prev();
+                      if (e.key === "Escape") setViewerOpen(false);
+                    };
+                  
+                    window.addEventListener("keydown", handleKey);
+                    return () => window.removeEventListener("keydown", handleKey);
+                  }, [viewerOpen]);
           
                   return (
                     <div key={i} className="break-inside-avoid relative">
@@ -397,7 +448,7 @@ const downloadSelected = async () => {
                         onChange={() => toggleSelect(key)}
                       />
           
-                      {/* ✅ IMAGE */}
+                      {/* ✅ IMAGE
                       {isImage(file.name) && (
                         <img
                           src={url}
@@ -406,9 +457,24 @@ const downloadSelected = async () => {
                           }`}
                           loading="lazy"
                         />
+                      )} */}
+
+                      {isImage(file.name) && (
+                        <img
+                          src={url}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setViewerIndex(getGlobalIndex(file.name));
+                            setViewerOpen(true);
+                          }}
+                          className={`w-full h-auto rounded cursor-pointer ${
+                            isDownloaded(key) ? "opacity-40" : ""
+                          }`}
+                          loading="lazy"
+                        />
                       )}
           
-                      {/* ✅ VIDEO */}
+                      {/* ✅ VIDEO 
                       {isVideo(file.name) && (
                         <video
                           src={url}
@@ -417,7 +483,22 @@ const downloadSelected = async () => {
                             isDownloaded(key) ? "opacity-40" : ""
                           }`}
                         />
-                      )}
+                      )}*/}
+
+                        {isVideo(file.name) && (
+                          <video
+                            src={url}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setViewerIndex(getGlobalIndex(file.name));
+                              setViewerOpen(true);
+                            }}
+                            className={`w-full h-auto rounded cursor-pointer ${
+                              isDownloaded(key) ? "opacity-40" : ""
+                            }`}
+                          />
+                        )}
+                      
           
                       {/* ✅ FALLBACK FILE */}
                       {!isImage(file.name) && !isVideo(file.name) && (
@@ -431,6 +512,60 @@ const downloadSelected = async () => {
               </div>
             </div>
           ))}
+            {viewerOpen && (
+  <div
+    className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center"
+    onClick={() => setViewerOpen(false)}
+  >
+    <div
+      className="relative max-w-full max-h-full flex items-center justify-center"
+      onClick={(e) => e.stopPropagation()}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+    >
+      {/* CLOSE */}
+      <button
+        className="absolute top-4 right-4 text-white text-2xl z-50"
+        onClick={() => setViewerOpen(false)}
+      >
+        ✕
+      </button>
+
+      {/* LEFT */}
+      <button
+        className="absolute left-2 top-1/2 -translate-y-1/2 text-white text-3xl z-50"
+        onClick={prev}
+      >
+        ‹
+      </button>
+
+      {/* RIGHT */}
+      <button
+        className="absolute right-2 top-1/2 -translate-y-1/2 text-white text-3xl z-50"
+        onClick={next}
+      >
+        ›
+      </button>
+
+      {/* CONTENT */}
+      {isImage(flatFiles[viewerIndex]?.name) && (
+        <img
+          src={getUrl1(flatFiles[viewerIndex].name)} // 🔥 TANPA DOWNLOAD MODE
+          className="max-w-screen max-h-screen object-contain"
+        />
+      )}
+
+      {isVideo(flatFiles[viewerIndex]?.name) && (
+        <video
+          src={getUrl1(flatFiles[viewerIndex].name)} // 🔥 TANPA DOWNLOAD MODE
+          controls
+          autoPlay
+          className="max-w-screen max-h-screen"
+        />
+      )}
+    </div>
+  </div>
+)}
     </div>
   );
 }
