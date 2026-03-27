@@ -56,7 +56,7 @@ export default function GalleryPage() {
     (v) => v.checked && !v.downloaded
   ).length;
 
-  const downloadSelected = async () => {
+const downloadSelected = async () => {
   setDownloading(true);
 
   for (const key in selectedItems) {
@@ -70,41 +70,25 @@ export default function GalleryPage() {
     const fileName = key.replace("file-", "");
     const url = getUrl(fileName);
 
-    try {
-      // ✅ ambil file asli
-      const res = await fetch(url);
-      const blob = await res.blob();
+    // ✅ FORCE DOWNLOAD (SEKARANG WORK)
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
 
-      // ✅ buat object URL
-      const blobUrl = window.URL.createObjectURL(blob);
+    // update state
+    setSelectedItems((prev) => ({
+      ...prev,
+      [key]: {
+        ...prev[key],
+        downloaded: true,
+        checked: false
+      }
+    }));
 
-      // ✅ trigger download
-      const a = document.createElement("a");
-      a.href = blobUrl;
-      a.download = fileName;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-
-      // cleanup
-      window.URL.revokeObjectURL(blobUrl);
-
-      // update state
-      setSelectedItems((prev) => ({
-        ...prev,
-        [key]: {
-          ...prev[key],
-          downloaded: true,
-          checked: false
-        }
-      }));
-
-      // delay biar ga overload
-      await new Promise((res) => setTimeout(res, 400));
-
-    } catch (err) {
-      console.error("Download error:", err);
-    }
+    await new Promise((res) => setTimeout(res, 400));
   }
 
   setDownloading(false);
@@ -219,6 +203,17 @@ export default function GalleryPage() {
 
   // ================= URL =================
   const getUrl = (fileName) => {
+    const fullPath = path ? `${path}/${fileName}` : fileName;
+  
+    const { data } = supabase.storage
+      .from("Env-v1")
+      .getPublicUrl(fullPath, {
+        download: true // 🔥 INI KUNCI
+      });
+  
+    return data.publicUrl;
+  };
+  const getUrl1 = (fileName) => {
     const fullPath = path ? `${path}/${fileName}` : fileName;
     return supabase.storage.from("Env-v1").getPublicUrl(fullPath).data.publicUrl;
   };
