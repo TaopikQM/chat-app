@@ -18,6 +18,9 @@ export default function GalleryPage() {
   const [selectedItems, setSelectedItems] = useState({});
   const [downloading, setDownloading] = useState(false);
 
+  const isImage = (name) => /\.(jpg|jpeg|png|webp|gif)$/i.test(name);
+  const isVideo = (name) => /\.(mp4|webm|mov|mkv)$/i.test(name);
+
   const toggleSelect = (key) => {
     setSelectedItems((prev) => ({
       ...prev,
@@ -342,7 +345,7 @@ const downloadSelected = async () => {
         </div>
       ))} */}
 
-       {Object.keys(grouped).map((group) => (
+{/*  {Object.keys(grouped).map((group) => (
           <div key={group} className="mb-6">
             <h2 className="font-semibold mb-2">{group}</h2>
         
@@ -371,7 +374,63 @@ const downloadSelected = async () => {
               })}
             </div>
           </div>
-        ))}
+        ))} */}
+
+          {Object.keys(grouped).map((group) => (
+            <div key={group} className="mb-6">
+              <h2 className="font-semibold mb-2">{group}</h2>
+          
+              {/* ✅ MASONRY RESPONSIVE */}
+              <div className="columns-2 md:columns-3 lg:columns-5 xl:columns-6 gap-2 space-y-2">
+                {grouped[group].map((file, i) => {
+                  const key = `file-${path}-${file.name}`;
+                  const url = getUrl(file.name);
+          
+                  return (
+                    <div key={i} className="break-inside-avoid relative">
+                      {/* ✅ CHECKBOX */}
+                      <input
+                        type="checkbox"
+                        className="absolute top-1 left-1 z-10 bg-white"
+                        checked={!!isChecked(key)}
+                        disabled={isDownloaded(key)}
+                        onChange={() => toggleSelect(key)}
+                      />
+          
+                      {/* ✅ IMAGE */}
+                      {isImage(file.name) && (
+                        <img
+                          src={url}
+                          className={`w-full h-auto rounded ${
+                            isDownloaded(key) ? "opacity-40" : ""
+                          }`}
+                          loading="lazy"
+                        />
+                      )}
+          
+                      {/* ✅ VIDEO */}
+                      {isVideo(file.name) && (
+                        <video
+                          src={url}
+                          controls
+                          className={`w-full h-auto rounded ${
+                            isDownloaded(key) ? "opacity-40" : ""
+                          }`}
+                        />
+                      )}
+          
+                      {/* ✅ FALLBACK FILE */}
+                      {!isImage(file.name) && !isVideo(file.name) && (
+                        <div className="p-4 border rounded bg-gray-100 text-sm">
+                          📄 {file.name}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
     </div>
   );
 }
