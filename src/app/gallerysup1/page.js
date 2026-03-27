@@ -451,8 +451,9 @@ const downloadSelected = async () => {
           
               {/* ✅ MASONRY RESPONSIVE
               <div className="columns-2 md:columns-3 lg:columns-5 xl:columns-6 gap-2 space-y-2"> 
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-2">*/}
-                                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-2 auto-rows-[10px] [grid-auto-flow:dense]">
+              
+                                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-2 auto-rows-[10px] [grid-auto-flow:dense]">*/}
+             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-2">
                 {grouped[group].map((file, i) => {
                   const key = `file-${path}-${file.name}`;
                   const url = getUrl(file.name);
