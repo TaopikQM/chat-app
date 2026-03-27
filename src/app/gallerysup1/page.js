@@ -390,9 +390,6 @@ const downloadSelected = async () => {
                   const key = `file-${path}-${file.name}`;
                   const url = getUrl(file.name);
                   const flatFiles = files; // sudah urut dari terbaru
-
-                  // 🔥 FLAT FILE (GLOBAL INDEX)
-                  const flatFiles = files;
                   
                   // 🔥 CARI INDEX GLOBAL
                   const getGlobalIndex = (name) => {
