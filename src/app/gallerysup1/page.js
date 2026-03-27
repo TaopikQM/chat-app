@@ -21,6 +21,7 @@ export default function GalleryPage() {
   const toggleSelect = (key) => {
     setSelectedItems((prev) => ({
       ...prev,
+      ...all,
       [key]: prev[key]
         ? { ...prev[key], checked: !prev[key].checked }
         : { checked: true, downloaded: false }
@@ -293,28 +294,36 @@ export default function GalleryPage() {
         </div>
       ))} */}
 
-        {grouped[group].map((file, i) => {
-          const key = `file-${file.name}`;
+       {Object.keys(grouped).map((group) => (
+          <div key={group} className="mb-6">
+            <h2 className="font-semibold mb-2">{group}</h2>
         
-          return (
-            <div key={i} className="relative">
-              <input
-                type="checkbox"
-                className="absolute top-1 left-1 z-10"
-                checked={isChecked(key)}
-                disabled={isDownloaded(key)}
-                onChange={() => toggleSelect(key)}
-              />
+            <div className="grid grid-cols-3 gap-2">
+              {grouped[group].map((file, i) => {
+                const key = `file-${file.name}`;
         
-              <img
-                src={getUrl(file.name)}
-                className={`w-full h-32 object-cover rounded cursor-pointer ${
-                  isDownloaded(key) ? "opacity-40" : ""
-                }`}
-              />
+                return (
+                  <div key={i} className="relative">
+                    <input
+                      type="checkbox"
+                      className="absolute top-1 left-1 z-10"
+                      checked={isChecked(key)}
+                      disabled={isDownloaded(key)}
+                      onChange={() => toggleSelect(key)}
+                    />
+        
+                    <img
+                      src={getUrl(file.name)}
+                      className={`w-full h-32 object-cover rounded cursor-pointer ${
+                        isDownloaded(key) ? "opacity-40" : ""
+                      }`}
+                    />
+                  </div>
+                );
+              })}
             </div>
-          );
-        })}
+          </div>
+        ))}
     </div>
   );
 }
