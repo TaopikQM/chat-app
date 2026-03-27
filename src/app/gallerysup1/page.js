@@ -452,7 +452,7 @@ const downloadSelected = async () => {
               {/* ✅ MASONRY RESPONSIVE
               <div className="columns-2 md:columns-3 lg:columns-5 xl:columns-6 gap-2 space-y-2"> 
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-2">*/}
-                                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-2 auto-rows-[10px]">
+                                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-2 auto-rows-[10px] [grid-auto-flow:dense]">
                 {grouped[group].map((file, i) => {
                   const key = `file-${path}-${file.name}`;
                   const url = getUrl(file.name);
@@ -463,7 +463,7 @@ const downloadSelected = async () => {
                     
                        className="relative"
                         style={{
-                          gridRowEnd: `span ${Math.ceil((sizes.height || 200) / 10)}`
+                          gridRowEnd: `span ${Math.ceil((sizes[file.name] || 200) / 10)}`
                         }}
                     >
                       {/* ✅ CHECKBOX  className="break-inside-avoid relative" */}
@@ -500,19 +500,16 @@ const downloadSelected = async () => {
 
                       {isImage(file.name) && (
                       
-                            <img
-                              src={url}
-                              onLoad={(e) => handleImageLoad(e, file.name)}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setViewerIndex(getGlobalIndex(file.name));
-                                setViewerOpen(true);
-                              }}
-                              className={`w-full h-auto rounded cursor-pointer ${
-                                isDownloaded(key) ? "opacity-40" : ""
-                              }`}
-                              loading="lazy"
-                            />
+                           <img
+                            src={url}
+                            onLoad={(e) => handleImageLoad(e, file.name)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setViewerIndex(getGlobalIndex(file.name));
+                              setViewerOpen(true);
+                            }}
+                            className="w-full h-auto rounded cursor-pointer"
+                          />
                       )}
           
                       {/* ✅ VIDEO 
@@ -539,7 +536,6 @@ const downloadSelected = async () => {
                           />*/}
 
                         {isVideo(file.name) && (
-  
                             <video
                               src={url}
                               onLoadedMetadata={(e) => handleVideoLoad(e, file.name)}
@@ -548,9 +544,7 @@ const downloadSelected = async () => {
                                 setViewerIndex(getGlobalIndex(file.name));
                                 setViewerOpen(true);
                               }}
-                              className={`w-full h-auto rounded cursor-pointer ${
-                                isDownloaded(key) ? "opacity-40" : ""
-                              }`}
+                              className="w-full h-auto rounded cursor-pointer"
                             />
                         )}
                       
