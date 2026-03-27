@@ -432,16 +432,23 @@ const downloadSelected = async () => {
               <h2 className="font-semibold mb-2">{group}</h2>
           
               {/* ✅ MASONRY RESPONSIVE
-              <div className="columns-2 md:columns-3 lg:columns-5 xl:columns-6 gap-2 space-y-2"> */}
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-2">
+              <div className="columns-2 md:columns-3 lg:columns-5 xl:columns-6 gap-2 space-y-2"> 
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-2">*/}
+                                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-2 auto-rows-[1px]">
                 {grouped[group].map((file, i) => {
                   const key = `file-${path}-${file.name}`;
                   const url = getUrl(file.name);
                  
           
                   return (
-                    <div key={i} className="break-inside-avoid relative">
-                      {/* ✅ CHECKBOX */}
+                    <div key={i} 
+                    
+                       className="relative"
+                        style={{
+                          gridRowEnd: `span ${Math.ceil((file.height || 200) / 10)}`
+                        }}
+                    >
+                      {/* ✅ CHECKBOX  className="break-inside-avoid relative" */}
                       <input
                         type="checkbox"
                         className="absolute top-1 left-1 z-10 bg-white"
