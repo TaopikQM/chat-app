@@ -15,6 +15,85 @@ export default function GalleryPage() {
   const [files, setFiles] = useState([]);
 
   const [selectedIndex, setSelectedIndex] = useState(null);
+  const [selectedItems, setSelectedItems] = useState({});
+  const [downloading, setDownloading] = useState(false);
+
+  const toggleSelect = (key) => {
+    setSelectedItems((prev) => ({
+      ...prev,
+      [key]: prev[key]
+        ? { ...prev[key], checked: !prev[key].checked }
+        : { checked: true, downloaded: false }
+    }));
+  };
+
+  const isChecked = (key) => selectedItems[key]?.checked;
+  const isDownloaded = (key) => selectedItems[key]?.downloaded;
+
+  const handleSelectAll = () => {
+    const all = {};
+  
+    folders.forEach((f) => {
+      const key = `folder-${f.name}`;
+      all[key] = {
+        checked: true,
+        downloaded: false
+      };
+    });
+  
+    files.forEach((f) => {
+      const key = `file-${f.name}`;
+      all[key] = {
+        checked: true,
+        downloaded: false
+      };
+    });
+  
+    setSelectedItems(all);
+  };
+
+  const totalChecked = Object.values(selectedItems).filter(
+    (v) => v.checked && !v.downloaded
+  ).length;
+
+  const downloadSelected = async () => {
+    setDownloading(true);
+  
+    for (const key in selectedItems) {
+      const item = selectedItems[key];
+  
+      if (!item.checked || item.downloaded) continue;
+  
+      const isFile = key.startsWith("file-");
+      if (!isFile) continue; // skip folder
+  
+      const fileName = key.replace("file-", "");
+      const url = getUrl(fileName);
+  
+      // download trigger
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+  
+      // update state -> jadi downloaded & uncheck
+      setSelectedItems((prev) => ({
+        ...prev,
+        [key]: {
+          ...prev[key],
+          downloaded: true,
+          checked: false
+        }
+      }));
+  
+      // delay biar ga crash browser
+      await new Promise((res) => setTimeout(res, 500));
+    }
+  
+    setDownloading(false);
+  };
 
   // ================= FETCH ALL (NO LIMIT) =================
   const fetchData = async (folder = "") => {
@@ -134,7 +213,26 @@ export default function GalleryPage() {
         Total: {folders.length} Folder | {files.length} File
       </div>
 
-      {/* ================= FOLDER ================= */}
+      <div className="flex items-center gap-4 mb-4">
+        <label className="flex items-center gap-2 cursor-pointer">
+          <input type="checkbox" onChange={handleSelectAll} />
+          Pilih Semua
+        </label>
+      
+        <div className="text-sm">
+          Dipilih: {totalChecked}
+        </div>
+      
+        <button
+          onClick={downloadSelected}
+          disabled={downloading || totalChecked === 0}
+          className="px-3 py-1 bg-green-500 text-white rounded disabled:bg-gray-300"
+        >
+          {downloading ? "Downloading..." : "Download"}
+        </button>
+      </div>
+
+      {/* ================= FOLDER ================= 
       {folders.length > 0 && (
         <div className="mb-6">
           <h2 className="font-semibold mb-2">📁 Folder</h2>
@@ -150,9 +248,34 @@ export default function GalleryPage() {
             ))}
           </div>
         </div>
-      )}
+      )}*/}
 
-      {/* ================= FILE ================= */}
+      {folders.map((f, i) => {
+        const key = `folder-${f.name}`;
+      
+        return (
+          <div
+            key={i}
+            className="flex items-center gap-2 p-3 border rounded hover:bg-gray-100"
+          >
+            <input
+              type="checkbox"
+              checked={isChecked(key)}
+              disabled={isDownloaded(key)}
+              onChange={() => toggleSelect(key)}
+            />
+      
+            <div
+              onClick={() => openFolder(f.name)}
+              className="cursor-pointer flex-1"
+            >
+              📁 {f.name}
+            </div>
+          </div>
+        );
+      })}
+
+      {/* ================= FILE =================
       {Object.keys(grouped).map((group) => (
         <div key={group} className="mb-6">
           <h2 className="font-semibold mb-2">{group}</h2>
@@ -168,7 +291,30 @@ export default function GalleryPage() {
             ))}
           </div>
         </div>
-      ))}
+      ))} */}
+
+        {grouped[group].map((file, i) => {
+          const key = `file-${file.name}`;
+        
+          return (
+            <div key={i} className="relative">
+              <input
+                type="checkbox"
+                className="absolute top-1 left-1 z-10"
+                checked={isChecked(key)}
+                disabled={isDownloaded(key)}
+                onChange={() => toggleSelect(key)}
+              />
+        
+              <img
+                src={getUrl(file.name)}
+                className={`w-full h-32 object-cover rounded cursor-pointer ${
+                  isDownloaded(key) ? "opacity-40" : ""
+                }`}
+              />
+            </div>
+          );
+        })}
     </div>
   );
 }
