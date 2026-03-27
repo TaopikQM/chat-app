@@ -21,7 +21,6 @@ export default function GalleryPage() {
   const toggleSelect = (key) => {
     setSelectedItems((prev) => ({
       ...prev,
-      ...all,
       [key]: prev[key]
         ? { ...prev[key], checked: !prev[key].checked }
         : { checked: true, downloaded: false }
