@@ -247,6 +247,54 @@ const downloadSelected = async () => {
     ));
   };
 
+
+ const flatFiles = files; // sudah urut dari terbaru
+                  
+                  // 🔥 CARI INDEX GLOBAL
+                  const getGlobalIndex = (name) => {
+                    return flatFiles.findIndex((f) => f.name === name);
+                  };
+                  
+                  // 🔥 NAV
+                  const next = () => {
+                    setViewerIndex((i) => (i < flatFiles.length - 1 ? i + 1 : i));
+                  };
+                  
+                  const prev = () => {
+                    setViewerIndex((i) => (i > 0 ? i - 1 : i));
+                  };
+
+
+                  
+                  let startX = 0;
+
+                  const handleTouchStart = (e) => {
+                    startX = e.touches[0].clientX;
+                  };
+                  
+                  const handleTouchEnd = (e) => {
+                    const endX = e.changedTouches[0].clientX;
+                  
+                    if (startX - endX > 50) next(); // kiri
+                    if (endX - startX > 50) prev(); // kanan
+                  };
+
+
+                  useEffect(() => {
+                    const handleKey = (e) => {
+                      if (!viewerOpen) return;
+                  
+                      if (e.key === "ArrowRight") next();
+                      if (e.key === "ArrowLeft") prev();
+                      if (e.key === "Escape") setViewerOpen(false);
+                    };
+                  
+                    window.addEventListener("keydown", handleKey);
+                    return () => window.removeEventListener("keydown", handleKey);
+                  }, [viewerOpen]);
+
+
+
   return (
     <div className="p-4">
       <h1 className="text-xl font-bold mb-4">Gallery Supabase</h1>
@@ -389,50 +437,7 @@ const downloadSelected = async () => {
                 {grouped[group].map((file, i) => {
                   const key = `file-${path}-${file.name}`;
                   const url = getUrl(file.name);
-                  const flatFiles = files; // sudah urut dari terbaru
-                  
-                  // 🔥 CARI INDEX GLOBAL
-                  const getGlobalIndex = (name) => {
-                    return flatFiles.findIndex((f) => f.name === name);
-                  };
-                  
-                  // 🔥 NAV
-                  const next = () => {
-                    setViewerIndex((i) => (i < flatFiles.length - 1 ? i + 1 : i));
-                  };
-                  
-                  const prev = () => {
-                    setViewerIndex((i) => (i > 0 ? i - 1 : i));
-                  };
-
-
-                  
-                  let startX = 0;
-
-                  const handleTouchStart = (e) => {
-                    startX = e.touches[0].clientX;
-                  };
-                  
-                  const handleTouchEnd = (e) => {
-                    const endX = e.changedTouches[0].clientX;
-                  
-                    if (startX - endX > 50) next(); // kiri
-                    if (endX - startX > 50) prev(); // kanan
-                  };
-
-
-                  useEffect(() => {
-                    const handleKey = (e) => {
-                      if (!viewerOpen) return;
-                  
-                      if (e.key === "ArrowRight") next();
-                      if (e.key === "ArrowLeft") prev();
-                      if (e.key === "Escape") setViewerOpen(false);
-                    };
-                  
-                    window.addEventListener("keydown", handleKey);
-                    return () => window.removeEventListener("keydown", handleKey);
-                  }, [viewerOpen]);
+                 
           
                   return (
                     <div key={i} className="break-inside-avoid relative">
