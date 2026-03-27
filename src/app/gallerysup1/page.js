@@ -485,9 +485,7 @@ const downloadSelected = async () => {
                           loading="lazy"
                         />
                       )} */}
-
-                      {isImage(file.name) && (
-                        {/*<img
+  {/*<img
                           src={url}
                           onClick={(e) => {
                             e.stopPropagation();
@@ -499,19 +497,22 @@ const downloadSelected = async () => {
                           }`}
                           loading="lazy"
                         />*/}
+
+                      {isImage(file.name) && (
+                      
                             <img
-  src={url}
-  onLoad={(e) => handleImageLoad(e, file.name)}
-  onClick={(e) => {
-    e.stopPropagation();
-    setViewerIndex(getGlobalIndex(file.name));
-    setViewerOpen(true);
-  }}
-  className={`w-full h-auto rounded cursor-pointer ${
-    isDownloaded(key) ? "opacity-40" : ""
-  }`}
-  loading="lazy"
-/>
+                              src={url}
+                              onLoad={(e) => handleImageLoad(e, file.name)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setViewerIndex(getGlobalIndex(file.name));
+                                setViewerOpen(true);
+                              }}
+                              className={`w-full h-auto rounded cursor-pointer ${
+                                isDownloaded(key) ? "opacity-40" : ""
+                              }`}
+                              loading="lazy"
+                            />
                       )}
           
                       {/* ✅ VIDEO 
@@ -525,8 +526,7 @@ const downloadSelected = async () => {
                         />
                       )}*/}
 
-                        {isVideo(file.name) && (
-    {/* <video
+                                  {/* <video
                             src={url}
                             onClick={(e) => {
                               e.stopPropagation();
@@ -537,18 +537,21 @@ const downloadSelected = async () => {
                               isDownloaded(key) ? "opacity-40" : ""
                             }`}
                           />*/}
-<video
-  src={url}
-  onLoadedMetadata={(e) => handleVideoLoad(e, file.name)}
-  onClick={(e) => {
-    e.stopPropagation();
-    setViewerIndex(getGlobalIndex(file.name));
-    setViewerOpen(true);
-  }}
-  className={`w-full h-auto rounded cursor-pointer ${
-    isDownloaded(key) ? "opacity-40" : ""
-  }`}
-/>
+
+                        {isVideo(file.name) && (
+  
+                            <video
+                              src={url}
+                              onLoadedMetadata={(e) => handleVideoLoad(e, file.name)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setViewerIndex(getGlobalIndex(file.name));
+                                setViewerOpen(true);
+                              }}
+                              className={`w-full h-auto rounded cursor-pointer ${
+                                isDownloaded(key) ? "opacity-40" : ""
+                              }`}
+                            />
                         )}
                       
           
