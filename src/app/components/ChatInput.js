@@ -334,11 +334,33 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage, isDark}
 
 
     //supabase
-    const today = new Date();
+    // const today = new Date();
+    const today = new Date(
+        new Date().toLocaleString("en-US", { timeZone: "Asia/Jakarta" })
+      );
+
+    
+    // ambil komponen waktu WIB
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, "0");
+    const day = String(today.getDate()).padStart(2, "0");
+    const hours = String(today.getHours()).padStart(2, "0");
+    const minutes = String(today.getMinutes()).padStart(2, "0");
+    const seconds = String(today.getSeconds()).padStart(2, "0");
+
 
       for (let file of files) {
         const ext = file.name.split(".").pop();
-        const fileName = `${newMessageRef.key}_${Date.now()}.${ext}`;
+          // bersihin nama file asli biar aman (no spasi & karakter aneh)
+          const originalName = file.name
+            .replace(/\.[^/.]+$/, "") // hapus ext
+            .replace(/[^a-zA-Z0-9-_]/g, "_");
+        
+          const timestamp = Date.now();
+        
+          const fileName = `${year}-${month}-${day}-${hours}-${minutes}-${seconds}_${newMessageRef.key}_${timestamp}_${originalName}.${ext}`;
+
+        // const fileName = `${newMessageRef.key}_${Date.now()}.${ext}`;
         const filePath = `${year}/${month}/${day}/chatFilesBU1/${fileName}`;
       
         // ================= UPLOAD =================
