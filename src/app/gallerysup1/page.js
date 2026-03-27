@@ -24,6 +24,24 @@ export default function GalleryPage() {
   const [viewerOpen, setViewerOpen] = useState(false);
   const [viewerIndex, setViewerIndex] = useState(0);
 
+  const [sizes, setSizes] = useState({});
+
+  const handleImageLoad = (e, name) => {
+  const height = e.target.naturalHeight;
+  setSizes((prev) => ({
+    ...prev,
+    [name]: height
+  }));
+};
+
+  const handleVideoLoad = (e, name) => {
+  const height = e.target.videoHeight;
+  setSizes((prev) => ({
+    ...prev,
+    [name]: height
+  }));
+};
+
   const toggleSelect = (key) => {
     setSelectedItems((prev) => ({
       ...prev,
@@ -434,7 +452,7 @@ const downloadSelected = async () => {
               {/* ✅ MASONRY RESPONSIVE
               <div className="columns-2 md:columns-3 lg:columns-5 xl:columns-6 gap-2 space-y-2"> 
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-2">*/}
-                                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-2 auto-rows-[1px]">
+                                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-2 auto-rows-[10px]">
                 {grouped[group].map((file, i) => {
                   const key = `file-${path}-${file.name}`;
                   const url = getUrl(file.name);
@@ -445,7 +463,7 @@ const downloadSelected = async () => {
                     
                        className="relative"
                         style={{
-                          gridRowEnd: `span ${Math.ceil((file.height || 200) / 10)}`
+                          gridRowEnd: `span ${Math.ceil((sizes.height || 200) / 10)}`
                         }}
                     >
                       {/* ✅ CHECKBOX  className="break-inside-avoid relative" */}
@@ -469,7 +487,7 @@ const downloadSelected = async () => {
                       )} */}
 
                       {isImage(file.name) && (
-                        <img
+                        {/*<img
                           src={url}
                           onClick={(e) => {
                             e.stopPropagation();
@@ -480,7 +498,20 @@ const downloadSelected = async () => {
                             isDownloaded(key) ? "opacity-40" : ""
                           }`}
                           loading="lazy"
-                        />
+                        />*/}
+                            <img
+  src={url}
+  onLoad={(e) => handleImageLoad(e, file.name)}
+  onClick={(e) => {
+    e.stopPropagation();
+    setViewerIndex(getGlobalIndex(file.name));
+    setViewerOpen(true);
+  }}
+  className={`w-full h-auto rounded cursor-pointer ${
+    isDownloaded(key) ? "opacity-40" : ""
+  }`}
+  loading="lazy"
+/>
                       )}
           
                       {/* ✅ VIDEO 
@@ -495,7 +526,7 @@ const downloadSelected = async () => {
                       )}*/}
 
                         {isVideo(file.name) && (
-                          <video
+    {/* <video
                             src={url}
                             onClick={(e) => {
                               e.stopPropagation();
@@ -505,7 +536,19 @@ const downloadSelected = async () => {
                             className={`w-full h-auto rounded cursor-pointer ${
                               isDownloaded(key) ? "opacity-40" : ""
                             }`}
-                          />
+                          />*/}
+<video
+  src={url}
+  onLoadedMetadata={(e) => handleVideoLoad(e, file.name)}
+  onClick={(e) => {
+    e.stopPropagation();
+    setViewerIndex(getGlobalIndex(file.name));
+    setViewerOpen(true);
+  }}
+  className={`w-full h-auto rounded cursor-pointer ${
+    isDownloaded(key) ? "opacity-40" : ""
+  }`}
+/>
                         )}
                       
           
