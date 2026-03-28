@@ -22,9 +22,6 @@ const ChatMessage = ({ message, user1,  ipInfo,
 
     const isDropdownOpen = openDropdownId === message.id;
 
- const [viewerOpen, setViewerOpen] = useState(false);
-const [viewerIndex, setViewerIndex] = useState(null);
-
     
     const toggleDropdown = (e) => {
       e.stopPropagation(); // Hindari event bubbling
@@ -935,7 +932,7 @@ const handleVideoCanvas = (canvas) => {
                <>
                  {/* ================= IMAGE ================= */}
                  {isImage && (
-                   <div className="relative w-fit"  onClick={() => openModal(index)}>
+                   <div className="relative w-fit"  >
                      <img
                        src={file}
                        onLoad={(e) => handleCanvas(e, index)}
@@ -966,7 +963,7 @@ const handleVideoCanvas = (canvas) => {
                      <canvas
                        id={`canvas-video-${index}`}
                        className="absolute top-0 left-0 w-full h-full rounded"
-                       ref={(el) => handleVideoCanvas(el, index)}
+                       ref={(el) => handleVideoCanvas(el)}
                      />
                    </div>
                  )}
@@ -1670,6 +1667,74 @@ const handleVideoCanvas = (canvas) => {
   </div>
 )}
 
+{isOpen && files[currentIndex] && (
+  <div
+    className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center"
+    onClick={closeModal}
+  >
+    <div
+      className="relative"
+      onClick={(e) => e.stopPropagation()}
+    >
+      {/* CLOSE */}
+      <button
+        onClick={closeModal}
+        className="absolute -top-10 right-0 text-white text-xl"
+      >
+        ✕
+      </button>
+
+      {/* DETECT TYPE */}
+      {(() => {
+        const file = files[currentIndex];
+        const ext = file.split(".").pop()?.toLowerCase();
+
+        const isImage = ["jpg", "jpeg", "png", "gif", "webp"].includes(ext);
+        const isVideo = ["mp4", "avi", "mov", "webm"].includes(ext);
+
+        return (
+          <>
+            {/* IMAGE */}
+            {isImage && (
+              <div className="relative inline-block">
+                <img
+                  src={file}
+                  onLoad={(e) => handleCanvas(e, "modal")}
+                  className="rounded"
+                  draggable={false}
+                />
+
+                <canvas
+                  id="canvas-modal"
+                  className="absolute top-0 left-0 w-full h-full pointer-events-none"
+                />
+              </div>
+            )}
+
+            {/* VIDEO */}
+            {isVideo && (
+              <div className="relative inline-block">
+                <video
+                  src={file}
+                  autoPlay
+                  loop
+                  controls
+                  className="rounded"
+                />
+
+                <canvas
+                  id="canvas-modal-video"
+                  className="absolute top-0 left-0 w-full h-full pointer-events-none"
+                  ref={(el) => handleVideoCanvas(el)}
+                />
+              </div>
+            )}
+          </>
+        );
+      })()}
+    </div>
+  </div>
+)}
 
           {/* Modal Lightbox */}
          {/*  <Modal isOpen={isOpen} onClick={closeModal}  className="fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center p-4 z-[100]" overlayClassName="ReactModal__Overlay ReactModal__Overlay--after-open z-[100]">
@@ -1708,61 +1773,7 @@ const handleVideoCanvas = (canvas) => {
         </div>
       </div>
 
-         {viewerOpen && (
-  <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50">
-    
-    {/* CLOSE */}
-    <button
-      onClick={() => setViewerOpen(false)}
-      className="absolute top-4 right-4 text-white text-xl"
-    >
-      ✕
-    </button>
-
-    {/* CONTENT */}
-    <div className="relative max-w-[90vw] max-h-[90vh]">
-
-      {/* IMAGE */}
-      {isImage && (
-        <>
-          <img
-            src={currentFile}
-            onLoad={(e) => handleCanvas(e, "modal")}
-            className="max-w-full max-h-[90vh] rounded"
-            draggable={false}
-          />
-
-          {/* IMPORTANT: pointer-events-none */}
-          <canvas
-            id="canvas-modal"
-            className="absolute top-0 left-0 w-full h-full pointer-events-none"
-          />
-        </>
-      )}
-
-      {/* VIDEO */}
-      {isVideo && (
-        <>
-          <video
-            src={currentFile}
-            autoPlay
-            loop
-            controls
-            className="max-w-full max-h-[90vh] rounded"
-          />
-
-          {/* 🔥 PENTING BANGET */}
-          <canvas
-            id="canvas-modal-video"
-            className="absolute top-0 left-0 w-full h-full pointer-events-none"
-            ref={(el) => handleVideoCanvas(el)}
-          />
-        </>
-      )}
-
-    </div>
-  </div>
-)}
+        
       
       </>
     );
