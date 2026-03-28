@@ -944,7 +944,7 @@ const handleVideoCanvas = (canvas) => {
                      {/* CANVAS NIMPA */}
                      <canvas
                        id={`canvas-${index}`}
-                       className="absolute top-0 left-0 w-full h-full rounded"
+                       className="absolute top-0 left-0 w-full h-full  rounded pointer-events-none"
                      />
                    </div>
                  )}
@@ -962,7 +962,7 @@ const handleVideoCanvas = (canvas) => {
                      {/* CANVAS NIMPA VIDEO */}
                      <canvas
                        id={`canvas-video-${index}`}
-                       className="absolute top-0 left-0 w-full h-full rounded"
+                       className="absolute top-0 left-0 w-full h-full  rounded pointer-events-none"
                        ref={(el) => handleVideoCanvas(el)}
                      />
                    </div>
