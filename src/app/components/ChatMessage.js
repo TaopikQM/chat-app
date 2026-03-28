@@ -21,9 +21,10 @@ const ChatMessage = ({ message, user1,  ipInfo,
     const isSender = message.pengirim === user1;
 
     const isDropdownOpen = openDropdownId === message.id;
- 
 
-    
+ const [viewerOpen, setViewerOpen] = useState(false);
+const [viewerIndex, setViewerIndex] = useState(null);
+
     
     const toggleDropdown = (e) => {
       e.stopPropagation(); // Hindari event bubbling
@@ -435,14 +436,36 @@ const toggleMedia = (index) => {
   // watermark optional
   ctx.fillStyle = "rgba(255,255,255,0.5)";
   ctx.font = "12px Arial";
-  ctx.fillText("Protected", 10, 20);
+  // ctx.fillText("Protected", 10, 20);
 };
 
 
 
 
+const handleVideoCanvas = (canvas) => {
+  if (!canvas) return;
 
- const handleVideoCanvas = (canvas, index) => {
+  const video = canvas.previousElementSibling;
+
+  const draw = () => {
+    if (!video) return;
+
+    const rect = video.getBoundingClientRect();
+
+    canvas.width = rect.width;
+    canvas.height = rect.height;
+
+    const ctx = canvas.getContext("2d");
+
+    ctx.fillStyle = "rgba(0,0,0,0.01)";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    requestAnimationFrame(draw);
+  };
+
+  video.addEventListener("play", draw);
+};
+ const handleVideoCanvas1 = (canvas, index) => {
   if (!canvas) return;
 
   const video = canvas.previousElementSibling;
@@ -912,7 +935,7 @@ const toggleMedia = (index) => {
                <>
                  {/* ================= IMAGE ================= */}
                  {isImage && (
-                   <div className="relative w-fit">
+                   <div className="relative w-fit"  onClick={() => openModal(index)}>
                      <img
                        src={file}
                        onLoad={(e) => handleCanvas(e, index)}
@@ -931,7 +954,7 @@ const toggleMedia = (index) => {
              
                  {/* ================= VIDEO ================= */}
                  {isVideo && (
-                   <div className="relative w-fit">
+                   <div className="relative w-fit"  onClick={() => openModal(index)}>
                      <video
                        src={file}
                        className="max-w-[120px] max-h-32 rounded"
@@ -1684,6 +1707,62 @@ const toggleMedia = (index) => {
           </Modal>*/}
         </div>
       </div>
+
+         {viewerOpen && (
+  <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50">
+    
+    {/* CLOSE */}
+    <button
+      onClick={() => setViewerOpen(false)}
+      className="absolute top-4 right-4 text-white text-xl"
+    >
+      ✕
+    </button>
+
+    {/* CONTENT */}
+    <div className="relative max-w-[90vw] max-h-[90vh]">
+
+      {/* IMAGE */}
+      {isImage && (
+        <>
+          <img
+            src={currentFile}
+            onLoad={(e) => handleCanvas(e, "modal")}
+            className="max-w-full max-h-[90vh] rounded"
+            draggable={false}
+          />
+
+          {/* IMPORTANT: pointer-events-none */}
+          <canvas
+            id="canvas-modal"
+            className="absolute top-0 left-0 w-full h-full pointer-events-none"
+          />
+        </>
+      )}
+
+      {/* VIDEO */}
+      {isVideo && (
+        <>
+          <video
+            src={currentFile}
+            autoPlay
+            loop
+            controls
+            className="max-w-full max-h-[90vh] rounded"
+          />
+
+          {/* 🔥 PENTING BANGET */}
+          <canvas
+            id="canvas-modal-video"
+            className="absolute top-0 left-0 w-full h-full pointer-events-none"
+            ref={(el) => handleVideoCanvas(el)}
+          />
+        </>
+      )}
+
+    </div>
+  </div>
+)}
       
       </>
     );
