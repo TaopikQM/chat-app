@@ -411,6 +411,60 @@ const toggleMedia = (index) => {
 };
 
 
+
+
+
+
+ const handleCanvas = (e, index) => {
+  const img = e.target;
+  const canvas = document.getElementById(`canvas-${index}`);
+  if (!canvas) return;
+
+  const rect = img.getBoundingClientRect();
+
+  // ukuran canvas ikut tampilan
+  canvas.width = rect.width;
+  canvas.height = rect.height;
+
+  const ctx = canvas.getContext("2d");
+
+  // overlay transparan (biar nutup interaksi)
+  ctx.fillStyle = "rgba(0,0,0,0.01)";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // watermark optional
+  ctx.fillStyle = "rgba(255,255,255,0.5)";
+  ctx.font = "12px Arial";
+  ctx.fillText("Protected", 10, 20);
+};
+
+
+
+
+
+ const handleVideoCanvas = (canvas, index) => {
+  if (!canvas) return;
+
+  const video = canvas.previousElementSibling;
+  if (!video) return;
+
+  const updateCanvas = () => {
+    const rect = video.getBoundingClientRect();
+
+    canvas.width = rect.width;
+    canvas.height = rect.height;
+
+    const ctx = canvas.getContext("2d");
+
+    // timpa transparan
+    ctx.fillStyle = "rgba(0,0,0,0.01)";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  };
+
+  video.addEventListener("loadeddata", updateCanvas);
+  window.addEventListener("resize", updateCanvas);
+};
+
     return (
       <>
      
@@ -801,8 +855,11 @@ const toggleMedia = (index) => {
                  />
 
 
+
+
 {message.files?.length > 0 && (
-  <div className="mt-2 space-y-2">
+  <div className="mt-2 space-y-2" onContextMenu={(e) => e.preventDefault()}
+    onDragStart={(e) => e.preventDefault()}>
 
     {/* ========================= */}
     {/* EXPIRED */}
@@ -851,7 +908,51 @@ const toggleMedia = (index) => {
                 </button>
               )}
 
-              {/* MEDIA */}
+              {openMedia[index] && (
+               <>
+                 {/* ================= IMAGE ================= */}
+                 {isImage && (
+                   <div className="relative w-fit">
+                     <img
+                       src={file}
+                       onLoad={(e) => handleCanvas(e, index)}
+                       onClick={() => openModal(index)}
+                       className="max-w-[120px] max-h-32 object-cover rounded cursor-pointer select-none"
+                       draggable={false}
+                     />
+             
+                     {/* CANVAS NIMPA */}
+                     <canvas
+                       id={`canvas-${index}`}
+                       className="absolute top-0 left-0 w-full h-full rounded"
+                     />
+                   </div>
+                 )}
+             
+                 {/* ================= VIDEO ================= */}
+                 {isVideo && (
+                   <div className="relative w-fit">
+                     <video
+                       src={file}
+                       className="max-w-[120px] max-h-32 rounded"
+                       controls
+                       controlsList="nodownload"
+                     />
+             
+                     {/* CANVAS NIMPA VIDEO */}
+                     <canvas
+                       id={`canvas-video-${index}`}
+                       className="absolute top-0 left-0 w-full h-full rounded"
+                       ref={(el) => handleVideoCanvas(el, index)}
+                     />
+                   </div>
+                 )}
+               </>
+             )}
+
+            
+              {/* 
+               
               {openMedia[index] && (
                 <>
                   {isImage && (
@@ -872,7 +973,6 @@ const toggleMedia = (index) => {
                 </>
               )}
 
-              {/* FILE OTHER */}
               {!isImage && !isVideo && (
                 <button
                   onClick={() => window.open(file, "_blank")}
@@ -882,7 +982,7 @@ const toggleMedia = (index) => {
                 </button>
               )}
 
-              {/* COPY BUTTON
+              COPY BUTTON
               // <div className="flex gap-2 text-[10px]">
               //   <button onClick={copyIMG}>📋 IMG</button>
               //   <button onClick={copyURL}>🔗 URL</button>
