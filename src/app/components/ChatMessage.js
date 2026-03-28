@@ -473,7 +473,7 @@ const handleVideoCanvas = (canvas) => {
   video.onplay = draw;
 };
  
-const handleVideoCanvas1 = (canvas) => {
+const handleVideoCanvas111 = (canvas) => {
   if (!canvas) return;
 
   const video = canvas.previousElementSibling;
