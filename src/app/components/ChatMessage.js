@@ -426,6 +426,8 @@ const toggleMedia = (index) => {
 
   const ctx = canvas.getContext("2d");
 
+   ctx.clearRect(0, 0, canvas.width, canvas.height);
+
   // overlay transparan (biar nutup interaksi)
   ctx.fillStyle = "rgba(0,0,0,0.01)";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -459,8 +461,8 @@ const handleVideoCanvas = (canvas) => {
 
     requestAnimationFrame(draw);
   };
-
-  video.addEventListener("play", draw);
+video.onplay = draw;
+  // video.addEventListener("play", draw);
 };
  const handleVideoCanvas1 = (canvas, index) => {
   if (!canvas) return;
@@ -1671,6 +1673,8 @@ const handleVideoCanvas = (canvas) => {
   <div
     className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center"
     onClick={closeModal}
+     onContextMenu={(e) => e.preventDefault()}   // 🔥 TAMBAH
+  onDragStart={(e) => e.preventDefault()}
   >
     <div
       className="relative"
@@ -1694,13 +1698,14 @@ const handleVideoCanvas = (canvas) => {
 
         return (
           <>
-            {/* IMAGE */}
+            {/* IMAGE  className="rounded"*/}
             {isImage && (
               <div className="relative inline-block">
                 <img
                   src={file}
                   onLoad={(e) => handleCanvas(e, "modal")}
-                  className="rounded"
+                  className="max-w-[90vw] max-h-[90vh] w-auto h-auto object-contain rounded"
+  
                   draggable={false}
                 />
 
@@ -1719,7 +1724,7 @@ const handleVideoCanvas = (canvas) => {
                   autoPlay
                   loop
                   controls
-                  className="rounded"
+                   className="max-w-[90vw] max-h-[90vh] w-auto h-auto object-contain rounded"
                 />
 
                 <canvas
