@@ -438,10 +438,42 @@ const toggleMedia = (index) => {
   // ctx.fillText("Protected", 10, 20);
 };
 
-
-
+useEffect(() => {
+  const vid = document.querySelector("#modal-video");
+  if (vid) {
+    vid.muted = true;
+    vid.play().catch(() => {});
+  }
+}, [isOpen]);
+ 
 
 const handleVideoCanvas = (canvas) => {
+  if (!canvas) return;
+
+  const video = canvas.previousElementSibling;
+  if (!video) return;
+
+  const draw = () => {
+    const rect = video.getBoundingClientRect();
+
+    canvas.width = rect.width;
+    canvas.height = rect.height;
+
+    const ctx = canvas.getContext("2d");
+
+    ctx.fillStyle = "rgba(0,0,0,0.01)";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    requestAnimationFrame(draw);
+  };
+
+  // 🔥 FORCE PLAY (kalau autoplay gagal)
+  video.play().catch(() => {});
+
+  video.onplay = draw;
+};
+ 
+const handleVideoCanvas1 = (canvas) => {
   if (!canvas) return;
 
   const video = canvas.previousElementSibling;
@@ -956,14 +988,19 @@ video.onplay = draw;
                    <div className="relative w-fit cursor-pointer"  onClick={() => openModal(index)}>
                      <video
                        src={file}
+                       autoPlay
+                       muted            // 🔥 WAJIB biar autoplay jalan
+                       loop
+                       playsInline  
                        className="max-w-[120px] max-h-32 rounded"
-                       controls
+                      
                        controlsList="nodownload"
                      />
              
-                     {/* CANVAS NIMPA VIDEO */}
+                     {/* controls CANVAS NIMPA VIDEO   id={`canvas-video-${index}`} */}
                      <canvas
-                       id={`canvas-video-${index}`}
+                     
+                       id="canvas-modal-video"
                        className="absolute top-0 left-0 w-full h-full  rounded"
                        ref={(el) => handleVideoCanvas(el)}
                      />
