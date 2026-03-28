@@ -964,7 +964,7 @@ video.onplay = draw;
                      {/* CANVAS NIMPA VIDEO */}
                      <canvas
                        id={`canvas-video-${index}`}
-                       className="absolute top-0 left-0 w-full h-full  rounded pointer-events-none"
+                       className="absolute top-0 left-0 w-full h-full  rounded"
                        ref={(el) => handleVideoCanvas(el)}
                      />
                    </div>
@@ -1729,7 +1729,7 @@ video.onplay = draw;
 
                 <canvas
                   id="canvas-modal-video"
-                  className="absolute top-0 left-0 w-full h-full pointer-events-none"
+                  className="absolute top-0 left-0 w-full h-full"
                   ref={(el) => handleVideoCanvas(el)}
                 />
               </div>
