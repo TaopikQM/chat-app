@@ -932,11 +932,11 @@ const handleVideoCanvas = (canvas) => {
                <>
                  {/* ================= IMAGE ================= */}
                  {isImage && (
-                   <div className="relative w-fit"  >
+                   <div className="relative w-fit cursor-pointer"  onClick={() => openModal(index)}>
                      <img
                        src={file}
                        onLoad={(e) => handleCanvas(e, index)}
-                       onClick={() => openModal(index)}
+                       
                        className="max-w-[120px] max-h-32 object-cover rounded cursor-pointer select-none"
                        draggable={false}
                      />
@@ -951,7 +951,7 @@ const handleVideoCanvas = (canvas) => {
              
                  {/* ================= VIDEO ================= */}
                  {isVideo && (
-                   <div className="relative w-fit"  onClick={() => openModal(index)}>
+                   <div className="relative w-fit cursor-pointer"  onClick={() => openModal(index)}>
                      <video
                        src={file}
                        className="max-w-[120px] max-h-32 rounded"
