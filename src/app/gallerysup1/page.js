@@ -29,10 +29,10 @@ export default function GalleryPage() {
   const selectAllRef = useRef();
 
   useEffect(() => {
-    if (selectAllRef.current) {
-      selectAllRef.current.indeterminate = isIndeterminate;
-    }
-  }, [selectedItems]);
+  if (selectAllRef.current) {
+    selectAllRef.current.indeterminate = isIndeterminate;
+  }
+}, [selectedItems, grouped]);
 
   const handleImageLoad = (e, name) => {
   const height = e.target.naturalHeight;
@@ -70,12 +70,30 @@ export default function GalleryPage() {
 
   const allFileKeys = files.map((f) => makeKey("file", f.name));
 
-  const isAllChecked =
-    allFileKeys.length > 0 &&
-    allFileKeys.every((k) => selectedItems[k]?.checked);
+  // const isAllChecked =
+  //   allFileKeys.length > 0 &&
+  //   allFileKeys.every((k) => selectedItems[k]?.checked);
   
-  const isIndeterminate =
-    allFileKeys.some((k) => selectedItems[k]?.checked) && !isAllChecked;
+  // const isIndeterminate =
+  //   allFileKeys.some((k) => selectedItems[k]?.checked) && !isAllChecked;
+
+  // 🔥 taruh di sini (di dalam component, sebelum return)
+
+// ambil semua file dari grouped
+      const fileKeys = Object.values(grouped)
+        .flat()
+        .map((f) => makeKey("file", f.name));
+      
+      const checkedCount = fileKeys.filter(
+        (k) => selectedItems[k]?.checked
+      ).length;
+      
+      const isAllChecked =
+        fileKeys.length > 0 && checkedCount === fileKeys.length;
+      
+      const isIndeterminate =
+        checkedCount > 0 && checkedCount < fileKeys.length;
+  
 
   const toggleSelect22222 = (key) => {
     setSelectedItems((prev) => ({
@@ -452,10 +470,10 @@ const downloadSelected = async () => {
           >
             <input
               type="checkbox"
-              
+               ref={selectAllRef}
                     checked={!!isChecked(key)}
-                disabled={isDownloaded(key)}
-                onChange={() => toggleSelect(key)}
+                 checked={isAllChecked}
+                  onChange={handleSelectAll}
             />
       
             <div
