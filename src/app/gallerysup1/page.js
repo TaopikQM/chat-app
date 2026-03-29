@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState,useRef  } from "react";
 import { supabase } from "../config/supabase";
 
 const bulanIndo = [
@@ -25,6 +25,14 @@ export default function GalleryPage() {
   const [viewerIndex, setViewerIndex] = useState(0);
 
   const [sizes, setSizes] = useState({});
+  
+  const selectAllRef = useRef();
+
+  useEffect(() => {
+    if (selectAllRef.current) {
+      selectAllRef.current.indeterminate = isIndeterminate;
+    }
+  }, [selectedItems]);
 
   const handleImageLoad = (e, name) => {
   const height = e.target.naturalHeight;
@@ -42,7 +50,34 @@ export default function GalleryPage() {
   }));
 };
 
+  const makeKey = (type, name) =>
+    path ? `${type}-${path}-${name}` : `${type}-${name}`;
+  
+  const extractFileName = (key) => {
+    if (path) return key.replace(`file-${path}-`, "");
+    return key.replace("file-", "");
+  };
+
   const toggleSelect = (key) => {
+    setSelectedItems((prev) => ({
+      ...prev,
+      [key]: {
+        checked: !prev[key]?.checked,
+        downloaded: prev[key]?.downloaded || false
+      }
+    }));
+  };
+
+  const allFileKeys = files.map((f) => makeKey("file", f.name));
+
+  const isAllChecked =
+    allFileKeys.length > 0 &&
+    allFileKeys.every((k) => selectedItems[k]?.checked);
+  
+  const isIndeterminate =
+    allFileKeys.some((k) => selectedItems[k]?.checked) && !isAllChecked;
+
+  const toggleSelect22222 = (key) => {
     setSelectedItems((prev) => ({
       ...prev,
       [key]: prev[key]
@@ -51,14 +86,34 @@ export default function GalleryPage() {
     }));
   };
 
+  const handleSelectAll = () => {
+      const updated = {};
+    
+      [...folders, ...files].forEach((item) => {
+        const type = item.id ? "file" : "folder";
+        const key = makeKey(type, item.name);
+    
+        updated[key] = {
+          checked: !isAllChecked,
+          downloaded: selectedItems[key]?.downloaded || false
+        };
+      });
+    
+      setSelectedItems((prev) => ({
+        ...prev,
+        ...updated
+      }));
+    };
+
   const isChecked = (key) => selectedItems[key]?.checked;
   const isDownloaded = (key) => selectedItems[key]?.downloaded;
 
-  const handleSelectAll = () => {
+  const handleSelectAll121 = () => {
     const all = {};
   
     folders.forEach((f) => {
-      const key = `folder-${f.name}`;
+      // const key = `folder-${f.name}`;
+      const key = `folder-${path}-${f.name}`;
       all[key] = {
         checked: true,
         downloaded: false
@@ -66,7 +121,8 @@ export default function GalleryPage() {
     });
   
     files.forEach((f) => {
-      const key = `file-${f.name}`;
+      // const key = `file-${f.name}`;
+      const key = `file-${path}-${f.name}`;
       all[key] = {
         checked: true,
         downloaded: false
@@ -87,11 +143,15 @@ const downloadSelected = async () => {
     const item = selectedItems[key];
 
     if (!item.checked || item.downloaded) continue;
+     if (!key.startsWith("file-")) continue;
 
-    const isFile = key.startsWith("file-");
-    if (!isFile) continue;
+    // const isFile = key.startsWith("file-");
+    // if (!isFile) continue;
 
-    const fileName = key.replace("file-", "");
+    // const fileName = key.replace("file-", "");
+    // const fileName = key.replace(`file-${path}-`, "");
+    // const url = getUrl(fileName);
+    const fileName = extractFileName(key);
     const url = getUrl(fileName);
 
     // ✅ FORCE DOWNLOAD (SEKARANG WORK)
@@ -112,7 +172,7 @@ const downloadSelected = async () => {
       }
     }));
 
-    await new Promise((res) => setTimeout(res, 400));
+    await new Promise((res) => setTimeout(res, 300));
   }
 
   setDownloading(false);
@@ -329,14 +389,20 @@ const downloadSelected = async () => {
         📂 {renderPath()}
       </div>
 
-      {/* 📊 TOTAL */}
+      {/* 📊 TOTAL  <input type="checkbox" onChange={handleSelectAll} />*/}
       <div className="mb-4 text-sm">
         Total: {folders.length} Folder | {files.length} File
       </div>
 
       <div className="flex items-center gap-4 mb-4">
         <label className="flex items-center gap-2 cursor-pointer">
-          <input type="checkbox" onChange={handleSelectAll} />
+         
+        <input
+          ref={selectAllRef}
+          type="checkbox"
+          checked={isAllChecked}
+          onChange={handleSelectAll}
+        />
           Pilih Semua
         </label>
       
@@ -369,10 +435,15 @@ const downloadSelected = async () => {
             ))}
           </div>
         </div>
+         // const key = `folder-${f.name}`;
+         checked={isChecked(key)}
+              disabled={isDownloaded(key)}
+              onChange={() => toggleSelect(key)}
       )}*/}
 
       {folders.map((f, i) => {
-        const key = `folder-${f.name}`;
+       
+        const key = makeKey("folder", f.name);
       
         return (
           <div
@@ -381,9 +452,10 @@ const downloadSelected = async () => {
           >
             <input
               type="checkbox"
-              checked={isChecked(key)}
-              disabled={isDownloaded(key)}
-              onChange={() => toggleSelect(key)}
+              
+                    checked={!!isChecked(key)}
+                disabled={isDownloaded(key)}
+                onChange={() => toggleSelect(key)}
             />
       
             <div
@@ -451,11 +523,12 @@ const downloadSelected = async () => {
           
               {/* ✅ MASONRY RESPONSIVE
               <div className="columns-2 md:columns-3 lg:columns-5 xl:columns-6 gap-2 space-y-2"> 
-              
+                // const key = `file-${path}-${file.name}`;
                                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-2 auto-rows-[10px] [grid-auto-flow:dense]">*/}
              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-2">
                 {grouped[group].map((file, i) => {
-                  const key = `file-${path}-${file.name}`;
+                
+                  const key = makeKey("file", file.name);
                   const url = getUrl(file.name);
                  
           
