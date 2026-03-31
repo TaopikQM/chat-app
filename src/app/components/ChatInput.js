@@ -22,12 +22,12 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage, isDark}
 
   const [images, setImages] = useState([]);
 
-  if (item.type.startsWith("image/")) {
-  e.preventDefault();
-  const file = item.getAsFile();
+//   if (item.type.startsWith("image/")) {
+//   e.preventDefault();
+//   const file = item.getAsFile();
 
-  setImages((prev) => [...prev, file]);
-}
+//   setImages((prev) => [...prev, file]);
+// }
 
   
   const [location, setLocation] = useState(null);
