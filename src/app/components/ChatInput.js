@@ -2,6 +2,7 @@ import { useState, useRef,useEffect } from "react";
 import { database, storage, storageBackup, storageBackup1 } from "../config/firebase";
 import { ref as databaseRef, push, update,set ,onValue} from "firebase/database";
 import { ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
+import { uploadBytesResumable } from "firebase/storage";
 
 import { supabase } from  "../config/supabase";
 
@@ -691,6 +692,26 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage, isDark}
   };
 
   const handlePaste = (e) => {
+  const items = e.clipboardData?.items;
+  if (!items) return;
+
+  for (let i = 0; i < items.length; i++) {
+    const item = items[i];
+
+    if (!item) continue;
+
+    if (item.type?.startsWith("image/")) {
+      e.preventDefault();
+
+      const file = item.getAsFile();
+      if (!file) continue;
+
+      setImages((prev) => [...prev, file]); // ✅ DI SINI
+    }
+  }
+};
+
+  const handlePaste3 = (e) => {
   if (typeof window === "undefined") return; // 🔥 anti SSR error
 
   const items = e.clipboardData?.items;
