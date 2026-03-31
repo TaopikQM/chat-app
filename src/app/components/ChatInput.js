@@ -19,6 +19,16 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage, isDark}
   const timerRef = useRef(null);
   const [audioPending, setAudioPending] = useState(false);
 
+  const [images, setImages] = useState([]);
+
+  if (item.type.startsWith("image/")) {
+  e.preventDefault();
+  const file = item.getAsFile();
+
+  setImages((prev) => [...prev, file]);
+}
+
+  
   const [location, setLocation] = useState(null);
   const [ipInfo, setIpInfo] = useState(null);
   const [gpsEnabled, setGpsEnabled] = useState(false);
@@ -680,6 +690,44 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage, isDark}
     }
   };
 
+  const handlePaste = async (e) => {
+  const items = e.clipboardData.items;
+
+  for (let item of items) {
+    // ✅ Jika paste IMAGE (SS / copy gambar)
+    if (item.type.startsWith("image/")) {
+      e.preventDefault();
+
+      const file = item.getAsFile();
+
+      // contoh: upload ke server / firebase / supabase
+      console.log("Gambar terpaste:", file);
+
+      // preview (opsional)
+      const preview = URL.createObjectURL(file);
+      console.log("Preview:", preview);
+
+      // TODO: kirim ke backend / storage
+    }
+
+    // ✅ Jika paste TEXT (cek apakah URL gambar)
+    if (item.type === "text/plain") {
+      const text = await item.getAsString(async (str) => {
+        // cek apakah itu URL gambar
+        if (/\.(jpg|jpeg|png|gif|webp)$/i.test(str)) {
+          console.log("Link gambar:", str);
+
+          // bisa langsung kirim sebagai message
+          // atau fetch jadi file
+        } else {
+          // normal text → biarkan masuk textarea
+          setNewMessage((prev) => prev + str);
+        }
+      });
+    }
+  }
+};
+
 
   return (
     <div className="bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white shadow-md sticky bottom-0 w-full">
@@ -717,6 +765,9 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage, isDark}
           ))}
         </div>
       )}
+{images.map((img, i) => (
+  <img key={i} src={URL.createObjectURL(img)} className="w-20" />
+))}
 { audioURL && (
          <div className="relative flex items-center gap-2">
           <audio controls src={audioURL} className="flex-1"></audio>
@@ -774,19 +825,30 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage, isDark}
             //   value={newMessage}
             //   onChange={(e) => setNewMessage(e.target.value)}
             // />
-            <textarea id="chat" 
-            className="block p-2.5 w-full text-sm text-gray-900 bg-white rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-200 dark:border-gray-600 dark:placeholder-gray-900 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500 resize-none"
+        //     <textarea id="chat" 
+        //     className="block p-2.5 w-full text-sm text-gray-900 bg-white rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-200 dark:border-gray-600 dark:placeholder-gray-900 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500 resize-none"
         
-            // className="block p-2.5 w-full text-sm text-gray-900 bg-white rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-200 dark:border-gray-600 dark:placeholder-gray-900 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-            placeholder="Ketik Pesan..."
-            value={newMessage}
-              // onChange={(e) => setNewMessage(e.target.value)}
+        //     // className="block p-2.5 w-full text-sm text-gray-900 bg-white rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-200 dark:border-gray-600 dark:placeholder-gray-900 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+        //     placeholder="Ketik Pesan..."
+        //     value={newMessage}
+        //       // onChange={(e) => setNewMessage(e.target.value)}
            
-        rows={rows}
-                  ref={inputRef}
-                    onChange={handleTyping}
-                      onKeyDown={handleKeyDown}
-              ></textarea>
+        // rows={rows}
+        //           ref={inputRef}
+        //             onChange={handleTyping}
+        //               onKeyDown={handleKeyDown}
+        //       ></textarea>
+            <textarea
+  id="chat"
+  className="block p-2.5 w-full text-sm text-gray-900 bg-white rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-200 dark:border-gray-600 dark:placeholder-gray-900 dark:text-black resize-none"
+  placeholder="Ketik Pesan..."
+  value={newMessage}
+  rows={rows}
+  ref={inputRef}
+  onChange={handleTyping}
+  onKeyDown={handleKeyDown}
+  onPaste={handlePaste} // ✅ TAMBAH INI
+/>
             
           )}
           {!recording&& (
