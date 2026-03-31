@@ -376,7 +376,8 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage, isDark}
       
         // ================= UPLOAD =================
         const { error: uploadError } = await supabase.storage
-          .from("Env-v1")
+          // .from("Env-v1")
+          .from("Env-v2")
           .upload(filePath, file, { upsert: true });
       
         if (uploadError) {
@@ -386,7 +387,8 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage, isDark}
       
         // ================= GET URL =================
         const { data: publicUrlData } = supabase.storage
-          .from("Env-v1")
+          // .from("Env-v1")
+          .from("Env-v2")
           .getPublicUrl(filePath);
       
         const fileUrl = publicUrlData.publicUrl;
@@ -423,7 +425,8 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage, isDark}
           },
         
           // ===== STORAGE INFO =====
-          bucket: "Env-v1",
+          // bucket: "Env-v1",
+          bucket: "Env-v2",
           path: filePath,
           publicUrl: fileUrl,
         
@@ -481,7 +484,8 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage, isDark}
               });
       
         const { error: uploadError } = await supabase.storage
-          .from("Env-v1")
+          // .from("Env-v1")
+          .from("Env-v2")
           // .upload(filePath, audioFile, {
         .upload(filePath, fixedAudioFile, {
             contentType: "audio/wav",
@@ -490,7 +494,8 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage, isDark}
       
         if (!uploadError) {
           const { data: publicUrlData } = supabase.storage
-            .from("Env-v1")
+            // .from("Env-v1")
+            .from("Env-v2")
             .getPublicUrl(filePath);
       
           const fileUrl = publicUrlData.publicUrl;
@@ -530,7 +535,8 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage, isDark}
               },
         
               // ===== STORAGE =====
-              bucket: "Env-v1",
+              // bucket: "Env-v1",
+              bucket: "Env-v2",
               path: filePath,
               publicUrl: fileUrl,
         
