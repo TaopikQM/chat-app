@@ -690,7 +690,42 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage, isDark}
     }
   };
 
-  const handlePaste = async (e) => {
+  const handlePaste = (e) => {
+  if (typeof window === "undefined") return; // 🔥 anti SSR error
+
+  const items = e.clipboardData?.items;
+  if (!items) return;
+
+  for (let i = 0; i < items.length; i++) {
+    const item = items[i];
+
+    if (!item) continue;
+
+    // IMAGE
+    if (item.type?.startsWith("image/")) {
+      e.preventDefault();
+
+      const file = item.getAsFile();
+      if (!file) continue;
+
+      console.log("Gambar:", file);
+    }
+
+    // TEXT
+    if (item.type === "text/plain") {
+      item.getAsString((str) => {
+        if (!str) return;
+
+        if (/\.(jpg|jpeg|png|gif|webp)$/i.test(str)) {
+          console.log("Link:", str);
+        } else {
+          setNewMessage((prev) => prev + str);
+        }
+      });
+    }
+  }
+};
+  const handlePaste2 = async (e) => {
   const items = e.clipboardData.items;
 
   for (let item of items) {
@@ -709,18 +744,12 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage, isDark}
 
       // TODO: kirim ke backend / storage
     }
-
-    // ✅ Jika paste TEXT (cek apakah URL gambar)
+ // ✅ TEXT
     if (item.type === "text/plain") {
-      const text = await item.getAsString(async (str) => {
-        // cek apakah itu URL gambar
+      item.getAsString((str) => {
         if (/\.(jpg|jpeg|png|gif|webp)$/i.test(str)) {
           console.log("Link gambar:", str);
-
-          // bisa langsung kirim sebagai message
-          // atau fetch jadi file
         } else {
-          // normal text → biarkan masuk textarea
           setNewMessage((prev) => prev + str);
         }
       });
