@@ -222,7 +222,8 @@ export async function POST(req) {
     // UPLOAD KE SUPABASE
     const { error: uploadError } = await supabase.storage
       // .from("uploads")
-      .from("Env-v1")
+      // .from("Env-v1")
+      .from("Env-v2")
       .upload(filePath, buffer, {
         contentType: mimeType,
       });
@@ -238,7 +239,8 @@ export async function POST(req) {
     // PUBLIC URL
     const { data: publicUrlData } = supabase.storage
       // .from("uploads")
-      .from("Env-v1")
+      // .from("Env-v1")
+      .from("Env-v2")
       .getPublicUrl(filePath);
 
     const fileUrl = publicUrlData.publicUrl;
@@ -280,7 +282,8 @@ export async function POST(req) {
 
     if (dbError) {
       // OPTIONAL: rollback (hapus file kalau DB gagal)
-      await supabase.storage.from("Env-v1").remove([filePath]);
+      // await supabase.storage.from("Env-v1").remove([filePath]);
+      await supabase.storage.from("Env-v2").remove([filePath]);
     
       return resFormat({
         code: 500,
