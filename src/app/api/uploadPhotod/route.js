@@ -254,6 +254,7 @@ export async function POST(req) {
     }
 
     // ================= SIMPAN KE DATABASE =================
+    let dbStatus = "success";
     const { error: dbError } = await supabase.from("files").insert([
       {
         user_id: currentUser,
