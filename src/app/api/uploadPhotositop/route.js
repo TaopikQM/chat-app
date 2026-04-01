@@ -275,20 +275,23 @@ export async function POST(req) {
           size: buffer.length,
         },
     
-        tanggal: nowWIB.toISOString().split("T")[0]
+        // tanggal: nowWIB.toISOString().split("T")[0]
+         tanggal: `${y}-${m}-${d}`,
       }
     ]);
 
     if (dbError) {
       // OPTIONAL: rollback (hapus file kalau DB gagal)
       // await supabase.storage.from("Env-v1").remove([filePath]);
-      await supabase.storage.from("Env-v2").remove([filePath]);
+      // await supabase.storage.from("Env-v2").remove([filePath]);
     
-      return resFormat({
-        code: 500,
-        status: "error",
-        message: dbError.message,
-      });
+      // return resFormat({
+      //   code: 500,
+      //   status: "error",
+      //   message: dbError.message,
+      // });
+      dbStatus = "failed";
+      console.error("DB INSERT ERROR:", dbError.message);
     }
     
     // RESPONSE
@@ -296,7 +299,11 @@ export async function POST(req) {
       code: 200,
       status: "success",
       // message: "Upload berhasil",
-      message: "Upload & simpan database berhasil",
+      // message: "Upload & simpan database berhasil",
+       message:
+        dbStatus === "success"
+          ? "Upload berhasil"
+          : "Upload berhasil, tapi gagal simpan database",
       data: {
         fileName,
         url: fileUrl,
@@ -310,6 +317,8 @@ export async function POST(req) {
       meta: {
         uploadAt: nowWIB.toISOString(),
         size: buffer.length,
+        
+        database: dbStatus,
       },
     });
 
@@ -340,6 +349,7 @@ export async function POST(req) {
     // ]);
     
   } catch (error) {
+    console.error("ERROR API:", err);
     return resFormat({
       code: 500,
       status: "error",
