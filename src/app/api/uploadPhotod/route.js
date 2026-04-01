@@ -253,58 +253,58 @@ export async function POST(req) {
       });
     }
 
-    // ================= SIMPAN KE DATABASE =================
-    let dbStatus = "success";
-    const { error: dbError } = await supabase.from("files").insert([
-      {
-        user_id: currentUser,
-        file_name: fileName,
-        file_url: fileUrl,
-        file_path: filePath,
-        file_type: mimeType,
+    // // ================= SIMPAN KE DATABASE =================
+    // let dbStatus = "success";
+    // const { error: dbError } = await supabase.from("files").insert([
+    //   {
+    //     user_id: currentUser,
+    //     file_name: fileName,
+    //     file_url: fileUrl,
+    //     file_path: filePath,
+    //     file_type: mimeType,
         
-        meta: {
-          fileName,
-          url: fileUrl,
-          path: filePath,
-          user: currentUser,
-          chatWith,
-          diah,
-          facing,
-          type: mimeType,
-          uploadAt: nowWIB.toISOString(),
-          size: buffer.length,
-        },
+    //     meta: {
+    //       fileName,
+    //       url: fileUrl,
+    //       path: filePath,
+    //       user: currentUser,
+    //       chatWith,
+    //       diah,
+    //       facing,
+    //       type: mimeType,
+    //       uploadAt: nowWIB.toISOString(),
+    //       size: buffer.length,
+    //     },
     
-        // tanggal: nowWIB.toISOString().split("T")[0]
-         tanggal: `${y}-${m}-${d}`,
-      }
-    ]);
+    //     // tanggal: nowWIB.toISOString().split("T")[0]
+    //      tanggal: `${y}-${m}-${d}`,
+    //   }
+    // ]);
 
-    if (dbError) {
-      // OPTIONAL: rollback (hapus file kalau DB gagal)
-      // await supabase.storage.from("Env-v1").remove([filePath]);
-      // await supabase.storage.from("Env-v2").remove([filePath]);
+    // if (dbError) {
+    //   // OPTIONAL: rollback (hapus file kalau DB gagal)
+    //   // await supabase.storage.from("Env-v1").remove([filePath]);
+    //   // await supabase.storage.from("Env-v2").remove([filePath]);
     
-      // return resFormat({
-      //   code: 500,
-      //   status: "error",
-      //   message: dbError.message,
-      // });
-      dbStatus = "failed";
-      console.error("DB INSERT ERROR:", dbError.message);
-    }
+    //   // return resFormat({
+    //   //   code: 500,
+    //   //   status: "error",
+    //   //   message: dbError.message,
+    //   // });
+    //   dbStatus = "failed";
+    //   console.error("DB INSERT ERROR:", dbError.message);
+    // }
     
     // RESPONSE
     return resFormat({
       code: 200,
       status: "success",
-      // message: "Upload berhasil",
+      message: "Upload berhasil",
       // message: "Upload & simpan database berhasil",
-       message:
-        dbStatus === "success"
-          ? "Upload berhasil"
-          : "Upload berhasil, tapi gagal simpan database",
+       // message:
+       //  dbStatus === "success"
+       //    ? "Upload berhasil"
+       //    : "Upload berhasil, tapi gagal simpan database",
       data: {
         fileName,
         url: fileUrl,
@@ -319,7 +319,7 @@ export async function POST(req) {
         uploadAt: nowWIB.toISOString(),
         size: buffer.length,
         
-        database: dbStatus,
+        // database: dbStatus,
       },
     });
 
