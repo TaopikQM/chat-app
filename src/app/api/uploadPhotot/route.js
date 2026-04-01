@@ -24,6 +24,9 @@ export async function POST(req) {
     const mime = imageData.match(/data:(.*);base64/)[1];
     const buffer = Buffer.from(base64, "base64");
 
+    // EXTENSION FILE
+    const ext = mime.split("/")[1];
+
     const nowWIB = new Date(
       new Date().toLocaleString("en-US", { timeZone: "Asia/Jakarta" })
     );
