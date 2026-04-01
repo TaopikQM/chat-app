@@ -56,7 +56,7 @@ export async function POST(req) {
     const { error } = await supabase.storage
       .from("Env-v2")
       .upload(filePath, buffer, {
-        contentType: mime,
+        contentType: mimeType,
       });
 
     if (error) {
