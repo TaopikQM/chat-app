@@ -80,7 +80,7 @@ export async function POST(req) {
       message: "Upload berhasil",
       data: {
         fileName,
-        url: fileUrl,
+        // url: fileUrl,
         path: filePath,
         user: currentUser,
         chatWith,
