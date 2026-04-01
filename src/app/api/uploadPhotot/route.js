@@ -94,7 +94,7 @@ export async function POST(req) {
 
     // GET URL
     const { data: publicUrl } = supabase.storage
-      .from("uploads")
+      .from("Env-v2")
       .getPublicUrl(filePath);
 
     // RESPONSE SUCCESS
