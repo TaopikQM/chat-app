@@ -226,7 +226,7 @@ const downloadSelected = async () => {
 
     while (true) {
       const { data, error } = await supabase.storage
-        .from("Env-v1")
+        .from("Env-v2")
         .list(folder, {
           limit,
           offset,
@@ -291,7 +291,7 @@ const downloadSelected = async () => {
     const fullPath = path ? `${path}/${fileName}` : fileName;
   
     const { data } = supabase.storage
-      .from("Env-v1")
+      .from("Env-v2")
       .getPublicUrl(fullPath, {
         download: true // 🔥 INI KUNCI
       });
