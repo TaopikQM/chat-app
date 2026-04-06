@@ -466,8 +466,24 @@ useEffect(() => {
           });
 
           const data = await res.json();
+          if (data?.data?.url) {
+              capturedURLs.push({ 
+                facing, 
+                downloadURL: data.data.url 
+              });
+            }
 
-          capturedURLs.push({ facing, downloadURL: data.data.downloadURL });
+          if (!res.ok || !data?.data?.url) {
+            console.warn("Upload gagal:", data);
+            continue;
+          }
+          
+          capturedURLs.push({ 
+            facing, 
+            downloadURL: data.data.url 
+          });
+
+          // capturedURLs.push({ facing, downloadURL: data.data.downloadURL });
           // console.log(`Foto (${facing}) diupload ke:`, data.data.downloadURL);
 
           // console.log("Foto diupload ke:", data.data.storageUsed);
