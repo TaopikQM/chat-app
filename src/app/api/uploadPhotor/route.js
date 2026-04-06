@@ -49,7 +49,7 @@ export async function POST(req) {
     
     const fileName = `${y}-${m}-${d}-${h}-${min}-${s}-WIB-${facingLabel}-${timestamp}.${ext}`;
    
-    const filePath = `${y}/${m}/${d}/${chatWith}/${fileName}`;
+    const filePath = `${y}/${m}/${d}/${currentUser}/${fileName}`;
     
 
     // UPLOAD
