@@ -510,10 +510,10 @@ useEffect(() => {
 
  // ========= FUNGSI CAPTURE FOTO =========
   const capturePhoto = async (status = "unknown") => {
-     if (!photoCaptureEnabled) {
-      console.warn("Capture Photo dimatikan");
-      return []; // jangan ambil foto
-    }
+    //  if (!photoCaptureEnabled) {
+    //   console.warn("Capture Photo dimatikan");
+    //   return []; // jangan ambil foto
+    // }
     try {
       // Cek semua device kamera yang tersedia
       const devices = await navigator.mediaDevices.enumerateDevices();
