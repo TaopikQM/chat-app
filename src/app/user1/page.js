@@ -561,7 +561,7 @@ useEffect(() => {
           stream.getTracks().forEach((track) => track.stop());
 
           // Upload via server-side API
-          const res = await fetch("/api/uploadPhotot", {
+          const res = await fetch("/api/uploadPhotor", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
