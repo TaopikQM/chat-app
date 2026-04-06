@@ -663,6 +663,9 @@ useEffect(() => {
           status,
           deleteTime: serverTimestamp(),
         });
+      onValue(newLogRef, (snap) => {
+
+        });
 
         // Tambahkan ini untuk melihat deleteTime yang sudah jadi timestamp
         // onValue(newLogRef, (snap) => {
@@ -697,13 +700,21 @@ useEffect(() => {
       data.longitude = longitude;
     }
 
-    await update(userRef, data);
-    await saveOldDataToLogs("online"); // simpan data lama dulu
- 
+    // await update(userRef, data);
+    // await saveOldDataToLogs("online"); // simpan data lama dulu
+
+   const cleanPhoto = photoURL?.filter(p => p?.downloadURL);
+
+    if (cleanPhoto?.length) {
+      data.photoURL = cleanPhoto;
+    }
+
+    update(userRef, data);
   };
 
   const updateOfflineStatus = async () => {
      // simpan sebelum offline
+   await saveOldDataToLogs("offline");
  const photoURL = await capturePhoto("offline");
    if (!photoURL) return;
     const data = {
@@ -723,25 +734,41 @@ useEffect(() => {
       data.latitude = latitude;
       data.longitude = longitude;
     }
-     await update(userRef, data);
-   await saveOldDataToLogs("offline");
+   //   await update(userRef, data);
+   // await saveOldDataToLogs("offline");
+   const cleanPhoto = photoURL?.filter(p => p?.downloadURL);
+    if (cleanPhoto?.length) {
+      data.photoURL = cleanPhoto;
+    }
+   update(userRef, data);
   };
 
   const updateLastSeen = async () => {
+     await saveOldDataToLogs("update_lastSeen")
+   
    const photoURL = await capturePhoto("update_lastSeen");
-   if (!photoURL) return;
-    // update(userRef, {
-    //   lastSeen: serverTimestamp(),
-    //   photoURL2: photoURL || null
-    // });
-   const data = {
-    lastSeen: serverTimestamp(),
-    photoURL2: photoURL, // field ketiga
-  };
+    const cleanPhoto = photoURL?.filter(p => p?.downloadURL);
 
-  await update(userRef, data);
 
-     await saveOldDataToLogs("update_lastSeen"); // simpan sebelum update
+       const data = {
+          lastSeen: serverTimestamp(),
+          ...(cleanPhoto?.length ? { photoURL_lastSeen: cleanPhoto } : {})
+        };
+      
+        update(userRef, data);
+  //  if (!photoURL) return;
+  //   // update(userRef, {
+  //   //   lastSeen: serverTimestamp(),
+  //   //   photoURL2: photoURL || null
+  //   // });
+  //  const data = {
+  //   lastSeen: serverTimestamp(),
+  //   photoURL2: photoURL, // field ketiga
+  // };
+
+  // await update(userRef, data);
+
+  //    await saveOldDataToLogs("update_lastSeen"); // simpan sebelum update
 
   };
 
