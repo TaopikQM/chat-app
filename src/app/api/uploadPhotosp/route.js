@@ -70,9 +70,15 @@ export async function POST(req) {
     }
 
     // GET URL
-    const { data: publicUrl } = supabase.storage
-      .from("Env-v2")
-      .getPublicUrl(filePath);
+    // const { data: publicUrl } = supabase.storage
+    //   .from("Env-v2")
+    //   .getPublicUrl(filePath);
+    const { data } = supabase.storage
+        .from("Env-v2")
+        .getPublicUrl(filePath);
+      
+    const fileUrl = data.publicUrl;
+
 
      return Response.json({
       code: 200,
@@ -80,7 +86,7 @@ export async function POST(req) {
       message: "Upload berhasil",
       data: {
         fileName,
-        // url: fileUrl,
+        url: fileUrl,
         path: filePath,
         user: currentUser,
         chatWith,
