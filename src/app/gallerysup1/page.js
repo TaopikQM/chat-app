@@ -300,7 +300,7 @@ const downloadSelected = async () => {
   };
   const getUrl1 = (fileName) => {
     const fullPath = path ? `${path}/${fileName}` : fileName;
-    return supabase.storage.from("Env-v1").getPublicUrl(fullPath).data.publicUrl;
+    return supabase.storage.from("Env-v2").getPublicUrl(fullPath).data.publicUrl;
   };
 
   // ================= GROUP =================
