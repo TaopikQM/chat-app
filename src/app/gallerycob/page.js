@@ -13,7 +13,7 @@ export default function GalleryPage() {
   const parentRef = useRef();
 
   // ================= STATE =================
-  const [path, setPath] = useState("");
+  const [path, setPath] = useState(""); // 🔥 penting
   const [folders, setFolders] = useState([]);
   const [files, setFiles] = useState([]);
 
@@ -43,10 +43,7 @@ export default function GalleryPage() {
     const { data } = supabase.storage
       .from("Env-v2")
       .getPublicUrl(fullPath, {
-        transform: {
-          width: 400,
-          quality: 60,
-        },
+        transform: { width: 400, quality: 60 },
       });
 
     return data.publicUrl;
@@ -59,34 +56,55 @@ export default function GalleryPage() {
 
     const { data, error } = await supabase.storage
       .from("Env-v2")
-      .list(path, {
+      .list(path || "", {
         limit,
         offset,
         sortBy: { column: "created_at", order: "desc" },
       });
 
-    if (!error && data) {
-      const newFolders = data.filter((i) => !i.id);
-      const newFiles = data.filter((i) => i.id);
+    console.log("PATH:", path);
+    console.log("OFFSET:", offset);
+    console.log("DATA:", data);
 
-      // folder hanya load sekali (biar gak dobel)
-      if (offset === 0) setFolders(newFolders);
-
-      setFiles((prev) => [...prev, ...newFiles]);
-      setOffset((prev) => prev + limit);
+    if (error) {
+      console.error(error);
+      setLoading(false);
+      return;
     }
+
+    if (!data || data.length === 0) {
+      setLoading(false);
+      return;
+    }
+
+    // 🔥 pisah folder & file
+    const newFolders = data.filter((i) => !i.id);
+    const newFiles = data.filter((i) => i.id);
+
+    // folder hanya set saat awal load
+    if (offset === 0) {
+      setFolders(newFolders);
+    }
+
+    setFiles((prev) => [...prev, ...newFiles]);
+
+    // 🔥 penting (anti skip)
+    setOffset((prev) => prev + data.length);
 
     setLoading(false);
   };
 
-  // reset saat path berubah
+  // ================= RESET SAAT PATH BERUBAH =================
   useEffect(() => {
     setFolders([]);
     setFiles([]);
     setOffset(0);
     urlCache.current = {};
-    fetchData();
   }, [path]);
+
+  useEffect(() => {
+    fetchData();
+  }, [offset === 0, path]);
 
   // ================= VIRTUAL =================
   const rowVirtualizer = useVirtualizer({
@@ -139,12 +157,12 @@ export default function GalleryPage() {
         loop
         playsInline
         preload="metadata"
-        className="w-full h-full object-cover rounded"
+        className="w-full rounded"
       />
     );
   };
 
-  // ================= NAV =================
+  // ================= NAVIGATION =================
   const openFolder = (name) => {
     setPath((prev) => (prev ? `${prev}/${name}` : name));
   };
@@ -160,7 +178,7 @@ export default function GalleryPage() {
   // ================= UI =================
   return (
     <div className="p-4">
-      <h1 className="text-xl font-bold mb-4">🚀 Super Fast Gallery</h1>
+      <h1 className="text-xl font-bold mb-4">🔥 Gallery Nested Super Fast</h1>
 
       {/* BACK */}
       {path && (
@@ -173,7 +191,7 @@ export default function GalleryPage() {
       )}
 
       {/* PATH */}
-      <div className="text-sm mb-4 text-gray-600">
+      <div className="mb-4 text-sm text-gray-600">
         📂 {path || "root"}
       </div>
 
@@ -192,7 +210,7 @@ export default function GalleryPage() {
         </div>
       )}
 
-      {/* ================= FILE LIST ================= */}
+      {/* ================= FILE ================= */}
       <div
         ref={parentRef}
         className="h-[75vh] overflow-auto border rounded"
@@ -224,24 +242,20 @@ export default function GalleryPage() {
               >
                 <div className="bg-white rounded shadow overflow-hidden">
 
-                  {/* IMAGE */}
                   {isImage(name) && (
                     <Image
                       src={getImage(name)}
                       width={400}
                       height={300}
                       loading="lazy"
-                      className="w-full h-auto"
                       alt=""
                     />
                   )}
 
-                  {/* VIDEO */}
                   {isVideo(name) && (
                     <VideoItem src={url} />
                   )}
 
-                  {/* FILE */}
                   {!isImage(name) && !isVideo(name) && (
                     <div className="p-4 text-sm">📄 {name}</div>
                   )}
@@ -259,7 +273,6 @@ export default function GalleryPage() {
     </div>
   );
 }
-
 
 
 
