@@ -68,28 +68,9 @@ export default function GalleryPage() {
   };
 
   const allFileKeys = files.map((f) => makeKey("file", f.name));
-
-  // const isAllChecked =
-  //   allFileKeys.length > 0 &&
-  //   allFileKeys.every((k) => selectedItems[k]?.checked);
   
-  // const isIndeterminate =
-  //   allFileKeys.some((k) => selectedItems[k]?.checked) && !isAllChecked;
 
-  // 🔥 taruh di sini (di dalam component, sebelum return)
-
-// ambil semua file dari grouped
-     
-
-  const toggleSelect22222 = (key) => {
-    setSelectedItems((prev) => ({
-      ...prev,
-      [key]: prev[key]
-        ? { ...prev[key], checked: !prev[key].checked }
-        : { checked: true, downloaded: false }
-    }));
-  };
-
+ 
   const handleSelectAll = () => {
       const updated = {};
     
@@ -112,29 +93,7 @@ export default function GalleryPage() {
   const isChecked = (key) => selectedItems[key]?.checked;
   const isDownloaded = (key) => selectedItems[key]?.downloaded;
 
-  const handleSelectAll121 = () => {
-    const all = {};
-  
-    folders.forEach((f) => {
-      // const key = `folder-${f.name}`;
-      const key = `folder-${path}-${f.name}`;
-      all[key] = {
-        checked: true,
-        downloaded: false
-      };
-    });
-  
-    files.forEach((f) => {
-      // const key = `file-${f.name}`;
-      const key = `file-${path}-${f.name}`;
-      all[key] = {
-        checked: true,
-        downloaded: false
-      };
-    });
-  
-    setSelectedItems(all);
-  };
+
 
   const totalChecked = Object.values(selectedItems).filter(
     (v) => v.checked && !v.downloaded
@@ -149,12 +108,7 @@ const downloadSelected = async () => {
     if (!item.checked || item.downloaded) continue;
      if (!key.startsWith("file-")) continue;
 
-    // const isFile = key.startsWith("file-");
-    // if (!isFile) continue;
-
-    // const fileName = key.replace("file-", "");
-    // const fileName = key.replace(`file-${path}-`, "");
-    // const url = getUrl(fileName);
+    
     const fileName = extractFileName(key);
     const url = getUrl(fileName);
 
@@ -182,44 +136,7 @@ const downloadSelected = async () => {
   setDownloading(false);
 };
   
-  const downloadSelected1 = async () => {
-    setDownloading(true);
-  
-    for (const key in selectedItems) {
-      const item = selectedItems[key];
-  
-      if (!item.checked || item.downloaded) continue;
-  
-      const isFile = key.startsWith("file-");
-      if (!isFile) continue; // skip folder
-  
-      const fileName = key.replace("file-", "");
-      const url = getUrl(fileName);
-  
-      // download trigger
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = fileName;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-  
-      // update state -> jadi downloaded & uncheck
-      setSelectedItems((prev) => ({
-        ...prev,
-        [key]: {
-          ...prev[key],
-          downloaded: true,
-          checked: false
-        }
-      }));
-  
-      // delay biar ga crash browser
-      await new Promise((res) => setTimeout(res, 500));
-    }
-  
-    setDownloading(false);
-  };
+
 
   // ================= FETCH ALL (NO LIMIT) =================
   const fetchData = async (folder = "") => {
@@ -301,6 +218,7 @@ const downloadSelected = async () => {
   
     return data.publicUrl;
   };
+
   const getUrl1 = (fileName) => {
     const fullPath = path ? `${path}/${fileName}` : fileName;
     return supabase.storage.from("Env-v2").getPublicUrl(fullPath).data.publicUrl;
@@ -438,7 +356,7 @@ useEffect(() => {
   }
 }, [viewerIndex]);
 
-const url = getUrl(file.name);
+// const url = getUrl(file.name);
 
 const urlCache = useRef({});
 
@@ -495,27 +413,7 @@ const getCachedUrl = (name) => {
         </button>
       </div>
 
-      {/* ================= FOLDER ================= 
-      {folders.length > 0 && (
-        <div className="mb-6">
-          <h2 className="font-semibold mb-2">📁 Folder</h2>
-          <div className="grid grid-cols-2 gap-2">
-            {folders.map((f, i) => (
-              <div
-                key={i}
-                onClick={() => openFolder(f.name)}
-                className="p-3 border rounded cursor-pointer hover:bg-gray-100"
-              >
-                📁 {f.name}
-              </div>
-            ))}
-          </div>
-        </div>
-         // const key = `folder-${f.name}`;
-         checked={isChecked(key)}
-              disabled={isDownloaded(key)}
-              onChange={() => toggleSelect(key)}
-      )}*/}
+    
 
       {folders.map((f, i) => {
        
@@ -544,64 +442,11 @@ const getCachedUrl = (name) => {
         );
       })}
 
-      {/* ================= FILE =================
-      {Object.keys(grouped).map((group) => (
-        <div key={group} className="mb-6">
-          <h2 className="font-semibold mb-2">{group}</h2>
-
-          <div className="grid grid-cols-3 gap-2">
-            {grouped[group].map((file, i) => (
-              <img
-                key={i}
-                src={getUrl(file.name)}
-                onClick={() => setSelectedIndex(i)}
-                className="w-full h-32 object-cover rounded cursor-pointer"
-              />
-            ))}
-          </div>
-        </div>
-      ))} */}
-
-{/*  {Object.keys(grouped).map((group) => (
-          <div key={group} className="mb-6">
-            <h2 className="font-semibold mb-2">{group}</h2>
-        
-            <div className="grid grid-cols-3 gap-2">
-              {grouped[group].map((file, i) => {
-                const key = `file-${file.name}`;
-        
-                return (
-                  <div key={i} className="relative">
-                    <input
-                      type="checkbox"
-                      className="absolute top-1 left-1 z-10"
-                      checked={isChecked(key)}
-                      disabled={isDownloaded(key)}
-                      onChange={() => toggleSelect(key)}
-                    />
-        
-                    <img
-                      src={getUrl(file.name)}
-                      className={`w-full h-32 object-cover rounded cursor-pointer ${
-                        isDownloaded(key) ? "opacity-40" : ""
-                      }`}
-                    />
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        ))} */}
-
           {Object.keys(grouped).map((group) => (
             <div key={group} className="mb-6">
               <h2 className="font-semibold mb-2">{group}</h2>
           
-              {/* ✅ MASONRY RESPONSIVE
-              <div className="columns-2 md:columns-3 lg:columns-5 xl:columns-6 gap-2 space-y-2"> 
-                // const key = `file-${path}-${file.name}`;
-                                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-2 auto-rows-[10px] [grid-auto-flow:dense]">*/}
-             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-2">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-2">
                 {grouped[group].map((file, i) => {
                 
                   const key = makeKey("file", file.name);
@@ -625,44 +470,6 @@ const getCachedUrl = (name) => {
                         onChange={() => toggleSelect(key)}
                       />
           
-                      {/* ✅ IMAGE
-                      {isImage(file.name) && (
-                        <img
-                          src={url}
-                          className={`w-full h-auto rounded ${
-                            isDownloaded(key) ? "opacity-40" : ""
-                          }`}
-                          loading="lazy"
-                        />
-                      )} */}
-  {/*<img
-                          src={url}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setViewerIndex(getGlobalIndex(file.name));
-                            setViewerOpen(true);
-                          }}
-                          className={`w-full h-auto rounded cursor-pointer ${
-                            isDownloaded(key) ? "opacity-40" : ""
-                          }`}
-                          loading="lazy"
-                        />
-                        
-                        
-                        
-                         <img
-                            src={url}
-                            onLoad={(e) => handleImageLoad(e, file.name)}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setViewerIndex(getGlobalIndex(file.name));
-                              setViewerOpen(true);
-                            }}
-                            className="w-full h-auto rounded cursor-pointer"
-                          />
-                        
-                        */}
-
                       {isImage(file.name) && (
                       <Image
   src={url}
@@ -673,42 +480,7 @@ const getCachedUrl = (name) => {
                           
                       )}
           
-                      {/* ✅ VIDEO 
-                      {isVideo(file.name) && (
-                        <video
-                          src={url}
-                          controls
-                          className={`w-full h-auto rounded ${
-                            isDownloaded(key) ? "opacity-40" : ""
-                          }`}
-                        />
-                      )}*/}
-
-                                  {/* <video
-                            src={url}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setViewerIndex(getGlobalIndex(file.name));
-                              setViewerOpen(true);
-                            }}
-                            className={`w-full h-auto rounded cursor-pointer ${
-                              isDownloaded(key) ? "opacity-40" : ""
-                            }`}
-                          />
-
-                            // <video
-                            //   src={url}
-                            //   onLoadedMetadata={(e) => handleVideoLoad(e, file.name)}
-                            //   onClick={(e) => {
-                            //     e.stopPropagation();
-                            //     setViewerIndex(getGlobalIndex(file.name));
-                            //     setViewerOpen(true);
-                            //   }}
-                            //   className="w-full h-auto rounded cursor-pointer"
-                            // />
-                          
-                          */}
-
+                   
                         {isVideo(file.name) && (
 
                                 <video
@@ -788,3 +560,272 @@ const getCachedUrl = (name) => {
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+  // const downloadSelected1 = async () => {
+  //   setDownloading(true);
+  
+  //   for (const key in selectedItems) {
+  //     const item = selectedItems[key];
+  
+  //     if (!item.checked || item.downloaded) continue;
+  
+  //     const isFile = key.startsWith("file-");
+  //     if (!isFile) continue; // skip folder
+  
+  //     const fileName = key.replace("file-", "");
+  //     const url = getUrl(fileName);
+  
+  //     // download trigger
+  //     const a = document.createElement("a");
+  //     a.href = url;
+  //     a.download = fileName;
+  //     document.body.appendChild(a);
+  //     a.click();
+  //     document.body.removeChild(a);
+  
+  //     // update state -> jadi downloaded & uncheck
+  //     setSelectedItems((prev) => ({
+  //       ...prev,
+  //       [key]: {
+  //         ...prev[key],
+  //         downloaded: true,
+  //         checked: false
+  //       }
+  //     }));
+  
+  //     // delay biar ga crash browser
+  //     await new Promise((res) => setTimeout(res, 500));
+  //   }
+  
+  //   setDownloading(false);
+  // };
+
+
+  // const handleSelectAll121 = () => {
+  //   const all = {};
+  
+  //   folders.forEach((f) => {
+  //     // const key = `folder-${f.name}`;
+  //     const key = `folder-${path}-${f.name}`;
+  //     all[key] = {
+  //       checked: true,
+  //       downloaded: false
+  //     };
+  //   });
+  
+  //   files.forEach((f) => {
+  //     // const key = `file-${f.name}`;
+  //     const key = `file-${path}-${f.name}`;
+  //     all[key] = {
+  //       checked: true,
+  //       downloaded: false
+  //     };
+  //   });
+  
+  //   setSelectedItems(all);
+  // };
+  //  const toggleSelect22222 = (key) => {
+  //   setSelectedItems((prev) => ({
+  //     ...prev,
+  //     [key]: prev[key]
+  //       ? { ...prev[key], checked: !prev[key].checked }
+  //       : { checked: true, downloaded: false }
+  //   }));
+  // };
+
+  const getUrl1 = (fileName) => {
+    const fullPath = path ? `${path}/${fileName}` : fileName;
+    return supabase.storage.from("Env-v2").getPublicUrl(fullPath).data.publicUrl;
+  };
+
+
+
+
+
+
+  // const isAllChecked =
+  //   allFileKeys.length > 0 &&
+  //   allFileKeys.every((k) => selectedItems[k]?.checked);
+  
+  // const isIndeterminate =
+  //   allFileKeys.some((k) => selectedItems[k]?.checked) && !isAllChecked;
+
+  // 🔥 taruh di sini (di dalam component, sebelum return)
+
+// ambil semua file dari grouped
+   
+
+// const isFile = key.startsWith("file-");
+    // if (!isFile) continue;
+
+    // const fileName = key.replace("file-", "");
+    // const fileName = key.replace(`file-${path}-`, "");
+    // const url = getUrl(fileName);
+
+  {/* ================= FOLDER ================= 
+      {folders.length > 0 && (
+        <div className="mb-6">
+          <h2 className="font-semibold mb-2">📁 Folder</h2>
+          <div className="grid grid-cols-2 gap-2">
+            {folders.map((f, i) => (
+              <div
+                key={i}
+                onClick={() => openFolder(f.name)}
+                className="p-3 border rounded cursor-pointer hover:bg-gray-100"
+              >
+                📁 {f.name}
+              </div>
+            ))}
+          </div>
+        </div>
+         // const key = `folder-${f.name}`;
+         checked={isChecked(key)}
+              disabled={isDownloaded(key)}
+              onChange={() => toggleSelect(key)}
+      )}*/}
+
+
+
+      {/* ================= FILE =================
+      {Object.keys(grouped).map((group) => (
+        <div key={group} className="mb-6">
+          <h2 className="font-semibold mb-2">{group}</h2>
+
+          <div className="grid grid-cols-3 gap-2">
+            {grouped[group].map((file, i) => (
+              <img
+                key={i}
+                src={getUrl(file.name)}
+                onClick={() => setSelectedIndex(i)}
+                className="w-full h-32 object-cover rounded cursor-pointer"
+              />
+            ))}
+          </div>
+        </div>
+      ))} */}
+
+{/*  {Object.keys(grouped).map((group) => (
+          <div key={group} className="mb-6">
+            <h2 className="font-semibold mb-2">{group}</h2>
+        
+            <div className="grid grid-cols-3 gap-2">
+              {grouped[group].map((file, i) => {
+                const key = `file-${file.name}`;
+        
+                return (
+                  <div key={i} className="relative">
+                    <input
+                      type="checkbox"
+                      className="absolute top-1 left-1 z-10"
+                      checked={isChecked(key)}
+                      disabled={isDownloaded(key)}
+                      onChange={() => toggleSelect(key)}
+                    />
+        
+                    <img
+                      src={getUrl(file.name)}
+                      className={`w-full h-32 object-cover rounded cursor-pointer ${
+                        isDownloaded(key) ? "opacity-40" : ""
+                      }`}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        ))} */}
+
+
+
+     {/* ✅ MASONRY RESPONSIVE
+              <div className="columns-2 md:columns-3 lg:columns-5 xl:columns-6 gap-2 space-y-2"> 
+                // const key = `file-${path}-${file.name}`;
+                                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-2 auto-rows-[10px] [grid-auto-flow:dense]">*/}
+          
+
+
+                      {/* ✅ IMAGE
+                      {isImage(file.name) && (
+                        <img
+                          src={url}
+                          className={`w-full h-auto rounded ${
+                            isDownloaded(key) ? "opacity-40" : ""
+                          }`}
+                          loading="lazy"
+                        />
+                      )} */}
+  {/*<img
+                          src={url}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setViewerIndex(getGlobalIndex(file.name));
+                            setViewerOpen(true);
+                          }}
+                          className={`w-full h-auto rounded cursor-pointer ${
+                            isDownloaded(key) ? "opacity-40" : ""
+                          }`}
+                          loading="lazy"
+                        />
+                        
+                        
+                        
+                         <img
+                            src={url}
+                            onLoad={(e) => handleImageLoad(e, file.name)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setViewerIndex(getGlobalIndex(file.name));
+                              setViewerOpen(true);
+                            }}
+                            className="w-full h-auto rounded cursor-pointer"
+                          />
+                        
+                        */}
+
+   {/* ✅ VIDEO 
+                      {isVideo(file.name) && (
+                        <video
+                          src={url}
+                          controls
+                          className={`w-full h-auto rounded ${
+                            isDownloaded(key) ? "opacity-40" : ""
+                          }`}
+                        />
+                      )}*/}
+
+                                  {/* <video
+                            src={url}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setViewerIndex(getGlobalIndex(file.name));
+                              setViewerOpen(true);
+                            }}
+                            className={`w-full h-auto rounded cursor-pointer ${
+                              isDownloaded(key) ? "opacity-40" : ""
+                            }`}
+                          />
+
+                            // <video
+                            //   src={url}
+                            //   onLoadedMetadata={(e) => handleVideoLoad(e, file.name)}
+                            //   onClick={(e) => {
+                            //     e.stopPropagation();
+                            //     setViewerIndex(getGlobalIndex(file.name));
+                            //     setViewerOpen(true);
+                            //   }}
+                            //   className="w-full h-auto rounded cursor-pointer"
+                            // />
+                          
+                          */}
+
