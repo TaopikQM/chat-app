@@ -9,11 +9,14 @@ import { useVirtualizer } from "@tanstack/react-virtual";
 const isImage = (name) => /\.(jpg|jpeg|png|webp|gif)$/i.test(name);
 const isVideo = (name) => /\.(mp4|webm|mov|mkv)$/i.test(name);
 
-// ================= COMPONENT =================
 export default function GalleryPage() {
   const parentRef = useRef();
 
+  // ================= STATE =================
+  const [path, setPath] = useState("");
+  const [folders, setFolders] = useState([]);
   const [files, setFiles] = useState([]);
+
   const [offset, setOffset] = useState(0);
   const [loading, setLoading] = useState(false);
   const limit = 20;
@@ -22,21 +25,24 @@ export default function GalleryPage() {
   const urlCache = useRef({});
 
   const getUrl = (name) => {
-    if (urlCache.current[name]) return urlCache.current[name];
+    const fullPath = path ? `${path}/${name}` : name;
+
+    if (urlCache.current[fullPath]) return urlCache.current[fullPath];
 
     const { data } = supabase.storage
       .from("Env-v2")
-      .getPublicUrl(name);
+      .getPublicUrl(fullPath);
 
-    urlCache.current[name] = data.publicUrl;
+    urlCache.current[fullPath] = data.publicUrl;
     return data.publicUrl;
   };
 
-  // ================= IMAGE OPTIMIZE =================
   const getImage = (name) => {
+    const fullPath = path ? `${path}/${name}` : name;
+
     const { data } = supabase.storage
       .from("Env-v2")
-      .getPublicUrl(name, {
+      .getPublicUrl(fullPath, {
         transform: {
           width: 400,
           quality: 60,
@@ -47,30 +53,40 @@ export default function GalleryPage() {
   };
 
   // ================= FETCH =================
-  const fetchFiles = async () => {
+  const fetchData = async () => {
     if (loading) return;
     setLoading(true);
 
     const { data, error } = await supabase.storage
       .from("Env-v2")
-      .list("", {
+      .list(path, {
         limit,
         offset,
         sortBy: { column: "created_at", order: "desc" },
       });
 
     if (!error && data) {
-      const onlyFiles = data.filter((i) => i.id);
-      setFiles((prev) => [...prev, ...onlyFiles]);
+      const newFolders = data.filter((i) => !i.id);
+      const newFiles = data.filter((i) => i.id);
+
+      // folder hanya load sekali (biar gak dobel)
+      if (offset === 0) setFolders(newFolders);
+
+      setFiles((prev) => [...prev, ...newFiles]);
       setOffset((prev) => prev + limit);
     }
 
     setLoading(false);
   };
 
+  // reset saat path berubah
   useEffect(() => {
-    fetchFiles();
-  }, []);
+    setFolders([]);
+    setFiles([]);
+    setOffset(0);
+    urlCache.current = {};
+    fetchData();
+  }, [path]);
 
   // ================= VIRTUAL =================
   const rowVirtualizer = useVirtualizer({
@@ -86,12 +102,13 @@ export default function GalleryPage() {
     if (!items.length) return;
 
     const last = items[items.length - 1];
+
     if (last.index >= files.length - 5) {
-      fetchFiles();
+      fetchData();
     }
   }, [rowVirtualizer.getVirtualItems()]);
 
-  // ================= VIDEO COMPONENT =================
+  // ================= VIDEO =================
   const VideoItem = ({ src }) => {
     const ref = useRef();
 
@@ -127,14 +144,58 @@ export default function GalleryPage() {
     );
   };
 
+  // ================= NAV =================
+  const openFolder = (name) => {
+    setPath((prev) => (prev ? `${prev}/${name}` : name));
+  };
+
+  const goBack = () => {
+    if (!path) return;
+
+    const parts = path.split("/");
+    parts.pop();
+    setPath(parts.join("/"));
+  };
+
   // ================= UI =================
   return (
     <div className="p-4">
       <h1 className="text-xl font-bold mb-4">🚀 Super Fast Gallery</h1>
 
+      {/* BACK */}
+      {path && (
+        <button
+          onClick={goBack}
+          className="mb-3 px-3 py-1 bg-gray-200 rounded"
+        >
+          ← Back
+        </button>
+      )}
+
+      {/* PATH */}
+      <div className="text-sm mb-4 text-gray-600">
+        📂 {path || "root"}
+      </div>
+
+      {/* ================= FOLDER ================= */}
+      {folders.length > 0 && (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-4">
+          {folders.map((f, i) => (
+            <div
+              key={i}
+              onClick={() => openFolder(f.name)}
+              className="p-3 border rounded cursor-pointer hover:bg-gray-100"
+            >
+              📁 {f.name}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* ================= FILE LIST ================= */}
       <div
         ref={parentRef}
-        className="h-[80vh] overflow-auto border rounded"
+        className="h-[75vh] overflow-auto border rounded"
       >
         <div
           style={{
@@ -161,7 +222,6 @@ export default function GalleryPage() {
                 }}
                 className="p-2"
               >
-                {/* CARD */}
                 <div className="bg-white rounded shadow overflow-hidden">
 
                   {/* IMAGE */}
@@ -192,7 +252,6 @@ export default function GalleryPage() {
           })}
         </div>
 
-        {/* LOADING */}
         {loading && (
           <div className="text-center p-4">Loading...</div>
         )}
@@ -200,9 +259,6 @@ export default function GalleryPage() {
     </div>
   );
 }
-
-
-
 
 
 
