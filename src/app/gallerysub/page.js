@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { supabase } from "../config/supabase";
+import { supabase1 } from "../config/supabase";
 
 const bulanIndo = [
   "Januari","Februari","Maret","April","Mei","Juni",
@@ -21,7 +21,7 @@ export default function GalleryPage() {
 
   // ================= FETCH =================
   const fetchData = async (folder = "") => {
-    const { data, error } = await supabase.storage
+    const { data, error } = await supabase1.storage
       .from("Env-v1")
       .list(folder, { limit: 10000 });
 
@@ -73,7 +73,7 @@ export default function GalleryPage() {
   // ================= URL =================
   const getUrl = (fileName) => {
     const fullPath = path ? `${path}/${fileName}` : fileName;
-    return supabase.storage.from("Env-v1").getPublicUrl(fullPath).data.publicUrl;
+    return supabase1.storage.from("Env-v1").getPublicUrl(fullPath).data.publicUrl;
   };
 
   // ================= GROUP =================
@@ -98,7 +98,7 @@ export default function GalleryPage() {
   const getMeta = async (fileName) => {
     setLoadingMeta(true);
   
-    const { data, error } = await supabase.storage
+    const { data, error } = await supabase1.storage
       .from("Env-v1")
       .list(path); // path sekarang
   
@@ -116,7 +116,7 @@ export default function GalleryPage() {
   
   return (
     <div className="p-4">
-      <h1 className="text-xl font-bold mb-4">Gallery Supabase</h1>
+      <h1 className="text-xl font-bold mb-4">Gallery Supabase1</h1>
 
       {/* BACK */}
       {history.length > 0 && (
