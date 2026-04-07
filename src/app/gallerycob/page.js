@@ -1,39 +1,50 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { supabase } from "../config/supabase";
 import Image from "next/image";
-import { useVirtualizer } from "@tanstack/react-virtual";
 
 // ================= HELPER =================
 const isImage = (name) => /\.(jpg|jpeg|png|webp|gif)$/i.test(name);
 const isVideo = (name) => /\.(mp4|webm|mov|mkv)$/i.test(name);
 
 export default function GalleryPage() {
-  const parentRef = useRef();
-
-  // ================= STATE =================
-  const [path, setPath] = useState(""); // 🔥 penting
+  const [path, setPath] = useState("");
+  const [history, setHistory] = useState([]);
   const [folders, setFolders] = useState([]);
   const [files, setFiles] = useState([]);
 
-  const [offset, setOffset] = useState(0);
-  const [loading, setLoading] = useState(false);
-  const limit = 20;
+  const [selectedItems, setSelectedItems] = useState({});
+  const [downloading, setDownloading] = useState(false);
 
-  // ================= URL CACHE =================
+  const [viewerOpen, setViewerOpen] = useState(false);
+  const [viewerIndex, setViewerIndex] = useState(0);
+
+  const selectAllRef = useRef();
   const urlCache = useRef({});
 
-  const getUrl = (name) => {
+  // ================= URL =================
+  const getViewUrl = (name) => {
     const fullPath = path ? `${path}/${name}` : name;
 
-    if (urlCache.current[fullPath]) return urlCache.current[fullPath];
+    if (!urlCache.current[fullPath]) {
+      const { data } = supabase.storage
+        .from("Env-v2")
+        .getPublicUrl(fullPath);
+
+      urlCache.current[fullPath] = data.publicUrl;
+    }
+
+    return urlCache.current[fullPath];
+  };
+
+  const getDownloadUrl = (name) => {
+    const fullPath = path ? `${path}/${name}` : name;
 
     const { data } = supabase.storage
       .from("Env-v2")
-      .getPublicUrl(fullPath);
+      .getPublicUrl(fullPath, { download: true });
 
-    urlCache.current[fullPath] = data.publicUrl;
     return data.publicUrl;
   };
 
@@ -43,110 +54,117 @@ export default function GalleryPage() {
     const { data } = supabase.storage
       .from("Env-v2")
       .getPublicUrl(fullPath, {
-        transform: { width: 400, quality: 60 },
+        transform: { width: 300, quality: 50 },
       });
 
     return data.publicUrl;
   };
 
   // ================= FETCH =================
-  const fetchData = async () => {
-    if (loading) return;
-    setLoading(true);
-
+  const fetchData = async (folder = "") => {
     const { data, error } = await supabase.storage
       .from("Env-v2")
-      .list(path || "", {
-        limit,
-        offset,
+      .list(folder, {
+        limit: 100,
         sortBy: { column: "created_at", order: "desc" },
       });
 
-    console.log("PATH:", path);
-    console.log("OFFSET:", offset);
-    console.log("DATA:", data);
+    if (error) return console.error(error);
 
-    if (error) {
-      console.error(error);
-      setLoading(false);
-      return;
-    }
+    const flds = data.filter((i) => !i.id);
+    const fls = data.filter((i) => i.id);
 
-    if (!data || data.length === 0) {
-      setLoading(false);
-      return;
-    }
-
-    // 🔥 pisah folder & file
-    const newFolders = data.filter((i) => !i.id);
-    const newFiles = data.filter((i) => i.id);
-
-    // folder hanya set saat awal load
-    if (offset === 0) {
-      setFolders(newFolders);
-    }
-
-    setFiles((prev) => [...prev, ...newFiles]);
-
-    // 🔥 penting (anti skip)
-    setOffset((prev) => prev + data.length);
-
-    setLoading(false);
+    setFolders(flds);
+    setFiles(fls);
   };
 
-  // ================= RESET SAAT PATH BERUBAH =================
   useEffect(() => {
-    setFolders([]);
-    setFiles([]);
-    setOffset(0);
-    urlCache.current = {};
+    fetchData(path);
   }, [path]);
 
-  useEffect(() => {
-    fetchData();
-  }, [offset === 0, path]);
+  // ================= NAV =================
+  const openFolder = (name) => {
+    setHistory((prev) => [...prev, path]);
+    setPath(path ? `${path}/${name}` : name);
+  };
 
-  // ================= VIRTUAL =================
-  const rowVirtualizer = useVirtualizer({
-    count: files.length,
-    getScrollElement: () => parentRef.current,
-    estimateSize: () => 300,
-    overscan: 5,
-  });
+  const goBack = () => {
+    setHistory((prev) => {
+      const copy = [...prev];
+      const last = copy.pop() || "";
+      setPath(last);
+      return copy;
+    });
+  };
 
-  // ================= INFINITE SCROLL =================
-  useEffect(() => {
-    const items = rowVirtualizer.getVirtualItems();
-    if (!items.length) return;
+  // ================= SELECT =================
+  const makeKey = (type, name) =>
+    path ? `${type}-${path}-${name}` : `${type}-${name}`;
 
-    const last = items[items.length - 1];
+  const toggleSelect = (key) => {
+    setSelectedItems((prev) => ({
+      ...prev,
+      [key]: { checked: !prev[key]?.checked },
+    }));
+  };
 
-    if (last.index >= files.length - 5) {
-      fetchData();
+  const isChecked = (key) => selectedItems[key]?.checked;
+
+  const handleSelectAll = () => {
+    const updated = {};
+
+    [...folders, ...files].forEach((item) => {
+      const type = item.id ? "file" : "folder";
+      const key = makeKey(type, item.name);
+
+      updated[key] = { checked: true };
+    });
+
+    setSelectedItems(updated);
+  };
+
+  const totalChecked = Object.values(selectedItems).filter(
+    (v) => v.checked
+  ).length;
+
+  // ================= DOWNLOAD =================
+  const downloadSelected = async () => {
+    setDownloading(true);
+
+    for (const key in selectedItems) {
+      if (!selectedItems[key].checked) continue;
+      if (!key.startsWith("file-")) continue;
+
+      const fileName = key.split("-").pop();
+      const url = getDownloadUrl(fileName);
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = fileName;
+      a.click();
+
+      await new Promise((r) => setTimeout(r, 200));
     }
-  }, [rowVirtualizer.getVirtualItems()]);
+
+    setDownloading(false);
+  };
 
   // ================= VIDEO =================
   const VideoItem = ({ src }) => {
     const ref = useRef();
 
     useEffect(() => {
-      const observer = new IntersectionObserver(
-        ([entry]) => {
+      const obs = new IntersectionObserver(
+        ([e]) => {
           if (!ref.current) return;
-
-          if (entry.isIntersecting) {
-            ref.current.play().catch(() => {});
-          } else {
-            ref.current.pause();
-          }
+          if (e.isIntersecting) ref.current.play().catch(() => {});
+          else ref.current.pause();
         },
         { threshold: 0.6 }
       );
 
-      if (ref.current) observer.observe(ref.current);
-
-      return () => observer.disconnect();
+      if (ref.current) obs.observe(ref.current);
+      return () => obs.disconnect();
     }, []);
 
     return (
@@ -162,119 +180,108 @@ export default function GalleryPage() {
     );
   };
 
-  // ================= NAVIGATION =================
-  const openFolder = (name) => {
-    setPath((prev) => (prev ? `${prev}/${name}` : name));
-  };
-
-  const goBack = () => {
-    if (!path) return;
-
-    const parts = path.split("/");
-    parts.pop();
-    setPath(parts.join("/"));
-  };
+  const flatFiles = files;
 
   // ================= UI =================
   return (
     <div className="p-4">
-      <h1 className="text-xl font-bold mb-4">🔥 Gallery Nested Super Fast</h1>
+      <h1 className="font-bold mb-4">🚀 Gallery</h1>
 
-      {/* BACK */}
-      {path && (
-        <button
-          onClick={goBack}
-          className="mb-3 px-3 py-1 bg-gray-200 rounded"
-        >
+      {history.length > 0 && (
+        <button onClick={goBack} className="mb-3 bg-gray-200 px-2 py-1">
           ← Back
         </button>
       )}
 
-      {/* PATH */}
-      <div className="mb-4 text-sm text-gray-600">
-        📂 {path || "root"}
+      <div className="mb-2 text-sm">📂 {path || "Root"}</div>
+
+      <div className="flex gap-3 mb-4">
+        <button onClick={handleSelectAll}>Select All</button>
+        <span>{totalChecked} selected</span>
+        <button onClick={downloadSelected} disabled={downloading}>
+          Download
+        </button>
       </div>
 
-      {/* ================= FOLDER ================= */}
-      {folders.length > 0 && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-4">
-          {folders.map((f, i) => (
-            <div
-              key={i}
-              onClick={() => openFolder(f.name)}
-              className="p-3 border rounded cursor-pointer hover:bg-gray-100"
-            >
-              📁 {f.name}
+      {/* FOLDERS */}
+      {folders.map((f, i) => (
+        <div
+          key={i}
+          onClick={() => openFolder(f.name)}
+          className="p-2 border mb-1 cursor-pointer"
+        >
+          📁 {f.name}
+        </div>
+      ))}
+
+      {/* FILES */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+        {files.map((file, i) => {
+          const key = makeKey("file", file.name);
+          const url = getViewUrl(file.name);
+
+          return (
+            <div key={i} className="relative">
+              <input
+                type="checkbox"
+                className="absolute top-1 left-1 z-10"
+                checked={!!isChecked(key)}
+                onChange={() => toggleSelect(key)}
+              />
+
+              <div onClick={() => {
+                setViewerIndex(i);
+                setViewerOpen(true);
+              }}>
+                {isImage(file.name) && (
+                  <Image
+                    src={getImage(file.name)}
+                    width={300}
+                    height={300}
+                    className="w-full"
+                    alt=""
+                  />
+                )}
+
+                {isVideo(file.name) && <VideoItem src={url} />}
+
+                {!isImage(file.name) && !isVideo(file.name) && (
+                  <div className="p-3 bg-gray-100">{file.name}</div>
+                )}
+              </div>
             </div>
-          ))}
+          );
+        })}
+      </div>
+
+      {/* VIEWER */}
+      {viewerOpen && (
+        <div
+          className="fixed inset-0 bg-black flex items-center justify-center"
+          onClick={() => setViewerOpen(false)}
+        >
+          <div onClick={(e) => e.stopPropagation()}>
+            {isImage(flatFiles[viewerIndex]?.name) && (
+              <img
+                src={getViewUrl(flatFiles[viewerIndex].name)}
+                className="max-h-screen"
+              />
+            )}
+
+            {isVideo(flatFiles[viewerIndex]?.name) && (
+              <video
+                src={getViewUrl(flatFiles[viewerIndex].name)}
+                controls
+                autoPlay
+                className="max-h-screen"
+              />
+            )}
+          </div>
         </div>
       )}
-
-      {/* ================= FILE ================= */}
-      <div
-        ref={parentRef}
-        className="h-[75vh] overflow-auto border rounded"
-      >
-        <div
-          style={{
-            height: rowVirtualizer.getTotalSize(),
-            position: "relative",
-          }}
-        >
-          {rowVirtualizer.getVirtualItems().map((virtualRow) => {
-            const file = files[virtualRow.index];
-            if (!file) return null;
-
-            const name = file.name;
-            const url = getUrl(name);
-
-            return (
-              <div
-                key={virtualRow.index}
-                style={{
-                  position: "absolute",
-                  top: 0,
-                  left: 0,
-                  width: "100%",
-                  transform: `translateY(${virtualRow.start}px)`,
-                }}
-                className="p-2"
-              >
-                <div className="bg-white rounded shadow overflow-hidden">
-
-                  {isImage(name) && (
-                    <Image
-                      src={getImage(name)}
-                      width={400}
-                      height={300}
-                      loading="lazy"
-                      alt=""
-                    />
-                  )}
-
-                  {isVideo(name) && (
-                    <VideoItem src={url} />
-                  )}
-
-                  {!isImage(name) && !isVideo(name) && (
-                    <div className="p-4 text-sm">📄 {name}</div>
-                  )}
-
-                </div>
-              </div>
-            );
-          })}
-        </div>
-
-        {loading && (
-          <div className="text-center p-4">Loading...</div>
-        )}
-      </div>
     </div>
   );
 }
-
-
 
 // "use client";
 
