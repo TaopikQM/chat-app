@@ -639,6 +639,24 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage, isDark}
     };
 
     await update(newMessageRef, messageData);
+
+    // 🔥 KIRIM NOTIF KE PENERIMA
+    try {
+      await fetch("/api/send-notif", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          toUserId: penerima,
+          title: pengirim,
+          body: newMessage || (fileUrls.length > 0 ? "📎 Mengirim file" : "🎤 Mengirim audio"),
+        }),
+      });
+    } catch (err) {
+      console.error("Notif error:", err);
+    } 
+    
     setNewMessage("");
     setFiles([]);
     setAudioFile(null);
