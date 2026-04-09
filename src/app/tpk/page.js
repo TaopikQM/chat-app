@@ -4,6 +4,8 @@ import ChatInput from "../components/ChatInput";
 import UserStatus from "../components/UserStatus";
 import {useEffect, useState, useRef  } from "react"; 
 
+import { initFCM } from "../lib/fcm";
+
 //import { browserName, deviceType, osName, browserVersion, osVersion, engineName, engineVersion, deviceVendor, mobileModel} from 'react-device-detect';
 
 
@@ -165,6 +167,48 @@ const ChatPage = () => {
   const [chatWith] = useState("nimas"); // ID pengguna tujuan
   const [tpk] = useState("tpk"); // ID pengguna tujuan
   const [isDark, setIsDark] = useState(false);
+
+  
+//fcm
+  useEffect(() => {
+    if (!currentUser) return;
+  
+    // biar gak spam terus
+    if (!localStorage.getItem("fcm_initialized")) {
+      initFCM(currentUser);
+      localStorage.setItem("fcm_initialized", "true");
+    }
+  }, [currentUser]);
+
+ useEffect(() => {
+  const deviceId = localStorage.getItem("deviceId");
+
+  const refDevice = databaseRef(
+    database,
+    `usersDevices/${currentUser}/${deviceId}`
+  );
+
+  // aktif
+  update(refDevice, { 
+   isActive: true,
+   onChatPage: true,
+  });
+
+  // saat keluar
+  const handleClose = () => {
+    update(refDevice, { 
+     isActive: false,
+     onChatPage: false,
+    });
+  };
+
+  window.addEventListener("beforeunload", handleClose);
+
+  return () => {
+    window.removeEventListener("beforeunload", handleClose);
+    handleClose();
+  };
+}, [currentUser]);
 
   useEffect(() => {
     // cek preferensi user sebelumnya
