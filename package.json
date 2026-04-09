@@ -40,6 +40,9 @@
     "@headlessui/react": "^1.7.19",
     "@tanstack/react-virtual": "3.8.1",
     "autoprefixer": "^10.4.12",
+    
+    "firebase": "^10.14.1",
+    "firebase-admin": "^13.5.0",
     "face-api.js": "^0.22.2",
     "file-saver": "^2.0.5",
     "framer-motion": "6.0.0",
