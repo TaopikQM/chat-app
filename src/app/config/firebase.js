@@ -2,8 +2,10 @@
  import { initializeApp, getApps, getApp } from "firebase/app";
  import { getFirestore } from "firebase/firestore";
  import { getStorage } from "firebase/storage";
- 
- import { getDatabase } from 'firebase/database'; 
+
+import { getDatabase, ref, push, set, onValue, remove, update } from "firebase/database";
+import { getMessaging, getToken, onMessage } from "firebase/messaging"; 
+ // import { getDatabase } from 'firebase/database'; 
  import { getAuth, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, createUserWithEmailAndPassword } from "firebase/auth";
 
 //utama dolanrek-f88
@@ -244,6 +246,12 @@ export const dbproa112113270 = getDatabase(appproa112113270);
 
 
 
+let messaging = null;
+if (typeof window !== "undefined") {
+  messaging = getMessaging(app);
+}
+
+export { messaging, getToken, onMessage };
  
  export { rtdb,db,database, storage, storageBackup,storageBackup1};//,db, storage,   auth, signInWithEmailAndPassword, signInWithPopup,  createUserWithEmailAndPassword, GoogleAuthProvider
 //  /*
