@@ -3,8 +3,14 @@
 "use client";
 // import { initFCM } from "@/lib/fcm";
 // import { getMessaging, getToken } from "../config/firebase/messaging";
-import { app, database, getMessaging, getToken } from "../config/firebase";
+// import { initializeApp } from "firebase/app";
+// import { app, database, getMessaging, getToken } from "../config/firebase";
+// import { ref, set } from "firebase/database";
+
+import { app, database } from "../config/firebase";
+import { getMessaging, getToken } from "firebase/messaging";
 import { ref, set } from "firebase/database";
+
 
 export async function initFCM(userId) {
   try {
