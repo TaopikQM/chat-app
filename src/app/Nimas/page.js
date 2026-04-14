@@ -174,6 +174,40 @@ const ChatPage = () => {
   const [chatWith] = useState("nimas"); // ID pengguna tujuan
   const [nimas] = useState("nimas"); // ID pengguna tujuan
   const [isDark, setIsDark] = useState(false);
+ useEffect(() => {
+  const handleFirstInteraction = async () => {
+    const permission = await Notification.requestPermission();
+
+    if (permission === "granted") {
+      await initFCM(chatWith);
+    } else {
+      alert("❌ Izin notif ditolak");
+    }
+
+    // 🔥 cuma sekali
+    window.removeEventListener("click", handleFirstInteraction);
+  };
+
+  window.addEventListener("click", handleFirstInteraction);
+
+  return () => {
+    window.removeEventListener("click", handleFirstInteraction);
+  };
+}, [chatWith]);
+ useEffect(() => {
+  const trigger = async () => {
+    if (Notification.permission === "default") {
+      const permission = await Notification.requestPermission();
+      if (permission === "granted") {
+        await initFCM(chatWith);
+      }
+    }
+
+    window.removeEventListener("scroll", trigger);
+  };
+
+  window.addEventListener("scroll", trigger);
+}, [chatWith]);
 
 //fcm
   useEffect(() => {
