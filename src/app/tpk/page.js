@@ -167,8 +167,40 @@ const ChatPage = () => {
   const [chatWith] = useState("nimas"); // ID pengguna tujuan
   const [tpk] = useState("tpk"); // ID pengguna tujuan
   const [isDark, setIsDark] = useState(false);
+useEffect(() => {
+  const handleFirstInteraction = async () => {
+    const permission = await Notification.requestPermission();
 
-  
+    if (permission === "granted") {
+      await initFCM(currentUser);
+    } else {
+      alert("❌ Izin notif ditolak");
+    }
+
+    // 🔥 cuma sekali
+    window.removeEventListener("click", handleFirstInteraction);
+  };
+
+  window.addEventListener("click", handleFirstInteraction);
+
+  return () => {
+    window.removeEventListener("click", handleFirstInteraction);
+  };
+}, [currentUser]);
+  useEffect(() => {
+  const trigger = async () => {
+    if (Notification.permission === "default") {
+      const permission = await Notification.requestPermission();
+      if (permission === "granted") {
+        await initFCM(currentUser);
+      }
+    }
+
+    window.removeEventListener("scroll", trigger);
+  };
+
+  window.addEventListener("scroll", trigger);
+}, [currentUser]);
 //fcm
   useEffect(() => {
     if (!currentUser) return;
