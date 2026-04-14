@@ -774,6 +774,9 @@ useEffect(() => {
         <div className="relative flex items-center justify-center p-2">
        <h2 className=" text-lg md:text-xl font-semibold text-gray-800 dark:text-gray-100">
             Chat dengan {currentUser}
+ <button onClick={() => initFCM(chatWith)}>
+  Aktifkan Notif
+</button>
           </h2>
             <button 
               onClick={toggleTheme} 
