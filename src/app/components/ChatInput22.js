@@ -29,7 +29,7 @@ export default function ChatInput({ currentUser, chatWith }) {
     const tokens = Object.values(data).map((d) => d.token);
 
     // kirim notif
-    await fetch("/api/send-notif", {
+    await fetch("/api/send-notif22", {
       method: "POST",
       body: JSON.stringify({
         tokens,
