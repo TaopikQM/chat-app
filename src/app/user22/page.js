@@ -2,8 +2,8 @@
 
 import { useEffect } from "react";
 import { initFCM } from "../lib/fcm";
-import ChatInput from "../components/ChatInput";
-import ChatList from "../components/ChatList";
+import ChatInput from "../components/ChatInput22";
+import ChatList from "../components/ChatList22";
 
 export default function Page() {
   const currentUser = "user22";
