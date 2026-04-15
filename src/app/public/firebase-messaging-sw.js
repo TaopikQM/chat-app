@@ -93,14 +93,23 @@ importScripts("https://www.gstatic.com/firebasejs/9.22.1/firebase-messaging-comp
 
 firebase.initializeApp({
   
-   apiKey: process.env.NEXT_PUBLIC_DOLANREKID_API_KEY,
-    authDomain: process.env.NEXT_PUBLIC_DOLANREKID_AUTH_DOMAIN,
-    databaseURL: process.env.NEXT_PUBLIC_DOLANREKID_DATABASE_URL,
-    projectId: process.env.NEXT_PUBLIC_DOLANREKID_PROJECT_ID,
-    storageBucket: process.env.NEXT_PUBLIC_DOLANREKID_STORAGE_BUCKET,
-    messagingSenderId: process.env.NEXT_PUBLIC_DOLANREKID_MESSAGING_SENDER_ID,
-    appId: process.env.NEXT_PUBLIC_DOLANREKID_APP_ID,
-    measurementId: process.env.NEXT_PUBLIC_DOLANREKID_MEASUREMENT_ID,
+   // apiKey: process.env.NEXT_PUBLIC_DOLANREKID_API_KEY,
+   //  authDomain: process.env.NEXT_PUBLIC_DOLANREKID_AUTH_DOMAIN,
+   //  databaseURL: process.env.NEXT_PUBLIC_DOLANREKID_DATABASE_URL,
+   //  projectId: process.env.NEXT_PUBLIC_DOLANREKID_PROJECT_ID,
+   //  storageBucket: process.env.NEXT_PUBLIC_DOLANREKID_STORAGE_BUCKET,
+   //  messagingSenderId: process.env.NEXT_PUBLIC_DOLANREKID_MESSAGING_SENDER_ID,
+   //  appId: process.env.NEXT_PUBLIC_DOLANREKID_APP_ID,
+   //  measurementId: process.env.NEXT_PUBLIC_DOLANREKID_MEASUREMENT_ID,
+
+   apiKey: "AIzaSyAxaRJ7h5TlE_-1eU-AHwr9S3W-yFAMSwM",
+    authDomain: "dolanrekid.firebaseapp.com",
+    databaseURL: "https://dolanrekid-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "dolanrekid",
+    storageBucket: "dolanrekid.appspot.com",
+    messagingSenderId: "306874347713",
+    appId: "1:306874347713:web:a5fe7af51d7b3658bca440",
+    measurementId: "G-8530P2BE51",
 });
 
 // aktifkan messaging
