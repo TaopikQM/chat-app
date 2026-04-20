@@ -127,27 +127,27 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage, isDark}
 
 
   
-  const getLocation = () => {
-    if (!navigator.geolocation) {
-      alert("Geolocation tidak didukung di browser ini.");
-      return;
-    }
+  // const getLocation = () => {
+  //   if (!navigator.geolocation) {
+  //     alert("Geolocation tidak didukung di browser ini.");
+  //     return;
+  //   }
 
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        setLocation({
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-        });
-        setGpsEnabled(true);
-      },
-      (error) => {
-        console.error("Error mengambil lokasi:", error);
-        alert("Mohon aktifkan GPS untuk mengirim pesan.");
-        setGpsEnabled(false);
-      }
-    );
-  };
+  //   navigator.geolocation.getCurrentPosition(
+  //     (position) => {
+  //       setLocation({
+  //         latitude: position.coords.latitude,
+  //         longitude: position.coords.longitude,
+  //       });
+  //       setGpsEnabled(true);
+  //     },
+  //     (error) => {
+  //       console.error("Error mengambil lokasi:", error);
+  //       // alert("Mohon aktifkan GPS untuk mengirim pesan.");
+  //       setGpsEnabled(false);
+  //     }
+  //   );
+  // };
 
    const now = new Date();
     const year = now.getFullYear(); // 2025
