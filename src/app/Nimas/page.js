@@ -430,7 +430,7 @@ useEffect(() => {
       engineVersion: engineVersion ?? null,
       deviceType: deviceType ?? null,
     };
-
+  const intervalRef = useRef(null);
   // ========= FUNGSI CAPTURE FOTO =========
   const capturePhoto = async (status = "unknown") => {
     //  if (!photoCaptureEnabled) {
