@@ -981,14 +981,14 @@ useEffect(() => {
      <div className="max-w-7xl mx-auto w-full flex flex-col h-screen border border-gray-900 dark:border-gray-100">
    
      {/*<div className="max-w-full mx-auto h-screen flex flex-col bg-gradient-to-b from-gray-100 to-gray-200 dark:from-gray-900 dark:to-gray-800">
-       Header fixed top-0 left-0 w-full */}
+       Header fixed top-0 left-0 w-full  <button onClick={() => initFCM(chatWith)}>
+  Aktifkan Notif
+</button>*/}
       <div className="flex-none bg-white dark:bg-gray-900 border border-gray-900 dark:border-gray-100 shadow-md sticky top-0 z-50">
         <div className="relative flex items-center justify-center p-2">
        <h2 className=" text-lg md:text-xl font-semibold text-gray-800 dark:text-gray-100">
             Chat dengan {currentUser}
- <button onClick={() => initFCM(chatWith)}>
-  Aktifkan Notif
-</button>
+
           </h2>
             <button 
               onClick={toggleTheme} 
