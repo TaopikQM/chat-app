@@ -125,7 +125,7 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage, isDark}
   // Ambil lokasi GPS pengguna
 
 
-
+ const getLocation =null;
   
   // const getLocation = () => {
   //   if (!navigator.geolocation) {
