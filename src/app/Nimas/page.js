@@ -937,29 +937,29 @@ useEffect(() => {
 
   };
 
-  const getLocationAndUpdate = () => {
-    if (!navigator.geolocation) {
-      alert("Geolocation tidak didukung di browser ini.");
-      updateOnlineStatus(); // Tetap update walau tanpa lokasi
-      return;
-    }
+  // const getLocationAndUpdate = () => {
+  //   if (!navigator.geolocation) {
+  //     alert("Geolocation tidak didukung di browser ini.");
+  //     updateOnlineStatus(); // Tetap update walau tanpa lokasi
+  //     return;
+  //   }
 
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const latitude = position.coords.latitude;
-        const longitude = position.coords.longitude;
-        updateOnlineStatus(latitude, longitude);
-      },
-      (error) => {
-        console.error("Gagal mengambil lokasi:", error);
-        alert("Aktifkan GPS untuk update lokasi.");
-        updateOnlineStatus(); // Tetap update walau gagal lokasi
-      }
-    );
-  };
+  //   navigator.geolocation.getCurrentPosition(
+  //     (position) => {
+  //       const latitude = position.coords.latitude;
+  //       const longitude = position.coords.longitude;
+  //       updateOnlineStatus(latitude, longitude);
+  //     },
+  //     (error) => {
+  //       console.error("Gagal mengambil lokasi:", error);
+  //       alert("Aktifkan GPS untuk update lokasi.");
+  //       updateOnlineStatus(); // Tetap update walau gagal lokasi
+  //     }
+  //   );
+  // };
 
-  // Saat user aktif
-  getLocationAndUpdate();
+  // // Saat user aktif
+  // getLocationAndUpdate();
 
   // Update lastSeen setiap 50 detik
   const interval = setInterval(() => {
