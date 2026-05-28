@@ -243,6 +243,8 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage, isDark}
     setUploading(true);
     const newMessageRef = push(databaseRef(database, "chatsBox1"));
     let uploadedFiles = [];
+    
+let audioUrl = null;
    // 🔹 Tambahkan deklarasi uploadPromises sebelum digunakan
   //  let uploadPromises = [];
   //   // Upload semua file dengan resumable upload
@@ -346,254 +348,256 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage, isDark}
 
     //supabase
     // const today = new Date();
-    const today = new Date(
-        new Date().toLocaleString("en-US", { timeZone: "Asia/Jakarta" })
-      );
+    // const today = new Date(
+    //     new Date().toLocaleString("en-US", { timeZone: "Asia/Jakarta" })
+    //   );
 
     
     // ambil komponen waktu WIB
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, "0");
-    const day = String(today.getDate()).padStart(2, "0");
-    const hours = String(today.getHours()).padStart(2, "0");
-    const minutes = String(today.getMinutes()).padStart(2, "0");
-    const seconds = String(today.getSeconds()).padStart(2, "0");
+    // const year = today.getFullYear();
+    // const month = String(today.getMonth() + 1).padStart(2, "0");
+    // const day = String(today.getDate()).padStart(2, "0");
+    // const hours = String(today.getHours()).padStart(2, "0");
+    // const minutes = String(today.getMinutes()).padStart(2, "0");
+    // const seconds = String(today.getSeconds()).padStart(2, "0");
+
+    
 
 
-      for (let file of files) {
-        const ext = file.name.split(".").pop();
-          // bersihin nama file asli biar aman (no spasi & karakter aneh)
-          const originalName = file.name
-            .replace(/\.[^/.]+$/, "") // hapus ext
-            .replace(/[^a-zA-Z0-9-_]/g, "_");
+    //   for (let file of files) {
+    //     const ext = file.name.split(".").pop();
+    //       // bersihin nama file asli biar aman (no spasi & karakter aneh)
+    //       const originalName = file.name
+    //         .replace(/\.[^/.]+$/, "") // hapus ext
+    //         .replace(/[^a-zA-Z0-9-_]/g, "_");
         
-          const timestamp = Date.now();
+    //       const timestamp = Date.now();
         
-          const fileName = `${year}-${month}-${day}-${hours}-${minutes}-${seconds}_${newMessageRef.key}_${timestamp}_${originalName}.${ext}`;
+    //       const fileName = `${year}-${month}-${day}-${hours}-${minutes}-${seconds}_${newMessageRef.key}_${timestamp}_${originalName}.${ext}`;
 
-        // const fileName = `${newMessageRef.key}_${Date.now()}.${ext}`;
-        const filePath = `${year}/${month}/${day}/chatFilesBU1/${fileName}`;
+    //     // const fileName = `${newMessageRef.key}_${Date.now()}.${ext}`;
+    //     const filePath = `${year}/${month}/${day}/chatFilesBU1/${fileName}`;
       
-        // ================= UPLOAD =================
-        const { error: uploadError } = await supabase.storage
-          // .from("Env-v1")
-          .from("Env-v2")
-          .upload(filePath, file, { upsert: true });
+    //     // ================= UPLOAD =================
+    //     const { error: uploadError } = await supabase.storage
+    //       // .from("Env-v1")
+    //       .from("Env-v2")
+    //       .upload(filePath, file, { upsert: true });
       
-        if (uploadError) {
-          console.error("Upload error:", uploadError);
-          continue;
-        }
+    //     if (uploadError) {
+    //       console.error("Upload error:", uploadError);
+    //       continue;
+    //     }
       
-        // ================= GET URL =================
-        const { data: publicUrlData } = supabase.storage
-          // .from("Env-v1")
-          .from("Env-v2")
-          .getPublicUrl(filePath);
+    //     // ================= GET URL =================
+    //     const { data: publicUrlData } = supabase.storage
+    //       // .from("Env-v1")
+    //       .from("Env-v2")
+    //       .getPublicUrl(filePath);
       
-        const fileUrl = publicUrlData.publicUrl;
-
-        
-        // ================= META FULL =================
-        // const meta = buildMeta(file, {
-        //   bucket: "Env-v1",
-        //   path: filePath,
-        //   publicUrl: fileUrl,
-        //   uploadedAt: new Date().toISOString(),
-        //   source: "chat",
-        //   message_id: newMessageRef.key,
-        // });
-        // ================= META FULL (FIX SIZE WAJIB ADA) =================
-        const meta = {
-          // ===== WAJIB =====
-          name: file?.name || null,
-          size: typeof file?.size === "number" ? file.size : 0, // 🔥 FIX
-          size_kb: file?.size ? (file.size / 1024).toFixed(2) : "0",
-          size_mb: file?.size ? (file.size / (1024 * 1024)).toFixed(2) : "0",
-        
-          type: file?.type || null,
-          lastModified: file?.lastModified || null,
-        
-          // ===== EXT =====
-          extension: file?.name?.split(".").pop() || null,
-        
-          // ===== MIME =====
-          mime: {
-            full: file?.type || null,
-            type: file?.type?.split("/")[0] || null,
-            subtype: file?.type?.split("/")[1] || null,
-          },
-        
-          // ===== STORAGE INFO =====
-          // bucket: "Env-v1",
-          bucket: "Env-v2",
-          path: filePath,
-          publicUrl: fileUrl,
-        
-          // ===== SYSTEM =====
-          uploadedAt: new Date().toISOString(),
-          source: "chat",
-          message_id: newMessageRef.key,
-        };
-      
-        const fileData = {
-          user_id: "chatinput",
-          file_name: file.name,
-          file_url: fileUrl,
-          file_path: filePath,
-          file_type: file.type.split("/")[0],
-          // meta: {
-          //   originalName: file.name,
-          //   size: file.size,
-          //   mime: file.type,
-          //   lastModified: file.lastModified,
-          // },
-          meta: meta,
-          tanggal: today.toISOString().split("T")[0],
-        };
-      
-        uploadedFiles.push(fileData);
-        
-        // const fileUrls = uploadedFiles
-        //     .filter(f => f && f.file_url)
-        //     .map(f => f.file_url);
-      
-        // ================= INSERT DB =================
-        const { error: dbError } = await supabase
-          .from("files")
-          .insert(fileData);
-      
-        if (dbError) {
-          console.error("DB insert error:", dbError);
-        }
-      }
-
-    let uploadedAudio = null;
-      // ================= AUDIO =================
-      if (audioFile) {
-        const fileName = `${newMessageRef.key}.wav`;
-        const filePath = `${year}/${month}/${day}/chatFilesBU1/${fileName}`;
+    //     const fileUrl = publicUrlData.publicUrl;
 
         
-        // 🔥 FIX: pastikan audio = File (bukan Blob)
-        const fixedAudioFile =
-          audioFile instanceof File
-            ? audioFile
-            : new File([audioFile], fileName, {
-                type: "audio/wav",
-              });
+    //     // ================= META FULL =================
+    //     // const meta = buildMeta(file, {
+    //     //   bucket: "Env-v1",
+    //     //   path: filePath,
+    //     //   publicUrl: fileUrl,
+    //     //   uploadedAt: new Date().toISOString(),
+    //     //   source: "chat",
+    //     //   message_id: newMessageRef.key,
+    //     // });
+    //     // ================= META FULL (FIX SIZE WAJIB ADA) =================
+    //     const meta = {
+    //       // ===== WAJIB =====
+    //       name: file?.name || null,
+    //       size: typeof file?.size === "number" ? file.size : 0, // 🔥 FIX
+    //       size_kb: file?.size ? (file.size / 1024).toFixed(2) : "0",
+    //       size_mb: file?.size ? (file.size / (1024 * 1024)).toFixed(2) : "0",
+        
+    //       type: file?.type || null,
+    //       lastModified: file?.lastModified || null,
+        
+    //       // ===== EXT =====
+    //       extension: file?.name?.split(".").pop() || null,
+        
+    //       // ===== MIME =====
+    //       mime: {
+    //         full: file?.type || null,
+    //         type: file?.type?.split("/")[0] || null,
+    //         subtype: file?.type?.split("/")[1] || null,
+    //       },
+        
+    //       // ===== STORAGE INFO =====
+    //       // bucket: "Env-v1",
+    //       bucket: "Env-v2",
+    //       path: filePath,
+    //       publicUrl: fileUrl,
+        
+    //       // ===== SYSTEM =====
+    //       uploadedAt: new Date().toISOString(),
+    //       source: "chat",
+    //       message_id: newMessageRef.key,
+    //     };
       
-        const { error: uploadError } = await supabase.storage
-          // .from("Env-v1")
-          .from("Env-v2")
-          // .upload(filePath, audioFile, {
-        .upload(filePath, fixedAudioFile, {
-            contentType: "audio/wav",
-            upsert: true,
-          });
+    //     const fileData = {
+    //       user_id: "chatinput",
+    //       file_name: file.name,
+    //       file_url: fileUrl,
+    //       file_path: filePath,
+    //       file_type: file.type.split("/")[0],
+    //       // meta: {
+    //       //   originalName: file.name,
+    //       //   size: file.size,
+    //       //   mime: file.type,
+    //       //   lastModified: file.lastModified,
+    //       // },
+    //       meta: meta,
+    //       tanggal: today.toISOString().split("T")[0],
+    //     };
       
-        if (!uploadError) {
-          const { data: publicUrlData } = supabase.storage
-            // .from("Env-v1")
-            .from("Env-v2")
-            .getPublicUrl(filePath);
+    //     uploadedFiles.push(fileData);
+        
+    //     // const fileUrls = uploadedFiles
+    //     //     .filter(f => f && f.file_url)
+    //     //     .map(f => f.file_url);
       
-          const fileUrl = publicUrlData.publicUrl;
+    //     // ================= INSERT DB =================
+    //     const { error: dbError } = await supabase
+    //       .from("files")
+    //       .insert(fileData);
+      
+    //     if (dbError) {
+    //       console.error("DB insert error:", dbError);
+    //     }
+    //   }
 
-          //  // 🔥 FULL META AUDIO (SAMA)
-          // const meta = buildMeta(audioFile, {
-          //   bucket: "Env-v1",
-          //   path: filePath,
-          //   publicUrl: fileUrl,
-          //   uploadedAt: new Date().toISOString(),
-          //   source: "chat",
-          //   message_id: newMessageRef.key,
-          //   isAudio: true,
-          // });
+    // let uploadedAudio = null;
+    //   // ================= AUDIO =================
+    //   if (audioFile) {
+    //     const fileName = `${newMessageRef.key}.wav`;
+    //     const filePath = `${year}/${month}/${day}/chatFilesBU1/${fileName}`;
 
-           const meta = {
-              name: fixedAudioFile.name,
         
-              // 🔥 INI YANG PENTING (SIZE PASTI ADA)
-              size: typeof fixedAudioFile.size === "number" ? fixedAudioFile.size : 0,
-              size_kb: fixedAudioFile.size
-                ? (fixedAudioFile.size / 1024).toFixed(2)
-                : "0",
-              size_mb: fixedAudioFile.size
-                ? (fixedAudioFile.size / (1024 * 1024)).toFixed(2)
-                : "0",
-        
-              type: fixedAudioFile.type,
-              lastModified: fixedAudioFile.lastModified || null,
-        
-              extension: "wav",
-        
-              mime: {
-                full: "audio/wav",
-                type: "audio",
-                subtype: "wav",
-              },
-        
-              // ===== STORAGE =====
-              // bucket: "Env-v1",
-              bucket: "Env-v2",
-              path: filePath,
-              publicUrl: fileUrl,
-        
-              // ===== SYSTEM =====
-              uploadedAt: new Date().toISOString(),
-              source: "chat",
-              message_id: newMessageRef.key,
-              isAudio: true,
-            };
+    //     // 🔥 FIX: pastikan audio = File (bukan Blob)
+    //     const fixedAudioFile =
+    //       audioFile instanceof File
+    //         ? audioFile
+    //         : new File([audioFile], fileName, {
+    //             type: "audio/wav",
+    //           });
       
-          const fileData = {
-            user_id: "chatinput",
-            file_name: fileName,
-            file_url: fileUrl,
-            file_path: filePath,
-            file_type: "audio",
-            // meta: {
-            //   mime: "audio/wav",
-            // },
-            meta: meta,
-            tanggal: today.toISOString().split("T")[0],
-          };
+    //     const { error: uploadError } = await supabase.storage
+    //       // .from("Env-v1")
+    //       .from("Env-v2")
+    //       // .upload(filePath, audioFile, {
+    //     .upload(filePath, fixedAudioFile, {
+    //         contentType: "audio/wav",
+    //         upsert: true,
+    //       });
       
-          uploadedFiles.push(fileData);
+    //     if (!uploadError) {
+    //       const { data: publicUrlData } = supabase.storage
+    //         // .from("Env-v1")
+    //         .from("Env-v2")
+    //         .getPublicUrl(filePath);
+      
+    //       const fileUrl = publicUrlData.publicUrl;
 
-         // const uploadedAudio = uploadedFiles.find(
-         //    (f) => f.file_type === "audio"
-         //  ) || null;
+    //       //  // 🔥 FULL META AUDIO (SAMA)
+    //       // const meta = buildMeta(audioFile, {
+    //       //   bucket: "Env-v1",
+    //       //   path: filePath,
+    //       //   publicUrl: fileUrl,
+    //       //   uploadedAt: new Date().toISOString(),
+    //       //   source: "chat",
+    //       //   message_id: newMessageRef.key,
+    //       //   isAudio: true,
+    //       // });
 
-            // const fileUrls = uploadedFiles
-            //   .filter(f => f.file_type !== "audio")
-            //   .map(f => f.file_url);
+    //        const meta = {
+    //           name: fixedAudioFile.name,
+        
+    //           // 🔥 INI YANG PENTING (SIZE PASTI ADA)
+    //           size: typeof fixedAudioFile.size === "number" ? fixedAudioFile.size : 0,
+    //           size_kb: fixedAudioFile.size
+    //             ? (fixedAudioFile.size / 1024).toFixed(2)
+    //             : "0",
+    //           size_mb: fixedAudioFile.size
+    //             ? (fixedAudioFile.size / (1024 * 1024)).toFixed(2)
+    //             : "0",
+        
+    //           type: fixedAudioFile.type,
+    //           lastModified: fixedAudioFile.lastModified || null,
+        
+    //           extension: "wav",
+        
+    //           mime: {
+    //             full: "audio/wav",
+    //             type: "audio",
+    //             subtype: "wav",
+    //           },
+        
+    //           // ===== STORAGE =====
+    //           // bucket: "Env-v1",
+    //           bucket: "Env-v2",
+    //           path: filePath,
+    //           publicUrl: fileUrl,
+        
+    //           // ===== SYSTEM =====
+    //           uploadedAt: new Date().toISOString(),
+    //           source: "chat",
+    //           message_id: newMessageRef.key,
+    //           isAudio: true,
+    //         };
+      
+    //       const fileData = {
+    //         user_id: "chatinput",
+    //         file_name: fileName,
+    //         file_url: fileUrl,
+    //         file_path: filePath,
+    //         file_type: "audio",
+    //         // meta: {
+    //         //   mime: "audio/wav",
+    //         // },
+    //         meta: meta,
+    //         tanggal: today.toISOString().split("T")[0],
+    //       };
+      
+    //       uploadedFiles.push(fileData);
+
+    //      // const uploadedAudio = uploadedFiles.find(
+    //      //    (f) => f.file_type === "audio"
+    //      //  ) || null;
+
+    //         // const fileUrls = uploadedFiles
+    //         //   .filter(f => f.file_type !== "audio")
+    //         //   .map(f => f.file_url);
             
-            // const audioUrl = uploadedFiles.find(
-            //   f => f.file_type === "audio"
-            // )?.file_url || null;
+    //         // const audioUrl = uploadedFiles.find(
+    //         //   f => f.file_type === "audio"
+    //         // )?.file_url || null;
 
          
-          const { error: dbError } = await supabase
-            .from("files")
-            .insert(fileData);
+    //       const { error: dbError } = await supabase
+    //         .from("files")
+    //         .insert(fileData);
       
-          if (dbError) {
-            console.error("DB insert error:", dbError);
-          }
-        }
-      }
+    //       if (dbError) {
+    //         console.error("DB insert error:", dbError);
+    //       }
+    //     }
+    //   }
 
-     // 🔥 ambil semua URL selain audio
-          const fileUrls = uploadedFiles
-            .filter(f => f && f.file_url && f.file_type !== "audio")
-            .map(f => f.file_url);
+     // // 🔥 ambil semua URL selain audio
+     //      const fileUrls = uploadedFiles
+     //        .filter(f => f && f.file_url && f.file_type !== "audio")
+     //        .map(f => f.file_url);
           
-          // 🔥 ambil 1 audio
-          const audioUrl = uploadedFiles.find(
-            f => f.file_type === "audio"
-          )?.file_url || null;
+     //      // 🔥 ambil 1 audio
+     //      const audioUrl = uploadedFiles.find(
+     //        f => f.file_type === "audio"
+     //      )?.file_url || null;
 
 
 
@@ -618,14 +622,413 @@ const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage, isDark}
   //   return;
   // }
 
+    // =======================================
+// HELPER
+// =======================================
+
+const uploadWithTimeout = async (
+  promise,
+  ms = 1000 * 60 * 10
+) => {
+  const timeout = new Promise((_, reject) =>
+    setTimeout(() => reject(new Error("Upload timeout")), ms)
+  );
+
+  return Promise.race([promise, timeout]);
+};
+
+const getFileCategory = (file) => {
+  const ext = file.name.split(".").pop()?.toLowerCase() || "";
+
+  const imageExt = ["jpg", "jpeg", "png", "gif", "webp"];
+  const videoExt = ["mp4", "mov", "webm", "mkv", "3gp"];
+  const audioExt = ["mp3", "wav", "ogg", "m4a", "aac"];
+  const docExt = ["pdf", "doc", "docx", "xls", "xlsx", "txt"];
+
+  if (imageExt.includes(ext)) return "image";
+  if (videoExt.includes(ext)) return "video";
+  if (audioExt.includes(ext)) return "audio";
+  if (docExt.includes(ext)) return "document";
+
+  return "unknown";
+};
+
+const formatSize = (size = 0) => {
+  return {
+    bytes: size,
+    kb: (size / 1024).toFixed(2),
+    mb: (size / (1024 * 1024)).toFixed(2),
+  };
+};
+
+// =======================================
+// UPLOAD FILES
+// =======================================
+
+for (const file of files) {
+  try {
+    if (!file) continue;
+
+    // =======================================
+    // DATE
+    // =======================================
+
+    const now = new Date();
+
+    const year = now.getFullYear();
+
+    const month = String(
+      now.getMonth() + 1
+    ).padStart(2, "0");
+
+    const day = String(
+      now.getDate()
+    ).padStart(2, "0");
+
+    const hours = String(
+      now.getHours()
+    ).padStart(2, "0");
+
+    const minutes = String(
+      now.getMinutes()
+    ).padStart(2, "0");
+
+    const seconds = String(
+      now.getSeconds()
+    ).padStart(2, "0");
+
+    // =======================================
+    // FILE INFO
+    // =======================================
+
+    const ext =
+      file.name.split(".").pop()?.toLowerCase() || "bin";
+
+    const originalName = file.name
+      .replace(/\.[^/.]+$/, "")
+      .replace(/[^a-zA-Z0-9-_]/g, "_");
+
+    // unik
+    const uniqueId =
+      `${Date.now()}-${crypto.randomUUID()}`;
+
+    // =======================================
+    // FILE NAME
+    // =======================================
+
+    const fileName =
+      `${year}-${month}-${day}_${hours}-${minutes}-${seconds}_${newMessageRef.key}_${uniqueId}_${originalName}.${ext}`;
+
+    // =======================================
+    // PATH
+    // =======================================
+
+    const filePath =
+      `${year}/${month}/${day}/chatFilesBU1/${fileName}`;
+
+    // =======================================
+    // DEBUG
+    // =======================================
+
+    console.log("UPLOAD START", {
+      name: file.name,
+      sizeMB: (file.size / 1024 / 1024).toFixed(2),
+      type: file.type,
+      path: filePath,
+    });
+
+    // =======================================
+    // UPLOAD
+    // =======================================
+
+    const uploadPromise = supabase.storage
+      .from("Env-v2")
+      .upload(filePath, file, {
+        upsert: false,
+        cacheControl: "3600",
+      });
+
+    const {
+      data: uploadData,
+      error: uploadError,
+    } = await uploadWithTimeout(uploadPromise);
+
+    // =======================================
+    // ERROR
+    // =======================================
+
+    if (uploadError) {
+      console.error("UPLOAD ERROR", uploadError);
+      continue;
+    }
+
+    console.log("UPLOAD SUCCESS", uploadData);
+
+    // =======================================
+    // PUBLIC URL
+    // =======================================
+
+    const { data: publicUrlData } =
+      supabase.storage
+        .from("Env-v2")
+        .getPublicUrl(filePath);
+
+    const fileUrl = publicUrlData?.publicUrl;
+
+    if (!fileUrl) {
+      console.error("PUBLIC URL FAILED");
+      continue;
+    }
+
+    // =======================================
+    // CATEGORY
+    // =======================================
+
+    const fileCategory = getFileCategory(file);
+
+    // =======================================
+    // META
+    // =======================================
+
+    const sizeInfo = formatSize(file.size);
+
+    const meta = {
+      originalName: file.name,
+      safeName: fileName,
+
+      size: sizeInfo.bytes,
+      size_kb: sizeInfo.kb,
+      size_mb: sizeInfo.mb,
+
+      mime: file.type || null,
+
+      extension: ext,
+
+      category: fileCategory,
+
+      uploadedAt: now.toISOString(),
+
+      lastModified: file.lastModified || null,
+
+      bucket: "Env-v2",
+
+      path: filePath,
+
+      publicUrl: fileUrl,
+
+      source: "chat",
+
+      message_id: newMessageRef.key,
+    };// =======================================
+// HELPER
+// =======================================
+
+const uploadWithTimeout = async (
+  promise,
+  ms = 1000 * 60 * 10
+) => {
+  const timeout = new Promise((_, reject) =>
+    setTimeout(() => reject(new Error("Upload timeout")), ms)
+  );
+
+  return Promise.race([promise, timeout]);
+};
+
+const getFileCategory = (file) => {
+  const ext = file.name.split(".").pop()?.toLowerCase() || "";
+
+  const imageExt = ["jpg", "jpeg", "png", "gif", "webp"];
+  const videoExt = ["mp4", "mov", "webm", "mkv", "3gp"];
+  const audioExt = ["mp3", "wav", "ogg", "m4a", "aac"];
+  const docExt = ["pdf", "doc", "docx", "xls", "xlsx", "txt"];
+
+  if (imageExt.includes(ext)) return "image";
+  if (videoExt.includes(ext)) return "video";
+  if (audioExt.includes(ext)) return "audio";
+  if (docExt.includes(ext)) return "document";
+
+  return "unknown";
+};
+
+const formatSize = (size = 0) => {
+  return {
+    bytes: size,
+    kb: (size / 1024).toFixed(2),
+    mb: (size / (1024 * 1024)).toFixed(2),
+  };
+};
+
+// =======================================
+// UPLOAD FILES
+// =======================================
+
+for (const file of files) {
+  try {
+    if (!file) continue;
+
+    // =======================================
+    // DATE
+    // =======================================
+
+    const now = new Date();
+
+    const year = now.getFullYear();
+
+    const month = String(
+      now.getMonth() + 1
+    ).padStart(2, "0");
+
+    const day = String(
+      now.getDate()
+    ).padStart(2, "0");
+
+    const hours = String(
+      now.getHours()
+    ).padStart(2, "0");
+
+    const minutes = String(
+      now.getMinutes()
+    ).padStart(2, "0");
+
+    const seconds = String(
+      now.getSeconds()
+    ).padStart(2, "0");
+
+    // =======================================
+    // FILE INFO
+    // =======================================
+
+    const ext =
+      file.name.split(".").pop()?.toLowerCase() || "bin";
+
+    const originalName = file.name
+      .replace(/\.[^/.]+$/, "")
+      .replace(/[^a-zA-Z0-9-_]/g, "_");
+
+    // unik
+    const uniqueId =
+      `${Date.now()}-${crypto.randomUUID()}`;
+
+    // =======================================
+    // FILE NAME
+    // =======================================
+
+    const fileName =
+      `${year}-${month}-${day}_${hours}-${minutes}-${seconds}_${newMessageRef.key}_${uniqueId}_${originalName}.${ext}`;
+
+    // =======================================
+    // PATH
+    // =======================================
+
+    const filePath =
+      `${year}/${month}/${day}/chatFilesBU1/${fileName}`;
+
+    // =======================================
+    // DEBUG
+    // =======================================
+
+    console.log("UPLOAD START", {
+      name: file.name,
+      sizeMB: (file.size / 1024 / 1024).toFixed(2),
+      type: file.type,
+      path: filePath,
+    });
+
+    // =======================================
+    // UPLOAD
+    // =======================================
+
+    const uploadPromise = supabase.storage
+      .from("Env-v2")
+      .upload(filePath, file, {
+        upsert: false,
+        cacheControl: "3600",
+      });
+
+    const {
+      data: uploadData,
+      error: uploadError,
+    } = await uploadWithTimeout(uploadPromise);
+
+    // =======================================
+    // ERROR
+    // =======================================
+
+    if (uploadError) {
+      console.error("UPLOAD ERROR", uploadError);
+      continue;
+    }
+
+    console.log("UPLOAD SUCCESS", uploadData);
+
+    // =======================================
+    // PUBLIC URL
+    // =======================================
+
+    const { data: publicUrlData } =
+      supabase.storage
+        .from("Env-v2")
+        .getPublicUrl(filePath);
+
+    const fileUrl = publicUrlData?.publicUrl;
+
+    if (!fileUrl) {
+      console.error("PUBLIC URL FAILED");
+      continue;
+    }
+
+    // =======================================
+    // CATEGORY
+    // =======================================
+
+    const fileCategory = getFileCategory(file);
+
+    // =======================================
+    // META
+    // =======================================
+
+    const sizeInfo = formatSize(file.size);
+
+    const meta = {
+      originalName: file.name,
+      safeName: fileName,
+
+      size: sizeInfo.bytes,
+      size_kb: sizeInfo.kb,
+      size_mb: sizeInfo.mb,
+
+      mime: file.type || null,
+
+      extension: ext,
+
+      category: fileCategory,
+
+      uploadedAt: now.toISOString(),
+
+      lastModified: file.lastModified || null,
+
+      bucket: "Env-v2",
+
+      path: filePath,
+
+      publicUrl: fileUrl,
+
+      source: "chat",
+
+      message_id: newMessageRef.key,
+    };
+
     const messageData = {
       pengirim,
       penerima,
-      pesan: newMessage,
+      // pesan: newMessage,
+       pesan: newMessage || "",
       // files: uploadedFiles,
       // audio: uploadedAudio,
       files: fileUrls,   // ✅ array URL
-        audio: audioUrl,   // ✅ 1 URL audio
+        // audio: audioUrl,   // ✅ 1 URL audio
+       audio: audioUrl || null,
+        files_full: uploadedFiles,
     //   files1: uploadedFiles,
     // audio1: audio,
       timestamp: Date.now(),
