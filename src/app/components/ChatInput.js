@@ -622,204 +622,7 @@ let audioUrl = null;
   //   return;
   // }
 
-    // =======================================
-// HELPER
 // =======================================
-
-const uploadWithTimeout = async (
-  promise,
-  ms = 1000 * 60 * 10
-) => {
-  const timeout = new Promise((_, reject) =>
-    setTimeout(() => reject(new Error("Upload timeout")), ms)
-  );
-
-  return Promise.race([promise, timeout]);
-};
-
-const getFileCategory = (file) => {
-  const ext = file.name.split(".").pop()?.toLowerCase() || "";
-
-  const imageExt = ["jpg", "jpeg", "png", "gif", "webp"];
-  const videoExt = ["mp4", "mov", "webm", "mkv", "3gp"];
-  const audioExt = ["mp3", "wav", "ogg", "m4a", "aac"];
-  const docExt = ["pdf", "doc", "docx", "xls", "xlsx", "txt"];
-
-  if (imageExt.includes(ext)) return "image";
-  if (videoExt.includes(ext)) return "video";
-  if (audioExt.includes(ext)) return "audio";
-  if (docExt.includes(ext)) return "document";
-
-  return "unknown";
-};
-
-const formatSize = (size = 0) => {
-  return {
-    bytes: size,
-    kb: (size / 1024).toFixed(2),
-    mb: (size / (1024 * 1024)).toFixed(2),
-  };
-};
-
-// =======================================
-// UPLOAD FILES
-// =======================================
-
-for (const file of files) {
-  try {
-    if (!file) continue;
-
-    // =======================================
-    // DATE
-    // =======================================
-
-    const now = new Date();
-
-    const year = now.getFullYear();
-
-    const month = String(
-      now.getMonth() + 1
-    ).padStart(2, "0");
-
-    const day = String(
-      now.getDate()
-    ).padStart(2, "0");
-
-    const hours = String(
-      now.getHours()
-    ).padStart(2, "0");
-
-    const minutes = String(
-      now.getMinutes()
-    ).padStart(2, "0");
-
-    const seconds = String(
-      now.getSeconds()
-    ).padStart(2, "0");
-
-    // =======================================
-    // FILE INFO
-    // =======================================
-
-    const ext =
-      file.name.split(".").pop()?.toLowerCase() || "bin";
-
-    const originalName = file.name
-      .replace(/\.[^/.]+$/, "")
-      .replace(/[^a-zA-Z0-9-_]/g, "_");
-
-    // unik
-    const uniqueId =
-      `${Date.now()}-${crypto.randomUUID()}`;
-
-    // =======================================
-    // FILE NAME
-    // =======================================
-
-    const fileName =
-      `${year}-${month}-${day}_${hours}-${minutes}-${seconds}_${newMessageRef.key}_${uniqueId}_${originalName}.${ext}`;
-
-    // =======================================
-    // PATH
-    // =======================================
-
-    const filePath =
-      `${year}/${month}/${day}/chatFilesBU1/${fileName}`;
-
-    // =======================================
-    // DEBUG
-    // =======================================
-
-    console.log("UPLOAD START", {
-      name: file.name,
-      sizeMB: (file.size / 1024 / 1024).toFixed(2),
-      type: file.type,
-      path: filePath,
-    });
-
-    // =======================================
-    // UPLOAD
-    // =======================================
-
-    const uploadPromise = supabase.storage
-      .from("Env-v2")
-      .upload(filePath, file, {
-        upsert: false,
-        cacheControl: "3600",
-      });
-
-    const {
-      data: uploadData,
-      error: uploadError,
-    } = await uploadWithTimeout(uploadPromise);
-
-    // =======================================
-    // ERROR
-    // =======================================
-
-    if (uploadError) {
-      console.error("UPLOAD ERROR", uploadError);
-      continue;
-    }
-
-    console.log("UPLOAD SUCCESS", uploadData);
-
-    // =======================================
-    // PUBLIC URL
-    // =======================================
-
-    const { data: publicUrlData } =
-      supabase.storage
-        .from("Env-v2")
-        .getPublicUrl(filePath);
-
-    const fileUrl = publicUrlData?.publicUrl;
-
-    if (!fileUrl) {
-      console.error("PUBLIC URL FAILED");
-      continue;
-    }
-
-    // =======================================
-    // CATEGORY
-    // =======================================
-
-    const fileCategory = getFileCategory(file);
-
-    // =======================================
-    // META
-    // =======================================
-
-    const sizeInfo = formatSize(file.size);
-
-    const meta = {
-      originalName: file.name,
-      safeName: fileName,
-
-      size: sizeInfo.bytes,
-      size_kb: sizeInfo.kb,
-      size_mb: sizeInfo.mb,
-
-      mime: file.type || null,
-
-      extension: ext,
-
-      category: fileCategory,
-
-      uploadedAt: now.toISOString(),
-
-      lastModified: file.lastModified || null,
-
-      bucket: "Env-v2",
-
-      path: filePath,
-
-      publicUrl: fileUrl,
-
-      source: "chat",
-
-      message_id: newMessageRef.key,
-    };// =======================================
 // HELPER
 // =======================================
 
@@ -1017,6 +820,76 @@ for (const file of files) {
 
       message_id: newMessageRef.key,
     };
+
+    // =======================================
+    // FILE DATA
+    // =======================================
+
+    const fileData = {
+      user_id: "chatinput",
+
+      file_name: file.name,
+
+      file_url: fileUrl,
+
+      file_path: filePath,
+
+      file_type: fileCategory,
+
+      meta,
+
+      tanggal: now.toISOString().split("T")[0],
+
+      created_at: now.toISOString(),
+    };
+
+    // =======================================
+    // INSERT DB
+    // =======================================
+
+    const { error: dbError } = await supabase
+      .from("files")
+      .insert(fileData);
+
+    if (dbError) {
+      console.error("DB ERROR", dbError);
+      continue;
+    }
+
+    // =======================================
+    // AUDIO
+    // =======================================
+
+    if (fileCategory === "audio") {
+      audioUrl = fileUrl;
+    }
+
+    // =======================================
+    // SUCCESS
+    // =======================================
+
+    uploadedFiles.push(fileData);
+
+    console.log("FILE SUCCESS", file.name);
+
+  } catch (err) {
+    console.error("FILE PROCESS ERROR", err);
+  }
+}
+
+// =======================================
+// FILE URLS
+// =======================================
+
+const fileUrls = uploadedFiles
+  .filter(
+    (f) =>
+      f &&
+      f.file_url &&
+      f.file_type !== "audio"
+  )
+  .map((f) => f.file_url);
+
 
     const messageData = {
       pengirim,
