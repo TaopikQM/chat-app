@@ -63,24 +63,41 @@ const LUsersChatTable = () => {
       
                   let finalLogs = [];
       
-                  Object.keys(data).forEach((userId) => {
-                  const userLogsObj = data[userId];
+                  // Object.keys(data).forEach((userId) => {
+                  // const userLogsObj = data[userId];
       
-                  // ubah ke array
+                  // // ubah ke array
+                  // const userLogs = Object.entries(userLogsObj)
+                  //     .map(([logId, log]) => ({
+                  //     id: logId,
+                  //     userId,
+                  //     ...log,
+                  //     }))
+                  //     // 🔹 urutkan terbaru → lama
+                  //     .sort((a, b) => b.deleteTime - a.deleteTime)
+                  //     // 🔹 AMBIL HANYA 20 TERBARU
+                  //     .slice(0, 20);
+      
+                  // // gabung ke global array
+                  // finalLogs.push(...userLogs);
+                  // });
+                Object.keys(data).forEach((userId) => {
+                  const userLogsObj = data[userId];
+                
+                  if (!userLogsObj) return;
+                
                   const userLogs = Object.entries(userLogsObj)
-                      .map(([logId, log]) => ({
+                    .map(([logId, log]) => ({
                       id: logId,
                       userId,
                       ...log,
-                      }))
-                      // 🔹 urutkan terbaru → lama
-                      .sort((a, b) => b.deleteTime - a.deleteTime)
-                      // 🔹 AMBIL HANYA 20 TERBARU
-                      .slice(0, 20);
-      
-                  // gabung ke global array
+                    }))
+                    .sort((a, b) => b.deleteTime - a.deleteTime)
+                    .slice(0, 20);
+                
                   finalLogs.push(...userLogs);
-                  });
+                });
+                
       
                   // (opsional) sort global kalau mau campur semua user
                   finalLogs.sort((a, b) => b.deleteTime - a.deleteTime);
