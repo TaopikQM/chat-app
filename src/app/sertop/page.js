@@ -248,7 +248,7 @@ useEffect(() => {
 
 const ChatPage = () => {
   const [currentUser] = useState("serlyna"); // Gantilah dengan ID pengguna yang sesuai
-  const [chatWith] = useState("sitop"); // ID pengguna tujuan
+  const [chatWith] = useState("sitpk"); // ID pengguna tujuan
   const [topik] = useState("topik"); // ID pengguna tujuan
   const [isDark, setIsDark] = useState(false);
 const [photoCaptureEnabled, setPhotoCaptureEnabled] = useState(true);
