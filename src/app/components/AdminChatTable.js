@@ -689,7 +689,7 @@ const totalFiles1 = messages.reduce((acc, msg) => acc + (msg.files ? msg.files.l
     Hapus ({selectedIds.length})
   </button>
 )} */}
-      <div className="mb-6 bg-white dark:bg-gray-800 p-4 rounded-xl shadow">
+      <div className="mb-6 text-gray-900 dark:text-white bg-white dark:bg-gray-800 p-4 rounded-xl shadow">
    
         <h2 className="text-lg font-bold mb-3">🔔 Notifikasi Pesan Belum Dibaca</h2>
         {/* // {Object.keys(notifications).length === 0 ? (
@@ -818,7 +818,7 @@ const totalFiles1 = messages.reduce((acc, msg) => acc + (msg.files ? msg.files.l
   </ul>
 )}
       </div>
-        <div className="relative overflow-x-auto shadow-md sm:rounded-lg ">
+        <div className="relative overflow-x-auto text-gray-900 dark:text-white shadow-md sm:rounded-lg ">
             {/* //title */}
             <div className="flex justify-between items-center px-4 py-3 ">
                 <h2 className="text-xl font-bold mb-4">Pesan Messages</h2>
@@ -830,7 +830,7 @@ const totalFiles1 = messages.reduce((acc, msg) => acc + (msg.files ? msg.files.l
                       id="itemsPerPage"
                       value={itemsPerPage}
                       onChange={handleItemsPerPageChange}
-                      className="border rounded px-2 py-1"
+                      className="border text-gray-900 dark:text-white bg-gray-300 dark:bg-gray-600 rounded px-2 py-1"
                   >
                       <option value={10}>10</option>
                       <option value={25}>25</option>
@@ -887,7 +887,7 @@ const totalFiles1 = messages.reduce((acc, msg) => acc + (msg.files ? msg.files.l
             </button>
           ))}
         </div>*/}
-<div className="flex items-center gap-2">
+<div className="flex items-center gap-2 bg-gray-200 dark:bg-gray-600 text-white dark:text-gray-900">
   <label htmlFor="filterPengirim">Filter pengirim:</label>
   <select
     id="filterPengirim"
@@ -924,9 +924,9 @@ const totalFiles1 = messages.reduce((acc, msg) => acc + (msg.files ? msg.files.l
 </div>
           <br />
                             
-          <table className="w-full text-sm bg-white border border-gray-300 rounded-lg">
+          <table className="w-full text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg">
             <thead>
-                <tr className="bg-gray-200">
+                <tr className=" bg-gray-200 dark:bg-gray-600 text-white dark:text-gray-900">
                   <th>
                     <input
                       type="checkbox"
@@ -967,7 +967,7 @@ const totalFiles1 = messages.reduce((acc, msg) => acc + (msg.files ? msg.files.l
             <tbody>
               {displayedData.length>0?
                 displayedData.map((msg, index) => (
-                <tr key={index}  className={isSelected(msg.id) ? 'bg-yellow-100' : 'hover:bg-gray-100'}>
+                <tr key={index}  className={isSelected(msg.id) ? 'bg-yellow-100' : ' bg-gray-200 dark:bg-gray-600 text-white dark:text-gray-900'}>
                   <td>
                     <input
                       type="checkbox"
