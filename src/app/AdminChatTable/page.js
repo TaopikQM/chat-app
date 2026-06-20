@@ -44,7 +44,8 @@ export default function AdminPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-gray-100 to-gray-200 dark:from-gray-900 dark:to-gray-800 ">
-     <div className="max-w-7xl mx-auto w-full flex flex-col h-screen border border-gray-900 dark:border-gray-100">
+     <div className="max-w-7xl mx-auto w-full flex flex-col h-full border border-gray-900 dark:border-gray-100">
+     // <div className="max-w-7xl mx-auto w-full flex flex-col h-screen border border-gray-900 dark:border-gray-100">
    
      {/*<div className="max-w-full mx-auto h-screen flex flex-col bg-gradient-to-b from-gray-100 to-gray-200 dark:from-gray-900 dark:to-gray-800">
        Header fixed top-0 left-0 w-full */}
