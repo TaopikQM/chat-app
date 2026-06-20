@@ -887,7 +887,7 @@ const totalFiles1 = messages.reduce((acc, msg) => acc + (msg.files ? msg.files.l
             </button>
           ))}
         </div>*/}
-<div className="flex items-center gap-2 bg-gray-200 dark:bg-gray-600 text-white dark:text-gray-900">
+<div className="flex items-center gap-2 ">
   <label htmlFor="filterPengirim">Filter pengirim:</label>
   <select
     id="filterPengirim"
@@ -900,7 +900,7 @@ const totalFiles1 = messages.reduce((acc, msg) => acc + (msg.files ? msg.files.l
         setSelectedIds([]);
       }
     }}
-    className="border rounded px-2 py-1"
+    className="border rounded px-2 py-1 bg-gray-200 dark:bg-gray-600 text-white dark:text-gray-900"
   >
     <option value="">Pilih Pengirim</option>
     {[...new Set(messages.map(msg => msg.pengirim))].map(p => (
