@@ -852,6 +852,7 @@ try {
           <ChatInput
             pengirim={chatWith}
             penerima={currentUser}
+             currentUser={currentUser}
             replyMessage={replyMessage}
             setReplyMessage={setReplyMessage}
               isDark={isDark}
