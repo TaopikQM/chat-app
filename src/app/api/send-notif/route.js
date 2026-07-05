@@ -12,7 +12,7 @@ import { database } from "../../config/firebase";
 
 // Setup VAPID
 webpush.setVapidDetails(
-  'sitop:kuludin52023@gmail.com', // Ganti dengan email Anda
+  'mailto:kuludin52023@gmail.com', // Ganti dengan email Anda
   process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY,
   process.env.VAPID_PRIVATE_KEY
 );
