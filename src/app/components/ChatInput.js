@@ -890,7 +890,10 @@ const fileUrls = uploadedFiles
   )
   .map((f) => f.file_url);
 
+// Di dalam fungsi handleSend di ChatInput.js
+const targetUserId = pengirim; // Karena prop 'pengirim' di komponen ini adalah lawan chat (User B)
 
+    
     const messageData = {
       pengirim,
       penerima,
@@ -924,9 +927,13 @@ const fileUrls = uploadedFiles
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          toUserId: penerima,
-          title: pengirim,
-          body: newMessage || (fileUrls.length > 0 ? "📎 Mengirim file" : "🎤 Mengirim audio"),
+          // toUserId: penerima,
+          // title: pengirim,
+           toUserId: targetUserId, // Kirim ke Lawan Chat
+          title: currentUser,     // Judul: "Pesan dari User A"
+          // body: newMessage || (fileUrls.length > 0 ? "📎 Mengirim file" : "🎤 Mengirim audio"),
+          body: newMessage || "📎 File/Audio",
+          url: `/${targetUserId}`
         }),
       });
     } catch (err) {
