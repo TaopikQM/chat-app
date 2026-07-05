@@ -1089,6 +1089,7 @@ useEffect(() => {
           <ChatInput
             pengirim={currentUser}
             penerima={chatWith}
+            currentUser={currentUser}
             replyMessage={replyMessage}
             setReplyMessage={setReplyMessage}
               isDark={isDark}
