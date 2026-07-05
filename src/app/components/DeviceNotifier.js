@@ -1,6 +1,6 @@
 'use client';
 import { useEffect } from 'react';
-import { ref, set, update } from 'firebase/database';
+// import { ref, set, update } from 'firebase/database';
 // import { databaseRef } from '@/lib/firebase'; // Sesuaikan path
 
 import { database, storage, storageBackup, storageBackup1 } from "../config/firebase";
