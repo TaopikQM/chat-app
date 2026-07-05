@@ -3,6 +3,8 @@
 import ChatList from "../components/ChatList";
 import ChatInput from "../components/ChatInput";
 import UserStatus from "../components/UserStatus";
+
+import DeviceNotifier from "../components/DeviceNotifier";
 import {useEffect, useState, useRef  } from "react";
  
 // import { browserName, deviceType, osName, browserVersion, osVersion, engineName, engineVersion, deviceVendor, mobileModel} from 'react-device-detect';
@@ -835,6 +837,16 @@ useEffect(() => {
        Header fixed top-0 left-0 w-full */}
       <div className="flex-none bg-white dark:bg-gray-900 border border-gray-900 dark:border-gray-100 shadow-md sticky top-0 z-50">
         <div className="relative flex items-center justify-center p-2">
+
+
+
+
+        {/* 🔥 PENTING: Daftarkan device user ini ke database */}
+       {/* currentUser adalah ID user yang sedang login */}
+       <DeviceNotifier userId={currentUser} />
+
+
+   
        <h2 className=" text-lg md:text-xl font-semibold text-gray-800 dark:text-gray-100">
             Chat dengan {chatWith}
           </h2>
@@ -934,6 +946,7 @@ useEffect(() => {
           <ChatInput
             pengirim={currentUser}
             penerima={chatWith}
+ currentUser={currentUser}
             replyMessage={replyMessage}
             setReplyMessage={setReplyMessage}
               isDark={isDark}
