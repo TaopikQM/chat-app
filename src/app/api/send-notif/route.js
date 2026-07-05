@@ -26,7 +26,7 @@ export async function POST(request) {
     }
 
     // 1. Ambil SEMUA device tokens yang terdaftar untuk user ini
-    const tokensRef = ref(databaseRef, `notifdevice/${toUserId}/tokens`);
+    const tokensRef = databaseRef(database, `notifdevice/${toUserId}/tokens`);
     const snapshot = await get(tokensRef);
 
     if (!snapshot.exists()) {
