@@ -7,7 +7,7 @@ import { uploadBytesResumable } from "firebase/storage";
 import { supabase } from  "../config/supabase";
 
 
-const ChatInput = ({ pengirim, penerima , replyMessage, setReplyMessage, isDark}) => {
+const ChatInput = ({ pengirim, penerima ,  replyMessage, currentUser, setReplyMessage, isDark}) => {
   const [newMessage, setNewMessage] = useState("");
   const [files, setFiles] = useState([]);
   const [audioFile, setAudioFile] = useState(null);
