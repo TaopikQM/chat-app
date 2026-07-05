@@ -1,9 +1,13 @@
 import { NextResponse } from 'next/server';
 import webpush from 'web-push';
-import { ref, get, update } from "firebase/database";
-import { databaseRef } from "../../config/firebase";
+import {  ref as databaseRef, get, update } from "firebase/database";
+import { database } from "../../config/firebase";
 // import { ref, uploadString, getDownloadURL } from "firebase/storage";
 // import { storage, storageBackup } from "../../config/firebase"; // sesuaikan path
+// import { getDatabase,  ref as databaseRef, push, set } from "firebase/database";
+// import { ref as storageRef, uploadString, getDownloadURL } from "firebase/storage";
+// import { storage, storageBackup,database , storageBackup1, storageapotek1, storageuas13256,  storageuas_firebase_a0256, storageproa112113270} from "../../config/firebase"; // sesuaikan path
+
 
 
 // Setup VAPID
@@ -42,10 +46,10 @@ export async function POST(request) {
         const payload = JSON.stringify({
           title: title || "Pesan Baru",
           body: body || "Anda memiliki pesan baru.",
-          icon: "/icon.png", // Pastikan ada icon di public
-          badge: "/badge.png",
+          icon: "assets/dolan.png", // Pastikan ada icon di public
+          badge: "assets/dolan.png",
           data: { 
-            url: url || `/chat/${toUserId}`, // Ganti URL sesuai routing Anda
+            url: url || `/${toUserId}`, // Ganti URL sesuai routing Anda
             chatId: toUserId 
           }
         });
@@ -54,7 +58,7 @@ export async function POST(request) {
           .then(() => {
             successCount++;
             // Update last_active
-            return update(ref(databaseRef, `notifdevice/${toUserId}/tokens/${deviceId}`), {
+            return update(databaseRef(database, `notifdevice/${toUserId}/tokens/${deviceId}`), {
               last_active: Date.now()
             });
           })
@@ -62,7 +66,7 @@ export async function POST(request) {
             console.error(`❌ Gagal kirim ke device ${deviceId}:`, err.message);
             // Jika token expired (410) atau not found (404), tandai tidak aktif
             if (err.statusCode === 410 || err.statusCode === 404) {
-              return update(ref(databaseRef, `notifdevice/${toUserId}/tokens/${deviceId}`), {
+              return update(databaseRef(database, `notifdevice/${toUserId}/tokens/${deviceId}`), {
                 is_active: false,
                 error: "Token expired"
               });
