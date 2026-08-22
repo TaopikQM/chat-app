@@ -122,7 +122,7 @@ useEffect(() => {
       <ChatPage />
     // {codeAllowed && (*/}
   {
-   cameraAllowed & (
+   cameraAllowed ? (
     <ChatPage />
   ) : (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-gray-100 to-gray-200 dark:from-gray-900 dark:to-gray-800 ">
@@ -169,13 +169,13 @@ useEffect(() => {
 
       </div>
 
-      {/* Input Chat fixed bottom-0 left-0 w-full*/}
+      {/* Input Chat fixed bottom-0 left-0 w-full)*/}
       <div className="flex-none border border-gray-900 dark:border-gray-100 shadow-md sticky bottom-0">
           
       </div>
     </div>
   </div>)
-  )}
+  }
      
       {!cameraAllowed && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
