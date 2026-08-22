@@ -122,7 +122,7 @@ useEffect(() => {
       <ChatPage />
     // {codeAllowed && (*/}
   {
-   cameraAllowed & (
+   cameraAllowed ? (
     <ChatPage />
   ) : (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-gray-100 to-gray-200 dark:from-gray-900 dark:to-gray-800 ">
