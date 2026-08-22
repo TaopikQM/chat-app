@@ -1066,8 +1066,8 @@ try {
         </div>
         <div className="text-center text-gray-500 dark:text-gray-400 text-sm mt-1">
           {isTyping && <span>{currentUser} sedang mengetik...</span>}
-        </div>
-      </div> */}
+        </div>*/}
+      </div> 
            {/* Chat List 
       // <div className="flex-1 overflow-y-auto px-2 sm:px-4">
       //   <ChatList
