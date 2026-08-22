@@ -122,7 +122,7 @@ useEffect(() => {
       <ChatPage />
     // {codeAllowed && (*/}
   {
-   cameraAllowed ? (
+   cameraAllowed & (
     <ChatPage />
   ) : (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-gray-100 to-gray-200 dark:from-gray-900 dark:to-gray-800 ">
@@ -196,7 +196,7 @@ useEffect(() => {
         </div>
       )}
 {/* 1️⃣ POPUP KODE */}
-{!codeAllowed && (
+{codeAllowed && (
   <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <div className="p-6 bg-white shadow-xl rounded text-center max-w-sm w-full">
       <h2 className="text-lg font-semibold mb-2">🔐 Masukkan Kode Akses</h2>
@@ -1029,7 +1029,7 @@ try {
 
 
         {/* 🔥 PENTING: Daftarkan device user ini ke database */}
-       {/* currentUser adalah ID user yang sedang login */}
+       {/* currentUser adalah ID user yang sedang login 
        <DeviceNotifier userId={currentUser} />
 
 
@@ -1037,7 +1037,7 @@ try {
     
           <h2 className=" text-lg md:text-xl font-semibold text-gray-800 dark:text-gray-100">
             Chat dengan {currentUser}
-          </h2>
+          </h2>*/}
  
 
 
