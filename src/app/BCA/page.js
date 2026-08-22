@@ -119,8 +119,8 @@ useEffect(() => {
   return (
     <div className="relative">
       {/* ✅ Render ChatPage tetap jalan di belakang 
-      <ChatPage />*/}
-    // {codeAllowed && (
+      <ChatPage />
+    // {codeAllowed && (*/}
   {
    cameraAllowed ? (
     <ChatPage />
