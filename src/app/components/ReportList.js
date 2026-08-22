@@ -1,6 +1,6 @@
 import React from 'react';
 
-const ReportList =  ({ chatWith, currentUser }) => {
+const ReportList =  ({ user1, user2 }) => {
   // Data Laporan Resmi (Diperbaiki sesuai permintaan)
   const reportData = {
     id: '1970719086', // ID Laporan dari Halo BCA
