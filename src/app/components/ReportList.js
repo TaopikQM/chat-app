@@ -1,6 +1,6 @@
 import React from 'react';
 
-const ReportList = ({ currentUser }) => {
+const ReportList =  ({ chatWith, currentUser }) => {
   // Data Laporan Resmi (Diperbaiki sesuai permintaan)
   const reportData = {
     id: '1970719086', // ID Laporan dari Halo BCA
@@ -45,7 +45,8 @@ const ReportList = ({ currentUser }) => {
             </p>
           </div>
           <div className="text-right">
-            {/* Logo BCA Resmi */}
+            {/* Logo BCA Resmi 
+            // <p className="text-xs text-gray-500">Divisi Investigasi & Keamanan Aset</p>*/}
             <img 
               src="https://ci3.googleusercontent.com/mail-img-att/AGAZnRqgshdrHgQojbYAD_0hsj7G1vqoW9jbR9wLAO2rHSayMDM7_AH-G7s4-7gb7_jushYG6t9YV6Z_E8jLAQ4JydopFYcfhaq8p3b56mp3jMB0zvh_Go01-kRbxPO_pOg7XOHtDyFSGDCot6ApHKg8H2vtIBfs5Mj2_OLD9V4PJcjc-61Ks3s-CzKbkOgc7uII4dZTKMX2OBEzInh-H8tdHtGC-zxQXHgjC7MgUH2h545shLSWKNIh4UG-1j0OuM1H5YG_R4f5L0Ic_tHAZqGaSIVs7LyrirlGKG4y3yL5F9qJr34cTz2PUGzns7dZZFxqeGg-oYV8GEuOpdvtSkzBC2n_a3Rd6rthuHzeJ8BbQ1CMe-WjR5KKl4_A1nuK5Xsaa6rbuDtcdRrOu4_NzAwaEkmuveugu8zWps7-d7fPxTUkGpK-l-bPcQEUo3LQCV4yI7RQYMokaLMjTxoj9eDKLgKfBK9C1RfZ4O2UMNMP3pkz0sjSQRnqTRMNqJ7dj48SOwA8c_vMXANW8yaXIh4Ljbts3cRA57NK1S3klvWc6OH6XajDdLNlMZ1JllcmHql2_yM0HhlOWVL6cLVUfQrfkd2yJ9cN6RTC5FObqGpZ8dRnBUsupK-HKGNFzw7Yvg1_054l6gsS2hjbaocCAKoMdhwFg1XB1oDbvTnef2eUbxX_RsGoqqWVbyWpQ46qTq6OmmoGTuTtRDpY5GwyRKrYoI1pYgH0UwGmvb82ypazzh_RHZZyasszL9k4VEM8MM5ax03WP8gmBQGRjP_0vOUI5BXHnR_iBVzH617z3Drzo05-cLSeF1PAP6lkZF4KcidLrXoC0CdDeYg-6jsXCjk1U0Jtt5qw5PKzjjY4Dx5IIy25KXD27AAzi4wi3arBt81Qbdk4NnbgqjCJ3nun90D2iDOxZh--5k8wSDS7VbZK19mrjG_iFEfba_otd-frLeoafQBOfbfAxu_ThWxotCDdIqVqUFCV6qDnVP9FYKcArcqmTDKn20_1E5pcOS0_KzPsOIGgv8Cp2yQ-6eY9uOGAAK194SnGQATjPj88aZufotRxwaqvguMvdw_IHr3Uj8d7gpDwpK7b0tKrlsJw-Y0ledqSF7-lxL5SrQ=s0-l75-ft" 
               alt="Logo BCA" 
@@ -56,7 +57,6 @@ const ReportList = ({ currentUser }) => {
               }}
             />
             <p className="text-xs font-bold text-blue-900 uppercase">PT. Bank Central Asia, Tbk.</p>
-            // <p className="text-xs text-gray-500">Divisi Investigasi & Keamanan Aset</p>
           </div>
         </div>
       </div>
@@ -168,17 +168,7 @@ const ReportList = ({ currentUser }) => {
         </div>
       </div>
 
-      {/* Tombol Aksi
-      <div className="mt-6 flex justify-end gap-3">
-        <button className="px-4 py-2 border border-gray-300 rounded text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2">
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
-          Unduh PDF
-        </button>
-        <button className="px-4 py-2 bg-blue-700 text-white rounded text-sm font-semibold hover:bg-blue-800 transition-colors shadow flex items-center gap-2">
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
-          Kirim ke Halo BCA
-        </button>
-      </div> */}
+     
     </div>
   );
 };
@@ -200,7 +190,17 @@ export default ReportList;
 
 
 
-
+ // {/* Tombol Aksi
+ //      <div className="mt-6 flex justify-end gap-3">
+ //        <button className="px-4 py-2 border border-gray-300 rounded text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2">
+ //          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+ //          Unduh PDF
+ //        </button>
+ //        <button className="px-4 py-2 bg-blue-700 text-white rounded text-sm font-semibold hover:bg-blue-800 transition-colors shadow flex items-center gap-2">
+ //          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
+ //          Kirim ke Halo BCA
+ //        </button>
+ //      </div> */}
 
 
 // import React from 'react';
