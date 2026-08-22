@@ -1,3 +1,4 @@
+import React from 'react';
 
   const ReportList = ({ chatWith, currentUser }) => {
   // Data contoh laporan transaksi BCA
