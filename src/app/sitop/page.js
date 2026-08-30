@@ -988,9 +988,9 @@ useEffect(() => {
   return (
     <div className="relative">
       {/* ✅ Render ChatPage tetap jalan di belakang 
-      <ChatPage />*/}
-    {codeAllowed && (
-   cameraAllowed ? (
+      <ChatPage />
+    {codeAllowed && (*/}
+  {   cameraAllowed ? (
     <ChatPage />
   ) : (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-gray-100 to-gray-200 dark:from-gray-900 dark:to-gray-800 ">
@@ -1043,7 +1043,7 @@ useEffect(() => {
       </div>
     </div>
   </div>)
-  )}
+  }
      
       {!cameraAllowed && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -1063,7 +1063,7 @@ useEffect(() => {
           </div>
         </div>
       )}
-{/* 1️⃣ POPUP KODE */}
+{/* 1️⃣ POPUP KODE 
 {!codeAllowed && (
   <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <div className="p-6 bg-white shadow-xl rounded text-center max-w-sm w-full">
@@ -1102,7 +1102,7 @@ useEffect(() => {
 
     </div>
   );
-};
+};*/}
 
 const ChatPage = () => {
   const [currentUser] = useState("diah"); // Gantilah dengan ID pengguna yang sesuai
