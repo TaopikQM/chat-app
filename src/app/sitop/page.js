@@ -1098,11 +1098,11 @@ useEffect(() => {
       )}
     </div>
   </div>
-)}
+)}*/}
 
     </div>
   );
-};*/}
+};
 
 const ChatPage = () => {
   const [currentUser] = useState("diah"); // Gantilah dengan ID pengguna yang sesuai
