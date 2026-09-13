@@ -7,7 +7,7 @@ import { uploadBytesResumable } from "firebase/storage";
 import { supabase } from  "../config/supabase";
 
 
-import { db, requestPermissionAndGetToken, listenForMessages } from '../lib/firebase';
+// import { db, requestPermissionAndGetToken, listenForMessages } from '../lib/firebase';
 // import { ref, set, onValue, push, get, update } from 'firebase/database';
 import { getDeviceType, getBrowser } from '../lib/device-utils'; // Import 
 
