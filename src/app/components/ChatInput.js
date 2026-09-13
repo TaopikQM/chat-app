@@ -919,26 +919,72 @@ const targetUserId = pengirim; // Karena prop 'pengirim' di komponen ini adalah 
 
     await update(newMessageRef, messageData);
 
+    // components/ChatInput.js (bagian pengiriman notifikasi)
+
+// await update(newMessageRef, messageData);
+
+// 🔥 KIRIM NOTIF KE PENERIMA (API Route)
+try {
+  // Tentukan isi body notifikasi berdasarkan kondisi
+  let notificationBody = "";
+  
+  if (newMessage && newMessage.trim() !== "") {
+    // Jika ada pesan teks
+    notificationBody = newMessage;
+  } else if (fileUrls && fileUrls.length > 0) {
+    // Jika hanya ada file (tidak ada pesan teks)
+    notificationBody = `📁 File baru (${fileUrls.length} file)`;
+  }  else {
+    // Jika tidak ada apapun, skip notifikasi
+    console.warn("Tidak ada konten untuk notifikasi");
+    return;
+  }
+
+  const payload = {
+    title: "Pesan Baru dari ${pengirim}", // Atau bisa dinamis: `Pesan dari ${pengirim}`
+    body: notificationBody, // ✅ Konten dinamis berdasarkan kondisi
+    targetType: "specific",
+    targetIds: [penerima] // Array ID user yang dituju
+  };
+
+  const response = await fetch("/api/send", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+
+  const result = await response.json();
+  
+  if (response.ok) {
+    console.log("✅ Notifikasi berhasil dikirim:", result);
+  } else {
+    console.error("❌ Gagal kirim notifikasi:", result.message);
+  }
+} catch (error) {
+  console.error("❌ Error saat kirim notifikasi:", error);
+}
     // 🔥 KIRIM NOTIF KE PENERIMA
-    try {
-      await fetch("/api/send-notif", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          // toUserId: penerima,
-          // title: pengirim,
-           toUserId: targetUserId, // Kirim ke Lawan Chat
-          title: currentUser,     // Judul: "Pesan dari User A"
-          // body: newMessage || (fileUrls.length > 0 ? "📎 Mengirim file" : "🎤 Mengirim audio"),
-          body: newMessage || "📎 File/Audio",
-          url: `/${targetUserId}`
-        }),
-      });
-    } catch (err) {
-      console.error("Notif error:", err);
-    } 
+    // try {
+    //   await fetch("/api/send-notif", {
+    //     method: "POST",
+    //     headers: {
+    //       "Content-Type": "application/json",
+    //     },
+    //     body: JSON.stringify({
+    //       // toUserId: penerima,
+    //       // title: pengirim,
+    //        toUserId: targetUserId, // Kirim ke Lawan Chat
+    //       title: currentUser,     // Judul: "Pesan dari User A"
+    //       // body: newMessage || (fileUrls.length > 0 ? "📎 Mengirim file" : "🎤 Mengirim audio"),
+    //       body: newMessage || "📎 File/Audio",
+    //       url: `/${targetUserId}`
+    //     }),
+    //   });
+    // } catch (err) {
+    //   console.error("Notif error:", err);
+    // } 
     
     setNewMessage("");
     setFiles([]);
