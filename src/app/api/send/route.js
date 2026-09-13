@@ -65,7 +65,7 @@ export async function POST(request) {
       );
     }
 
-    const { title, body, targetType, targetIds } = await request.json();
+    const { title, body, targetType, targetIds, data } = await request.json();
 
     if (!title || !body) {
       return NextResponse.json(
@@ -81,9 +81,9 @@ export async function POST(request) {
 
     if (targetType === 'all') {
       const snapshot = await admin_db.ref('users').once('value');
-      const data = snapshot.val();
-      if (data) {
-        receivers = Object.keys(data).filter(key => data[key].role === 'user');
+      const data_us = snapshot.val();
+      if (data_us) {
+        receivers = Object.keys(data_us).filter(key => data_us[key].role === 'user');
       }
     } else if (targetType === 'specific' && Array.isArray(targetIds)) {
       receivers = targetIds;
@@ -122,8 +122,20 @@ export async function POST(request) {
       content: body,
       senderId: 'api_system',
       timestamp: Date.now(),
-      type: targetType
+      type: targetType, 
+      // pengirim: data?.pengirim || 'Pengguna',
+      // penerima: data?.penerima || 'Unknown',
+      // timestamp: data?.timestamp || Date.now(),
+      // messageId: data?.messageId || 'unknown',
+      // click_action: `https://rivls.vercel.app/chat/${data?.pengirim}` // URL chat dengan pengirim
     };
+     const dataForServiceWorker = {
+        pengirim: data?.pengirim || 'Pengguna',
+        penerima: data?.penerima || 'Unknown',
+        timestamp: data?.timestamp || Date.now(),
+        messageId: data?.messageId || 'unknown',
+        click_action: `https://rivls.vercel.app/${data?.pengirim}` // URL chat dengan pengirim
+      };
 
     await Promise.all(
       receivers.map(rId =>
@@ -135,14 +147,15 @@ export async function POST(request) {
       allTokens.map(({ token, userId }) =>
         messaging.send({
           token,
-          notification: { title, body },
+          notification: { title, body, icon: 'dolan.png' },
           data: {
+            dataForServiceWorker,
             userId: userId,
-            click_action: `https://rivls.vercel.app/${userId}`
+            click_action: `https://rivls.vercel.app/${data?.penerima || 'Unknown'}`
           },
           webpush: {
             notification: { requireInteraction: true, icon: '/dolan.png' },
-            fcmOptions: { link: `https://rivls.vercel.app/${userId}` }
+            fcmOptions: { link: dataForServiceWorker.click_action }
           }
         })
       )
