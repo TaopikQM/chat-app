@@ -11,25 +11,25 @@
 // // //     }
 // // //   }
   
-// // // File: src/app/api/ip/route.js
-// // export async function GET() {
-// //   try {
-// //     const response = await fetch("https://web-api.nordvpn.com/v1/ips/info");
-// //     const data = await response.json();
+// // File: src/app/api/ip/route.js
+// export async function GET() {
+//   try {
+//     const response = await fetch("https://web-api.nordvpn.com/v1/ips/info");
+//     const data = await response.json();
 
-// //     return new Response(JSON.stringify(data), {
-// //       status: 200,
-// //       headers: {
-// //         "Content-Type": "application/json",
-// //         "Access-Control-Allow-Origin": "*",
-// //       },
-// //     });
-// //   } catch (error) {
-// //     return new Response(JSON.stringify({ error: "Failed to fetch IP data" }), {
-// //       status: 500,
-// //     });
-// //   }
-// // }
+//     return new Response(JSON.stringify(data), {
+//       status: 200,
+//       headers: {
+//         "Content-Type": "application/json",
+//         "Access-Control-Allow-Origin": "*",
+//       },
+//     });
+//   } catch (error) {
+//     return new Response(JSON.stringify({ error: "Failed to fetch IP data" }), {
+//       status: 500,
+//     });
+//   }
+// }
 
 
 
@@ -72,34 +72,34 @@
 
 
 
-import { NextResponse } from "next/server";
-import admin from "firebase-admin";
+// import { NextResponse } from "next/server";
+// import admin from "firebase-admin";
 
-if (!admin.apps.length) {
-  admin.initializeApp({
-    credential: admin.credential.cert({
-      projectId: process.env.FB_PROJECT_ID,
-      clientEmail: process.env.FB_CLIENT_EMAIL,
-      privateKey: process.env.FB_PRIVATE_KEY.replace(/\\n/g, "\n"),
-    }),
-  });
-}
+// if (!admin.apps.length) {
+//   admin.initializeApp({
+//     credential: admin.credential.cert({
+//       projectId: process.env.FB_PROJECT_ID,
+//       clientEmail: process.env.FB_CLIENT_EMAIL,
+//       privateKey: process.env.FB_PRIVATE_KEY.replace(/\\n/g, "\n"),
+//     }),
+//   });
+// }
 
-export async function POST(req) {
-  const { tokens, title, body } = await req.json();
+// export async function POST(req) {
+//   const { tokens, title, body } = await req.json();
 
-  try {
-    await admin.messaging().sendEachForMulticast({
-      tokens,
-      notification: {
-        title,
-        body,
-      },
-    });
+//   try {
+//     await admin.messaging().sendEachForMulticast({
+//       tokens,
+//       notification: {
+//         title,
+//         body,
+//       },
+//     });
 
-    return NextResponse.json({ success: true });
-  } catch (err) {
-    console.error(err);
-    return NextResponse.json({ error: err });
-  }
-}
+//     return NextResponse.json({ success: true });
+//   } catch (err) {
+//     console.error(err);
+//     return NextResponse.json({ error: err });
+//   }
+// }
