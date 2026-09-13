@@ -25,14 +25,46 @@
     "swiper": "^11.2.1",
     "leaflet": "^1.9.4",
     "react-leaflet": "^4.2.1",
+	
     "sweetalert2": "^11.15.10",
     "recharts": "^2.15.0",
     "ua-parser-js": "^2.0.4",
-    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz",
+
+
+"emoji-mart": "^5.6.0",
+"@supabase/supabase-js": "^2.59.0",
+"pdf-lib": "^1.17.1",
+    "pdfjs-dist": "^4.8.69",
+"date-fns": "^2.30.0",
+"react-modal": "^3.16.3",
+    "archiver": "^7.0.1",
+    "node-fetch": "^3.3.2",
+    "react-device-detect": "^2.2.3",
+"@capacitor/android": "^7.0.1",
+    "@capacitor/core": "^7.0.1",
+    "@headlessui/react": "^1.7.19",
+    "@tanstack/react-virtual": "3.8.1",
+"face-api.js": "^0.22.2",
+    "file-saver": "^2.0.5",
+    "idb": "^8.0.2",
+    "jspdf": "^2.5.1",
+    "jspdf-autotable": "^3.8.2",
+    "peerjs": "^1.5.4",
+    "react-scroll": "^1.8.1",
+    "simple-peer": "^9.11.1",
+    "slick-carousel": "^1.8.1",
+    "web-push": "^3.6.7"
+
   },
   "devDependencies": {
     "autoprefixer": "^10.4.20",
     "postcss": "^8.4.49",
-    "tailwindcss": "^3.4.17"
+    "tailwindcss": "^3.4.17",
+
+    "@capacitor/cli": "^7.0.1",
+    "@capacitor/ios": "^7.0.1",
+    "@fullhuman/postcss-purgecss": "^3.0.0",
+    "postcss-import": "^13.0.0"
   }
 }
