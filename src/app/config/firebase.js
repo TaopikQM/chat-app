@@ -3,8 +3,8 @@
  import { getFirestore } from "firebase/firestore";
  import { getStorage } from "firebase/storage";
 
-import { getDatabase, ref, push, set, onValue, remove, update } from "firebase/database";
-import { getMessaging, getToken, onMessage } from "firebase/messaging"; 
+import { getDatabase, ref, push, set, onValue, remove, update,get } from "firebase/database";
+import { getMessaging, getToken, onMessage, isSupported} from "firebase/messaging"; 
  // import { getDatabase } from 'firebase/database'; 
  import { getAuth, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, createUserWithEmailAndPassword } from "firebase/auth";
 
@@ -262,6 +262,35 @@ export { messaging, getToken, onMessage };
 
 
 
+export const requestPermissionAndGetToken = async () => {
+  if (!messaging) return null;
+
+  // Cek apakah browser support messaging
+  const supported = await isSupported();
+  if (!supported) {
+    console.error('Firebase Messaging tidak didukung di browser ini');
+    return null;
+  }
+
+  const permission = await Notification.requestPermission();
+  if (permission !== 'granted') return null;
+
+  try {
+    const token = await getToken(messaging, {
+      vapidKey: "BBiuf9a4Q4j75ggkXu-oSJ2ywJZhQL-D01V0V3RdOK4sQ449WDmXo11Km1MTTF5eioVgPg4B_SGhzhDWEhAW580"// WAJIB GANTI
+    });
+    console.log('✅ getToken() berhasil! Token:', token);
+    return token;
+  } catch (error) {
+    console.error('Token error:', error);
+    return null;
+  }
+};
+
+export const listenForMessages = (callback) => {
+  if (!messaging) return;
+  return onMessage(messaging, callback);
+};
 
 
 
