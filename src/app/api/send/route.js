@@ -5,7 +5,7 @@ import { NextResponse } from 'next/server';
 import admin from 'firebase-admin';
 import { getDatabase } from 'firebase-admin/database';
 import { ref, push, set, get } from 'firebase/database';
-import { db } from '../../../lib/firebase';
+import { db } from '../../lib/firebase';
 
 const ADMIN_APP_NAME = 'admin-app';
 
