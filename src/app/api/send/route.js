@@ -1,6 +1,11 @@
 // pages/api/send-notification.js  KENAPA INI MASIH HGAGAL
+export const dynamic = 'force-dynamic'; // ✅ PENTING: Cegah eksekusi saat build
+
+import { NextResponse } from 'next/server';
+
+
 import admin from 'firebase-admin';
-import { db } from '../../lib/firebase';
+import { db } from '../../../lib/firebase';
 import { ref, push, set, get } from 'firebase/database';
 
 // ✅ Gunakan nama khusus "admin-app" agar tidak bentrok dengan firebase client
@@ -48,11 +53,12 @@ function getAdminMessaging() {
   }
 }
 
-export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ message: 'Method Not Allowed' });
-  }
-
+// export default async function handler(req, res) {
+export async function POST(request) {
+// if (req.method !== 'POST') {
+//     return res.status(405).json({ message: 'Method Not Allowed' });
+//   }
+ try {
   // ✅ Inisialisasi dengan try-catch yang jelas
   let messaging;
   try {
@@ -153,4 +159,5 @@ export default async function handler(req, res) {
     console.error('API Runtime Error:', error);
     res.status(500).json({ message: 'Internal Server Error', error: error.message });
   }
+}
 }
