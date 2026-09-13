@@ -32,11 +32,14 @@ messaging.onBackgroundMessage((payload) => {
     body: body || 'Pesan baru',
     icon: icon || '/dolan.png', // ✅ Logo dari payload atau default dolan.png
     badge: '/dolan.png',
-    tag: 'notif-' + (userId || 'default'), // Agar notif dengan user sama tidak duplicate
+    tag: `notif-${pengirim || 'default'}`, // Agar notif dengan user sama tidak duplicate
     requireInteraction: true,
     data: {
-      userId: userId,
-      url: click_action || `https://rivls.vercel.app/${userId}` // URL tujuan saat diklik
+      // userId: userId,
+      pengirim: pengirim,
+      penerima: penerima,
+      messageId: messageId,
+      url: click_action || `https://rivls.vercel.app/${penerima}` // URL tujuan saat diklik
     }
   });
 });
@@ -47,7 +50,7 @@ self.addEventListener('notificationclick', (event) => {
   
   event.notification.close();
 
-  const urlToOpen = event.notification.data?.url || `https://rivls.vercel.app/${userId}`;
+  const urlToOpen = event.notification.data?.url || `https://rivls.vercel.app/${event.notification.data?.penerima}`;
 
   // Cari window yang sudah terbuka, jika ada fokuskan, kalau tidak buka baru
   event.waitUntil(
@@ -71,8 +74,14 @@ self.addEventListener('notificationclick', (event) => {
 });
 
 // ✅ Handle notifikasi ditutup (opsional, untuk analytics)
+// self.addEventListener('notificationclose', (event) => {
+//   console.log('[firebase-messaging-sw.js] Notification closed');
+// });
+// ✅ Handle notifikasi ditutup
 self.addEventListener('notificationclose', (event) => {
   console.log('[firebase-messaging-sw.js] Notification closed');
+  console.log('Pengirim:', event.notification.data?.pengirim);
+  console.log('Penerima:', event.notification.data?.penerima);
 });
 
 // ✅ Ensure Service Worker stays active
