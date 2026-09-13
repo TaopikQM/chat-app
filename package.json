@@ -55,7 +55,7 @@
     "simple-peer": "^9.11.1",
     "slick-carousel": "^1.8.1",
     "web-push": "^3.6.7",
-"swiper": "^14.2.0"
+"swiper": "^9.0.0"
 
   },
   "devDependencies": {
