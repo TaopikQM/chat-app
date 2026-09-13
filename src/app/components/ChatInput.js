@@ -27,10 +27,15 @@ const ChatInput = ({ pengirim, penerima ,  replyMessage, currentUser, setReplyMe
 
   const [images, setImages] = useState([]);
 
-
+// ✅ Gunakan pengirim sebagai userId (yang mengirim pesan)
+  const userId = pengirim;
 
 
   const [myToken, setMyToken] = useState([]);
+   useEffect(() => {
+    // ✅ Ambil FCM token dan update user data saat komponen mount
+    if (!userId) return; // Jika pengirim tidak ada, skip
+
 
 
     const userRef = databaseRef(db, 'users/' + userId);
@@ -142,7 +147,7 @@ const ChatInput = ({ pengirim, penerima ,  replyMessage, currentUser, setReplyMe
         });
       }
     });
-
+ }, [userId]);
 
 
 
