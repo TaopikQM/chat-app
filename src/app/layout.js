@@ -2,7 +2,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import React from 'react';
+// import React from 'react';
 import { UserProvider } from './context/UserContext';
 import './globals.css';
 
