@@ -54,7 +54,8 @@
     "react-scroll": "^1.8.1",
     "simple-peer": "^9.11.1",
     "slick-carousel": "^1.8.1",
-    "web-push": "^3.6.7"
+    "web-push": "^3.6.7",
+"swiper": "^14.2.0"
 
   },
   "devDependencies": {
