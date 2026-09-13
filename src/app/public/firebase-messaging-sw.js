@@ -25,7 +25,9 @@ messaging.onBackgroundMessage((payload) => {
   console.log('[firebase-messaging-sw.js] Received background message', payload);
   
   const { title, body, icon } = payload.notification;
-  const { userId, click_action } = payload.data || {};
+  // const { userId, click_action } = payload.data || {};
+   const { pengirim, penerima, messageId, click_action } = payload.data || {};
+
 
   // ✅ Tampilkan notifikasi dengan logo & bisa diklik
   self.registration.showNotification(title || 'Notifikasi', {
