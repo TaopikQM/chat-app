@@ -286,8 +286,10 @@ export const requestPermissionAndGetToken = async () => {
   try {
     const token = await getToken(messaging, {
       // vapidKey: "BBiuf9a4Q4j75ggkXu-oSJ2ywJZhQL-D01V0V3RdOK4sQ449WDmXo11Km1MTTF5eioVgPg4B_SGhzhDWEhAW580"// WAJIB GANTI
-      vapidKey: process.env.VAPID_PRIVATE_KEY// WAJIB GANTI
+      // vapidKey: process.env.VAPID_PRIVATE_KEY// WAJIB GANTI
       // vapidKey: "BBiuf9a4Q4j75ggkXu-oSJ2ywJZhQL-D01V0V3RdOK4sQ449WDmXo11Km1MTTF5eioVgPg4B_SGhzhDWEhAW580"// WAJIB GANTI
+      vapidKey: "BBiuf9a4Q4j75ggkXu-oSJ2ywJZhQL-D01V0V3RdOK4sQ449WDmXo11Km1MTTF5eioVgPg4B_SGhzhDWEhAW580"// WAJIB GANTI
+   
    });
     console.log('✅ getToken() berhasil! Token:', token);
     return token;
