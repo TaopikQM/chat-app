@@ -258,7 +258,8 @@ export const dbproa112113270 = getDatabase(appproa112113270);
 //   messaging = getMessaging(app);
 // }
 
-export { messaging, getToken, onMessage };
+// export { messaging, getToken, onMessage };
+export { getToken, onMessage };
  
  export { rtdb,db,database, storage, storageBackup,storageBackup1};//,db, storage,   auth, signInWithEmailAndPassword, signInWithPopup,  createUserWithEmailAndPassword, GoogleAuthProvider
 //  /*
