@@ -1,5 +1,7 @@
 'use client';
 
+import { useEffect, useState } from 'react'; 
+
 export default function ChatInput({ onSend }) {
   const [text, setText] = useState('');
 
