@@ -26,7 +26,9 @@ const firebaseConfig = {
 };
 
 
-const app = initializeApp(firebaseConfig);
+// const app = initializeApp(firebaseConfig);
+const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+
 export const db = getDatabase(app);
 
 // PENTING: Hanya inisialisasi messaging jika di browser
