@@ -34,10 +34,36 @@ export const db = getDatabase(app);
 // PENTING: Hanya inisialisasi messaging jika di browser
 export const messaging = typeof window !== 'undefined' ? getMessaging(app) : null;
 
+// export const requestPermissionAndGetToken = async () => {
+//   if (!messaging) return null;
+
+//   // Cek apakah browser support messaging
+//   const supported = await isSupported();
+//   if (!supported) {
+//     console.error('Firebase Messaging tidak didukung di browser ini');
+//     return null;
+//   }
+
+//   const permission = await Notification.requestPermission();
+//   if (permission !== 'granted') return null;
+
+//   try {
+//     const token = await getToken(messaging, {
+//       // vapidKey: "BBiuf9a4Q4j75ggkXu-oSJ2ywJZhQL-D01V0V3RdOK4sQ449WDmXo11Km1MTTF5eioVgPg4B_SGhzhDWEhAW580"// WAJIB GANTI
+//       vapidKey: "BBiuf9a4Q4j75ggkXu-oSJ2ywJZhQL-D01V0V3RdOK4sQ449WDmXo11Km1MTTF5eioVgPg4B_SGhzhDWEhAW580"// WAJIB GANTI
+//     });
+//     console.log('✅ getToken() berhasil! Token:', token);
+//     return token;
+//   } catch (error) {
+//     console.error('Token error:', error);
+//     return null;
+//   }
+// };
+
+
 export const requestPermissionAndGetToken = async () => {
   if (!messaging) return null;
 
-  // Cek apakah browser support messaging
   const supported = await isSupported();
   if (!supported) {
     console.error('Firebase Messaging tidak didukung di browser ini');
@@ -49,13 +75,14 @@ export const requestPermissionAndGetToken = async () => {
 
   try {
     const token = await getToken(messaging, {
-      // vapidKey: "BBiuf9a4Q4j75ggkXu-oSJ2ywJZhQL-D01V0V3RdOK4sQ449WDmXo11Km1MTTF5eioVgPg4B_SGhzhDWEhAW580"// WAJIB GANTI
-      vapidKey: "BBiuf9a4Q4j75ggkXu-oSJ2ywJZhQL-D01V0V3RdOK4sQ449WDmXo11Km1MTTF5eioVgPg4B_SGhzhDWEhAW580"// WAJIB GANTI
+      // ✅ ISIKAN INI DENGAN KEY DARI FIREBASE CONSOLE
+      vapidKey: "BBiuf9a4Q4j75ggkXu-oSJ2ywJZhQL-D01V0V3RdOK4sQ449WDmXo11Km1MTTF5eioVgPg4B_SGhzhDWEhAW580"
     });
+    
     console.log('✅ getToken() berhasil! Token:', token);
     return token;
   } catch (error) {
-    console.error('Token error:', error);
+    console.error('❌ Token error:', error);
     return null;
   }
 };
