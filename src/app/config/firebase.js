@@ -52,7 +52,7 @@ const firebaseConfigBackup1 = {
 
 // // ✅ Inisialisasi dua Firebase App: "main" dan "backup"
 // let appMain, appBackup;
-const app = initializeApp(firebaseConfig);
+const app = initializeApp(firebaseConfigBackup1);
 // const app = initializeApp(firebaseConfigBackup1);
  const appBackup = initializeApp(firebaseConfigbu, "backup");
  const appBackup1 = initializeApp(firebaseConfigBackup1, "backup1");
@@ -141,12 +141,14 @@ const auth = getAuth(appBackup1);
 // data utama dolanrekid
  const database = getDatabase(appBackup1); // Add this line to initialize Realtime Database
  const rtdb = getDatabase(appBackup1); // Add this line to initialize Realtime Database
- const db = getDatabase(appBackup1); // Add this line to initialize Realtime Database
+ const db = getDatabase(app); // Add this line to initialize Realtime Database
 
-let messaging = null;
-if (typeof window !== "undefined") {
-  messaging = getMessaging(appBackup1);
-}
+// let messaging = null;
+// if (typeof window !== "undefined") {
+//   messaging = getMessaging(appBackup1);
+// }
+export const messaging = typeof window !== 'undefined' ? getMessaging(app) : null;
+
 
 const firebaseConfigapotek1 = {
   apiKey: process.env.NEXT_PUBLIC_apotek1_ddd99_API_KEY,
@@ -283,7 +285,8 @@ export const requestPermissionAndGetToken = async () => {
   try {
     const token = await getToken(messaging, {
       // vapidKey: "BBiuf9a4Q4j75ggkXu-oSJ2ywJZhQL-D01V0V3RdOK4sQ449WDmXo11Km1MTTF5eioVgPg4B_SGhzhDWEhAW580"// WAJIB GANTI
-      vapidKey: "BBiuf9a4Q4j75ggkXu-oSJ2ywJZhQL-D01V0V3RdOK4sQ449WDmXo11Km1MTTF5eioVgPg4B_SGhzhDWEhAW580"// WAJIB GANTI
+      vapidKey: process.env.VAPID_PRIVATE_KEY// WAJIB GANTI
+      // vapidKey: "BBiuf9a4Q4j75ggkXu-oSJ2ywJZhQL-D01V0V3RdOK4sQ449WDmXo11Km1MTTF5eioVgPg4B_SGhzhDWEhAW580"// WAJIB GANTI
    });
     console.log('✅ getToken() berhasil! Token:', token);
     return token;
