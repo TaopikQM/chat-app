@@ -52,7 +52,8 @@ const firebaseConfigBackup1 = {
 
 // // ✅ Inisialisasi dua Firebase App: "main" dan "backup"
 // let appMain, appBackup;
-const app = initializeApp(firebaseConfig);
+// const app = initializeApp(firebaseConfig);
+const app = initializeApp(firebaseConfigBackup1);
  const appBackup = initializeApp(firebaseConfigbu, "backup");
  const appBackup1 = initializeApp(firebaseConfigBackup1, "backup1");
 
