@@ -8,7 +8,7 @@
 // import { getMessaging, onMessage, getToken, isSupported  } from 'firebase/messaging'; // Import langsung dari modul
 
 
-import { initializeApp } from 'firebase/app';
+import { initializeApp, getApps, getApp  } from 'firebase/app';
 import { getDatabase, ref, set, onValue, push, update, get } from 'firebase/database';
 import { getMessaging, onMessage, getToken, isSupported } from 'firebase/messaging';
 
