@@ -1812,9 +1812,10 @@ try {
   // Tangani disconnect
   window.addEventListener("beforeunload", updateOfflineStatus);
 
-
+ // const [currentUser] = useState("diah"); // Gantilah dengan ID pengguna yang sesuai
+ //  const [chatWith] = useState("sitop");
    // ✅ Gunakan pengirim sebagai userId (yang mengirim pesan)
-  const userId = pengirim;
+  const userId = chatWith;
 
 
   const [myToken, setMyToken] = useState([]);
