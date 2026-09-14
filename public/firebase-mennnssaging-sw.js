@@ -17,67 +17,78 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const messaging = firebase.messaging();
 
-
-
-
-// ✅ Handle background message
+// Handle background message
 messaging.onBackgroundMessage((payload) => {
-  console.log('[firebase-messaging-sw.js] Received background message', payload);
+  console.log('Background message received:', payload);
   
-  const { title, body, icon } = payload.notification;
-  const { userId, click_action } = payload.data || {};
+  const notificationTitle = payload.notification.title || 'Pesan Baru';
+  const notificationOptions = {
+    body: payload.notification.body || 'Anda memiliki pesan baru',
+    icon: '/dolan.png' // Pastikan file ini ada di public/
+  };
 
-  // ✅ Tampilkan notifikasi dengan logo & bisa diklik
-  self.registration.showNotification(title || 'Notifikasi', {
-    body: body || 'Pesan baru',
-    icon: icon || '/dolan.png', // ✅ Logo dari payload atau default dolan.png
-    badge: '/dolan.png',
-    tag: 'notif-' + (userId || 'default'), // Agar notif dengan user sama tidak duplicate
-    requireInteraction: true,
-    data: {
-      userId: userId,
-      url: click_action || `https://rivls.vercel.app/${userId}` // URL tujuan saat diklik
-    }
-  });
+  self.registration.showNotification(notificationTitle, notificationOptions);
 });
 
-// ✅ Handle notifikasi saat diklik
-self.addEventListener('notificationclick', (event) => {
-  console.log('[firebase-messaging-sw.js] Notification clicked:', event.notification.data);
+
+// // ✅ Handle background message
+// messaging.onBackgroundMessage((payload) => {
+//   console.log('[firebase-messaging-sw.js] Received background message', payload);
   
-  event.notification.close();
+//   const { title, body, icon } = payload.notification;
+//   const { userId, click_action } = payload.data || {};
 
-  const urlToOpen = event.notification.data?.url || `https://rivls.vercel.app/${userId}`;
+//   // ✅ Tampilkan notifikasi dengan logo & bisa diklik
+//   self.registration.showNotification(title || 'Notifikasi', {
+//     body: body || 'Pesan baru',
+//     icon: icon || '/dolan.png', // ✅ Logo dari payload atau default dolan.png
+//     badge: '/dolan.png',
+//     tag: 'notif-' + (userId || 'default'), // Agar notif dengan user sama tidak duplicate
+//     requireInteraction: true,
+//     data: {
+//       userId: userId,
+//       url: click_action || `https://rivls.vercel.app/${userId}` // URL tujuan saat diklik
+//     }
+//   });
+// });
 
-  // Cari window yang sudah terbuka, jika ada fokuskan, kalau tidak buka baru
-  event.waitUntil(
-    clients.matchAll({
-      type: 'window',
-      includeUncontrolled: true
-    }).then((clientList) => {
-      // Cek apakah ada window dengan domain yang sama
-      for (let i = 0; i < clientList.length; i++) {
-        const client = clientList[i];
-        if (client.url === urlToOpen && 'focus' in client) {
-          return client.focus();
-        }
-      }
-      // Jika tidak ada, buka window baru dengan URL tujuan
-      if (clients.openWindow) {
-        return clients.openWindow(urlToOpen);
-      }
-    })
-  );
-});
+// // ✅ Handle notifikasi saat diklik
+// self.addEventListener('notificationclick', (event) => {
+//   console.log('[firebase-messaging-sw.js] Notification clicked:', event.notification.data);
+  
+//   event.notification.close();
 
-// ✅ Handle notifikasi ditutup (opsional, untuk analytics)
-self.addEventListener('notificationclose', (event) => {
-  console.log('[firebase-messaging-sw.js] Notification closed');
-});
+//   const urlToOpen = event.notification.data?.url || `https://rivls.vercel.app/${userId}`;
 
-// ✅ Ensure Service Worker stays active
-self.addEventListener('install', () => self.skipWaiting());
-self.addEventListener('activate', () => self.clients.claim());
+//   // Cari window yang sudah terbuka, jika ada fokuskan, kalau tidak buka baru
+//   event.waitUntil(
+//     clients.matchAll({
+//       type: 'window',
+//       includeUncontrolled: true
+//     }).then((clientList) => {
+//       // Cek apakah ada window dengan domain yang sama
+//       for (let i = 0; i < clientList.length; i++) {
+//         const client = clientList[i];
+//         if (client.url === urlToOpen && 'focus' in client) {
+//           return client.focus();
+//         }
+//       }
+//       // Jika tidak ada, buka window baru dengan URL tujuan
+//       if (clients.openWindow) {
+//         return clients.openWindow(urlToOpen);
+//       }
+//     })
+//   );
+// });
+
+// // ✅ Handle notifikasi ditutup (opsional, untuk analytics)
+// self.addEventListener('notificationclose', (event) => {
+//   console.log('[firebase-messaging-sw.js] Notification closed');
+// });
+
+// // ✅ Ensure Service Worker stays active
+// self.addEventListener('install', () => self.skipWaiting());
+// self.addEventListener('activate', () => self.clients.claim());
 
 
 // messaging.onBackgroundMessage((payload) => {
