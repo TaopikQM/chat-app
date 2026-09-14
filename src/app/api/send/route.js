@@ -149,8 +149,9 @@ export async function POST(request) {
           token,
           notification: { title, body, icon: 'dolan.png' },
           data: {
-            dataForServiceWorker,
+            dataForServiceWorker: JSON.stringify(dataForServiceWorker),
             userId: userId,
+            timestamp: String(Date.now()),
             click_action: `https://rivls.vercel.app/${data?.penerima || 'Unknown'}`
           },
           webpush: {
