@@ -4,9 +4,9 @@ import { useEffect, useState } from 'react';
 import { getDatabase, ref, get, update } from 'firebase/database';
 // ⚠️ PASTIKAN IMPORT SESUAI PATH KAMU
 // import { requestPermissionAndGetToken } from '../config/firebase'; 
-import { requestPermissionAndGetToken } from '../lib/firebase'; 
+import { db,requestPermissionAndGetToken } from '../lib/firebase'; 
 // import { db } from '../config/firebase'; // Import db dari config
-import { db } from '../lib/firebase'; // Import db dari config
+// import { db } from '../lib/firebase'; // Import db dari config
 
 export default function SitopPage() {
   const [status, setStatus] = useState('Memuat...');
