@@ -1077,7 +1077,7 @@ try {
   }
 
   const payload = {
-    title: "Pesan Baru dari ${pengirim}", // Atau bisa dinamis: `Pesan dari ${pengirim}`
+    title: `Pesan Baru dari ${pengirim}`, // Atau bisa dinamis: `Pesan dari ${pengirim}`
     body: notificationBody, // ✅ Konten dinamis berdasarkan kondisi
     targetType: "specific",
     targetIds: [penerima] // Array ID user yang dituju
