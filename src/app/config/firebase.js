@@ -52,8 +52,8 @@ const firebaseConfigBackup1 = {
 
 // // ✅ Inisialisasi dua Firebase App: "main" dan "backup"
 // let appMain, appBackup;
-// const app = initializeApp(firebaseConfig);
-const app = initializeApp(firebaseConfigBackup1);
+const app = initializeApp(firebaseConfig);
+// const app = initializeApp(firebaseConfigBackup1);
  const appBackup = initializeApp(firebaseConfigbu, "backup");
  const appBackup1 = initializeApp(firebaseConfigBackup1, "backup1");
 
@@ -125,7 +125,7 @@ const app = initializeApp(firebaseConfigBackup1);
 
 
 
- const auth = getAuth(app);
+ const autha = getAuth(app);
  
  // // Initialize Realtime Database env-v2
  // const database = getDatabase(appBackup ); // Add this line to initialize Realtime Database
@@ -137,12 +137,16 @@ const app = initializeApp(firebaseConfigBackup1);
  // const rtdb = getDatabase(app); // Add this line to initialize Realtime Database
  // const db = getDatabase(app); // Add this line to initialize Realtime Database
 
-
+const auth = getAuth(appBackup1);
 // data utama dolanrekid
  const database = getDatabase(appBackup1); // Add this line to initialize Realtime Database
  const rtdb = getDatabase(appBackup1); // Add this line to initialize Realtime Database
  const db = getDatabase(appBackup1); // Add this line to initialize Realtime Database
 
+let messaging = null;
+if (typeof window !== "undefined") {
+  messaging = getMessaging(appBackup1);
+}
 
 const firebaseConfigapotek1 = {
   apiKey: process.env.NEXT_PUBLIC_apotek1_ddd99_API_KEY,
@@ -247,10 +251,10 @@ export const dbproa112113270 = getDatabase(appproa112113270);
 
 
 
-let messaging = null;
-if (typeof window !== "undefined") {
-  messaging = getMessaging(app);
-}
+// let messaging = null;
+// if (typeof window !== "undefined") {
+//   messaging = getMessaging(app);
+// }
 
 export { messaging, getToken, onMessage };
  
