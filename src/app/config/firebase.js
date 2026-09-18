@@ -244,7 +244,7 @@ export const rtdbuas_firebase_a0256 = getDatabase(app);
 
 export const databaseuas_firebase_a0256 = getDatabase(app);
 
-export const dbuas_firebase_a0256 = getDatabase(appuas_firebase_a0256);
+export const dbuas_firebase_a0256 = getDatabase(app);
 
 
 // const firebaseConfigproa112113270 = {
@@ -270,6 +270,13 @@ export const dbuas_firebase_a0256 = getDatabase(appuas_firebase_a0256);
 // export const databaseproa112113270 = getDatabase(appproa112113270);
 
 // export const dbproa112113270 = getDatabase(appproa112113270);
+export const storageproa112113270 = getStorage(app);
+
+export const rtdbproa112113270 = getDatabase(app);
+
+export const databaseproa112113270 = getDatabase(app);
+
+export const dbproa112113270 = getDatabase(app);
 
 
 
