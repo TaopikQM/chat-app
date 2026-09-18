@@ -1,12 +1,12 @@
 
 // import Gallery from '../components/Gallery';
-// // Example usage
+// Example usage
 
-// export default function HomePage() {
+export default function HomePage() {
    
-//   return (
-//     <div>
-//       <Gallery />  
-//     </div>
-//   );
-// }
+  return (
+    <div>
+      // <Gallery />  
+    </div>
+  );
+}
