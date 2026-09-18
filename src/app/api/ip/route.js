@@ -1,4 +1,4 @@
-// File: src/app/api/ip/route.js
+   // File: src/app/api/ip/route.js
 export async function GET() {
   try {
     const response = await fetch("https://web-api.nordvpn.com/v1/ips/info");
