@@ -290,7 +290,7 @@ export const dbproa112113270 = getDatabase(app);
 // export { messaging, getToken, onMessage };
 export { getToken, onMessage };
  
- export { rtdb,db,database, storage, storageBackup,storageBackup1};//,db, storage,   auth, signInWithEmailAndPassword, signInWithPopup,  createUserWithEmailAndPassword, GoogleAuthProvider
+ export { rtdb,db,database,app, storage, storageBackup,storageBackup1};//,db, storage,   auth, signInWithEmailAndPassword, signInWithPopup,  createUserWithEmailAndPassword, GoogleAuthProvider
 //  /*
  // const app = initializeApp(firebaseConfig);
  // const db = getFirestore(app);
