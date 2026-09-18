@@ -1,62 +1,62 @@
 
 
-// "use client";
-// // import { initFCM } from "@/lib/fcm";
-// // import { getMessaging, getToken } from "../config/firebase/messaging";
-// // import { initializeApp } from "firebase/app";
-// // import { app, database, getMessaging, getToken } from "../config/firebase";
-// // import { ref, set } from "firebase/database";
-
-// import { app, database } from "../config/firebase";
-// import { getMessaging, getToken } from "firebase/messaging";
+"use client";
+// import { initFCM } from "@/lib/fcm";
+// import { getMessaging, getToken } from "../config/firebase/messaging";
+// import { initializeApp } from "firebase/app";
+// import { app, database, getMessaging, getToken } from "../config/firebase";
 // import { ref, set } from "firebase/database";
 
+import { app, database } from "../config/firebase";
+import { getMessaging, getToken } from "firebase/messaging";
+import { ref, set } from "firebase/database";
 
-// export async function initFCM(userId) {
-//   try {
-//     // 🔥 cek browser support
-//     if (typeof window === "undefined") return;
 
-//     const messaging = getMessaging(app);
+export async function initFCM(userId) {
+  try {
+    // 🔥 cek browser support
+    if (typeof window === "undefined") return;
 
-//     // 🔥 minta izin notif
-//     const permission = await Notification.requestPermission();
+    const messaging = getMessaging(app);
 
-//     if (permission !== "granted") {
-//       console.log("❌ Notif tidak diizinkan");
-//       return;
-//     }
+    // 🔥 minta izin notif
+    const permission = await Notification.requestPermission();
 
-//     // 🔥 ambil token
-//     const token = await getToken(messaging, {
-//       vapidKey: "BBiuf9a4Q4j75ggkXu-oSJ2ywJZhQL-D01V0V3RdOK4sQ449WDmXo11Km1MTTF5eioVgPg4B_SGhzhDWEhAW580",
-//     });
+    if (permission !== "granted") {
+      console.log("❌ Notif tidak diizinkan");
+      return;
+    }
 
-//     if (!token) {
-//       console.log("❌ Token tidak didapat");
-//       return;
-//     }
+    // 🔥 ambil token
+    const token = await getToken(messaging, {
+      vapidKey: "BBiuf9a4Q4j75ggkXu-oSJ2ywJZhQL-D01V0V3RdOK4sQ449WDmXo11Km1MTTF5eioVgPg4B_SGhzhDWEhAW580",
+    });
 
-//     console.log("✅ FCM Token:", token);
+    if (!token) {
+      console.log("❌ Token tidak didapat");
+      return;
+    }
 
-//     // 🔥 device ID unik
-//     let deviceId = localStorage.getItem("deviceId");
-//     if (!deviceId) {
-//       deviceId = crypto.randomUUID();
-//       localStorage.setItem("deviceId", deviceId);
-//     }
+    console.log("✅ FCM Token:", token);
 
-//     // 🔥 simpan ke realtime database
-//     await set(ref(database, `usersDevices/${userId}/${deviceId}`), {
-//       fcmToken: token,
-//       notificationPermission: permission,
-//       isActive: true,
-//       onChatPage: true,
-//       lastSeen: Date.now(),
-//     });
+    // 🔥 device ID unik
+    let deviceId = localStorage.getItem("deviceId");
+    if (!deviceId) {
+      deviceId = crypto.randomUUID();
+      localStorage.setItem("deviceId", deviceId);
+    }
 
-//     console.log("✔ Token disimpan ke Firebase");
-//   } catch (error) {
-//     console.error("❌ FCM ERROR:", error);
-//   }
-// }
+    // 🔥 simpan ke realtime database
+    await set(ref(database, `usersDevices/${userId}/${deviceId}`), {
+      fcmToken: token,
+      notificationPermission: permission,
+      isActive: true,
+      onChatPage: true,
+      lastSeen: Date.now(),
+    });
+
+    console.log("✔ Token disimpan ke Firebase");
+  } catch (error) {
+    console.error("❌ FCM ERROR:", error);
+  }
+}
