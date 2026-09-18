@@ -120,7 +120,8 @@ const app = initializeApp(firebaseConfigBackup1);
 // //  const db = getFirestore(app);
 
  const storage = getStorage(app);
- const storageBackup = getStorage(appBackup);
+ const storageBackup = getStorage(app);
+ // const storageBackup = getStorage(appBackup);
  const storageBackup1 = getStorage(appBackup1);
 
 
@@ -173,6 +174,13 @@ export const messaging = typeof window !== 'undefined' ? getMessaging(app) : nul
 // export const databaseapotek1 = getDatabase(appapotek1);
 
 // export const dbapotek1 = getDatabase(appapotek1);
+export const storageapotek1 = getStorage(app);
+
+export const rtdbapotek1 = getDatabase(app);
+
+export const databaseapotek1 = getDatabase(app);
+
+export const dbapotek1 = getDatabase(app);
 
 
 // const firebaseConfiuas13256 = {
@@ -198,6 +206,13 @@ export const messaging = typeof window !== 'undefined' ? getMessaging(app) : nul
 // export const databaseuas13256 = getDatabase(appuas13256);
 
 // export const dbuas13256 = getDatabase(appuas13256);
+export const storageuas13256 = getStorage(app);
+
+export const rtdbuas13256 = getDatabase(app);
+
+export const databaseuas13256 = getDatabase(app);
+
+export const dbuas13256 = getDatabase(app);
 
 
 // const firebaseConfiguas_firebase_a0256 = {
@@ -223,6 +238,13 @@ export const messaging = typeof window !== 'undefined' ? getMessaging(app) : nul
 // export const databaseuas_firebase_a0256 = getDatabase(appuas_firebase_a0256);
 
 // export const dbuas_firebase_a0256 = getDatabase(appuas_firebase_a0256);
+export const storageuas_firebase_a0256 = getStorage(app);
+
+export const rtdbuas_firebase_a0256 = getDatabase(app);
+
+export const databaseuas_firebase_a0256 = getDatabase(app);
+
+export const dbuas_firebase_a0256 = getDatabase(appuas_firebase_a0256);
 
 
 // const firebaseConfigproa112113270 = {
