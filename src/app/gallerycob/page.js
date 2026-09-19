@@ -234,7 +234,7 @@ export default function GalleryPage() {
                 setViewerOpen(true);
               }}>
                 {isImage(file.name) && (
-                  <Image
+                  <img
                     src={getImage(file.name)}
                     width={300}
                     height={300}
