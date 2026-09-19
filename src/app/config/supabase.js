@@ -14,7 +14,7 @@
 import { createClient } from "@supabase/supabase-js";
 
 export const supabase = createClient(
-  process.env.NEXT_CDN_URL,
+  process.env.NEXT_PUB_CDN_URL,
   process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY
   
 );
