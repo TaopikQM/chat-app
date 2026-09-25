@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { storage, database } from '../config/firebase';
 import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { ref as databaseRef, push, set } from 'firebase/database';
-
+  
 const AddFiles = () => {
   const [uploadType, setUploadType] = useState('files'); // "files" or "folder"
   const [selectedFiles, setSelectedFiles] = useState([]);
